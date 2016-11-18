@@ -1,0 +1,21 @@
+%%%-------------------------------------------------------------------
+%%% @author Evgeny Khramtsov <ekhramtsov@process-one.net>
+%%% @copyright (C) 2016, Evgeny Khramtsov
+%%% @doc
+%%%
+%%% @end
+%%% Created : 18 Nov 2016 by Evgeny Khramtsov <ekhramtsov@process-one.net>
+%%%-------------------------------------------------------------------
+{application, xmpp,
+ [{description,  "XMPP library for Erlang/Elixir"},
+  {vsn,          "1.0.0"},
+  {modules,      []},
+  {registered,   []},
+  {applications, [kernel, stdlib]},
+  {mod,          {xmpp, []}},
+  {env,          []}]}.
+
+%% Local Variables:
+%% mode: erlang
+%% End:
+%% vim: set filetype=erlang tabstop=8:
