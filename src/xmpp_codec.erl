@@ -5376,12 +5376,14 @@ encode({stat, _, _, _, _} = Stat, TopXMLNS) ->
     encode_stat(Stat, TopXMLNS);
 encode({stats, _, _} = Query, TopXMLNS) ->
     encode_stats(Query, TopXMLNS);
-encode({iq, _, _, _, _, _, _} = Iq, TopXMLNS) ->
+encode({iq, _, _, _, _, _, _, _} = Iq, TopXMLNS) ->
     encode_iq(Iq, TopXMLNS);
-encode({message, _, _, _, _, _, _, _, _, _} = Message,
+encode({message, _, _, _, _, _, _, _, _, _, _} =
+	   Message,
        TopXMLNS) ->
     encode_message(Message, TopXMLNS);
-encode({presence, _, _, _, _, _, _, _, _, _} = Presence,
+encode({presence, _, _, _, _, _, _, _, _, _, _} =
+	   Presence,
        TopXMLNS) ->
     encode_presence(Presence, TopXMLNS);
 encode({gone, _} = Gone, TopXMLNS) ->
@@ -5911,7 +5913,7 @@ get_name({hint, 'no-storage'}) -> <<"no-storage">>;
 get_name({hint, 'no-store'}) -> <<"no-store">>;
 get_name({hint, store}) -> <<"store">>;
 get_name({identity, _, _, _, _}) -> <<"identity">>;
-get_name({iq, _, _, _, _, _, _}) -> <<"iq">>;
+get_name({iq, _, _, _, _, _, _, _}) -> <<"iq">>;
 get_name({last, _, _}) -> <<"query">>;
 get_name({legacy_auth, _, _, _, _}) -> <<"query">>;
 get_name({mam_archived, _, _}) -> <<"archived">>;
@@ -5922,7 +5924,7 @@ get_name({mam_query, _, _, _, _, _, _, _, _}) ->
 get_name({mam_result, _, _, _, _}) -> <<"result">>;
 get_name({media, _, _, _}) -> <<"media">>;
 get_name({media_uri, _, _}) -> <<"uri">>;
-get_name({message, _, _, _, _, _, _, _, _, _}) ->
+get_name({message, _, _, _, _, _, _, _, _, _, _}) ->
     <<"message">>;
 get_name({mix_join, _, _}) -> <<"join">>;
 get_name({mix_leave}) -> <<"leave">>;
@@ -5949,7 +5951,7 @@ get_name({p1_ack}) -> <<"ack">>;
 get_name({p1_push}) -> <<"push">>;
 get_name({p1_rebind}) -> <<"rebind">>;
 get_name({ping}) -> <<"ping">>;
-get_name({presence, _, _, _, _, _, _, _, _, _}) ->
+get_name({presence, _, _, _, _, _, _, _, _, _, _}) ->
     <<"presence">>;
 get_name({privacy_item, _, _, _, _, _, _, _, _}) ->
     <<"item">>;
@@ -6188,7 +6190,8 @@ get_ns({hint, 'no-store'}) -> <<"urn:xmpp:hints">>;
 get_ns({hint, store}) -> <<"urn:xmpp:hints">>;
 get_ns({identity, _, _, _, _}) ->
     <<"http://jabber.org/protocol/disco#info">>;
-get_ns({iq, _, _, _, _, _, _}) -> <<"jabber:client">>;
+get_ns({iq, _, _, _, _, _, _, _}) ->
+    <<"jabber:client">>;
 get_ns({last, _, _}) -> <<"jabber:iq:last">>;
 get_ns({legacy_auth, _, _, _, _}) ->
     <<"jabber:iq:auth">>;
@@ -6202,7 +6205,7 @@ get_ns({media, _, _, _}) ->
     <<"urn:xmpp:media-element">>;
 get_ns({media_uri, _, _}) ->
     <<"urn:xmpp:media-element">>;
-get_ns({message, _, _, _, _, _, _, _, _, _}) ->
+get_ns({message, _, _, _, _, _, _, _, _, _, _}) ->
     <<"jabber:client">>;
 get_ns({mix_join, _, _}) -> <<"urn:xmpp:mix:0">>;
 get_ns({mix_leave}) -> <<"urn:xmpp:mix:0">>;
@@ -6240,7 +6243,7 @@ get_ns({p1_ack}) -> <<"p1:ack">>;
 get_ns({p1_push}) -> <<"p1:push">>;
 get_ns({p1_rebind}) -> <<"p1:rebind">>;
 get_ns({ping}) -> <<"urn:xmpp:ping">>;
-get_ns({presence, _, _, _, _, _, _, _, _, _}) ->
+get_ns({presence, _, _, _, _, _, _, _, _, _, _}) ->
     <<"jabber:client">>;
 get_ns({privacy_item, _, _, _, _, _, _, _, _}) ->
     <<"jabber:iq:privacy">>;
@@ -6510,13 +6513,6 @@ pp(bookmark_storage, 2) -> [conference, url];
 pp(stat_error, 2) -> [code, reason];
 pp(stat, 4) -> [name, units, value, error];
 pp(stats, 2) -> [list, node];
-pp(iq, 6) -> [id, type, lang, from, to, sub_els];
-pp(message, 9) ->
-    [id, type, lang, from, to, subject, body, thread,
-     sub_els];
-pp(presence, 9) ->
-    [id, type, lang, from, to, show, status, priority,
-     sub_els];
 pp(gone, 1) -> [uri];
 pp(redirect, 1) -> [uri];
 pp(stanza_error, 6) ->
@@ -6552,7 +6548,6 @@ pp(register, 22) ->
 pp(xmpp_session, 1) -> [optional];
 pp(ping, 0) -> [];
 pp(time, 2) -> [tzo, utc];
-pp(text, 2) -> [lang, data];
 pp('see-other-host', 1) -> [host];
 pp(stream_error, 2) -> [reason, text];
 pp(vcard_name, 5) ->
@@ -31374,7 +31369,7 @@ decode_presence(__TopXMLNS, __IgnoreEls,
 	decode_presence_attrs(__TopXMLNS, _attrs, undefined,
 			      undefined, undefined, undefined, undefined),
     {presence, Id, Type, Lang, From, To, Show, Status,
-     Priority, __Els}.
+     Priority, __Els, #{}}.
 
 decode_presence_els(__TopXMLNS, __IgnoreEls, [], Status,
 		    Show, Priority, __Els) ->
@@ -31545,7 +31540,7 @@ decode_presence_attrs(__TopXMLNS, [], Id, Type, From,
      'decode_presence_attr_xml:lang'(__TopXMLNS, Lang)}.
 
 encode_presence({presence, Id, Type, Lang, From, To,
-		 Show, Status, Priority, __Els},
+		 Show, Status, Priority, __Els, _},
 		__TopXMLNS) ->
     __NewTopXMLNS = choose_top_xmlns(<<>>,
 				     [<<"jabber:client">>, <<"jabber:server">>,
@@ -31804,7 +31799,7 @@ decode_message(__TopXMLNS, __IgnoreEls,
 	decode_message_attrs(__TopXMLNS, _attrs, undefined,
 			     undefined, undefined, undefined, undefined),
     {message, Id, Type, Lang, From, To, Subject, Body,
-     Thread, __Els}.
+     Thread, __Els, #{}}.
 
 decode_message_els(__TopXMLNS, __IgnoreEls, [], Thread,
 		   Subject, Body, __Els) ->
@@ -31978,7 +31973,7 @@ decode_message_attrs(__TopXMLNS, [], Id, Type, From, To,
      'decode_message_attr_xml:lang'(__TopXMLNS, Lang)}.
 
 encode_message({message, Id, Type, Lang, From, To,
-		Subject, Body, Thread, __Els},
+		Subject, Body, Thread, __Els, _},
 	       __TopXMLNS) ->
     __NewTopXMLNS = choose_top_xmlns(<<>>,
 				     [<<"jabber:client">>, <<"jabber:server">>,
@@ -32241,7 +32236,7 @@ decode_iq(__TopXMLNS, __IgnoreEls,
 						 _attrs, undefined, undefined,
 						 undefined, undefined,
 						 undefined),
-    {iq, Id, Type, Lang, From, To, __Els}.
+    {iq, Id, Type, Lang, From, To, __Els, #{}}.
 
 decode_iq_els(__TopXMLNS, __IgnoreEls, [], __Els) ->
     lists:reverse(__Els);
@@ -32298,7 +32293,7 @@ decode_iq_attrs(__TopXMLNS, [], Id, Type, From, To,
      decode_iq_attr_to(__TopXMLNS, To),
      'decode_iq_attr_xml:lang'(__TopXMLNS, Lang)}.
 
-encode_iq({iq, Id, Type, Lang, From, To, __Els},
+encode_iq({iq, Id, Type, Lang, From, To, __Els, _},
 	  __TopXMLNS) ->
     __NewTopXMLNS = choose_top_xmlns(<<>>,
 				     [<<"jabber:client">>, <<"jabber:server">>,

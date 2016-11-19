@@ -1,11 +1,48 @@
 %% Created automatically by XML generator (fxml_gen.erl)
 %% Source: xmpp_codec.spec
 
+-record(text, {lang = <<>> :: binary(),
+               data = <<>> :: binary()}).
+-type text() :: #text{}.
+
 -type iq_type() :: get | set | result | error.
 -type message_type() :: chat | error | groupchat | headline | normal.
 -type presence_type() :: available | error | probe | subscribe |
 			 subscribed | unavailable | unsubscribe |
 			 unsubscribed.
+
+-record(iq, {id = <<>> :: binary(),
+             type :: iq_type(),
+             lang = <<>> :: binary(),
+             from :: jid:jid(),
+             to :: jid:jid(),
+             sub_els = [] :: [xmpp_element() | fxml:xmlel()],
+	     meta = #{} :: map()}).
+-type iq() :: #iq{}.
+
+-record(message, {id = <<>> :: binary(),
+                  type = normal :: message_type(),
+                  lang = <<>> :: binary(),
+                  from :: jid:jid(),
+                  to :: jid:jid(),
+                  subject = [] :: [#text{}],
+                  body = [] :: [#text{}],
+                  thread :: binary(),
+                  sub_els = [] :: [xmpp_element() | fxml:xmlel()],
+		  meta = #{} :: map()}).
+-type message() :: #message{}.
+
+-record(presence, {id = <<>> :: binary(),
+                   type = available :: presence_type(),
+                   lang = <<>> :: binary(),
+                   from :: jid:jid(),
+                   to :: jid:jid(),
+                   show :: 'away' | 'chat' | 'dnd' | 'xa',
+                   status = [] :: [#text{}],
+                   priority :: integer(),
+                   sub_els = [] :: [xmpp_element() | fxml:xmlel()],
+		   meta = #{} :: map()}).
+-type presence() :: #presence{}.
 
 -record(vcard_xupdate, {us = {<<>>, <<>>} :: {binary(), binary()},
 			hash :: binary()}).
@@ -62,14 +99,6 @@
 		       'no-permanent-store' | 'no-permanent-storage'}).
 -type hint() :: #hint{}.
 
--record(iq, {id = <<>> :: binary(),
-             type :: 'error' | 'get' | 'result' | 'set',
-             lang = <<>> :: binary(),
-             from :: jid:jid(),
-             to :: jid:jid(),
-             sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
--type iq() :: #iq{}.
-
 -record(feature_register, {}).
 -type feature_register() :: #feature_register{}.
 
@@ -96,10 +125,6 @@
 -record(rsm_first, {index :: non_neg_integer(),
                     data = <<>> :: binary()}).
 -type rsm_first() :: #rsm_first{}.
-
--record(text, {lang = <<>> :: binary(),
-               data = <<>> :: binary()}).
--type text() :: #text{}.
 
 -record(streamhost, {jid :: jid:jid(),
                      host = <<>> :: binary(),
@@ -331,17 +356,6 @@
                        jid :: jid:jid()}).
 -type ps_subscribe() :: #ps_subscribe{}.
 
--record(message, {id = <<>> :: binary(),
-                  type = normal :: 'chat' | 'error' | 'groupchat' | 'headline' | 'normal',
-                  lang = <<>> :: binary(),
-                  from :: jid:jid(),
-                  to :: jid:jid(),
-                  subject = [] :: [#text{}],
-                  body = [] :: [#text{}],
-                  thread :: binary(),
-                  sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
--type message() :: #message{}.
-
 -record(sasl_auth, {mechanism = <<>> :: binary(),
                     text = <<>> :: binary()}).
 -type sasl_auth() :: #sasl_auth{}.
@@ -428,17 +442,6 @@
                    subid = <<>> :: binary(),
                    retract :: binary()}).
 -type ps_items() :: #ps_items{}.
-
--record(presence, {id = <<>> :: binary(),
-                   type = available :: 'available' | 'error' | 'probe' | 'subscribe' | 'subscribed' | 'unavailable' | 'unsubscribe' | 'unsubscribed',
-                   lang = <<>> :: binary(),
-                   from :: jid:jid(),
-                   to :: jid:jid(),
-                   show :: 'away' | 'chat' | 'dnd' | 'xa',
-                   status = [] :: [#text{}],
-                   priority :: integer(),
-                   sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
--type presence() :: #presence{}.
 
 -record(sic, {ip :: inet:ip_address(),
               port :: non_neg_integer(),

@@ -1,3 +1,8 @@
+
+-record(text, {lang = <<>> :: binary(),
+               data = <<>> :: binary()}).
+-type text() :: #text{}.
+
 -xml(last,
      #elem{name = <<"query">>,
            xmlns = <<"jabber:iq:last">>,
@@ -320,11 +325,20 @@
 			 subscribed | unavailable | unsubscribe |
 			 unsubscribed.
 
+-record(iq, {id = <<>> :: binary(),
+             type :: iq_type(),
+             lang = <<>> :: binary(),
+             from :: jid:jid(),
+             to :: jid:jid(),
+             sub_els = [] :: [xmpp_element() | fxml:xmlel()],
+	     meta = #{} :: map()}).
+-type iq() :: #iq{}.
+
 -xml(iq,
      #elem{name = <<"iq">>,
            xmlns = [<<"jabber:client">>, <<"jabber:server">>,
 		    <<"jabber:component:accept">>],
-           result = {iq, '$id', '$type', '$lang', '$from', '$to', '$_els'},
+           result = {iq, '$id', '$type', '$lang', '$from', '$to', '$_els', '$_'},
            attrs = [#attr{name = <<"id">>,
                           required = true},
                     #attr{name = <<"type">>,
@@ -362,12 +376,24 @@
 		    <<"jabber:component:accept">>],
            result = '$cdata'}).
 
+-record(message, {id = <<>> :: binary(),
+                  type = normal :: message_type(),
+                  lang = <<>> :: binary(),
+                  from :: jid:jid(),
+                  to :: jid:jid(),
+                  subject = [] :: [#text{}],
+                  body = [] :: [#text{}],
+                  thread :: binary(),
+                  sub_els = [] :: [xmpp_element() | fxml:xmlel()],
+		  meta = #{} :: map()}).
+-type message() :: #message{}.
+
 -xml(message,
      #elem{name = <<"message">>,
            xmlns = [<<"jabber:client">>, <<"jabber:server">>,
 		    <<"jabber:component:accept">>],
            result = {message, '$id', '$type', '$lang', '$from', '$to',
-                     '$subject', '$body', '$thread', '$_els'},
+                     '$subject', '$body', '$thread', '$_els', '$_'},
            attrs = [#attr{name = <<"id">>},
                     #attr{name = <<"type">>,
                           default = normal,
@@ -411,12 +437,24 @@
            cdata = #cdata{enc = {enc_int, []},
                           dec = {dec_int, []}}}).
 
+-record(presence, {id = <<>> :: binary(),
+                   type = available :: presence_type(),
+                   lang = <<>> :: binary(),
+                   from :: jid:jid(),
+                   to :: jid:jid(),
+                   show :: 'away' | 'chat' | 'dnd' | 'xa',
+                   status = [] :: [#text{}],
+                   priority :: integer(),
+                   sub_els = [] :: [xmpp_element() | fxml:xmlel()],
+		   meta = #{} :: map()}).
+-type presence() :: #presence{}.
+
 -xml(presence,
      #elem{name = <<"presence">>,
            xmlns = [<<"jabber:client">>, <<"jabber:server">>,
 		    <<"jabber:component:accept">>],
            result = {presence, '$id', '$type', '$lang', '$from', '$to',
-                     '$show', '$status', '$priority', '$_els'},
+                     '$show', '$status', '$priority', '$_els', '$_'},
            attrs = [#attr{name = <<"id">>},
                     #attr{name = <<"type">>,
 			  default = available,
