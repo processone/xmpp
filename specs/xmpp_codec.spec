@@ -3498,7 +3498,7 @@
 
 -spec dec_tzo(_) -> {integer(), integer()}.
 dec_tzo(Val) ->
-    [H1, M1] = str:tokens(Val, <<":">>),
+    [H1, M1] = binary:split(Val, <<":">>),
     H = binary_to_integer(H1),
     M = binary_to_integer(M1),
     if H >= -12, H =< 12, M >= 0, M < 60  ->
