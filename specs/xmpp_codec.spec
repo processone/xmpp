@@ -328,8 +328,8 @@
 -record(iq, {id = <<>> :: binary(),
              type :: iq_type(),
              lang = <<>> :: binary(),
-             from :: jid:jid(),
-             to :: jid:jid(),
+             from :: undefined | jid:jid(),
+             to :: undefined | jid:jid(),
              sub_els = [] :: [xmpp_element() | fxml:xmlel()],
 	     meta = #{} :: map()}).
 -type iq() :: #iq{}.
@@ -379,11 +379,11 @@
 -record(message, {id = <<>> :: binary(),
                   type = normal :: message_type(),
                   lang = <<>> :: binary(),
-                  from :: jid:jid(),
-                  to :: jid:jid(),
+                  from :: undefined | jid:jid(),
+                  to :: undefined | jid:jid(),
                   subject = [] :: [#text{}],
                   body = [] :: [#text{}],
-                  thread :: binary(),
+                  thread :: undefined | binary(),
                   sub_els = [] :: [xmpp_element() | fxml:xmlel()],
 		  meta = #{} :: map()}).
 -type message() :: #message{}.
@@ -440,11 +440,11 @@
 -record(presence, {id = <<>> :: binary(),
                    type = available :: presence_type(),
                    lang = <<>> :: binary(),
-                   from :: jid:jid(),
-                   to :: jid:jid(),
-                   show :: 'away' | 'chat' | 'dnd' | 'xa',
+                   from :: undefined | jid:jid(),
+                   to :: undefined | jid:jid(),
+                   show :: undefined | 'away' | 'chat' | 'dnd' | 'xa',
                    status = [] :: [#text{}],
-                   priority :: integer(),
+                   priority :: undefined | integer(),
                    sub_els = [] :: [xmpp_element() | fxml:xmlel()],
 		   meta = #{} :: map()}).
 -type presence() :: #presence{}.
@@ -1600,7 +1600,7 @@
 	   result = '$cdata'}).
 
 -record(vcard_xupdate, {us = {<<>>, <<>>} :: {binary(), binary()},
-			hash :: binary()}).
+			hash :: undefined | binary()}).
 -type vcard_xupdate() :: #vcard_xupdate{}.
 
 -xml(vcard_xupdate,
@@ -1728,7 +1728,7 @@
 			 node = <<>> :: binary(),
 			 type :: member | none | outcast |
 				 owner | publisher | publish_only,
-			 jid :: jid:jid()}).
+			 jid :: undefined | jid:jid()}).
 -type ps_affiliation() :: #ps_affiliation{}.
 
 -xml(pubsub_affiliation,

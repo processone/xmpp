@@ -14,8 +14,8 @@
 -record(iq, {id = <<>> :: binary(),
              type :: iq_type(),
              lang = <<>> :: binary(),
-             from :: jid:jid(),
-             to :: jid:jid(),
+             from :: undefined | jid:jid(),
+             to :: undefined | jid:jid(),
              sub_els = [] :: [xmpp_element() | fxml:xmlel()],
 	     meta = #{} :: map()}).
 -type iq() :: #iq{}.
@@ -23,11 +23,11 @@
 -record(message, {id = <<>> :: binary(),
                   type = normal :: message_type(),
                   lang = <<>> :: binary(),
-                  from :: jid:jid(),
-                  to :: jid:jid(),
+                  from :: undefined | jid:jid(),
+                  to :: undefined | jid:jid(),
                   subject = [] :: [#text{}],
                   body = [] :: [#text{}],
-                  thread :: binary(),
+                  thread :: undefined | binary(),
                   sub_els = [] :: [xmpp_element() | fxml:xmlel()],
 		  meta = #{} :: map()}).
 -type message() :: #message{}.
@@ -35,24 +35,24 @@
 -record(presence, {id = <<>> :: binary(),
                    type = available :: presence_type(),
                    lang = <<>> :: binary(),
-                   from :: jid:jid(),
-                   to :: jid:jid(),
-                   show :: 'away' | 'chat' | 'dnd' | 'xa',
+                   from :: undefined | jid:jid(),
+                   to :: undefined | jid:jid(),
+                   show :: undefined | 'away' | 'chat' | 'dnd' | 'xa',
                    status = [] :: [#text{}],
-                   priority :: integer(),
+                   priority :: undefined | integer(),
                    sub_els = [] :: [xmpp_element() | fxml:xmlel()],
 		   meta = #{} :: map()}).
 -type presence() :: #presence{}.
 
 -record(vcard_xupdate, {us = {<<>>, <<>>} :: {binary(), binary()},
-			hash :: binary()}).
+			hash :: undefined | binary()}).
 -type vcard_xupdate() :: #vcard_xupdate{}.
 
 -record(ps_affiliation, {xmlns = <<>> :: binary(),
 			 node = <<>> :: binary(),
 			 type :: member | none | outcast |
 				 owner | publisher | publish_only,
-			 jid :: jid:jid()}).
+			 jid :: undefined | jid:jid()}).
 -type ps_affiliation() :: #ps_affiliation{}.
 
 -type ps_error_type() :: 'closed-node' | 'configuration-required' |
@@ -107,10 +107,10 @@
 -type adhoc_note() :: #adhoc_note{}.
 
 -record(address, {type :: 'bcc' | 'cc' | 'noreply' | 'ofrom' | 'replyroom' | 'replyto' | 'to',
-                  jid :: jid:jid(),
+                  jid :: undefined | jid:jid(),
                   desc = <<>> :: binary(),
                   node = <<>> :: binary(),
-                  delivered :: boolean()}).
+                  delivered :: 'false' | 'true' | 'undefined'}).
 -type address() :: #address{}.
 
 -record(sasl_success, {text = <<>> :: binary()}).
@@ -122,7 +122,7 @@
                      sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
 -type mam_result() :: #mam_result{}.
 
--record(rsm_first, {index :: non_neg_integer(),
+-record(rsm_first, {index :: 'undefined' | non_neg_integer(),
                     data = <<>> :: binary()}).
 -type rsm_first() :: #rsm_first{}.
 
@@ -143,7 +143,7 @@
 -type carbons_private() :: #carbons_private{}.
 
 -record(expire, {seconds :: non_neg_integer(),
-                 stored :: non_neg_integer()}).
+                 stored :: 'undefined' | non_neg_integer()}).
 -type expire() :: #expire{}.
 
 -record(muc_unsubscribe, {}).
@@ -161,20 +161,20 @@
 -type ping() :: #ping{}.
 
 -record(delay, {stamp :: erlang:timestamp(),
-                from :: jid:jid(),
+                from :: undefined | jid:jid(),
                 desc = <<>> :: binary()}).
 -type delay() :: #delay{}.
 
--record(muc_history, {maxchars :: non_neg_integer(),
-                      maxstanzas :: non_neg_integer(),
-                      seconds :: non_neg_integer(),
-                      since :: erlang:timestamp()}).
+-record(muc_history, {maxchars :: 'undefined' | non_neg_integer(),
+                      maxstanzas :: 'undefined' | non_neg_integer(),
+                      seconds :: 'undefined' | non_neg_integer(),
+                      since :: undefined | erlang:timestamp()}).
 -type muc_history() :: #muc_history{}.
 
 -record(thumbnail, {uri = <<>> :: binary(),
                     'media-type' = <<>> :: binary(),
-                    width :: non_neg_integer(),
-                    height :: non_neg_integer()}).
+                    width :: 'undefined' | non_neg_integer(),
+                    height :: 'undefined' | non_neg_integer()}).
 -type thumbnail() :: #thumbnail{}.
 
 -record(privilege_perm, {access :: 'message' | 'presence' | 'roster',
@@ -182,18 +182,18 @@
 -type privilege_perm() :: #privilege_perm{}.
 
 -record(muc_decline, {reason = <<>> :: binary(),
-                      from :: jid:jid(),
-                      to :: jid:jid()}).
+                      from :: undefined | jid:jid(),
+                      to :: undefined | jid:jid()}).
 -type muc_decline() :: #muc_decline{}.
 
 -record(sm_a, {h :: non_neg_integer(),
                xmlns = <<>> :: binary()}).
 -type sm_a() :: #sm_a{}.
 
--record(stream_start, {from :: jid:jid(),
-                       to :: jid:jid(),
+-record(stream_start, {from :: undefined | jid:jid(),
+                       to :: undefined | jid:jid(),
                        id = <<>> :: binary(),
-                       version :: {non_neg_integer(),non_neg_integer()},
+                       version :: 'undefined' | {non_neg_integer(),non_neg_integer()},
                        xmlns = <<>> :: binary(),
                        stream_xmlns = <<>> :: binary(),
                        db_xmlns = <<>> :: binary(),
@@ -211,12 +211,12 @@
 -record(starttls_proceed, {}).
 -type starttls_proceed() :: #starttls_proceed{}.
 
--record(forwarded, {delay :: #delay{},
+-record(forwarded, {delay :: 'undefined' | #delay{},
                     xml_els = [] :: [fxml:xmlel()]}).
 -type forwarded() :: #forwarded{}.
 
 -record(privilege, {perms = [] :: [#privilege_perm{}],
-                    forwarded :: #forwarded{}}).
+                    forwarded :: 'undefined' | #forwarded{}}).
 -type privilege() :: #privilege{}.
 
 -record(client_id, {id = <<>> :: binary()}).
@@ -227,7 +227,7 @@
                      xmlns = <<>> :: binary()}).
 -type sm_resumed() :: #sm_resumed{}.
 
--record(sm_enable, {max :: non_neg_integer(),
+-record(sm_enable, {max :: 'undefined' | non_neg_integer(),
                     resume = false :: boolean(),
                     xmlns = <<>> :: binary()}).
 -type sm_enable() :: #sm_enable{}.
@@ -247,7 +247,7 @@
 -record(x_conference, {jid :: jid:jid(),
                        password = <<>> :: binary(),
                        reason = <<>> :: binary(),
-                       continue :: boolean(),
+                       continue :: 'false' | 'true' | 'undefined',
                        thread = <<>> :: binary()}).
 -type x_conference() :: #x_conference{}.
 
@@ -261,7 +261,7 @@
 -record(db_verify, {from = <<>> :: binary(),
                     to = <<>> :: binary(),
                     id = <<>> :: binary(),
-                    type :: 'error' | 'invalid' | 'valid',
+                    type :: 'error' | 'invalid' | 'undefined' | 'valid',
                     key = <<>> :: binary(),
                     sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
 -type db_verify() :: #db_verify{}.
@@ -290,17 +290,17 @@
                       name = <<>> :: binary(),
                       groups = [] :: [binary()],
                       subscription = none :: 'both' | 'from' | 'none' | 'remove' | 'to',
-                      ask :: 'subscribe'}).
+                      ask :: 'subscribe' | 'undefined'}).
 -type roster_item() :: #roster_item{}.
 
 -record(roster_query, {items = [] :: [#roster_item{}],
-                       ver :: binary()}).
+                       ver :: 'undefined' | binary()}).
 -type roster_query() :: #roster_query{}.
 
 -record(sm_r, {xmlns = <<>> :: binary()}).
 -type sm_r() :: #sm_r{}.
 
--record(muc_actor, {jid :: jid:jid(),
+-record(muc_actor, {jid :: undefined | jid:jid(),
                     nick = <<>> :: binary()}).
 -type muc_actor() :: #muc_actor{}.
 
@@ -311,7 +311,7 @@
 -record(stat, {name = <<>> :: binary(),
                units = <<>> :: binary(),
                value = <<>> :: binary(),
-               error :: #stat_error{}}).
+               error :: 'undefined' | #stat_error{}}).
 -type stat() :: #stat{}.
 
 -record(addresses, {list = [] :: [#address{}]}).
@@ -326,7 +326,7 @@
 -record(starttls, {required = false :: boolean()}).
 -type starttls() :: #starttls{}.
 
--record(last, {seconds :: non_neg_integer(),
+-record(last, {seconds :: 'undefined' | non_neg_integer(),
                status = <<>> :: binary()}).
 -type last() :: #last{}.
 
@@ -335,7 +335,7 @@
 
 -record(sm_enabled, {id = <<>> :: binary(),
                      location = <<>> :: binary(),
-                     max :: non_neg_integer(),
+                     max :: 'undefined' | non_neg_integer(),
                      resume = false :: boolean(),
                      xmlns = <<>> :: binary()}).
 -type sm_enabled() :: #sm_enabled{}.
@@ -346,10 +346,10 @@
 -record(sasl_response, {text = <<>> :: binary()}).
 -type sasl_response() :: #sasl_response{}.
 
--record(legacy_auth, {username :: binary(),
-                      password :: binary(),
-                      digest :: binary(),
-                      resource :: binary()}).
+-record(legacy_auth, {username :: 'undefined' | binary(),
+                      password :: 'undefined' | binary(),
+                      digest :: 'undefined' | binary(),
+                      resource :: 'undefined' | binary()}).
 -type legacy_auth() :: #legacy_auth{}.
 
 -record(ps_subscribe, {node = <<>> :: binary(),
@@ -385,24 +385,24 @@
 
 -record(ps_subscription, {xmlns = <<>> :: binary(),
                           jid :: jid:jid(),
-                          type :: 'none' | 'pending' | 'subscribed' | 'unconfigured',
+                          type :: 'none' | 'pending' | 'subscribed' | 'unconfigured' | 'undefined',
                           node = <<>> :: binary(),
                           subid = <<>> :: binary(),
-                          expiry :: erlang:timestamp()}).
+                          expiry :: undefined | erlang:timestamp()}).
 -type ps_subscription() :: #ps_subscription{}.
 
 -record(bob_data, {cid = <<>> :: binary(),
-                   'max-age' :: non_neg_integer(),
+                   'max-age' :: 'undefined' | non_neg_integer(),
                    type = <<>> :: binary(),
                    data = <<>> :: binary()}).
 -type bob_data() :: #bob_data{}.
 
--record(muc_item, {actor :: #muc_actor{},
-                   continue :: binary(),
+-record(muc_item, {actor :: 'undefined' | #muc_actor{},
+                   continue :: 'undefined' | binary(),
                    reason = <<>> :: binary(),
-                   affiliation :: 'admin' | 'member' | 'none' | 'outcast' | 'owner',
-                   role :: 'moderator' | 'none' | 'participant' | 'visitor',
-                   jid :: jid:jid(),
+                   affiliation :: 'admin' | 'member' | 'none' | 'outcast' | 'owner' | 'undefined',
+                   role :: 'moderator' | 'none' | 'participant' | 'undefined' | 'visitor',
+                   jid :: undefined | jid:jid(),
                    nick = <<>> :: binary()}).
 -type muc_item() :: #muc_item{}.
 
@@ -413,9 +413,9 @@
 -type shim() :: #shim{}.
 
 -record(mam_prefs, {xmlns = <<>> :: binary(),
-                    default :: 'always' | 'never' | 'roster',
-                    always :: [jid:jid()],
-                    never :: [jid:jid()]}).
+                    default :: 'always' | 'never' | 'roster' | 'undefined',
+                    always :: undefined | [jid:jid()],
+                    never :: undefined | [jid:jid()]}).
 -type mam_prefs() :: #mam_prefs{}.
 
 -record(caps, {node = <<>> :: binary(),
@@ -424,8 +424,8 @@
                exts = [] :: [binary()]}).
 -type caps() :: #caps{}.
 
--record(muc, {history :: #muc_history{},
-              password :: binary()}).
+-record(muc, {history :: 'undefined' | #muc_history{},
+              password :: 'undefined' | binary()}).
 -type muc() :: #muc{}.
 
 -record(stream_features, {sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
@@ -438,13 +438,13 @@
 -record(ps_items, {xmlns = <<>> :: binary(),
                    node = <<>> :: binary(),
                    items = [] :: [#ps_item{}],
-                   max_items :: non_neg_integer(),
+                   max_items :: 'undefined' | non_neg_integer(),
                    subid = <<>> :: binary(),
-                   retract :: binary()}).
+                   retract :: 'undefined' | binary()}).
 -type ps_items() :: #ps_items{}.
 
--record(sic, {ip :: inet:ip_address(),
-              port :: non_neg_integer(),
+-record(sic, {ip :: undefined | inet:ip_address(),
+              port :: 'undefined' | non_neg_integer(),
               xmlns = <<>> :: binary()}).
 -type sic() :: #sic{}.
 
@@ -458,7 +458,7 @@
 -record(p1_rebind, {}).
 -type p1_rebind() :: #p1_rebind{}.
 
--record(compress_failure, {reason :: 'processing-failed' | 'setup-failed' | 'unsupported-method'}).
+-record(compress_failure, {reason :: 'processing-failed' | 'setup-failed' | 'undefined' | 'unsupported-method'}).
 -type compress_failure() :: #compress_failure{}.
 
 -record(sasl_abort, {}).
@@ -468,7 +468,7 @@
                  delivered = false :: boolean(),
                  displayed = false :: boolean(),
                  composing = false :: boolean(),
-                 id :: binary()}).
+                 id :: 'undefined' | binary()}).
 -type xevent() :: #xevent{}.
 
 -record(vcard_email, {home = false :: boolean(),
@@ -476,12 +476,12 @@
                       internet = false :: boolean(),
                       pref = false :: boolean(),
                       x400 = false :: boolean(),
-                      userid :: binary()}).
+                      userid :: 'undefined' | binary()}).
 -type vcard_email() :: #vcard_email{}.
 
 -record(db_result, {from = <<>> :: binary(),
                     to = <<>> :: binary(),
-                    type :: 'error' | 'invalid' | 'valid',
+                    type :: 'error' | 'invalid' | 'undefined' | 'valid',
                     key = <<>> :: binary(),
                     sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
 -type db_result() :: #db_result{}.
@@ -494,8 +494,8 @@
                      items = [] :: [#ps_item{}]}).
 -type ps_retract() :: #ps_retract{}.
 
--record(upload_slot, {get :: binary(),
-                      put :: binary(),
+-record(upload_slot, {get :: 'undefined' | binary(),
+                      put :: 'undefined' | binary(),
                       xmlns = <<>> :: binary()}).
 -type upload_slot() :: #upload_slot{}.
 
@@ -503,14 +503,14 @@
                           nick = <<>> :: binary()}).
 -type mix_participant() :: #mix_participant{}.
 
--record(vcard_geo, {lat :: binary(),
-                    lon :: binary()}).
+-record(vcard_geo, {lat :: 'undefined' | binary(),
+                    lon :: 'undefined' | binary()}).
 -type vcard_geo() :: #vcard_geo{}.
 
 -record(compressed, {}).
 -type compressed() :: #compressed{}.
 
--record(sasl_failure, {reason :: 'aborted' | 'account-disabled' | 'bad-protocol' | 'credentials-expired' | 'encryption-required' | 'incorrect-encoding' | 'invalid-authzid' | 'invalid-mechanism' | 'malformed-request' | 'mechanism-too-weak' | 'not-authorized' | 'temporary-auth-failure',
+-record(sasl_failure, {reason :: 'aborted' | 'account-disabled' | 'bad-protocol' | 'credentials-expired' | 'encryption-required' | 'incorrect-encoding' | 'invalid-authzid' | 'invalid-mechanism' | 'malformed-request' | 'mechanism-too-weak' | 'not-authorized' | 'temporary-auth-failure' | 'undefined',
                        text = [] :: [#text{}]}).
 -type sasl_failure() :: #sasl_failure{}.
 
@@ -528,7 +528,7 @@
 -type xdata_option() :: #xdata_option{}.
 
 -record(xdata_field, {label = <<>> :: binary(),
-                      type :: 'boolean' | 'fixed' | 'hidden' | 'jid-multi' | 'jid-single' | 'list-multi' | 'list-single' | 'text-multi' | 'text-private' | 'text-single',
+                      type :: 'boolean' | 'fixed' | 'hidden' | 'jid-multi' | 'jid-single' | 'list-multi' | 'list-single' | 'text-multi' | 'text-private' | 'text-single' | 'undefined',
                       var = <<>> :: binary(),
                       required = false :: boolean(),
                       desc = <<>> :: binary(),
@@ -537,12 +537,12 @@
                       sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
 -type xdata_field() :: #xdata_field{}.
 
--record(version, {name :: binary(),
-                  ver :: binary(),
-                  os :: binary()}).
+-record(version, {name :: 'undefined' | binary(),
+                  ver :: 'undefined' | binary(),
+                  os :: 'undefined' | binary()}).
 -type version() :: #version{}.
 
--record(bind, {jid :: jid:jid(),
+-record(bind, {jid :: undefined | jid:jid(),
                resource = <<>> :: binary()}).
 -type bind() :: #bind{}.
 
@@ -550,9 +550,9 @@
 -type rosterver_feature() :: #rosterver_feature{}.
 
 -record(muc_invite, {reason = <<>> :: binary(),
-                     from :: jid:jid(),
-                     to :: jid:jid(),
-                     continue :: binary()}).
+                     from :: undefined | jid:jid(),
+                     to :: undefined | jid:jid(),
+                     continue :: 'undefined' | binary()}).
 -type muc_invite() :: #muc_invite{}.
 
 -record(delegated, {ns = <<>> :: binary(),
@@ -563,42 +563,42 @@
 -type carbons_disable() :: #carbons_disable{}.
 
 -record(bytestreams, {hosts = [] :: [#streamhost{}],
-                      used :: jid:jid(),
-                      activate :: jid:jid(),
+                      used :: undefined | jid:jid(),
+                      activate :: undefined | jid:jid(),
                       dstaddr = <<>> :: binary(),
                       mode = tcp :: 'tcp' | 'udp',
                       sid = <<>> :: binary()}).
 -type bytestreams() :: #bytestreams{}.
 
--record(adhoc_actions, {execute :: 'complete' | 'next' | 'prev',
+-record(adhoc_actions, {execute :: 'complete' | 'next' | 'prev' | 'undefined',
                         prev = false :: boolean(),
                         next = false :: boolean(),
                         complete = false :: boolean()}).
 -type adhoc_actions() :: #adhoc_actions{}.
 
--record(vcard_org, {name :: binary(),
+-record(vcard_org, {name :: 'undefined' | binary(),
                     units = [] :: [binary()]}).
 -type vcard_org() :: #vcard_org{}.
 
--record(rsm_set, {'after' :: binary(),
-                  before :: binary(),
-                  count :: non_neg_integer(),
-                  first :: #rsm_first{},
-                  index :: non_neg_integer(),
-                  last :: binary(),
-                  max :: non_neg_integer()}).
+-record(rsm_set, {'after' :: 'undefined' | binary(),
+                  before :: 'undefined' | binary(),
+                  count :: 'undefined' | non_neg_integer(),
+                  first :: 'undefined' | #rsm_first{},
+                  index :: 'undefined' | non_neg_integer(),
+                  last :: 'undefined' | binary(),
+                  max :: 'undefined' | non_neg_integer()}).
 -type rsm_set() :: #rsm_set{}.
 
 -record(mam_fin, {xmlns = <<>> :: binary(),
                   id = <<>> :: binary(),
-                  rsm :: #rsm_set{},
-                  stable :: boolean(),
-                  complete :: boolean()}).
+                  rsm :: 'undefined' | #rsm_set{},
+                  stable :: 'false' | 'true' | 'undefined',
+                  complete :: 'false' | 'true' | 'undefined'}).
 -type mam_fin() :: #mam_fin{}.
 
 -record(disco_items, {node = <<>> :: binary(),
                       items = [] :: [#disco_item{}],
-                      rsm :: #rsm_set{}}).
+                      rsm :: 'undefined' | #rsm_set{}}).
 -type disco_items() :: #disco_items{}.
 
 -record(vcard_tel, {home = false :: boolean(),
@@ -614,41 +614,41 @@
                     isdn = false :: boolean(),
                     pcs = false :: boolean(),
                     pref = false :: boolean(),
-                    number :: binary()}).
+                    number :: 'undefined' | binary()}).
 -type vcard_tel() :: #vcard_tel{}.
 
 -record(media_uri, {type = <<>> :: binary(),
                     uri = <<>> :: binary()}).
 -type media_uri() :: #media_uri{}.
 
--record(media, {height :: non_neg_integer(),
-                width :: non_neg_integer(),
+-record(media, {height :: 'undefined' | non_neg_integer(),
+                width :: 'undefined' | non_neg_integer(),
                 uri = [] :: [#media_uri{}]}).
 -type media() :: #media{}.
 
 -record(muc_destroy, {xmlns = <<>> :: binary(),
-                      jid :: jid:jid(),
+                      jid :: undefined | jid:jid(),
                       reason = <<>> :: binary(),
-                      password :: binary()}).
+                      password :: 'undefined' | binary()}).
 -type muc_destroy() :: #muc_destroy{}.
 
--record(muc_user, {decline :: #muc_decline{},
-                   destroy :: #muc_destroy{},
+-record(muc_user, {decline :: 'undefined' | #muc_decline{},
+                   destroy :: 'undefined' | #muc_destroy{},
                    invites = [] :: [#muc_invite{}],
                    items = [] :: [#muc_item{}],
                    status_codes = [] :: [pos_integer()],
-                   password :: binary()}).
+                   password :: 'undefined' | binary()}).
 -type muc_user() :: #muc_user{}.
 
--record(vcard_key, {type :: binary(),
-                    cred :: binary()}).
+-record(vcard_key, {type :: 'undefined' | binary(),
+                    cred :: 'undefined' | binary()}).
 -type vcard_key() :: #vcard_key{}.
 
--record(vcard_name, {family :: binary(),
-                     given :: binary(),
-                     middle :: binary(),
-                     prefix :: binary(),
-                     suffix :: binary()}).
+-record(vcard_name, {family :: 'undefined' | binary(),
+                     given :: 'undefined' | binary(),
+                     middle :: 'undefined' | binary(),
+                     prefix :: 'undefined' | binary(),
+                     suffix :: 'undefined' | binary()}).
 -type vcard_name() :: #vcard_name{}.
 
 -record(identity, {category = <<>> :: binary(),
@@ -660,8 +660,8 @@
 -record(bookmark_conference, {name = <<>> :: binary(),
                               jid :: jid:jid(),
                               autojoin = false :: boolean(),
-                              nick :: binary(),
-                              password :: binary()}).
+                              nick :: 'undefined' | binary(),
+                              password :: 'undefined' | binary()}).
 -type bookmark_conference() :: #bookmark_conference{}.
 
 -record(xmpp_session, {optional = false :: boolean()}).
@@ -680,14 +680,14 @@
                 sid = <<>> :: binary()}).
 -type oob_x() :: #oob_x{}.
 
--record(vcard_sound, {phonetic :: binary(),
-                      binval :: binary(),
-                      extval :: binary()}).
+-record(vcard_sound, {phonetic :: 'undefined' | binary(),
+                      binval :: 'undefined' | binary(),
+                      extval :: 'undefined' | binary()}).
 -type vcard_sound() :: #vcard_sound{}.
 
--record(vcard_photo, {type :: binary(),
-                      binval :: binary(),
-                      extval :: binary()}).
+-record(vcard_photo, {type :: 'undefined' | binary(),
+                      binval :: 'undefined' | binary(),
+                      extval :: 'undefined' | binary()}).
 -type vcard_photo() :: #vcard_photo{}.
 
 -record(vcard_label, {home = false :: boolean(),
@@ -707,26 +707,26 @@
                     dom = false :: boolean(),
                     intl = false :: boolean(),
                     pref = false :: boolean(),
-                    pobox :: binary(),
-                    extadd :: binary(),
-                    street :: binary(),
-                    locality :: binary(),
-                    region :: binary(),
-                    pcode :: binary(),
-                    ctry :: binary()}).
+                    pobox :: 'undefined' | binary(),
+                    extadd :: 'undefined' | binary(),
+                    street :: 'undefined' | binary(),
+                    locality :: 'undefined' | binary(),
+                    region :: 'undefined' | binary(),
+                    pcode :: 'undefined' | binary(),
+                    ctry :: 'undefined' | binary()}).
 -type vcard_adr() :: #vcard_adr{}.
 
 -record(search_item, {jid :: jid:jid(),
-                      first :: binary(),
-                      last :: binary(),
-                      nick :: binary(),
-                      email :: binary()}).
+                      first :: 'undefined' | binary(),
+                      last :: 'undefined' | binary(),
+                      nick :: 'undefined' | binary(),
+                      email :: 'undefined' | binary()}).
 -type search_item() :: #search_item{}.
 
 -record(xdata, {type :: 'cancel' | 'form' | 'result' | 'submit',
                 instructions = [] :: [binary()],
-                title :: binary(),
-                reported :: [#xdata_field{}],
+                title :: 'undefined' | binary(),
+                reported :: 'undefined' | [#xdata_field{}],
                 items = [] :: [[#xdata_field{}]],
                 fields = [] :: [#xdata_field{}]}).
 -type xdata() :: #xdata{}.
@@ -737,93 +737,93 @@
 -record(adhoc_command, {node = <<>> :: binary(),
                         action = execute :: 'cancel' | 'complete' | 'execute' | 'next' | 'prev',
                         sid = <<>> :: binary(),
-                        status :: 'canceled' | 'completed' | 'executing',
+                        status :: 'canceled' | 'completed' | 'executing' | 'undefined',
                         lang = <<>> :: binary(),
-                        actions :: #adhoc_actions{},
+                        actions :: 'undefined' | #adhoc_actions{},
                         notes = [] :: [#adhoc_note{}],
-                        xdata :: #xdata{}}).
+                        xdata :: 'undefined' | #xdata{}}).
 -type adhoc_command() :: #adhoc_command{}.
 
--record(search, {instructions :: binary(),
-                 first :: binary(),
-                 last :: binary(),
-                 nick :: binary(),
-                 email :: binary(),
+-record(search, {instructions :: 'undefined' | binary(),
+                 first :: 'undefined' | binary(),
+                 last :: 'undefined' | binary(),
+                 nick :: 'undefined' | binary(),
+                 email :: 'undefined' | binary(),
                  items = [] :: [#search_item{}],
-                 xdata :: #xdata{}}).
+                 xdata :: 'undefined' | #xdata{}}).
 -type search() :: #search{}.
 
 -record(mam_query, {xmlns = <<>> :: binary(),
                     id = <<>> :: binary(),
-                    start :: erlang:timestamp(),
-                    'end' :: erlang:timestamp(),
-                    with :: jid:jid(),
-                    withtext :: binary(),
-                    rsm :: #rsm_set{},
-                    xdata :: #xdata{}}).
+                    start :: undefined | erlang:timestamp(),
+                    'end' :: undefined | erlang:timestamp(),
+                    with :: undefined | jid:jid(),
+                    withtext :: 'undefined' | binary(),
+                    rsm :: 'undefined' | #rsm_set{},
+                    xdata :: 'undefined' | #xdata{}}).
 -type mam_query() :: #mam_query{}.
 
--record(pubsub_owner, {affiliations :: {binary(),[#ps_affiliation{}]},
-                       configure :: {binary(),'undefined' | #xdata{}},
-                       default :: {binary(),'undefined' | #xdata{}},
-                       delete :: {binary(),binary()},
-                       purge :: binary(),
-                       subscriptions :: {binary(),[#ps_subscription{}]}}).
+-record(pubsub_owner, {affiliations :: 'undefined' | {binary(),[#ps_affiliation{}]},
+                       configure :: 'undefined' | {binary(),'undefined' | #xdata{}},
+                       default :: 'undefined' | {binary(),'undefined' | #xdata{}},
+                       delete :: 'undefined' | {binary(),binary()},
+                       purge :: 'undefined' | binary(),
+                       subscriptions :: 'undefined' | {binary(),[#ps_subscription{}]}}).
 -type pubsub_owner() :: #pubsub_owner{}.
 
 -record(ps_options, {node = <<>> :: binary(),
                      jid :: jid:jid(),
                      subid = <<>> :: binary(),
-                     xdata :: #xdata{}}).
+                     xdata :: 'undefined' | #xdata{}}).
 -type ps_options() :: #ps_options{}.
 
--record(pubsub, {subscriptions :: {binary(),[#ps_subscription{}]},
-                 subscription :: #ps_subscription{},
-                 affiliations :: {binary(),[#ps_affiliation{}]},
-                 publish :: #ps_publish{},
-                 publish_options :: #xdata{},
-                 subscribe :: #ps_subscribe{},
-                 unsubscribe :: #ps_unsubscribe{},
-                 options :: #ps_options{},
-                 items :: #ps_items{},
-                 retract :: #ps_retract{},
-                 create :: binary(),
-                 configure :: {binary(),'undefined' | #xdata{}},
-                 default :: {binary(),'undefined' | #xdata{}},
-                 delete :: {binary(),binary()},
-                 purge :: binary(),
-                 rsm :: #rsm_set{}}).
+-record(pubsub, {subscriptions :: 'undefined' | {binary(),[#ps_subscription{}]},
+                 subscription :: 'undefined' | #ps_subscription{},
+                 affiliations :: 'undefined' | {binary(),[#ps_affiliation{}]},
+                 publish :: 'undefined' | #ps_publish{},
+                 publish_options :: 'undefined' | #xdata{},
+                 subscribe :: 'undefined' | #ps_subscribe{},
+                 unsubscribe :: 'undefined' | #ps_unsubscribe{},
+                 options :: 'undefined' | #ps_options{},
+                 items :: 'undefined' | #ps_items{},
+                 retract :: 'undefined' | #ps_retract{},
+                 create :: 'undefined' | binary(),
+                 configure :: 'undefined' | {binary(),'undefined' | #xdata{}},
+                 default :: 'undefined' | {binary(),'undefined' | #xdata{}},
+                 delete :: 'undefined' | {binary(),binary()},
+                 purge :: 'undefined' | binary(),
+                 rsm :: 'undefined' | #rsm_set{}}).
 -type pubsub() :: #pubsub{}.
 
--record(ps_event, {items :: #ps_items{},
-                   purge :: binary(),
-                   subscription :: #ps_subscription{},
-                   delete :: {binary(),binary()},
-                   create :: binary(),
-                   configuration :: {binary(),'undefined' | #xdata{}}}).
+-record(ps_event, {items :: 'undefined' | #ps_items{},
+                   purge :: 'undefined' | binary(),
+                   subscription :: 'undefined' | #ps_subscription{},
+                   delete :: 'undefined' | {binary(),binary()},
+                   create :: 'undefined' | binary(),
+                   configuration :: 'undefined' | {binary(),'undefined' | #xdata{}}}).
 -type ps_event() :: #ps_event{}.
 
 -record(register, {registered = false :: boolean(),
                    remove = false :: boolean(),
-                   instructions :: binary(),
-                   username :: binary(),
-                   nick :: binary(),
-                   password :: binary(),
-                   name :: binary(),
-                   first :: binary(),
-                   last :: binary(),
-                   email :: binary(),
-                   address :: binary(),
-                   city :: binary(),
-                   state :: binary(),
-                   zip :: binary(),
-                   phone :: binary(),
-                   url :: binary(),
-                   date :: binary(),
-                   misc :: binary(),
-                   text :: binary(),
-                   key :: binary(),
-                   xdata :: #xdata{},
+                   instructions :: 'undefined' | binary(),
+                   username :: 'undefined' | binary(),
+                   nick :: 'undefined' | binary(),
+                   password :: 'undefined' | binary(),
+                   name :: 'undefined' | binary(),
+                   first :: 'undefined' | binary(),
+                   last :: 'undefined' | binary(),
+                   email :: 'undefined' | binary(),
+                   address :: 'undefined' | binary(),
+                   city :: 'undefined' | binary(),
+                   state :: 'undefined' | binary(),
+                   zip :: 'undefined' | binary(),
+                   phone :: 'undefined' | binary(),
+                   url :: 'undefined' | binary(),
+                   date :: 'undefined' | binary(),
+                   misc :: 'undefined' | binary(),
+                   text :: 'undefined' | binary(),
+                   key :: 'undefined' | binary(),
+                   xdata :: 'undefined' | #xdata{},
                    sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
 -type register() :: #register{}.
 
@@ -834,7 +834,7 @@
 -type disco_info() :: #disco_info{}.
 
 -record(offline_item, {node = <<>> :: binary(),
-                       action :: 'remove' | 'view'}).
+                       action :: 'remove' | 'undefined' | 'view'}).
 -type offline_item() :: #offline_item{}.
 
 -record(offline, {items = [] :: [#offline_item{}],
@@ -842,8 +842,8 @@
                   fetch = false :: boolean()}).
 -type offline() :: #offline{}.
 
--record(muc_owner, {destroy :: #muc_destroy{},
-                    config :: #xdata{},
+-record(muc_owner, {destroy :: 'undefined' | #muc_destroy{},
+                    config :: 'undefined' | #xdata{},
                     items = [] :: [#muc_item{}]}).
 -type muc_owner() :: #muc_owner{}.
 
@@ -851,29 +851,29 @@
 -type sasl_mechanisms() :: #sasl_mechanisms{}.
 
 -record(sm_failed, {reason :: atom() | #gone{} | #redirect{},
-                    h :: non_neg_integer(),
+                    h :: 'undefined' | non_neg_integer(),
                     xmlns = <<>> :: binary()}).
 -type sm_failed() :: #sm_failed{}.
 
 -record(stanza_error, {type :: 'auth' | 'cancel' | 'continue' | 'modify' | 'wait',
-                       code :: non_neg_integer(),
+                       code :: 'undefined' | non_neg_integer(),
                        by = <<>> :: binary(),
                        reason :: atom() | #gone{} | #redirect{},
-                       text :: #text{},
+                       text :: 'undefined' | #text{},
                        sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
 -type stanza_error() :: #stanza_error{}.
 
 -record(delegation, {delegated = [] :: [#delegated{}],
-                     forwarded :: #forwarded{}}).
+                     forwarded :: 'undefined' | #forwarded{}}).
 -type delegation() :: #delegation{}.
 
--record(mix_join, {jid :: jid:jid(),
+-record(mix_join, {jid :: undefined | jid:jid(),
                    subscribe = [] :: [binary()]}).
 -type mix_join() :: #mix_join{}.
 
 -record(privacy_item, {order :: non_neg_integer(),
                        action :: 'allow' | 'deny',
-                       type :: 'group' | 'jid' | 'subscription',
+                       type :: 'group' | 'jid' | 'subscription' | 'undefined',
                        value = <<>> :: binary(),
                        message = false :: boolean(),
                        iq = false :: boolean(),
@@ -886,52 +886,52 @@
 -type privacy_list() :: #privacy_list{}.
 
 -record(privacy_query, {lists = [] :: [#privacy_list{}],
-                        default :: 'none' | binary(),
-                        active :: 'none' | binary()}).
+                        default :: 'none' | 'undefined' | binary(),
+                        active :: 'none' | 'undefined' | binary()}).
 -type privacy_query() :: #privacy_query{}.
 
 -record(stream_error, {reason :: atom() | #'see-other-host'{},
-                       text :: #text{}}).
+                       text :: 'undefined' | #text{}}).
 -type stream_error() :: #stream_error{}.
 
--record(vcard_logo, {type :: binary(),
-                     binval :: binary(),
-                     extval :: binary()}).
+-record(vcard_logo, {type :: 'undefined' | binary(),
+                     binval :: 'undefined' | binary(),
+                     extval :: 'undefined' | binary()}).
 -type vcard_logo() :: #vcard_logo{}.
 
--record(vcard_temp, {version :: binary(),
-                     fn :: binary(),
-                     n :: #vcard_name{},
-                     nickname :: binary(),
-                     photo :: #vcard_photo{},
-                     bday :: binary(),
+-record(vcard_temp, {version :: 'undefined' | binary(),
+                     fn :: 'undefined' | binary(),
+                     n :: 'undefined' | #vcard_name{},
+                     nickname :: 'undefined' | binary(),
+                     photo :: 'undefined' | #vcard_photo{},
+                     bday :: 'undefined' | binary(),
                      adr = [] :: [#vcard_adr{}],
                      label = [] :: [#vcard_label{}],
                      tel = [] :: [#vcard_tel{}],
                      email = [] :: [#vcard_email{}],
-                     jabberid :: binary(),
-                     mailer :: binary(),
-                     tz :: binary(),
-                     geo :: #vcard_geo{},
-                     title :: binary(),
-                     role :: binary(),
-                     logo :: #vcard_logo{},
-                     org :: #vcard_org{},
+                     jabberid :: 'undefined' | binary(),
+                     mailer :: 'undefined' | binary(),
+                     tz :: 'undefined' | binary(),
+                     geo :: 'undefined' | #vcard_geo{},
+                     title :: 'undefined' | binary(),
+                     role :: 'undefined' | binary(),
+                     logo :: 'undefined' | #vcard_logo{},
+                     org :: 'undefined' | #vcard_org{},
                      categories = [] :: [binary()],
-                     note :: binary(),
-                     prodid :: binary(),
-                     rev :: binary(),
-                     sort_string :: binary(),
-                     sound :: #vcard_sound{},
-                     uid :: binary(),
-                     url :: binary(),
-                     class :: 'confidential' | 'private' | 'public',
-                     key :: #vcard_key{},
-                     desc :: binary()}).
+                     note :: 'undefined' | binary(),
+                     prodid :: 'undefined' | binary(),
+                     rev :: 'undefined' | binary(),
+                     sort_string :: 'undefined' | binary(),
+                     sound :: 'undefined' | #vcard_sound{},
+                     uid :: 'undefined' | binary(),
+                     url :: 'undefined' | binary(),
+                     class :: 'confidential' | 'private' | 'public' | 'undefined',
+                     key :: 'undefined' | #vcard_key{},
+                     desc :: 'undefined' | binary()}).
 -type vcard_temp() :: #vcard_temp{}.
 
--record(time, {tzo :: {integer(),integer()},
-               utc :: erlang:timestamp()}).
+-record(time, {tzo :: 'undefined' | {integer(),integer()},
+               utc :: undefined | erlang:timestamp()}).
 -type time() :: #time{}.
 
 -type xmpp_element() :: compression() |
