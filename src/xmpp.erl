@@ -250,12 +250,12 @@ get_name(#xmlel{name = Name}) ->
 get_name(Pkt) ->
     xmpp_codec:get_name(Pkt).
 
--spec decode(xmlel() | xmpp_element()) -> {ok, xmpp_element()} | {error, any()}.
+-spec decode(xmlel() | xmpp_element()) -> xmpp_element().
 decode(El) ->
     decode(El, ?NS_CLIENT, []).
 
 -spec decode(xmlel() | xmpp_element(), binary(), [proplists:property()]) ->
-		    {ok, xmpp_element()} | {error, any()}.
+		    xmpp_element().
 decode(#xmlel{} = El, TopXMLNS, Opts) ->
     xmpp_codec:decode(El, TopXMLNS, Opts);
 decode(Pkt, _, _) ->
