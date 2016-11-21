@@ -13418,10 +13418,11 @@ encode_rsm_after(Cdata, __TopXMLNS) ->
     _attrs = enc_xmlns_attrs(__NewTopXMLNS, __TopXMLNS),
     {xmlel, <<"after">>, _attrs, _els}.
 
-decode_rsm_after_cdata(__TopXMLNS, <<>>) -> <<>>;
+decode_rsm_after_cdata(__TopXMLNS, <<>>) ->
+    erlang:error({xmpp_codec,
+		  {missing_cdata, <<>>, <<"after">>, __TopXMLNS}});
 decode_rsm_after_cdata(__TopXMLNS, _val) -> _val.
 
-encode_rsm_after_cdata(<<>>, _acc) -> _acc;
 encode_rsm_after_cdata(_val, _acc) ->
     [{xmlcdata, _val} | _acc].
 
