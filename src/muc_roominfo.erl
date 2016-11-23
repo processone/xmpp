@@ -114,8 +114,7 @@ decode([#xdata_field{var = <<"muc#maxhistoryfetch">>,
        Acc, Required) ->
     try dec_int(Value, 0, infinity) of
       Result ->
-	  decode(Fs, [{maxhistoryfetch, Result} | Acc],
-		 lists:delete(<<"muc#maxhistoryfetch">>, Required))
+	  decode(Fs, [{maxhistoryfetch, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -144,8 +143,7 @@ decode([#xdata_field{var =
        Acc, Required) ->
     try [dec_jid(Value) || Value <- Values] of
       Result ->
-	  decode(Fs, [{contactjid, Result} | Acc],
-		 lists:delete(<<"muc#roominfo_contactjid">>, Required))
+	  decode(Fs, [{contactjid, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -159,8 +157,7 @@ decode([#xdata_field{var =
        Acc, Required) ->
     try Value of
       Result ->
-	  decode(Fs, [{description, Result} | Acc],
-		 lists:delete(<<"muc#roominfo_description">>, Required))
+	  decode(Fs, [{description, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -190,9 +187,7 @@ decode([#xdata_field{var = <<"muc#roominfo_lang">>,
 	| Fs],
        Acc, Required) ->
     try Value of
-      Result ->
-	  decode(Fs, [{lang, Result} | Acc],
-		 lists:delete(<<"muc#roominfo_lang">>, Required))
+      Result -> decode(Fs, [{lang, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -220,8 +215,7 @@ decode([#xdata_field{var = <<"muc#roominfo_ldapgroup">>,
        Acc, Required) ->
     try Value of
       Result ->
-	  decode(Fs, [{ldapgroup, Result} | Acc],
-		 lists:delete(<<"muc#roominfo_ldapgroup">>, Required))
+	  decode(Fs, [{ldapgroup, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -249,9 +243,7 @@ decode([#xdata_field{var = <<"muc#roominfo_logs">>,
 	| Fs],
        Acc, Required) ->
     try Value of
-      Result ->
-	  decode(Fs, [{logs, Result} | Acc],
-		 lists:delete(<<"muc#roominfo_logs">>, Required))
+      Result -> decode(Fs, [{logs, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -279,8 +271,7 @@ decode([#xdata_field{var = <<"muc#roominfo_occupants">>,
        Acc, Required) ->
     try dec_int(Value, 0, infinity) of
       Result ->
-	  decode(Fs, [{occupants, Result} | Acc],
-		 lists:delete(<<"muc#roominfo_occupants">>, Required))
+	  decode(Fs, [{occupants, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -309,8 +300,7 @@ decode([#xdata_field{var = <<"muc#roominfo_subject">>,
        Acc, Required) ->
     try Value of
       Result ->
-	  decode(Fs, [{subject, Result} | Acc],
-		 lists:delete(<<"muc#roominfo_subject">>, Required))
+	  decode(Fs, [{subject, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -339,8 +329,7 @@ decode([#xdata_field{var =
        Acc, Required) ->
     try dec_bool(Value) of
       Result ->
-	  decode(Fs, [{subjectmod, Result} | Acc],
-		 lists:delete(<<"muc#roominfo_subjectmod">>, Required))
+	  decode(Fs, [{subjectmod, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -372,10 +361,6 @@ decode([#xdata_field{var = Var} | Fs], Acc, Required) ->
 			  <<"http://jabber.org/protocol/muc#roominfo">>}});
        true -> decode(Fs, Acc, Required)
     end;
-decode([], _, [Var | _]) ->
-    erlang:error({?MODULE,
-		  {missing_required_var, Var,
-		   <<"http://jabber.org/protocol/muc#roominfo">>}});
 decode([], Acc, []) -> Acc.
 
 encode_maxhistoryfetch(Value, Translate) ->

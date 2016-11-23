@@ -85,8 +85,7 @@ decode([#xdata_field{var = <<"pubsub#access_model">>,
 		 [authorize, open, presence, roster, whitelist])
     of
       Result ->
-	  decode(Fs, [{access_model, Result} | Acc],
-		 lists:delete(<<"pubsub#access_model">>, Required))
+	  decode(Fs, [{access_model, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -118,11 +117,6 @@ decode([#xdata_field{var = Var} | Fs], Acc, Required) ->
 			    "ions">>}});
        true -> decode(Fs, Acc, Required)
     end;
-decode([], _, [Var | _]) ->
-    erlang:error({?MODULE,
-		  {missing_required_var, Var,
-		   <<"http://jabber.org/protocol/pubsub#publish-opt"
-		     "ions">>}});
 decode([], Acc, []) -> Acc.
 
 encode_access_model(Value, Options, Translate) ->

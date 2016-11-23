@@ -111,8 +111,7 @@ decode([#xdata_field{var = <<"pubsub#deliver">>,
        Acc, Required) ->
     try dec_bool(Value) of
       Result ->
-	  decode(Fs, [{deliver, Result} | Acc],
-		 lists:delete(<<"pubsub#deliver">>, Required))
+	  decode(Fs, [{deliver, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -140,9 +139,7 @@ decode([#xdata_field{var = <<"pubsub#digest">>,
 	| Fs],
        Acc, Required) ->
     try dec_bool(Value) of
-      Result ->
-	  decode(Fs, [{digest, Result} | Acc],
-		 lists:delete(<<"pubsub#digest">>, Required))
+      Result -> decode(Fs, [{digest, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -172,8 +169,7 @@ decode([#xdata_field{var =
        Acc, Required) ->
     try Value of
       Result ->
-	  decode(Fs, [{digest_frequency, Result} | Acc],
-		 lists:delete(<<"pubsub#digest_frequency">>, Required))
+	  decode(Fs, [{digest_frequency, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -205,9 +201,7 @@ decode([#xdata_field{var = <<"pubsub#expire">>,
 	| Fs],
        Acc, Required) ->
     try Value of
-      Result ->
-	  decode(Fs, [{expire, Result} | Acc],
-		 lists:delete(<<"pubsub#expire">>, Required))
+      Result -> decode(Fs, [{expire, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -236,8 +230,7 @@ decode([#xdata_field{var = <<"pubsub#include_body">>,
        Acc, Required) ->
     try dec_bool(Value) of
       Result ->
-	  decode(Fs, [{include_body, Result} | Acc],
-		 lists:delete(<<"pubsub#include_body">>, Required))
+	  decode(Fs, [{include_body, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -269,8 +262,7 @@ decode([#xdata_field{var = <<"pubsub#show-values">>,
 	 || Value <- Values]
     of
       Result ->
-	  decode(Fs, [{'show-values', Result} | Acc],
-		 lists:delete(<<"pubsub#show-values">>, Required))
+	  decode(Fs, [{'show-values', Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -286,7 +278,7 @@ decode([#xdata_field{var =
     try dec_enum(Value, [items, nodes]) of
       Result ->
 	  decode(Fs, [{subscription_type, Result} | Acc],
-		 lists:delete(<<"pubsub#subscription_type">>, Required))
+		 Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -321,7 +313,7 @@ decode([#xdata_field{var =
     try dec_enum(Value, ['1', all]) of
       Result ->
 	  decode(Fs, [{subscription_depth, Result} | Acc],
-		 lists:delete(<<"pubsub#subscription_depth">>, Required))
+		 Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -356,11 +348,6 @@ decode([#xdata_field{var = Var} | Fs], Acc, Required) ->
 			    "ptions">>}});
        true -> decode(Fs, Acc, Required)
     end;
-decode([], _, [Var | _]) ->
-    erlang:error({?MODULE,
-		  {missing_required_var, Var,
-		   <<"http://jabber.org/protocol/pubsub#subscribe_o"
-		     "ptions">>}});
 decode([], Acc, []) -> Acc.
 
 encode_deliver(Value, Translate) ->

@@ -89,9 +89,7 @@ decode([#xdata_field{var = <<"muc#register_allow">>,
 	| Fs],
        Acc, Required) ->
     try dec_bool(Value) of
-      Result ->
-	  decode(Fs, [{allow, Result} | Acc],
-		 lists:delete(<<"muc#register_allow">>, Required))
+      Result -> decode(Fs, [{allow, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -118,9 +116,7 @@ decode([#xdata_field{var = <<"muc#register_email">>,
 	| Fs],
        Acc, Required) ->
     try Value of
-      Result ->
-	  decode(Fs, [{email, Result} | Acc],
-		 lists:delete(<<"muc#register_email">>, Required))
+      Result -> decode(Fs, [{email, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -148,8 +144,7 @@ decode([#xdata_field{var = <<"muc#register_faqentry">>,
        Acc, Required) ->
     try [Value || Value <- Values] of
       Result ->
-	  decode(Fs, [{faqentry, Result} | Acc],
-		 lists:delete(<<"muc#register_faqentry">>, Required))
+	  decode(Fs, [{faqentry, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -161,9 +156,7 @@ decode([#xdata_field{var = <<"muc#register_first">>,
 	| Fs],
        Acc, Required) ->
     try Value of
-      Result ->
-	  decode(Fs, [{first, Result} | Acc],
-		 lists:delete(<<"muc#register_first">>, Required))
+      Result -> decode(Fs, [{first, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -190,9 +183,7 @@ decode([#xdata_field{var = <<"muc#register_last">>,
 	| Fs],
        Acc, Required) ->
     try Value of
-      Result ->
-	  decode(Fs, [{last, Result} | Acc],
-		 lists:delete(<<"muc#register_last">>, Required))
+      Result -> decode(Fs, [{last, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -248,9 +239,7 @@ decode([#xdata_field{var = <<"muc#register_url">>,
 	| Fs],
        Acc, Required) ->
     try Value of
-      Result ->
-	  decode(Fs, [{url, Result} | Acc],
-		 lists:delete(<<"muc#register_url">>, Required))
+      Result -> decode(Fs, [{url, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,

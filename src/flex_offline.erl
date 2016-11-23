@@ -81,7 +81,7 @@ decode([#xdata_field{var = <<"number_of_messages">>,
     try dec_int(Value, 0, infinity) of
       Result ->
 	  decode(Fs, [{number_of_messages, Result} | Acc],
-		 lists:delete(<<"number_of_messages">>, Required))
+		 Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -110,10 +110,6 @@ decode([#xdata_field{var = Var} | Fs], Acc, Required) ->
 			  <<"http://jabber.org/protocol/offline">>}});
        true -> decode(Fs, Acc, Required)
     end;
-decode([], _, [Var | _]) ->
-    erlang:error({?MODULE,
-		  {missing_required_var, Var,
-		   <<"http://jabber.org/protocol/offline">>}});
 decode([], Acc, []) -> Acc.
 
 encode_number_of_messages(Value, Translate) ->

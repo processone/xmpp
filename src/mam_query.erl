@@ -78,9 +78,7 @@ decode([#xdata_field{var = <<"with">>, values = [Value]}
 	| Fs],
        Acc, Required) ->
     try dec_jid(Value) of
-      Result ->
-	  decode(Fs, [{with, Result} | Acc],
-		 lists:delete(<<"with">>, Required))
+      Result -> decode(Fs, [{with, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -100,9 +98,7 @@ decode([#xdata_field{var = <<"start">>,
 	| Fs],
        Acc, Required) ->
     try xmpp_util:decode_timestamp(Value) of
-      Result ->
-	  decode(Fs, [{start, Result} | Acc],
-		 lists:delete(<<"start">>, Required))
+      Result -> decode(Fs, [{start, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -122,9 +118,7 @@ decode([#xdata_field{var = <<"end">>, values = [Value]}
 	| Fs],
        Acc, Required) ->
     try xmpp_util:decode_timestamp(Value) of
-      Result ->
-	  decode(Fs, [{'end', Result} | Acc],
-		 lists:delete(<<"end">>, Required))
+      Result -> decode(Fs, [{'end', Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -145,8 +139,7 @@ decode([#xdata_field{var = <<"withtext">>,
        Acc, Required) ->
     try Value of
       Result ->
-	  decode(Fs, [{withtext, Result} | Acc],
-		 lists:delete(<<"withtext">>, Required))
+	  decode(Fs, [{withtext, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -172,9 +165,6 @@ decode([#xdata_field{var = Var} | Fs], Acc, Required) ->
 			 {unknown_var, Var, <<"urn:xmpp:mam:1">>}});
        true -> decode(Fs, Acc, Required)
     end;
-decode([], _, [Var | _]) ->
-    erlang:error({?MODULE,
-		  {missing_required_var, Var, <<"urn:xmpp:mam:1">>}});
 decode([], Acc, []) -> Acc.
 
 encode_with(Value, Translate) ->

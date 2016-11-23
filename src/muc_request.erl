@@ -129,9 +129,7 @@ decode([#xdata_field{var = <<"muc#jid">>,
 	| Fs],
        Acc, Required) ->
     try dec_jid(Value) of
-      Result ->
-	  decode(Fs, [{jid, Result} | Acc],
-		 lists:delete(<<"muc#jid">>, Required))
+      Result -> decode(Fs, [{jid, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -156,8 +154,7 @@ decode([#xdata_field{var = <<"muc#roomnick">>,
        Acc, Required) ->
     try Value of
       Result ->
-	  decode(Fs, [{roomnick, Result} | Acc],
-		 lists:delete(<<"muc#roomnick">>, Required))
+	  decode(Fs, [{roomnick, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -184,8 +181,7 @@ decode([#xdata_field{var = <<"muc#request_allow">>,
        Acc, Required) ->
     try dec_bool(Value) of
       Result ->
-	  decode(Fs, [{request_allow, Result} | Acc],
-		 lists:delete(<<"muc#request_allow">>, Required))
+	  decode(Fs, [{request_allow, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,

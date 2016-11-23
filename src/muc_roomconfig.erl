@@ -224,8 +224,7 @@ decode([#xdata_field{var = <<"muc#maxhistoryfetch">>,
        Acc, Required) ->
     try Value of
       Result ->
-	  decode(Fs, [{maxhistoryfetch, Result} | Acc],
-		 lists:delete(<<"muc#maxhistoryfetch">>, Required))
+	  decode(Fs, [{maxhistoryfetch, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -253,8 +252,7 @@ decode([#xdata_field{var = <<"muc#roomconfig_allowpm">>,
        Acc, Required) ->
     try Value of
       Result ->
-	  decode(Fs, [{allowpm, Result} | Acc],
-		 lists:delete(<<"muc#roomconfig_allowpm">>, Required))
+	  decode(Fs, [{allowpm, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -284,7 +282,7 @@ decode([#xdata_field{var = <<"allow_private_messages">>,
     try dec_bool(Value) of
       Result ->
 	  decode(Fs, [{allow_private_messages, Result} | Acc],
-		 lists:delete(<<"allow_private_messages">>, Required))
+		 Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -316,8 +314,7 @@ decode([#xdata_field{var =
       Result ->
 	  decode(Fs,
 		 [{allow_private_messages_from_visitors, Result} | Acc],
-		 lists:delete(<<"allow_private_messages_from_visitors">>,
-			      Required))
+		 Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -351,7 +348,7 @@ decode([#xdata_field{var = <<"allow_visitor_status">>,
     try dec_bool(Value) of
       Result ->
 	  decode(Fs, [{allow_visitor_status, Result} | Acc],
-		 lists:delete(<<"allow_visitor_status">>, Required))
+		 Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -381,7 +378,7 @@ decode([#xdata_field{var =
     try dec_bool(Value) of
       Result ->
 	  decode(Fs, [{allow_visitor_nickchange, Result} | Acc],
-		 lists:delete(<<"allow_visitor_nickchange">>, Required))
+		 Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -413,7 +410,7 @@ decode([#xdata_field{var = <<"allow_voice_requests">>,
     try dec_bool(Value) of
       Result ->
 	  decode(Fs, [{allow_voice_requests, Result} | Acc],
-		 lists:delete(<<"allow_voice_requests">>, Required))
+		 Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -442,7 +439,7 @@ decode([#xdata_field{var = <<"allow_subscription">>,
     try dec_bool(Value) of
       Result ->
 	  decode(Fs, [{allow_subscription, Result} | Acc],
-		 lists:delete(<<"allow_subscription">>, Required))
+		 Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -472,8 +469,7 @@ decode([#xdata_field{var =
     try dec_int(Value, 0, infinity) of
       Result ->
 	  decode(Fs, [{voice_request_min_interval, Result} | Acc],
-		 lists:delete(<<"voice_request_min_interval">>,
-			      Required))
+		 Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -505,7 +501,7 @@ decode([#xdata_field{var = <<"captcha_protected">>,
     try dec_bool(Value) of
       Result ->
 	  decode(Fs, [{captcha_protected, Result} | Acc],
-		 lists:delete(<<"captcha_protected">>, Required))
+		 Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -534,7 +530,7 @@ decode([#xdata_field{var = <<"captcha_whitelist">>,
     try [dec_jid(Value) || Value <- Values] of
       Result ->
 	  decode(Fs, [{captcha_whitelist, Result} | Acc],
-		 lists:delete(<<"captcha_whitelist">>, Required))
+		 Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -548,7 +544,7 @@ decode([#xdata_field{var = <<"allow_query_users">>,
     try dec_bool(Value) of
       Result ->
 	  decode(Fs, [{allow_query_users, Result} | Acc],
-		 lists:delete(<<"allow_query_users">>, Required))
+		 Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -577,9 +573,7 @@ decode([#xdata_field{var =
        Acc, Required) ->
     try dec_bool(Value) of
       Result ->
-	  decode(Fs, [{allowinvites, Result} | Acc],
-		 lists:delete(<<"muc#roomconfig_allowinvites">>,
-			      Required))
+	  decode(Fs, [{allowinvites, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -611,9 +605,7 @@ decode([#xdata_field{var =
        Acc, Required) ->
     try dec_bool(Value) of
       Result ->
-	  decode(Fs, [{changesubject, Result} | Acc],
-		 lists:delete(<<"muc#roomconfig_changesubject">>,
-			      Required))
+	  decode(Fs, [{changesubject, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -645,9 +637,7 @@ decode([#xdata_field{var =
        Acc, Required) ->
     try dec_bool(Value) of
       Result ->
-	  decode(Fs, [{enablelogging, Result} | Acc],
-		 lists:delete(<<"muc#roomconfig_enablelogging">>,
-			      Required))
+	  decode(Fs, [{enablelogging, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -679,9 +669,7 @@ decode([#xdata_field{var =
        Acc, Required) ->
     try [Value || Value <- Values] of
       Result ->
-	  decode(Fs, [{getmemberlist, Result} | Acc],
-		 lists:delete(<<"muc#roomconfig_getmemberlist">>,
-			      Required))
+	  decode(Fs, [{getmemberlist, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -693,9 +681,7 @@ decode([#xdata_field{var = <<"muc#roomconfig_lang">>,
 	| Fs],
        Acc, Required) ->
     try Value of
-      Result ->
-	  decode(Fs, [{lang, Result} | Acc],
-		 lists:delete(<<"muc#roomconfig_lang">>, Required))
+      Result -> decode(Fs, [{lang, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -722,9 +708,7 @@ decode([#xdata_field{var = <<"muc#roomconfig_pubsub">>,
 	| Fs],
        Acc, Required) ->
     try Value of
-      Result ->
-	  decode(Fs, [{pubsub, Result} | Acc],
-		 lists:delete(<<"muc#roomconfig_pubsub">>, Required))
+      Result -> decode(Fs, [{pubsub, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -753,8 +737,7 @@ decode([#xdata_field{var =
        Acc, Required) ->
     try dec_enum_int(Value, [none], 0, infinity) of
       Result ->
-	  decode(Fs, [{maxusers, Result} | Acc],
-		 lists:delete(<<"muc#roomconfig_maxusers">>, Required))
+	  decode(Fs, [{maxusers, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -786,9 +769,7 @@ decode([#xdata_field{var =
        Acc, Required) ->
     try dec_bool(Value) of
       Result ->
-	  decode(Fs, [{membersonly, Result} | Acc],
-		 lists:delete(<<"muc#roomconfig_membersonly">>,
-			      Required))
+	  decode(Fs, [{membersonly, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -820,9 +801,7 @@ decode([#xdata_field{var =
        Acc, Required) ->
     try dec_bool(Value) of
       Result ->
-	  decode(Fs, [{moderatedroom, Result} | Acc],
-		 lists:delete(<<"muc#roomconfig_moderatedroom">>,
-			      Required))
+	  decode(Fs, [{moderatedroom, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -854,7 +833,7 @@ decode([#xdata_field{var = <<"members_by_default">>,
     try dec_bool(Value) of
       Result ->
 	  decode(Fs, [{members_by_default, Result} | Acc],
-		 lists:delete(<<"members_by_default">>, Required))
+		 Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -884,8 +863,7 @@ decode([#xdata_field{var =
     try dec_bool(Value) of
       Result ->
 	  decode(Fs, [{passwordprotectedroom, Result} | Acc],
-		 lists:delete(<<"muc#roomconfig_passwordprotectedroom">>,
-			      Required))
+		 Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -919,9 +897,7 @@ decode([#xdata_field{var =
        Acc, Required) ->
     try dec_bool(Value) of
       Result ->
-	  decode(Fs, [{persistentroom, Result} | Acc],
-		 lists:delete(<<"muc#roomconfig_persistentroom">>,
-			      Required))
+	  decode(Fs, [{persistentroom, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -956,8 +932,7 @@ decode([#xdata_field{var =
     of
       Result ->
 	  decode(Fs, [{presencebroadcast, Result} | Acc],
-		 lists:delete(<<"muc#roomconfig_presencebroadcast">>,
-			      Required))
+		 Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -971,8 +946,7 @@ decode([#xdata_field{var =
        Acc, Required) ->
     try dec_bool(Value) of
       Result ->
-	  decode(Fs, [{publicroom, Result} | Acc],
-		 lists:delete(<<"muc#roomconfig_publicroom">>, Required))
+	  decode(Fs, [{publicroom, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -1003,8 +977,7 @@ decode([#xdata_field{var = <<"public_list">>,
        Acc, Required) ->
     try dec_bool(Value) of
       Result ->
-	  decode(Fs, [{public_list, Result} | Acc],
-		 lists:delete(<<"public_list">>, Required))
+	  decode(Fs, [{public_list, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -1032,8 +1005,7 @@ decode([#xdata_field{var =
        Acc, Required) ->
     try [dec_jid(Value) || Value <- Values] of
       Result ->
-	  decode(Fs, [{roomadmins, Result} | Acc],
-		 lists:delete(<<"muc#roomconfig_roomadmins">>, Required))
+	  decode(Fs, [{roomadmins, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -1047,8 +1019,7 @@ decode([#xdata_field{var =
        Acc, Required) ->
     try Value of
       Result ->
-	  decode(Fs, [{roomdesc, Result} | Acc],
-		 lists:delete(<<"muc#roomconfig_roomdesc">>, Required))
+	  decode(Fs, [{roomdesc, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -1080,8 +1051,7 @@ decode([#xdata_field{var =
        Acc, Required) ->
     try Value of
       Result ->
-	  decode(Fs, [{roomname, Result} | Acc],
-		 lists:delete(<<"muc#roomconfig_roomname">>, Required))
+	  decode(Fs, [{roomname, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -1113,8 +1083,7 @@ decode([#xdata_field{var =
        Acc, Required) ->
     try [dec_jid(Value) || Value <- Values] of
       Result ->
-	  decode(Fs, [{roomowners, Result} | Acc],
-		 lists:delete(<<"muc#roomconfig_roomowners">>, Required))
+	  decode(Fs, [{roomowners, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -1128,8 +1097,7 @@ decode([#xdata_field{var =
        Acc, Required) ->
     try Value of
       Result ->
-	  decode(Fs, [{roomsecret, Result} | Acc],
-		 lists:delete(<<"muc#roomconfig_roomsecret">>, Required))
+	  decode(Fs, [{roomsecret, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -1159,9 +1127,7 @@ decode([#xdata_field{var = <<"muc#roomconfig_whois">>,
 	| Fs],
        Acc, Required) ->
     try dec_enum(Value, [moderators, anyone]) of
-      Result ->
-	  decode(Fs, [{whois, Result} | Acc],
-		 lists:delete(<<"muc#roomconfig_whois">>, Required))
+      Result -> decode(Fs, [{whois, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -1187,9 +1153,7 @@ decode([#xdata_field{var = <<"mam">>, values = [Value]}
 	| Fs],
        Acc, Required) ->
     try dec_bool(Value) of
-      Result ->
-	  decode(Fs, [{mam, Result} | Acc],
-		 lists:delete(<<"mam">>, Required))
+      Result -> decode(Fs, [{mam, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -1213,10 +1177,6 @@ decode([#xdata_field{var = Var} | Fs], Acc, Required) ->
 			  <<"http://jabber.org/protocol/muc#roomconfig">>}});
        true -> decode(Fs, Acc, Required)
     end;
-decode([], _, [Var | _]) ->
-    erlang:error({?MODULE,
-		  {missing_required_var, Var,
-		   <<"http://jabber.org/protocol/muc#roomconfig">>}});
 decode([], Acc, []) -> Acc.
 
 encode_maxhistoryfetch(Value, Translate) ->

@@ -15,6 +15,7 @@
 	 enc_bool/1, enc_enum_int/1, format_error/1, enc_jid/1, dec_jid/1]).
 -include("xmpp.hrl").
 
+-type mfargs() :: {atom(), atom(), list()} | {atom(), list()}.
 -record(state, {mod_name :: atom(),
 		file_name :: string(),
 		erl = "" :: string(),
@@ -25,8 +26,8 @@
 		erl_dir = "" :: string(),
 		hrl_dir = "" :: string(),
 		prefix = [] :: [binary()],
-		dec_mfas = [] :: [{binary(), mfa()}],
-		enc_mfas = [] :: [{binary(), mfa()}],
+		dec_mfas = [] :: [{binary(), mfargs()}],
+		enc_mfas = [] :: [{binary(), mfargs()}],
 		specs = [] :: [{binary(), string()}],
 		required = [] :: [{binary(), boolean()} | binary()],
 		defaults = [] :: [{binary(), any()}]}).
@@ -358,15 +359,20 @@ mk_decoder([#xdata_field{var = Var, type = Type} = F|Fs], State) ->
 		true ->
 		     mk_decoding_fun(F, State)
 	     end,
+    DelRequired = case is_required(Var, State) of
+		      true ->
+			  io_lib:format("lists:delete(~p, Required)", [Var]);
+		      false ->
+			  "Required"
+		  end,
     emit("decode([#xdata_field{var = ~p, values = ~s}|Fs], Acc, Required) ->"
 	 "  try ~s of"
-	 "    Result -> decode(Fs, [{'~s', Result}|Acc],"
-	 "                     lists:delete(~p, Required))"
+	 "    Result -> decode(Fs, [{'~s', Result}|Acc], ~s)"
 	 "  catch _:_ ->"
 	 "    erlang:error({?MODULE, {bad_var_value, ~p, ~p}})"
 	 "  end;",
 	 [Var, ValVar, DecFun, var_to_rec_field(Var, State),
-	  Var, Var, State#state.ns]),
+	  DelRequired, Var, State#state.ns]),
     if not ?is_multi_type(Type) ->
 	    emit("decode([#xdata_field{var = ~p, values = []} = F|Fs],"
 		 "       Acc, Required) ->"
@@ -388,9 +394,13 @@ mk_decoder([], State) ->
 	 "    decode(Fs, Acc, Required)"
 	 "  end;",
 	 [State#state.ns]),
-    emit("decode([], _, [Var|_]) ->"
-	 "  erlang:error({?MODULE, {missing_required_var, Var, ~p}});~n",
-	 [State#state.ns]),
+    if State#state.required /= [] ->
+	    emit("decode([], _, [Var|_]) ->"
+		 "  erlang:error({?MODULE, {missing_required_var, Var, ~p}});~n",
+		 [State#state.ns]);
+       true ->
+	    ok
+    end,
     emit("decode([], Acc, []) -> Acc.~n").
 
 mk_encoders(Fs, State) ->

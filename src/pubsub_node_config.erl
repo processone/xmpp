@@ -208,8 +208,7 @@ decode([#xdata_field{var = <<"pubsub#access_model">>,
 		 [authorize, open, presence, roster, whitelist])
     of
       Result ->
-	  decode(Fs, [{access_model, Result} | Acc],
-		 lists:delete(<<"pubsub#access_model">>, Required))
+	  decode(Fs, [{access_model, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -237,8 +236,7 @@ decode([#xdata_field{var = <<"pubsub#body_xslt">>,
        Acc, Required) ->
     try Value of
       Result ->
-	  decode(Fs, [{body_xslt, Result} | Acc],
-		 lists:delete(<<"pubsub#body_xslt">>, Required))
+	  decode(Fs, [{body_xslt, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -267,9 +265,7 @@ decode([#xdata_field{var =
     try dec_enum(Value, [all, owners, whitelist]) of
       Result ->
 	  decode(Fs,
-		 [{children_association_policy, Result} | Acc],
-		 lists:delete(<<"pubsub#children_association_policy">>,
-			      Required))
+		 [{children_association_policy, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -305,8 +301,7 @@ decode([#xdata_field{var =
       Result ->
 	  decode(Fs,
 		 [{children_association_whitelist, Result} | Acc],
-		 lists:delete(<<"pubsub#children_association_whitelist">>,
-			      Required))
+		 Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -320,8 +315,7 @@ decode([#xdata_field{var = <<"pubsub#children">>,
        Acc, Required) ->
     try [Value || Value <- Values] of
       Result ->
-	  decode(Fs, [{children, Result} | Acc],
-		 lists:delete(<<"pubsub#children">>, Required))
+	  decode(Fs, [{children, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -334,8 +328,7 @@ decode([#xdata_field{var = <<"pubsub#children_max">>,
        Acc, Required) ->
     try Value of
       Result ->
-	  decode(Fs, [{children_max, Result} | Acc],
-		 lists:delete(<<"pubsub#children_max">>, Required))
+	  decode(Fs, [{children_max, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -363,8 +356,7 @@ decode([#xdata_field{var = <<"pubsub#collection">>,
        Acc, Required) ->
     try [Value || Value <- Values] of
       Result ->
-	  decode(Fs, [{collection, Result} | Acc],
-		 lists:delete(<<"pubsub#collection">>, Required))
+	  decode(Fs, [{collection, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -377,8 +369,7 @@ decode([#xdata_field{var = <<"pubsub#contact">>,
        Acc, Required) ->
     try [dec_jid(Value) || Value <- Values] of
       Result ->
-	  decode(Fs, [{contact, Result} | Acc],
-		 lists:delete(<<"pubsub#contact">>, Required))
+	  decode(Fs, [{contact, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -391,8 +382,7 @@ decode([#xdata_field{var = <<"pubsub#dataform_xslt">>,
        Acc, Required) ->
     try Value of
       Result ->
-	  decode(Fs, [{dataform_xslt, Result} | Acc],
-		 lists:delete(<<"pubsub#dataform_xslt">>, Required))
+	  decode(Fs, [{dataform_xslt, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -422,8 +412,7 @@ decode([#xdata_field{var =
     try dec_bool(Value) of
       Result ->
 	  decode(Fs, [{deliver_notifications, Result} | Acc],
-		 lists:delete(<<"pubsub#deliver_notifications">>,
-			      Required))
+		 Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -455,8 +444,7 @@ decode([#xdata_field{var =
        Acc, Required) ->
     try dec_bool(Value) of
       Result ->
-	  decode(Fs, [{deliver_payloads, Result} | Acc],
-		 lists:delete(<<"pubsub#deliver_payloads">>, Required))
+	  decode(Fs, [{deliver_payloads, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -487,8 +475,7 @@ decode([#xdata_field{var = <<"pubsub#description">>,
        Acc, Required) ->
     try Value of
       Result ->
-	  decode(Fs, [{description, Result} | Acc],
-		 lists:delete(<<"pubsub#description">>, Required))
+	  decode(Fs, [{description, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -516,8 +503,7 @@ decode([#xdata_field{var = <<"pubsub#item_expire">>,
        Acc, Required) ->
     try Value of
       Result ->
-	  decode(Fs, [{item_expire, Result} | Acc],
-		 lists:delete(<<"pubsub#item_expire">>, Required))
+	  decode(Fs, [{item_expire, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -545,8 +531,7 @@ decode([#xdata_field{var = <<"pubsub#itemreply">>,
        Acc, Required) ->
     try dec_enum(Value, [owner, publisher, none]) of
       Result ->
-	  decode(Fs, [{itemreply, Result} | Acc],
-		 lists:delete(<<"pubsub#itemreply">>, Required))
+	  decode(Fs, [{itemreply, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -573,8 +558,7 @@ decode([#xdata_field{var = <<"pubsub#language">>,
        Acc, Required) ->
     try Value of
       Result ->
-	  decode(Fs, [{language, Result} | Acc],
-		 lists:delete(<<"pubsub#language">>, Required))
+	  decode(Fs, [{language, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -601,8 +585,7 @@ decode([#xdata_field{var = <<"pubsub#max_items">>,
        Acc, Required) ->
     try dec_int(Value, 0, infinity) of
       Result ->
-	  decode(Fs, [{max_items, Result} | Acc],
-		 lists:delete(<<"pubsub#max_items">>, Required))
+	  decode(Fs, [{max_items, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -630,8 +613,7 @@ decode([#xdata_field{var =
        Acc, Required) ->
     try dec_int(Value, 0, infinity) of
       Result ->
-	  decode(Fs, [{max_payload_size, Result} | Acc],
-		 lists:delete(<<"pubsub#max_payload_size">>, Required))
+	  decode(Fs, [{max_payload_size, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -662,8 +644,7 @@ decode([#xdata_field{var = <<"pubsub#node_type">>,
        Acc, Required) ->
     try dec_enum(Value, [leaf, collection]) of
       Result ->
-	  decode(Fs, [{node_type, Result} | Acc],
-		 lists:delete(<<"pubsub#node_type">>, Required))
+	  decode(Fs, [{node_type, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -692,7 +673,7 @@ decode([#xdata_field{var =
     try dec_enum(Value, [normal, headline]) of
       Result ->
 	  decode(Fs, [{notification_type, Result} | Acc],
-		 lists:delete(<<"pubsub#notification_type">>, Required))
+		 Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -723,8 +704,7 @@ decode([#xdata_field{var = <<"pubsub#notify_config">>,
        Acc, Required) ->
     try dec_bool(Value) of
       Result ->
-	  decode(Fs, [{notify_config, Result} | Acc],
-		 lists:delete(<<"pubsub#notify_config">>, Required))
+	  decode(Fs, [{notify_config, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -752,8 +732,7 @@ decode([#xdata_field{var = <<"pubsub#notify_delete">>,
        Acc, Required) ->
     try dec_bool(Value) of
       Result ->
-	  decode(Fs, [{notify_delete, Result} | Acc],
-		 lists:delete(<<"pubsub#notify_delete">>, Required))
+	  decode(Fs, [{notify_delete, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -781,8 +760,7 @@ decode([#xdata_field{var = <<"pubsub#notify_retract">>,
        Acc, Required) ->
     try dec_bool(Value) of
       Result ->
-	  decode(Fs, [{notify_retract, Result} | Acc],
-		 lists:delete(<<"pubsub#notify_retract">>, Required))
+	  decode(Fs, [{notify_retract, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -810,8 +788,7 @@ decode([#xdata_field{var = <<"pubsub#notify_sub">>,
        Acc, Required) ->
     try dec_bool(Value) of
       Result ->
-	  decode(Fs, [{notify_sub, Result} | Acc],
-		 lists:delete(<<"pubsub#notify_sub">>, Required))
+	  decode(Fs, [{notify_sub, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -839,8 +816,7 @@ decode([#xdata_field{var = <<"pubsub#persist_items">>,
        Acc, Required) ->
     try dec_bool(Value) of
       Result ->
-	  decode(Fs, [{persist_items, Result} | Acc],
-		 lists:delete(<<"pubsub#persist_items">>, Required))
+	  decode(Fs, [{persist_items, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -870,8 +846,7 @@ decode([#xdata_field{var =
     try dec_bool(Value) of
       Result ->
 	  decode(Fs, [{presence_based_delivery, Result} | Acc],
-		 lists:delete(<<"pubsub#presence_based_delivery">>,
-			      Required))
+		 Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -902,8 +877,7 @@ decode([#xdata_field{var = <<"pubsub#publish_model">>,
        Acc, Required) ->
     try dec_enum(Value, [publishers, subscribers, open]) of
       Result ->
-	  decode(Fs, [{publish_model, Result} | Acc],
-		 lists:delete(<<"pubsub#publish_model">>, Required))
+	  decode(Fs, [{publish_model, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -931,8 +905,7 @@ decode([#xdata_field{var = <<"pubsub#purge_offline">>,
        Acc, Required) ->
     try dec_bool(Value) of
       Result ->
-	  decode(Fs, [{purge_offline, Result} | Acc],
-		 lists:delete(<<"pubsub#purge_offline">>, Required))
+	  decode(Fs, [{purge_offline, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -962,8 +935,7 @@ decode([#xdata_field{var =
     try [Value || Value <- Values] of
       Result ->
 	  decode(Fs, [{roster_groups_allowed, Result} | Acc],
-		 lists:delete(<<"pubsub#roster_groups_allowed">>,
-			      Required))
+		 Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -980,8 +952,7 @@ decode([#xdata_field{var =
     of
       Result ->
 	  decode(Fs, [{send_last_published_item, Result} | Acc],
-		 lists:delete(<<"pubsub#send_last_published_item">>,
-			      Required))
+		 Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -1012,8 +983,7 @@ decode([#xdata_field{var = <<"pubsub#tempsub">>,
        Acc, Required) ->
     try dec_bool(Value) of
       Result ->
-	  decode(Fs, [{tempsub, Result} | Acc],
-		 lists:delete(<<"pubsub#tempsub">>, Required))
+	  decode(Fs, [{tempsub, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -1040,8 +1010,7 @@ decode([#xdata_field{var = <<"pubsub#subscribe">>,
        Acc, Required) ->
     try dec_bool(Value) of
       Result ->
-	  decode(Fs, [{subscribe, Result} | Acc],
-		 lists:delete(<<"pubsub#subscribe">>, Required))
+	  decode(Fs, [{subscribe, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -1067,9 +1036,7 @@ decode([#xdata_field{var = <<"pubsub#title">>,
 	| Fs],
        Acc, Required) ->
     try Value of
-      Result ->
-	  decode(Fs, [{title, Result} | Acc],
-		 lists:delete(<<"pubsub#title">>, Required))
+      Result -> decode(Fs, [{title, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -1095,9 +1062,7 @@ decode([#xdata_field{var = <<"pubsub#type">>,
 	| Fs],
        Acc, Required) ->
     try Value of
-      Result ->
-	  decode(Fs, [{type, Result} | Acc],
-		 lists:delete(<<"pubsub#type">>, Required))
+      Result -> decode(Fs, [{type, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
@@ -1125,10 +1090,6 @@ decode([#xdata_field{var = Var} | Fs], Acc, Required) ->
 			  <<"http://jabber.org/protocol/pubsub#node_config">>}});
        true -> decode(Fs, Acc, Required)
     end;
-decode([], _, [Var | _]) ->
-    erlang:error({?MODULE,
-		  {missing_required_var, Var,
-		   <<"http://jabber.org/protocol/pubsub#node_config">>}});
 decode([], Acc, []) -> Acc.
 
 encode_access_model(Value, Options, Translate) ->

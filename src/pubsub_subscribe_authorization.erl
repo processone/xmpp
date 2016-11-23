@@ -191,9 +191,7 @@ decode([#xdata_field{var = <<"pubsub#subid">>,
 	| Fs],
        Acc, Required) ->
     try Value of
-      Result ->
-	  decode(Fs, [{subid, Result} | Acc],
-		 lists:delete(<<"pubsub#subid">>, Required))
+      Result -> decode(Fs, [{subid, Result} | Acc], Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
