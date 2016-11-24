@@ -158,6 +158,18 @@ decode([#xdata_field{var = <<"muc#maxhistoryfetch">>}
 		   <<"http://jabber.org/protocol/muc#roominfo">>}});
 decode([#xdata_field{var =
 			 <<"muc#roominfo_contactjid">>,
+		     values = [<<>>]} =
+	    F
+	| Fs],
+       Acc, Required) ->
+    %% Psi work-around
+    decode([F#xdata_field{var =
+			      <<"muc#roominfo_contactjid">>,
+			  values = []}
+	    | Fs],
+	   Acc, Required);
+decode([#xdata_field{var =
+			 <<"muc#roominfo_contactjid">>,
 		     values = Values}
 	| Fs],
        Acc, Required) ->

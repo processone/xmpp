@@ -314,6 +314,18 @@ decode([#xdata_field{var =
 		   <<"http://jabber.org/protocol/pubsub#node_config">>}});
 decode([#xdata_field{var =
 			 <<"pubsub#children_association_whitelist">>,
+		     values = [<<>>]} =
+	    F
+	| Fs],
+       Acc, Required) ->
+    %% Psi work-around
+    decode([F#xdata_field{var =
+			      <<"pubsub#children_association_whitelist">>,
+			  values = []}
+	    | Fs],
+	   Acc, Required);
+decode([#xdata_field{var =
+			 <<"pubsub#children_association_whitelist">>,
 		     values = Values}
 	| Fs],
        Acc, Required) ->
@@ -383,6 +395,16 @@ decode([#xdata_field{var = <<"pubsub#collection">>,
 			{bad_var_value, <<"pubsub#collection">>,
 			 <<"http://jabber.org/protocol/pubsub#node_config">>}})
     end;
+decode([#xdata_field{var = <<"pubsub#contact">>,
+		     values = [<<>>]} =
+	    F
+	| Fs],
+       Acc, Required) ->
+    %% Psi work-around
+    decode([F#xdata_field{var = <<"pubsub#contact">>,
+			  values = []}
+	    | Fs],
+	   Acc, Required);
 decode([#xdata_field{var = <<"pubsub#contact">>,
 		     values = Values}
 	| Fs],

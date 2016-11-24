@@ -383,6 +383,17 @@ mk_decoder([#xdata_field{var = Var, type = Type} = F|Fs], State) ->
 		      false ->
 			  "Required"
 		  end,
+    if Type == 'jid-multi' ->
+	    %% Psi work-around
+	    emit("decode([#xdata_field{var = ~p, values = [<<>>]} = F|Fs],"
+		 "       Acc, Required) ->~n"
+		 "    %% Psi work-around~n"
+		 "  decode([F#xdata_field{var = ~p, values = []}|Fs],"
+		 "         Acc, Required);",
+		 [Var, Var]);
+       true ->
+	    ok
+    end,
     emit("decode([#xdata_field{var = ~p, values = ~s}|Fs], Acc, Required) ->"
 	 "  try ~s of"
 	 "    Result -> decode(Fs, [{'~s', Result}|Acc], ~s)"

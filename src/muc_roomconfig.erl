@@ -544,6 +544,16 @@ decode([#xdata_field{var = <<"captcha_protected">>}
 		  {too_many_values, <<"captcha_protected">>,
 		   <<"http://jabber.org/protocol/muc#roomconfig">>}});
 decode([#xdata_field{var = <<"captcha_whitelist">>,
+		     values = [<<>>]} =
+	    F
+	| Fs],
+       Acc, Required) ->
+    %% Psi work-around
+    decode([F#xdata_field{var = <<"captcha_whitelist">>,
+			  values = []}
+	    | Fs],
+	   Acc, Required);
+decode([#xdata_field{var = <<"captcha_whitelist">>,
 		     values = Values}
 	| Fs],
        Acc, Required) ->
@@ -1020,6 +1030,18 @@ decode([#xdata_field{var = <<"public_list">>} | _], _,
 		   <<"http://jabber.org/protocol/muc#roomconfig">>}});
 decode([#xdata_field{var =
 			 <<"muc#roomconfig_roomadmins">>,
+		     values = [<<>>]} =
+	    F
+	| Fs],
+       Acc, Required) ->
+    %% Psi work-around
+    decode([F#xdata_field{var =
+			      <<"muc#roomconfig_roomadmins">>,
+			  values = []}
+	    | Fs],
+	   Acc, Required);
+decode([#xdata_field{var =
+			 <<"muc#roomconfig_roomadmins">>,
 		     values = Values}
 	| Fs],
        Acc, Required) ->
@@ -1096,6 +1118,18 @@ decode([#xdata_field{var =
     erlang:error({?MODULE,
 		  {too_many_values, <<"muc#roomconfig_roomname">>,
 		   <<"http://jabber.org/protocol/muc#roomconfig">>}});
+decode([#xdata_field{var =
+			 <<"muc#roomconfig_roomowners">>,
+		     values = [<<>>]} =
+	    F
+	| Fs],
+       Acc, Required) ->
+    %% Psi work-around
+    decode([F#xdata_field{var =
+			      <<"muc#roomconfig_roomowners">>,
+			  values = []}
+	    | Fs],
+	   Acc, Required);
 decode([#xdata_field{var =
 			 <<"muc#roomconfig_roomowners">>,
 		     values = Values}
