@@ -20,7 +20,7 @@
 	 set_type/2, set_to/2, set_from/2, set_id/2,
 	 set_lang/2, set_error/2, set_els/2, set_from_to/3,
 	 set_meta/2, put_meta/3, update_meta/3,
-	 format_error/1, is_stanza/1,
+	 format_error/1, io_format_error/1, is_stanza/1,
 	 set_subtag/2, get_subtag/2, remove_subtag/2, has_subtag/2,
 	 decode_els/1, decode_els/3, pp/1, get_name/1, get_text/1,
 	 mk_text/1, mk_text/2, is_known_tag/1, is_known_tag/2,
@@ -335,8 +335,13 @@ is_known_tag(El) ->
 is_known_tag(El, TopXMLNS) ->
     xmpp_codec:is_known_tag(El, TopXMLNS).
 
+-spec format_error(_) -> binary().
 format_error(Reason) ->
     xmpp_codec:format_error(Reason).
+
+-spec io_format_error(_) -> {binary(), [binary()]}.
+io_format_error(Reason) ->
+    xmpp_codec:io_format_error(Reason).
 
 -spec is_stanza(any()) -> boolean().
 is_stanza(#message{}) -> true;
