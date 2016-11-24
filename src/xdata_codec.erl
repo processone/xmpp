@@ -12,7 +12,8 @@
 -export([compile/1, compile/2]).
 -export([dec_int/1, dec_int/3, dec_enum/2, dec_bool/1, not_empty/1,
 	 dec_enum_int/2, dec_enum_int/4, enc_int/1, enc_enum/1,
-	 enc_bool/1, enc_enum_int/1, format_error/1, enc_jid/1, dec_jid/1]).
+	 enc_bool/1, enc_enum_int/1, format_error/1, io_format_error/1,
+	 enc_jid/1, dec_jid/1]).
 -include("xmpp.hrl").
 
 -type mfargs() :: {atom(), atom(), list()} | {atom(), list()}.
@@ -93,6 +94,9 @@ compile_file(Path, Opts) ->
 	    Err
     end.
 
+emit_raw(Str) ->
+    put(outbuf, get(outbuf) ++ Str).
+
 emit(Format) ->
     emit(Format, []).
 
@@ -170,6 +174,19 @@ format_error({unknown_var, Var, Type}) ->
 format_error({missing_required_var, Var, Type}) ->
     <<"Missing required field '", Var/binary, "' of type '", Type/binary, "'">>.
 
+io_format_error({form_type_mismatch, Type}) ->
+    {<<"FORM_TYPE doesn't match '~s'">>, [Type]};
+io_format_error({bad_var_value, Var, Type}) ->
+    {<<"Bad value of field '~s' of type '~s'">>, [Var, Type]};
+io_format_error({missing_value, Var, Type}) ->
+    {<<"Missing value of field '~s' of type '~s'">>, [Var, Type]};
+io_format_error({too_many_values, Var, Type}) ->
+    {<<"Too many values for field '~s' of type '~s'">>, [Var, Type]};
+io_format_error({unknown_var, Var, Type}) ->
+    {<<"Unknown field '~s' of type '~s'">>, [Var, Type]};
+io_format_error({missing_required_var, Var, Type}) ->
+    {<<"Missing required field '~s' of type '~s'">>, [Var, Type]}.
+
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
@@ -210,6 +227,7 @@ mk_aux_funs() ->
 		    fun(T) ->
 			    case catch erl_syntax_lib:analyze_function(T) of
 				{format_error, 1} -> true;
+				{io_format_error, 1} -> true;
 				{dec_int, 3} -> true;
 				{dec_int, 1} -> true;
 				{dec_enum, 2} -> true;
@@ -226,7 +244,7 @@ mk_aux_funs() ->
 				_ -> false
 			    end
 		    end, AbsCode),
-	    emit(erl_prettypr:format(erl_syntax:form_list(AST)) ++ io_lib:nl());
+	    emit_raw(erl_prettypr:format(erl_syntax:form_list(AST)) ++ io_lib:nl());
         error ->
             erlang:error({no_abstract_code_found, ?MODULE})
     end.
@@ -256,7 +274,7 @@ mk_comment_header(#state{file_name = Source, ns = NS, doc = Doc}) ->
 mk_header(#state{mod_name = Mod, hrl = Include} = State) ->
     mk_comment_header(State),
     emit("~n-module(~s).~n", [Mod]),
-    emit("-export([decode/1, decode/2, encode/1, encode/2, format_error/1]).~n"),
+    emit("-export([decode/1, decode/2, encode/1, encode/2, format_error/1, io_format_error/1]).~n"),
     emit("-include(\"xmpp_codec.hrl\").~n"),
     emit("-include(\"~s\").~n", [Include]),
     emit("-export_type([property/0, result/0, form/0]).~n").

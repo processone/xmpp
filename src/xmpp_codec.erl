@@ -8,9 +8,9 @@
 	   {enc_int, 1}, {get_attr, 2}, {enc_enum, 1},
 	   {choose_top_xmlns, 3}, {enc_xmlns_attrs, 2}]}).
 
--export([pp/1, format_error/1, decode/1, decode/2,
-	 decode/3, is_known_tag/2, encode/1, encode/2,
-	 get_name/1, get_ns/1]).
+-export([pp/1, format_error/1, io_format_error/1,
+	 decode/1, decode/2, decode/3, is_known_tag/2, encode/1,
+	 encode/2, get_name/1, get_ns/1]).
 
 decode(_el) -> decode(_el, <<>>, []).
 
@@ -6467,6 +6467,33 @@ format_error({unknown_tag, Tag, XMLNS}) ->
       "/> qualified by namespace '", XMLNS/binary, "'">>;
 format_error({missing_tag_xmlns, Tag}) ->
     <<"Missing namespace for tag <", Tag/binary, "/>">>.
+
+io_format_error({bad_attr_value, Attr, Tag, XMLNS}) ->
+    {<<"Bad value of attribute '~s' in tag <~s/> "
+       "qualified by namespace '~s'">>,
+     [Attr, Tag, XMLNS]};
+io_format_error({bad_cdata_value, <<>>, Tag, XMLNS}) ->
+    {<<"Bad value of cdata in tag <~s/> qualified "
+       "by namespace '~s'">>,
+     [Tag, XMLNS]};
+io_format_error({missing_tag, Tag, XMLNS}) ->
+    {<<"Missing tag <~s/> qualified by namespace "
+       "'~s'">>,
+     [Tag, XMLNS]};
+io_format_error({missing_attr, Attr, Tag, XMLNS}) ->
+    {<<"Missing attribute '~s' in tag <~s/> "
+       "qualified by namespace '~s'">>,
+     [Attr, Tag, XMLNS]};
+io_format_error({missing_cdata, <<>>, Tag, XMLNS}) ->
+    {<<"Missing cdata in tag <~s/> qualified "
+       "by namespace '~s'">>,
+     [Tag, XMLNS]};
+io_format_error({unknown_tag, Tag, XMLNS}) ->
+    {<<"Unknown tag <~s/> qualified by namespace "
+       "'~s'">>,
+     [Tag, XMLNS]};
+io_format_error({missing_tag_xmlns, Tag}) ->
+    {<<"Missing namespace for tag <~s/>">>, [Tag]}.
 
 get_attr(Attr, Attrs) ->
     case lists:keyfind(Attr, 1, Attrs) of

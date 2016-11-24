@@ -6,7 +6,7 @@
 -module(muc_roominfo).
 
 -export([decode/1, decode/2, encode/1, encode/2,
-	 format_error/1]).
+	 format_error/1, io_format_error/1]).
 
 -include("xmpp_codec.hrl").
 
@@ -55,6 +55,26 @@ format_error({unknown_var, Var, Type}) ->
 format_error({missing_required_var, Var, Type}) ->
     <<"Missing required field '", Var/binary, "' of type '",
       Type/binary, "'">>.
+
+io_format_error({form_type_mismatch, Type}) ->
+    {<<"FORM_TYPE doesn't match '~s'">>, [Type]};
+io_format_error({bad_var_value, Var, Type}) ->
+    {<<"Bad value of field '~s' of type '~s'">>,
+     [Var, Type]};
+io_format_error({missing_value, Var, Type}) ->
+    {<<"Missing value of field '~s' of type "
+       "'~s'">>,
+     [Var, Type]};
+io_format_error({too_many_values, Var, Type}) ->
+    {<<"Too many values for field '~s' of type "
+       "'~s'">>,
+     [Var, Type]};
+io_format_error({unknown_var, Var, Type}) ->
+    {<<"Unknown field '~s' of type '~s'">>, [Var, Type]};
+io_format_error({missing_required_var, Var, Type}) ->
+    {<<"Missing required field '~s' of type "
+       "'~s'">>,
+     [Var, Type]}.
 
 decode(Fs) -> decode(Fs, []).
 
