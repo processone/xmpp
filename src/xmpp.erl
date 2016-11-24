@@ -16,13 +16,15 @@
 -export([make_iq_result/1, make_iq_result/2, make_error/2,
 	 decode/1, decode/3, encode/1, encode/2,
 	 get_type/1, get_to/1, get_from/1, get_id/1,
-	 get_lang/1, get_error/1, get_els/1, get_ns/1,
+	 get_lang/1, get_error/1, get_els/1, get_ns/1, get_meta/1,
 	 set_type/2, set_to/2, set_from/2, set_id/2,
 	 set_lang/2, set_error/2, set_els/2, set_from_to/3,
-	 format_error/1, is_stanza/1, set_subtag/2, get_subtag/2,
-	 remove_subtag/2, has_subtag/2, decode_els/1, decode_els/3,
-	 pp/1, get_name/1, get_text/1, mk_text/1, mk_text/2,
-	 is_known_tag/1, is_known_tag/2, append_subtags/2]).
+	 set_meta/2, put_meta/3, update_meta/3,
+	 format_error/1, is_stanza/1,
+	 set_subtag/2, get_subtag/2, remove_subtag/2, has_subtag/2,
+	 decode_els/1, decode_els/3, pp/1, get_name/1, get_text/1,
+	 mk_text/1, mk_text/2, is_known_tag/1, is_known_tag/2,
+	 append_subtags/2]).
 
 %% XMPP errors
 -export([err_bad_request/0, err_bad_request/2,
@@ -251,6 +253,38 @@ get_name(#xmlel{name = Name}) ->
     Name;
 get_name(Pkt) ->
     xmpp_codec:get_name(Pkt).
+
+-spec get_meta(stanza()) -> map().
+get_meta(#iq{meta = M}) -> M;
+get_meta(#message{meta = M}) -> M;
+get_meta(#presence{meta = M}) -> M.
+
+-spec set_meta(iq(), map()) -> iq();
+	      (message(), map()) -> message();
+	      (presence(), map()) -> presence().
+set_meta(#iq{} = IQ, M) -> IQ#iq{meta = M};
+set_meta(#message{} = Msg, M) -> Msg#message{meta = M};
+set_meta(#presence{} = Pres, M) -> Pres#presence{meta = M}.
+
+-spec put_meta(iq(), any(), any()) -> iq();
+	      (message(), any(), any()) -> message();
+	      (presence(), any(), any()) -> presence().
+put_meta(#iq{meta = M} = IQ, K, V) ->
+    IQ#iq{meta = maps:put(K, V, M)};
+put_meta(#message{meta = M} = Msg, K, V) ->
+    Msg#message{meta = maps:put(K, V, M)};
+put_meta(#presence{meta = M} = Pres, K, V) ->
+    Pres#presence{meta = maps:put(K, V, M)}.
+
+-spec update_meta(iq(), any(), any()) -> iq();
+	      (message(), any(), any()) -> message();
+	      (presence(), any(), any()) -> presence().
+update_meta(#iq{meta = M} = IQ, K, V) ->
+    IQ#iq{meta = maps:update(K, V, M)};
+update_meta(#message{meta = M} = Msg, K, V) ->
+    Msg#message{meta = maps:update(K, V, M)};
+update_meta(#presence{meta = M} = Pres, K, V) ->
+    Pres#presence{meta = maps:update(K, V, M)}.
 
 -spec decode(xmlel() | xmpp_element()) -> xmpp_element().
 decode(El) ->
