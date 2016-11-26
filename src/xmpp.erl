@@ -888,6 +888,7 @@ match_tag(El, TagName, XMLNS) ->
 
 -spec translate(lang(), reason_text()) -> binary().
 translate(Lang, {Format, Args}) ->
-    translate(Lang, iolist_to_binary(io_lib:format(Format, Args)));
+    TranslatedFormat = translate:translate(Lang, iolist_to_binary(Format)),
+    iolist_to_binary(io_lib:format(TranslatedFormat, Args));
 translate(Lang, Text) ->
     translate:translate(Lang, Text).
