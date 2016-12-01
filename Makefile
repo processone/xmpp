@@ -4,7 +4,7 @@ ERL=erl
 all: src
 
 src:
-	$(REBAR) compile
+	$(REBAR) get-deps compile
 
 spec: src/xmpp_codec.erl include/xmpp_codec.hrl
 	$(ERL) -noinput +B -pa ebin -pa deps/*/ebin -eval \

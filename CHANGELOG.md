@@ -1,3 +1,8 @@
+# Version 1.1.3
+
+* Prepare release on hex.pm (Mickaël Rémond)
+* Add missing license (Mickaël Rémond)
+
 # Version 1.1.2
 
 * Use fixed dependencies (Christophe Romain)
