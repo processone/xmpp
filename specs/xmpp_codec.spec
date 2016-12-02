@@ -2546,8 +2546,8 @@
 -xml(muc_subscribe,
      #elem{name = <<"subscribe">>,
 	   xmlns = <<"urn:xmpp:mucsub:0">>,
-	   result = {muc_subscribe, '$nick', '$events'},
-	   attrs = [#attr{name = <<"nick">>, required = true}],
+	   result = {muc_subscribe, '$nick', '$password', '$events'},
+	   attrs = [#attr{name = <<"nick">>, required = true}, #attr{name = <<"password">>}],
 	   refs = [#ref{name = muc_subscribe_event, label = '$events'}]}).
 
 -xml(muc_unsubscribe,

@@ -201,6 +201,7 @@
 -type stream_start() :: #stream_start{}.
 
 -record(muc_subscribe, {nick = <<>> :: binary(),
+                        password = <<>> :: binary(),
                         events = [] :: [binary()]}).
 -type muc_subscribe() :: #muc_subscribe{}.
 
