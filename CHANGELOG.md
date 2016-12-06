@@ -1,3 +1,7 @@
+# Version 1.1.4
+
+* Support for password on MUC subcribe (Badlop)
+
 # Version 1.1.3
 
 * Prepare release on hex.pm (Mickaël Rémond)
