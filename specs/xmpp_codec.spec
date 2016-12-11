@@ -699,6 +699,11 @@
 		   #ref{name = legacy_auth_resource, min = 0, max = 1,
 			label = '$resource'}]}).
 
+-xml(legacy_auth_feature,
+     #elem{name = <<"auth">>,
+	   xmlns = <<"http://jabber.org/features/iq-auth">>,
+	   result = {legacy_auth_feature}}).
+
 -xml(sasl_auth,
      #elem{name = <<"auth">>,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-sasl">>,

@@ -2672,6 +2672,14 @@ decode({xmlel, _name, _attrs, _} = _el, TopXMLNS,
        <<"urn:ietf:params:xml:ns:xmpp-sasl">>} ->
 	  decode_sasl_auth(<<"urn:ietf:params:xml:ns:xmpp-sasl">>,
 			   IgnoreEls, _el);
+      {<<"auth">>, <<"http://jabber.org/features/iq-auth">>,
+       _} ->
+	  decode_legacy_auth_feature(<<"http://jabber.org/features/iq-auth">>,
+				     IgnoreEls, _el);
+      {<<"auth">>, <<>>,
+       <<"http://jabber.org/features/iq-auth">>} ->
+	  decode_legacy_auth_feature(<<"http://jabber.org/features/iq-auth">>,
+				     IgnoreEls, _el);
       {<<"query">>, <<"jabber:iq:auth">>, _} ->
 	  decode_legacy_auth(<<"jabber:iq:auth">>, IgnoreEls,
 			     _el);
@@ -4965,6 +4973,12 @@ is_known_tag({xmlel, _name, _attrs, _} = _el,
       {<<"auth">>, <<>>,
        <<"urn:ietf:params:xml:ns:xmpp-sasl">>} ->
 	  true;
+      {<<"auth">>, <<"http://jabber.org/features/iq-auth">>,
+       _} ->
+	  true;
+      {<<"auth">>, <<>>,
+       <<"http://jabber.org/features/iq-auth">>} ->
+	  true;
       {<<"query">>, <<"jabber:iq:auth">>, _} -> true;
       {<<"query">>, <<>>, <<"jabber:iq:auth">>} -> true;
       {<<"resource">>, <<"jabber:iq:auth">>, _} -> true;
@@ -5397,6 +5411,8 @@ encode({bind, _, _} = Bind, TopXMLNS) ->
     encode_bind(Bind, TopXMLNS);
 encode({legacy_auth, _, _, _, _} = Query, TopXMLNS) ->
     encode_legacy_auth(Query, TopXMLNS);
+encode({legacy_auth_feature} = Auth, TopXMLNS) ->
+    encode_legacy_auth_feature(Auth, TopXMLNS);
 encode({sasl_auth, _, _} = Auth, TopXMLNS) ->
     encode_sasl_auth(Auth, TopXMLNS);
 encode({sasl_abort} = Abort, TopXMLNS) ->
@@ -5917,6 +5933,7 @@ get_name({identity, _, _, _, _}) -> <<"identity">>;
 get_name({iq, _, _, _, _, _, _, _}) -> <<"iq">>;
 get_name({last, _, _}) -> <<"query">>;
 get_name({legacy_auth, _, _, _, _}) -> <<"query">>;
+get_name({legacy_auth_feature}) -> <<"auth">>;
 get_name({mam_archived, _, _}) -> <<"archived">>;
 get_name({mam_fin, _, _, _, _, _}) -> <<"fin">>;
 get_name({mam_prefs, _, _, _, _}) -> <<"prefs">>;
@@ -6196,6 +6213,8 @@ get_ns({iq, _, _, _, _, _, _, _}) ->
 get_ns({last, _, _}) -> <<"jabber:iq:last">>;
 get_ns({legacy_auth, _, _, _, _}) ->
     <<"jabber:iq:auth">>;
+get_ns({legacy_auth_feature}) ->
+    <<"http://jabber.org/features/iq-auth">>;
 get_ns({mam_archived, _, _}) -> <<"urn:xmpp:mam:tmp">>;
 get_ns({mam_fin, Xmlns, _, _, _, _}) -> Xmlns;
 get_ns({mam_prefs, Xmlns, _, _, _}) -> Xmlns;
@@ -6548,6 +6567,7 @@ pp(stanza_error, 6) ->
 pp(bind, 2) -> [jid, resource];
 pp(legacy_auth, 4) ->
     [username, password, digest, resource];
+pp(legacy_auth_feature, 0) -> [];
 pp(sasl_auth, 2) -> [mechanism, text];
 pp(sasl_abort, 0) -> [];
 pp(sasl_challenge, 1) -> [text];
@@ -30043,6 +30063,19 @@ decode_sasl_auth_cdata(__TopXMLNS, _val) ->
 encode_sasl_auth_cdata(<<>>, _acc) -> _acc;
 encode_sasl_auth_cdata(_val, _acc) ->
     [{xmlcdata, base64:encode(_val)} | _acc].
+
+decode_legacy_auth_feature(__TopXMLNS, __IgnoreEls,
+			   {xmlel, <<"auth">>, _attrs, _els}) ->
+    {legacy_auth_feature}.
+
+encode_legacy_auth_feature({legacy_auth_feature},
+			   __TopXMLNS) ->
+    __NewTopXMLNS =
+	choose_top_xmlns(<<"http://jabber.org/features/iq-auth">>,
+			 [], __TopXMLNS),
+    _els = [],
+    _attrs = enc_xmlns_attrs(__NewTopXMLNS, __TopXMLNS),
+    {xmlel, <<"auth">>, _attrs, _els}.
 
 decode_legacy_auth(__TopXMLNS, __IgnoreEls,
 		   {xmlel, <<"query">>, _attrs, _els}) ->

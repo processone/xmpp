@@ -543,6 +543,9 @@
                   os :: 'undefined' | binary()}).
 -type version() :: #version{}.
 
+-record(legacy_auth_feature, {}).
+-type legacy_auth_feature() :: #legacy_auth_feature{}.
+
 -record(bind, {jid :: undefined | jid:jid(),
                resource = <<>> :: binary()}).
 -type bind() :: #bind{}.
@@ -940,8 +943,6 @@
                         xdata_option() |
                         version() |
                         sm_a() |
-                        bob_data() |
-                        media() |
                         stanza_id() |
                         starttls_proceed() |
                         forwarded() |
@@ -1002,6 +1003,7 @@
                         sasl_failure() |
                         vcard_name() |
                         adhoc_note() |
+                        legacy_auth_feature() |
                         rosterver_feature() |
                         muc_invite() |
                         vcard_xupdate() |
@@ -1099,4 +1101,6 @@
                         unblock() |
                         muc_admin() |
                         ps_affiliation() |
-                        mam_fin().
+                        mam_fin() |
+                        bob_data() |
+                        media().
