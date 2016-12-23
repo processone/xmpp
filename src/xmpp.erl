@@ -373,40 +373,42 @@ is_stanza(_) -> false.
 		(presence(), xmpp_element()) -> presence().
 set_subtag(Stanza, Tag) ->
     TagName = xmpp_codec:get_name(Tag),
+    TopXMLNS = xmpp_codec:get_ns(Stanza),
     XMLNS = xmpp_codec:get_ns(Tag),
     Els = get_els(Stanza),
-    NewEls = set_subtag(Els, Tag, TagName, XMLNS),
+    NewEls = set_subtag(Els, Tag, TagName, XMLNS, TopXMLNS),
     set_els(Stanza, NewEls).
 
-set_subtag([El|Els], Tag, TagName, XMLNS) ->
-    case match_tag(El, TagName, XMLNS) of
+set_subtag([El|Els], Tag, TagName, XMLNS, TopXMLNS) ->
+    case match_tag(El, TagName, XMLNS, TopXMLNS) of
 	true ->
 	    [Tag|Els];
 	false ->
-	    [El|set_subtag(Els, Tag, TagName, XMLNS)]
+	    [El|set_subtag(Els, Tag, TagName, XMLNS, TopXMLNS)]
     end;
-set_subtag([], Tag, _, _) ->
+set_subtag([], Tag, _, _, _) ->
     [Tag].
 
 -spec get_subtag(stanza(), xmpp_element()) -> xmpp_element() | false.
 get_subtag(Stanza, Tag) ->
     Els = get_els(Stanza),
+    TopXMLNS = xmpp_codec:get_ns(Stanza),
     TagName = xmpp_codec:get_name(Tag),
     XMLNS = xmpp_codec:get_ns(Tag),
-    get_subtag(Els, TagName, XMLNS).
+    get_subtag(Els, TagName, XMLNS, TopXMLNS).
 
-get_subtag([El|Els], TagName, XMLNS) ->
-    case match_tag(El, TagName, XMLNS) of
+get_subtag([El|Els], TagName, XMLNS, TopXMLNS) ->
+    case match_tag(El, TagName, XMLNS, TopXMLNS) of
 	true ->
 	    try
 		decode(El)
 	    catch _:{xmpp_codec, _Why} ->
-		    get_subtag(Els, TagName, XMLNS)
+		    get_subtag(Els, TagName, XMLNS, TopXMLNS)
 	    end;
 	false ->
-	    get_subtag(Els, TagName, XMLNS)
+	    get_subtag(Els, TagName, XMLNS, TopXMLNS)
     end;
-get_subtag([], _, _) ->
+get_subtag([], _, _, _) ->
     false.
 
 -spec remove_subtag(iq(), xmpp_element()) -> iq();
@@ -415,35 +417,37 @@ get_subtag([], _, _) ->
 remove_subtag(Stanza, Tag) ->
     Els = get_els(Stanza),
     TagName = xmpp_codec:get_name(Tag),
+    TopXMLNS = xmpp_codec:get_ns(Stanza),
     XMLNS = xmpp_codec:get_ns(Tag),
-    NewEls = remove_subtag(Els, TagName, XMLNS),
+    NewEls = remove_subtag(Els, TagName, XMLNS, TopXMLNS),
     set_els(Stanza, NewEls).
 
-remove_subtag([El|Els], TagName, XMLNS) ->
-    case match_tag(El, TagName, XMLNS) of
+remove_subtag([El|Els], TagName, XMLNS, TopXMLNS) ->
+    case match_tag(El, TagName, XMLNS, TopXMLNS) of
 	true ->
-	    remove_subtag(Els, TagName, XMLNS);
+	    remove_subtag(Els, TagName, XMLNS, TopXMLNS);
 	false ->
-	    [El|remove_subtag(Els, TagName, XMLNS)]
+	    [El|remove_subtag(Els, TagName, XMLNS, TopXMLNS)]
     end;
-remove_subtag([], _, _) ->
+remove_subtag([], _, _, _) ->
     [].
 
 -spec has_subtag(stanza(), xmpp_element()) -> boolean().
 has_subtag(Stanza, Tag) ->
     Els = get_els(Stanza),
     TagName = xmpp_codec:get_name(Tag),
+    TopXMLNS = xmpp_codec:get_ns(Stanza),
     XMLNS = xmpp_codec:get_ns(Tag),
-    has_subtag(Els, TagName, XMLNS).
+    has_subtag(Els, TagName, XMLNS, TopXMLNS).
 
-has_subtag([El|Els], TagName, XMLNS) ->
-    case match_tag(El, TagName, XMLNS) of
+has_subtag([El|Els], TagName, XMLNS, TopXMLNS) ->
+    case match_tag(El, TagName, XMLNS, TopXMLNS) of
 	true ->
 	    true;
 	false ->
-	    has_subtag(Els, TagName, XMLNS)
+	    has_subtag(Els, TagName, XMLNS, TopXMLNS)
     end;
-has_subtag([], _, _) ->
+has_subtag([], _, _, _) ->
     false.
 
 -spec append_subtags(stanza(), [xmpp_element() | xmlel()]) -> stanza().
@@ -899,9 +903,19 @@ serr(Reason, Text, Lang) ->
 		  text = #text{lang = Lang,
 			       data = translate(Lang, Text)}}.
 
--spec match_tag(xmlel() | xmpp_element(), binary(), binary()) -> boolean().
-match_tag(El, TagName, XMLNS) ->
-    get_name(El) == TagName andalso get_ns(El) == XMLNS.
+-spec match_tag(xmlel() | xmpp_element(),
+		binary(), binary(), binary()) -> boolean().
+match_tag(El, TagName, XMLNS, TopXMLNS) ->
+    case get_name(El) of
+	TagName ->
+	    case get_ns(El) of
+		XMLNS -> true;
+		<<"">> -> XMLNS == TopXMLNS;
+		_ -> false
+	    end;
+	_ ->
+	    false
+    end.
 
 -spec translate(lang(), reason_text()) -> binary().
 translate(Lang, {Format, Args}) ->
