@@ -242,6 +242,9 @@
 -record(handshake, {data = <<>> :: binary()}).
 -type handshake() :: #handshake{}.
 
+-record(db_feature, {errors = false :: boolean()}).
+-type db_feature() :: #db_feature{}.
+
 -record(gone, {uri = <<>> :: binary()}).
 -type gone() :: #gone{}.
 
@@ -998,6 +1001,7 @@
                         ps_error() |
                         starttls_failure() |
                         sasl_challenge() |
+                        db_feature() |
                         x_conference() |
                         private() |
                         sasl_failure() |

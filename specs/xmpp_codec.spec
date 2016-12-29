@@ -3248,6 +3248,18 @@
 			  dec = {dec_enum, [[valid, invalid, error]]},
 			  enc = {enc_enum, []}}]}).
 
+-xml(db_errors,
+     #elem{name = <<"errors">>,
+	   xmlns = <<"urn:xmpp:features:dialback">>,
+	   result = true}).
+
+-xml(db_feature,
+     #elem{name = <<"dialback">>,
+	   xmlns = <<"urn:xmpp:features:dialback">>,
+	   result = {db_feature, '$errors'},
+	   refs = [#ref{name = db_errors, min = 0, max = 1,
+			default = false, label = '$errors'}]}).
+
 -xml(handshake,
      #elem{name = <<"handshake">>,
 	   xmlns = <<"jabber:component:accept">>,

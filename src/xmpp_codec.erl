@@ -246,6 +246,20 @@ decode({xmlel, _name, _attrs, _} = _el, TopXMLNS,
        <<"jabber:component:accept">>} ->
 	  decode_handshake(<<"jabber:component:accept">>,
 			   IgnoreEls, _el);
+      {<<"dialback">>, <<"urn:xmpp:features:dialback">>, _} ->
+	  decode_db_feature(<<"urn:xmpp:features:dialback">>,
+			    IgnoreEls, _el);
+      {<<"dialback">>, <<>>,
+       <<"urn:xmpp:features:dialback">>} ->
+	  decode_db_feature(<<"urn:xmpp:features:dialback">>,
+			    IgnoreEls, _el);
+      {<<"errors">>, <<"urn:xmpp:features:dialback">>, _} ->
+	  decode_db_errors(<<"urn:xmpp:features:dialback">>,
+			   IgnoreEls, _el);
+      {<<"errors">>, <<>>,
+       <<"urn:xmpp:features:dialback">>} ->
+	  decode_db_errors(<<"urn:xmpp:features:dialback">>,
+			   IgnoreEls, _el);
       {<<"db:verify">>, <<"jabber:server">>, _} ->
 	  decode_db_verify(<<"jabber:server">>, IgnoreEls, _el);
       {<<"db:verify">>, <<>>, <<"jabber:server">>} ->
@@ -3453,6 +3467,16 @@ is_known_tag({xmlel, _name, _attrs, _} = _el,
       {<<"handshake">>, <<>>,
        <<"jabber:component:accept">>} ->
 	  true;
+      {<<"dialback">>, <<"urn:xmpp:features:dialback">>, _} ->
+	  true;
+      {<<"dialback">>, <<>>,
+       <<"urn:xmpp:features:dialback">>} ->
+	  true;
+      {<<"errors">>, <<"urn:xmpp:features:dialback">>, _} ->
+	  true;
+      {<<"errors">>, <<>>,
+       <<"urn:xmpp:features:dialback">>} ->
+	  true;
       {<<"db:verify">>, <<"jabber:server">>, _} -> true;
       {<<"db:verify">>, <<>>, <<"jabber:server">>} -> true;
       {<<"db:result">>, <<"jabber:server">>, _} -> true;
@@ -5834,6 +5858,8 @@ encode({db_result, _, _, _, _, _} = Db_result,
 encode({db_verify, _, _, _, _, _, _} = Db_verify,
        TopXMLNS) ->
     encode_db_verify(Db_verify, TopXMLNS);
+encode({db_feature, _} = Dialback, TopXMLNS) ->
+    encode_db_feature(Dialback, TopXMLNS);
 encode({handshake, _} = Handshake, TopXMLNS) ->
     encode_handshake(Handshake, TopXMLNS);
 encode({stream_start, _, _, _, _, _, _, _, _} =
@@ -5904,6 +5930,7 @@ get_name({compressed}) -> <<"compressed">>;
 get_name({compression, _}) -> <<"compression">>;
 get_name({csi, active}) -> <<"active">>;
 get_name({csi, inactive}) -> <<"inactive">>;
+get_name({db_feature, _}) -> <<"dialback">>;
 get_name({db_result, _, _, _, _, _}) -> <<"db:result">>;
 get_name({db_verify, _, _, _, _, _, _}) ->
     <<"db:verify">>;
@@ -6172,6 +6199,8 @@ get_ns({compression, _}) ->
     <<"http://jabber.org/features/compress">>;
 get_ns({csi, active}) -> <<"urn:xmpp:csi:0">>;
 get_ns({csi, inactive}) -> <<"urn:xmpp:csi:0">>;
+get_ns({db_feature, _}) ->
+    <<"urn:xmpp:features:dialback">>;
 get_ns({db_result, _, _, _, _, _}) ->
     <<"jabber:server">>;
 get_ns({db_verify, _, _, _, _, _, _}) ->
@@ -6720,6 +6749,7 @@ pp(adhoc_command, 8) ->
      xdata];
 pp(db_result, 5) -> [from, to, type, key, sub_els];
 pp(db_verify, 6) -> [from, to, id, type, key, sub_els];
+pp(db_feature, 1) -> [errors];
 pp(handshake, 1) -> [data];
 pp(stream_start, 8) ->
     [from, to, id, version, xmlns, stream_xmlns, db_xmlns,
@@ -8658,6 +8688,62 @@ decode_handshake_cdata(__TopXMLNS, _val) -> _val.
 encode_handshake_cdata(<<>>, _acc) -> _acc;
 encode_handshake_cdata(_val, _acc) ->
     [{xmlcdata, _val} | _acc].
+
+decode_db_feature(__TopXMLNS, __IgnoreEls,
+		  {xmlel, <<"dialback">>, _attrs, _els}) ->
+    Errors = decode_db_feature_els(__TopXMLNS, __IgnoreEls,
+				   _els, false),
+    {db_feature, Errors}.
+
+decode_db_feature_els(__TopXMLNS, __IgnoreEls, [],
+		      Errors) ->
+    Errors;
+decode_db_feature_els(__TopXMLNS, __IgnoreEls,
+		      [{xmlel, <<"errors">>, _attrs, _} = _el | _els],
+		      Errors) ->
+    case get_attr(<<"xmlns">>, _attrs) of
+      <<"">>
+	  when __TopXMLNS == <<"urn:xmpp:features:dialback">> ->
+	  decode_db_feature_els(__TopXMLNS, __IgnoreEls, _els,
+				decode_db_errors(__TopXMLNS, __IgnoreEls, _el));
+      <<"urn:xmpp:features:dialback">> ->
+	  decode_db_feature_els(__TopXMLNS, __IgnoreEls, _els,
+				decode_db_errors(<<"urn:xmpp:features:dialback">>,
+						 __IgnoreEls, _el));
+      _ ->
+	  decode_db_feature_els(__TopXMLNS, __IgnoreEls, _els,
+				Errors)
+    end;
+decode_db_feature_els(__TopXMLNS, __IgnoreEls,
+		      [_ | _els], Errors) ->
+    decode_db_feature_els(__TopXMLNS, __IgnoreEls, _els,
+			  Errors).
+
+encode_db_feature({db_feature, Errors}, __TopXMLNS) ->
+    __NewTopXMLNS =
+	choose_top_xmlns(<<"urn:xmpp:features:dialback">>, [],
+			 __TopXMLNS),
+    _els = lists:reverse('encode_db_feature_$errors'(Errors,
+						     __NewTopXMLNS, [])),
+    _attrs = enc_xmlns_attrs(__NewTopXMLNS, __TopXMLNS),
+    {xmlel, <<"dialback">>, _attrs, _els}.
+
+'encode_db_feature_$errors'(false, __TopXMLNS, _acc) ->
+    _acc;
+'encode_db_feature_$errors'(Errors, __TopXMLNS, _acc) ->
+    [encode_db_errors(Errors, __TopXMLNS) | _acc].
+
+decode_db_errors(__TopXMLNS, __IgnoreEls,
+		 {xmlel, <<"errors">>, _attrs, _els}) ->
+    true.
+
+encode_db_errors(true, __TopXMLNS) ->
+    __NewTopXMLNS =
+	choose_top_xmlns(<<"urn:xmpp:features:dialback">>, [],
+			 __TopXMLNS),
+    _els = [],
+    _attrs = enc_xmlns_attrs(__NewTopXMLNS, __TopXMLNS),
+    {xmlel, <<"errors">>, _attrs, _els}.
 
 decode_db_verify(__TopXMLNS, __IgnoreEls,
 		 {xmlel, <<"db:verify">>, _attrs, _els}) ->
