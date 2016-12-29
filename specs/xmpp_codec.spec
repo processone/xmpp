@@ -398,8 +398,7 @@
                     #attr{name = <<"type">>,
                           default = normal,
                           enc = {enc_enum, []},
-                          dec = {dec_enum, [[chat, normal, groupchat,
-                                             headline, error]]}},
+                          dec = {dec_message_type, []}},
                     #attr{name = <<"from">>,
                           dec = {dec_jid, []},
                           enc = {enc_jid, []}},
@@ -3643,6 +3642,13 @@ enc_ps_aff(outcast) -> <<"outcast">>;
 enc_ps_aff(owner) -> <<"owner">>;
 enc_ps_aff(publisher) -> <<"publisher">>;
 enc_ps_aff(publish_only) -> <<"publish-only">>.
+
+-spec dec_message_type(_) -> chat | groupchat | headline | error | normal.
+dec_message_type(<<"chat">>) -> chat;
+dec_message_type(<<"groupchat">>) -> groupchat;
+dec_message_type(<<"headline">>) -> headline;
+dec_message_type(<<"error">>) -> error;
+dec_message_type(_) -> normal.
 
 %% Local Variables:
 %% mode: erlang

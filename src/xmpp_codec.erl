@@ -6771,6 +6771,12 @@ pp(delegation, 2) -> [delegated, forwarded];
 pp(delegation_query, 2) -> [to, delegate];
 pp(_, _) -> no.
 
+dec_message_type(<<"chat">>) -> chat;
+dec_message_type(<<"groupchat">>) -> groupchat;
+dec_message_type(<<"headline">>) -> headline;
+dec_message_type(<<"error">>) -> error;
+dec_message_type(_) -> normal.
+
 enc_ps_aff(member) -> <<"member">>;
 enc_ps_aff(none) -> <<"none">>;
 enc_ps_aff(outcast) -> <<"outcast">>;
@@ -32195,9 +32201,7 @@ encode_message_attr_id(_val, _acc) ->
 decode_message_attr_type(__TopXMLNS, undefined) ->
     normal;
 decode_message_attr_type(__TopXMLNS, _val) ->
-    case catch dec_enum(_val,
-			[chat, normal, groupchat, headline, error])
-	of
+    case catch dec_message_type(_val) of
       {'EXIT', _} ->
 	  erlang:error({xmpp_codec,
 			{bad_attr_value, <<"type">>, <<"message">>,
