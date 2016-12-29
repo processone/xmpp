@@ -149,13 +149,13 @@ make_error(#xmlel{attrs = Attrs, children = Els} = El, Err) ->
 		 {value, T} ->
 		     lists:keystore(<<"from">>, 1, Attrs, {<<"from">>, T});
 		 _ ->
-		     Attrs
+		     lists:keydelete(<<"from">>, 1, Attrs)
 	     end,
     Attrs2 = case From of
 		 {value, F} ->
 		     lists:keystore(<<"to">>, 1, Attrs1, {<<"to">>, F});
 		 _ ->
-		     Attrs
+		     lists:keydelete(<<"to">>, 1, Attrs1)
 	     end,
     Attrs3 = lists:keystore(<<"type">>, 1, Attrs2, {<<"type">>, <<"error">>}),
     El#xmlel{attrs = Attrs3, children = Els ++ [encode(Err, ?NS_CLIENT)]}.
