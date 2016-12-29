@@ -5793,7 +5793,7 @@ encode({sm_r, _} = R, TopXMLNS) ->
     encode_sm_r(R, TopXMLNS);
 encode({sm_a, _, _} = A, TopXMLNS) ->
     encode_sm_a(A, TopXMLNS);
-encode({sm_failed, _, _, _} = Failed, TopXMLNS) ->
+encode({sm_failed, _, _, _, _} = Failed, TopXMLNS) ->
     encode_sm_failed(Failed, TopXMLNS);
 encode({offline_item, _, _} = Item, TopXMLNS) ->
     encode_offline_item(Item, TopXMLNS);
@@ -6092,7 +6092,7 @@ get_name({sic, _, _, _}) -> <<"address">>;
 get_name({sm_a, _, _}) -> <<"a">>;
 get_name({sm_enable, _, _, _}) -> <<"enable">>;
 get_name({sm_enabled, _, _, _, _, _}) -> <<"enabled">>;
-get_name({sm_failed, _, _, _}) -> <<"failed">>;
+get_name({sm_failed, _, _, _, _}) -> <<"failed">>;
 get_name({sm_r, _}) -> <<"r">>;
 get_name({sm_resume, _, _, _}) -> <<"resume">>;
 get_name({sm_resumed, _, _, _}) -> <<"resumed">>;
@@ -6410,7 +6410,7 @@ get_ns({sic, _, _, Xmlns}) -> Xmlns;
 get_ns({sm_a, _, Xmlns}) -> Xmlns;
 get_ns({sm_enable, _, _, Xmlns}) -> Xmlns;
 get_ns({sm_enabled, _, _, _, _, Xmlns}) -> Xmlns;
-get_ns({sm_failed, _, _, Xmlns}) -> Xmlns;
+get_ns({sm_failed, _, _, _, Xmlns}) -> Xmlns;
 get_ns({sm_r, Xmlns}) -> Xmlns;
 get_ns({sm_resume, _, _, Xmlns}) -> Xmlns;
 get_ns({sm_resumed, _, _, Xmlns}) -> Xmlns;
@@ -6725,7 +6725,7 @@ pp(sm_resume, 3) -> [h, previd, xmlns];
 pp(sm_resumed, 3) -> [h, previd, xmlns];
 pp(sm_r, 1) -> [xmlns];
 pp(sm_a, 2) -> [h, xmlns];
-pp(sm_failed, 3) -> [reason, h, xmlns];
+pp(sm_failed, 4) -> [reason, text, h, xmlns];
 pp(offline_item, 2) -> [node, action];
 pp(offline, 3) -> [items, purge, fetch];
 pp(mix_join, 2) -> [jid, subscribe];
@@ -11061,306 +11061,342 @@ encode_offline_purge(true, __TopXMLNS) ->
 
 decode_sm_failed(__TopXMLNS, __IgnoreEls,
 		 {xmlel, <<"failed">>, _attrs, _els}) ->
-    Reason = decode_sm_failed_els(__TopXMLNS, __IgnoreEls,
-				  _els, undefined),
+    {Text, Reason} = decode_sm_failed_els(__TopXMLNS,
+					  __IgnoreEls, _els, [], undefined),
     {H, Xmlns} = decode_sm_failed_attrs(__TopXMLNS, _attrs,
 					undefined, undefined),
-    {sm_failed, Reason, H, Xmlns}.
+    {sm_failed, Reason, Text, H, Xmlns}.
 
-decode_sm_failed_els(__TopXMLNS, __IgnoreEls, [],
+decode_sm_failed_els(__TopXMLNS, __IgnoreEls, [], Text,
 		     Reason) ->
-    Reason;
+    {lists:reverse(Text), Reason};
 decode_sm_failed_els(__TopXMLNS, __IgnoreEls,
-		     [{xmlel, <<"bad-request">>, _attrs, _} = _el | _els],
+		     [{xmlel, <<"text">>, _attrs, _} = _el | _els], Text,
 		     Reason) ->
     case get_attr(<<"xmlns">>, _attrs) of
       <<"urn:ietf:params:xml:ns:xmpp-stanzas">> ->
 	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
+			       [decode_error_text(<<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
+						  __IgnoreEls, _el)
+				| Text],
+			       Reason);
+      _ ->
+	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
+			       Text, Reason)
+    end;
+decode_sm_failed_els(__TopXMLNS, __IgnoreEls,
+		     [{xmlel, <<"bad-request">>, _attrs, _} = _el | _els],
+		     Text, Reason) ->
+    case get_attr(<<"xmlns">>, _attrs) of
+      <<"urn:ietf:params:xml:ns:xmpp-stanzas">> ->
+	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
+			       Text,
 			       decode_error_bad_request(<<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
 							__IgnoreEls, _el));
       _ ->
 	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
-			       Reason)
+			       Text, Reason)
     end;
 decode_sm_failed_els(__TopXMLNS, __IgnoreEls,
-		     [{xmlel, <<"conflict">>, _attrs, _} = _el | _els],
+		     [{xmlel, <<"conflict">>, _attrs, _} = _el | _els], Text,
 		     Reason) ->
     case get_attr(<<"xmlns">>, _attrs) of
       <<"urn:ietf:params:xml:ns:xmpp-stanzas">> ->
 	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
+			       Text,
 			       decode_error_conflict(<<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
 						     __IgnoreEls, _el));
       _ ->
 	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
-			       Reason)
+			       Text, Reason)
     end;
 decode_sm_failed_els(__TopXMLNS, __IgnoreEls,
 		     [{xmlel, <<"feature-not-implemented">>, _attrs, _} = _el
 		      | _els],
-		     Reason) ->
+		     Text, Reason) ->
     case get_attr(<<"xmlns">>, _attrs) of
       <<"urn:ietf:params:xml:ns:xmpp-stanzas">> ->
 	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
+			       Text,
 			       decode_error_feature_not_implemented(<<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
 								    __IgnoreEls,
 								    _el));
       _ ->
 	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
-			       Reason)
+			       Text, Reason)
     end;
 decode_sm_failed_els(__TopXMLNS, __IgnoreEls,
 		     [{xmlel, <<"forbidden">>, _attrs, _} = _el | _els],
-		     Reason) ->
+		     Text, Reason) ->
     case get_attr(<<"xmlns">>, _attrs) of
       <<"urn:ietf:params:xml:ns:xmpp-stanzas">> ->
 	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
+			       Text,
 			       decode_error_forbidden(<<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
 						      __IgnoreEls, _el));
       _ ->
 	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
-			       Reason)
+			       Text, Reason)
     end;
 decode_sm_failed_els(__TopXMLNS, __IgnoreEls,
-		     [{xmlel, <<"gone">>, _attrs, _} = _el | _els],
+		     [{xmlel, <<"gone">>, _attrs, _} = _el | _els], Text,
 		     Reason) ->
     case get_attr(<<"xmlns">>, _attrs) of
       <<"urn:ietf:params:xml:ns:xmpp-stanzas">> ->
 	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
+			       Text,
 			       decode_error_gone(<<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
 						 __IgnoreEls, _el));
       _ ->
 	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
-			       Reason)
+			       Text, Reason)
     end;
 decode_sm_failed_els(__TopXMLNS, __IgnoreEls,
 		     [{xmlel, <<"internal-server-error">>, _attrs, _} = _el
 		      | _els],
-		     Reason) ->
+		     Text, Reason) ->
     case get_attr(<<"xmlns">>, _attrs) of
       <<"urn:ietf:params:xml:ns:xmpp-stanzas">> ->
 	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
+			       Text,
 			       decode_error_internal_server_error(<<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
 								  __IgnoreEls,
 								  _el));
       _ ->
 	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
-			       Reason)
+			       Text, Reason)
     end;
 decode_sm_failed_els(__TopXMLNS, __IgnoreEls,
 		     [{xmlel, <<"item-not-found">>, _attrs, _} = _el | _els],
-		     Reason) ->
+		     Text, Reason) ->
     case get_attr(<<"xmlns">>, _attrs) of
       <<"urn:ietf:params:xml:ns:xmpp-stanzas">> ->
 	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
+			       Text,
 			       decode_error_item_not_found(<<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
 							   __IgnoreEls, _el));
       _ ->
 	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
-			       Reason)
+			       Text, Reason)
     end;
 decode_sm_failed_els(__TopXMLNS, __IgnoreEls,
 		     [{xmlel, <<"jid-malformed">>, _attrs, _} = _el | _els],
-		     Reason) ->
+		     Text, Reason) ->
     case get_attr(<<"xmlns">>, _attrs) of
       <<"urn:ietf:params:xml:ns:xmpp-stanzas">> ->
 	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
+			       Text,
 			       decode_error_jid_malformed(<<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
 							  __IgnoreEls, _el));
       _ ->
 	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
-			       Reason)
+			       Text, Reason)
     end;
 decode_sm_failed_els(__TopXMLNS, __IgnoreEls,
 		     [{xmlel, <<"not-acceptable">>, _attrs, _} = _el | _els],
-		     Reason) ->
+		     Text, Reason) ->
     case get_attr(<<"xmlns">>, _attrs) of
       <<"urn:ietf:params:xml:ns:xmpp-stanzas">> ->
 	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
+			       Text,
 			       decode_error_not_acceptable(<<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
 							   __IgnoreEls, _el));
       _ ->
 	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
-			       Reason)
+			       Text, Reason)
     end;
 decode_sm_failed_els(__TopXMLNS, __IgnoreEls,
 		     [{xmlel, <<"not-allowed">>, _attrs, _} = _el | _els],
-		     Reason) ->
+		     Text, Reason) ->
     case get_attr(<<"xmlns">>, _attrs) of
       <<"urn:ietf:params:xml:ns:xmpp-stanzas">> ->
 	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
+			       Text,
 			       decode_error_not_allowed(<<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
 							__IgnoreEls, _el));
       _ ->
 	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
-			       Reason)
+			       Text, Reason)
     end;
 decode_sm_failed_els(__TopXMLNS, __IgnoreEls,
 		     [{xmlel, <<"not-authorized">>, _attrs, _} = _el | _els],
-		     Reason) ->
+		     Text, Reason) ->
     case get_attr(<<"xmlns">>, _attrs) of
       <<"urn:ietf:params:xml:ns:xmpp-stanzas">> ->
 	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
+			       Text,
 			       decode_error_not_authorized(<<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
 							   __IgnoreEls, _el));
       _ ->
 	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
-			       Reason)
+			       Text, Reason)
     end;
 decode_sm_failed_els(__TopXMLNS, __IgnoreEls,
 		     [{xmlel, <<"policy-violation">>, _attrs, _} = _el
 		      | _els],
-		     Reason) ->
+		     Text, Reason) ->
     case get_attr(<<"xmlns">>, _attrs) of
       <<"urn:ietf:params:xml:ns:xmpp-stanzas">> ->
 	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
+			       Text,
 			       decode_error_policy_violation(<<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
 							     __IgnoreEls, _el));
       _ ->
 	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
-			       Reason)
+			       Text, Reason)
     end;
 decode_sm_failed_els(__TopXMLNS, __IgnoreEls,
 		     [{xmlel, <<"recipient-unavailable">>, _attrs, _} = _el
 		      | _els],
-		     Reason) ->
+		     Text, Reason) ->
     case get_attr(<<"xmlns">>, _attrs) of
       <<"urn:ietf:params:xml:ns:xmpp-stanzas">> ->
 	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
+			       Text,
 			       decode_error_recipient_unavailable(<<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
 								  __IgnoreEls,
 								  _el));
       _ ->
 	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
-			       Reason)
+			       Text, Reason)
     end;
 decode_sm_failed_els(__TopXMLNS, __IgnoreEls,
-		     [{xmlel, <<"redirect">>, _attrs, _} = _el | _els],
+		     [{xmlel, <<"redirect">>, _attrs, _} = _el | _els], Text,
 		     Reason) ->
     case get_attr(<<"xmlns">>, _attrs) of
       <<"urn:ietf:params:xml:ns:xmpp-stanzas">> ->
 	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
+			       Text,
 			       decode_error_redirect(<<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
 						     __IgnoreEls, _el));
       _ ->
 	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
-			       Reason)
+			       Text, Reason)
     end;
 decode_sm_failed_els(__TopXMLNS, __IgnoreEls,
 		     [{xmlel, <<"registration-required">>, _attrs, _} = _el
 		      | _els],
-		     Reason) ->
+		     Text, Reason) ->
     case get_attr(<<"xmlns">>, _attrs) of
       <<"urn:ietf:params:xml:ns:xmpp-stanzas">> ->
 	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
+			       Text,
 			       decode_error_registration_required(<<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
 								  __IgnoreEls,
 								  _el));
       _ ->
 	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
-			       Reason)
+			       Text, Reason)
     end;
 decode_sm_failed_els(__TopXMLNS, __IgnoreEls,
 		     [{xmlel, <<"remote-server-not-found">>, _attrs, _} = _el
 		      | _els],
-		     Reason) ->
+		     Text, Reason) ->
     case get_attr(<<"xmlns">>, _attrs) of
       <<"urn:ietf:params:xml:ns:xmpp-stanzas">> ->
 	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
+			       Text,
 			       decode_error_remote_server_not_found(<<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
 								    __IgnoreEls,
 								    _el));
       _ ->
 	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
-			       Reason)
+			       Text, Reason)
     end;
 decode_sm_failed_els(__TopXMLNS, __IgnoreEls,
 		     [{xmlel, <<"remote-server-timeout">>, _attrs, _} = _el
 		      | _els],
-		     Reason) ->
+		     Text, Reason) ->
     case get_attr(<<"xmlns">>, _attrs) of
       <<"urn:ietf:params:xml:ns:xmpp-stanzas">> ->
 	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
+			       Text,
 			       decode_error_remote_server_timeout(<<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
 								  __IgnoreEls,
 								  _el));
       _ ->
 	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
-			       Reason)
+			       Text, Reason)
     end;
 decode_sm_failed_els(__TopXMLNS, __IgnoreEls,
 		     [{xmlel, <<"resource-constraint">>, _attrs, _} = _el
 		      | _els],
-		     Reason) ->
+		     Text, Reason) ->
     case get_attr(<<"xmlns">>, _attrs) of
       <<"urn:ietf:params:xml:ns:xmpp-stanzas">> ->
 	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
+			       Text,
 			       decode_error_resource_constraint(<<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
 								__IgnoreEls,
 								_el));
       _ ->
 	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
-			       Reason)
+			       Text, Reason)
     end;
 decode_sm_failed_els(__TopXMLNS, __IgnoreEls,
 		     [{xmlel, <<"service-unavailable">>, _attrs, _} = _el
 		      | _els],
-		     Reason) ->
+		     Text, Reason) ->
     case get_attr(<<"xmlns">>, _attrs) of
       <<"urn:ietf:params:xml:ns:xmpp-stanzas">> ->
 	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
+			       Text,
 			       decode_error_service_unavailable(<<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
 								__IgnoreEls,
 								_el));
       _ ->
 	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
-			       Reason)
+			       Text, Reason)
     end;
 decode_sm_failed_els(__TopXMLNS, __IgnoreEls,
 		     [{xmlel, <<"subscription-required">>, _attrs, _} = _el
 		      | _els],
-		     Reason) ->
+		     Text, Reason) ->
     case get_attr(<<"xmlns">>, _attrs) of
       <<"urn:ietf:params:xml:ns:xmpp-stanzas">> ->
 	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
+			       Text,
 			       decode_error_subscription_required(<<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
 								  __IgnoreEls,
 								  _el));
       _ ->
 	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
-			       Reason)
+			       Text, Reason)
     end;
 decode_sm_failed_els(__TopXMLNS, __IgnoreEls,
 		     [{xmlel, <<"undefined-condition">>, _attrs, _} = _el
 		      | _els],
-		     Reason) ->
+		     Text, Reason) ->
     case get_attr(<<"xmlns">>, _attrs) of
       <<"urn:ietf:params:xml:ns:xmpp-stanzas">> ->
 	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
+			       Text,
 			       decode_error_undefined_condition(<<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
 								__IgnoreEls,
 								_el));
       _ ->
 	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
-			       Reason)
+			       Text, Reason)
     end;
 decode_sm_failed_els(__TopXMLNS, __IgnoreEls,
 		     [{xmlel, <<"unexpected-request">>, _attrs, _} = _el
 		      | _els],
-		     Reason) ->
+		     Text, Reason) ->
     case get_attr(<<"xmlns">>, _attrs) of
       <<"urn:ietf:params:xml:ns:xmpp-stanzas">> ->
 	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
+			       Text,
 			       decode_error_unexpected_request(<<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
 							       __IgnoreEls,
 							       _el));
       _ ->
 	  decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
-			       Reason)
+			       Text, Reason)
     end;
 decode_sm_failed_els(__TopXMLNS, __IgnoreEls,
-		     [_ | _els], Reason) ->
+		     [_ | _els], Text, Reason) ->
     decode_sm_failed_els(__TopXMLNS, __IgnoreEls, _els,
-			 Reason).
+			 Text, Reason).
 
 decode_sm_failed_attrs(__TopXMLNS,
 		       [{<<"h">>, _val} | _attrs], _H, Xmlns) ->
@@ -11375,17 +11411,26 @@ decode_sm_failed_attrs(__TopXMLNS, [], H, Xmlns) ->
     {decode_sm_failed_attr_h(__TopXMLNS, H),
      decode_sm_failed_attr_xmlns(__TopXMLNS, Xmlns)}.
 
-encode_sm_failed({sm_failed, Reason, H, Xmlns},
+encode_sm_failed({sm_failed, Reason, Text, H, Xmlns},
 		 __TopXMLNS) ->
     __NewTopXMLNS = choose_top_xmlns(Xmlns,
 				     [<<"urn:xmpp:sm:2">>, <<"urn:xmpp:sm:3">>],
 				     __TopXMLNS),
-    _els = lists:reverse('encode_sm_failed_$reason'(Reason,
-						    __NewTopXMLNS, [])),
+    _els = lists:reverse('encode_sm_failed_$text'(Text,
+						  __NewTopXMLNS,
+						  'encode_sm_failed_$reason'(Reason,
+									     __NewTopXMLNS,
+									     []))),
     _attrs = encode_sm_failed_attr_h(H,
 				     enc_xmlns_attrs(__NewTopXMLNS,
 						     __TopXMLNS)),
     {xmlel, <<"failed">>, _attrs, _els}.
+
+'encode_sm_failed_$text'([], __TopXMLNS, _acc) -> _acc;
+'encode_sm_failed_$text'([Text | _els], __TopXMLNS,
+			 _acc) ->
+    'encode_sm_failed_$text'(_els, __TopXMLNS,
+			     [encode_error_text(Text, __TopXMLNS) | _acc]).
 
 'encode_sm_failed_$reason'(undefined, __TopXMLNS,
 			   _acc) ->

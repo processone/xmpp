@@ -858,6 +858,7 @@
 -type sasl_mechanisms() :: #sasl_mechanisms{}.
 
 -record(sm_failed, {reason :: atom() | #gone{} | #redirect{},
+                    text = [] :: [#text{}],
                     h :: 'undefined' | non_neg_integer(),
                     xmlns = <<>> :: binary()}).
 -type sm_failed() :: #sm_failed{}.
