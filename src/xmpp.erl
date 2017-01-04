@@ -36,7 +36,7 @@
 	 get_lang/1, get_error/1, get_els/1, get_ns/1, get_meta/1,
 	 set_type/2, set_to/2, set_from/2, set_id/2,
 	 set_lang/2, set_error/2, set_els/2, set_from_to/3,
-	 set_meta/2, put_meta/3, update_meta/3,
+	 set_meta/2, put_meta/3, update_meta/3, del_meta/2,
 	 format_error/1, io_format_error/1, is_stanza/1,
 	 set_subtag/2, get_subtag/2, remove_subtag/2, has_subtag/2,
 	 decode_els/1, decode_els/3, pp/1, get_name/1, get_text/1,
@@ -302,6 +302,16 @@ update_meta(#message{meta = M} = Msg, K, V) ->
     Msg#message{meta = maps:update(K, V, M)};
 update_meta(#presence{meta = M} = Pres, K, V) ->
     Pres#presence{meta = maps:update(K, V, M)}.
+
+-spec del_meta(iq(), any()) -> iq();
+	      (message(), any()) -> message();
+	      (presence(), any()) -> presence().
+del_meta(#iq{meta = M} = IQ, K) ->
+    IQ#iq{meta = maps:remove(K, M)};
+del_meta(#message{meta = M} = Msg, K) ->
+    Msg#message{meta = maps:remove(K, M)};
+del_meta(#presence{meta = M} = Pres, K) ->
+    Pres#presence{meta = maps:remove(K, M)}.
 
 -spec decode(xmlel() | xmpp_element()) -> xmpp_element().
 decode(El) ->
