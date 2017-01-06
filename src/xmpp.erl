@@ -40,8 +40,8 @@
 	 format_error/1, io_format_error/1, is_stanza/1,
 	 set_subtag/2, get_subtag/2, remove_subtag/2, has_subtag/2,
 	 decode_els/1, decode_els/3, pp/1, get_name/1, get_text/1,
-	 mk_text/1, mk_text/2, is_known_tag/1, is_known_tag/2,
-	 append_subtags/2]).
+	 get_text/2, mk_text/1, mk_text/2, is_known_tag/1, is_known_tag/2,
+	 append_subtags/2, prep_lang/1]).
 
 %% XMPP errors
 -export([err_bad_request/0, err_bad_request/2,
@@ -466,12 +466,16 @@ append_subtags(Stanza, Tags) ->
     set_els(Stanza, Els ++ Tags).
 
 -spec get_text([text()]) -> binary().
-get_text([]) -> <<"">>;
-get_text([#text{data = Data}|_]) -> Data.
+get_text(Text) ->
+    get_text(Text, <<"en">>).
+
+-spec get_text([text()], binary()) -> binary().
+get_text(Text, Lang) ->
+    get_text(Text, Lang, <<>>).
 
 -spec mk_text(reason_text()) -> [text()].
 mk_text(Text) ->
-    mk_text(Text, <<"">>).
+    mk_text(Text, <<"en">>).
 
 -spec mk_text(reason_text(), lang()) -> [text()].
 mk_text(<<"">>, _) ->
@@ -933,3 +937,25 @@ translate(Lang, {Format, Args}) ->
     iolist_to_binary(io_lib:format(TranslatedFormat, Args));
 translate(Lang, Text) ->
     translate:translate(Lang, Text).
+
+-spec prep_lang(binary()) -> binary().
+prep_lang(L) ->
+    [H|_] = binary:split(L, <<"-">>),
+    << if X >= $A, X =< $Z ->
+	       <<(X + 32)>>;
+	  true ->
+	       <<X>>
+       end || <<X>> <= H >>.
+
+-spec get_text([text()], binary(), binary()) -> binary().
+get_text([#text{lang = L, data = Data}|Text], Lang, Result) ->
+    case prep_lang(L) of
+	Lang ->
+	    Data;
+	L1 when L1 == <<"">>; L1 == <<"en">>; Result == <<"">> ->
+	    get_text(Text, Lang, Data);
+	_ ->
+	    get_text(Text, Lang, Result)
+    end;
+get_text([], _Lang, Result) ->
+    Result.
