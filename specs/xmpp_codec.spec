@@ -433,8 +433,7 @@
            xmlns = [<<"jabber:client">>, <<"jabber:server">>,
 		    <<"jabber:component:accept">>],
            result = '$cdata',
-           cdata = #cdata{required = true,
-			  enc = {enc_int, []},
+           cdata = #cdata{enc = {enc_int, []},
                           dec = {dec_int, []}}}).
 
 -record(presence, {id = <<>> :: binary(),
@@ -444,7 +443,7 @@
                    to :: undefined | jid:jid(),
                    show :: undefined | 'away' | 'chat' | 'dnd' | 'xa',
                    status = [] :: [#text{}],
-                   priority :: integer(),
+                   priority :: undefined | integer(),
                    sub_els = [] :: [xmpp_element() | fxml:xmlel()],
 		   meta = #{} :: map()}).
 -type presence() :: #presence{}.
@@ -472,7 +471,7 @@
                           label = '$lang'}],
            refs = [#ref{name = presence_show, min = 0, max = 1, label = '$show'},
                    #ref{name = presence_status, label = '$status'},
-                   #ref{name = presence_priority, min = 0, max = 1, default = 0,
+                   #ref{name = presence_priority, min = 0, max = 1,
                         label = '$priority'}]}).
 
 -xml(error_bad_request,

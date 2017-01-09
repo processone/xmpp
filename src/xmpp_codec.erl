@@ -31586,7 +31586,7 @@ decode_presence(__TopXMLNS, __IgnoreEls,
 		{xmlel, <<"presence">>, _attrs, _els}) ->
     {Status, Show, Priority, __Els} =
 	decode_presence_els(__TopXMLNS, __IgnoreEls, _els, [],
-			    undefined, 0, []),
+			    undefined, undefined, []),
     {Id, Type, From, To, Lang} =
 	decode_presence_attrs(__TopXMLNS, _attrs, undefined,
 			      undefined, undefined, undefined, undefined),
@@ -31797,7 +31797,8 @@ encode_presence({presence, Id, Type, Lang, From, To,
 'encode_presence_$show'(Show, __TopXMLNS, _acc) ->
     [encode_presence_show(Show, __TopXMLNS) | _acc].
 
-'encode_presence_$priority'(0, __TopXMLNS, _acc) ->
+'encode_presence_$priority'(undefined, __TopXMLNS,
+			    _acc) ->
     _acc;
 'encode_presence_$priority'(Priority, __TopXMLNS,
 			    _acc) ->
@@ -31896,8 +31897,7 @@ encode_presence_priority(Cdata, __TopXMLNS) ->
     {xmlel, <<"priority">>, _attrs, _els}.
 
 decode_presence_priority_cdata(__TopXMLNS, <<>>) ->
-    erlang:error({xmpp_codec,
-		  {missing_cdata, <<>>, <<"priority">>, __TopXMLNS}});
+    undefined;
 decode_presence_priority_cdata(__TopXMLNS, _val) ->
     case catch dec_int(_val) of
       {'EXIT', _} ->
@@ -31906,6 +31906,7 @@ decode_presence_priority_cdata(__TopXMLNS, _val) ->
       _res -> _res
     end.
 
+encode_presence_priority_cdata(undefined, _acc) -> _acc;
 encode_presence_priority_cdata(_val, _acc) ->
     [{xmlcdata, enc_int(_val)} | _acc].
 
