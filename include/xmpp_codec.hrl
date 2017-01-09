@@ -39,7 +39,7 @@
                    to :: undefined | jid:jid(),
                    show :: undefined | 'away' | 'chat' | 'dnd' | 'xa',
                    status = [] :: [#text{}],
-                   priority :: undefined | integer(),
+                   priority :: integer(),
                    sub_els = [] :: [xmpp_element() | fxml:xmlel()],
 		   meta = #{} :: map()}).
 -type presence() :: #presence{}.
