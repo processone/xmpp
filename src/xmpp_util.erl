@@ -47,14 +47,14 @@ add_delay_info(Stz, From, Time) ->
 add_delay_info(Stz, From, Time, Desc) ->
     NewDelay = #delay{stamp = Time, from = From, desc = Desc},
     case xmpp:get_subtag(Stz, #delay{}) of
-	#delay{from = OldFrom} ->
+	#delay{from = OldFrom} when is_record(OldFrom, jid) ->
 	    case jid:tolower(From) == jid:tolower(OldFrom) of
 		true ->
 		    xmpp:set_subtag(Stz, NewDelay);
 		false ->
 		    xmpp:append_subtags(Stz, [NewDelay])
 	    end;
-	false ->
+	_ ->
 	    xmpp:append_subtags(Stz, [NewDelay])
     end.
 
