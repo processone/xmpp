@@ -941,11 +941,11 @@ translate(Lang, Text) ->
 -spec prep_lang(binary()) -> binary().
 prep_lang(L) ->
     [H|_] = binary:split(L, <<"-">>),
-    << if X >= $A, X =< $Z ->
-	       <<(X + 32)>>;
-	  true ->
-	       <<X>>
-       end || <<X>> <= H >>.
+    << <<(if X >= $A, X =< $Z ->
+		  X + 32;
+	     true ->
+		  X
+	  end)>> || <<X>> <= H >>.
 
 -spec get_text([text()], binary(), binary()) -> binary().
 get_text([#text{lang = L, data = Data}|Text], Lang, Result) ->
