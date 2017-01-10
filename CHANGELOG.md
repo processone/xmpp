@@ -1,3 +1,18 @@
+# Version 1.1.5
+
+Evgeniy Khramtsov:
+* Fix translation order
+* Add legacy auth stream feature support
+* Better support subtags with empty namespaces
+* Add dialback feature support
+* Fix error generation for raw xml elements
+* Treat unknown message type as "normal"
+* Allow including #text{} elements into #sm_failed{}
+* Add xmpp:del_meta/2 function
+* Fix typo in add_delay_info/4
+* Make it possible to get text by lang
+* Don't crash if previous delay tag misses 'from' attribute
+
 # Version 1.1.4
 
 * Support for password on MUC subcribe (Badlop)
