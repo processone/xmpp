@@ -1235,6 +1235,10 @@
      #elem{name = <<"unsupported-encoding">>,
            result = 'unsupported-encoding',
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-streams">>}).
+-xml(stream_error_unsupported_feature,
+     #elem{name = <<"unsupported-feature">>,
+           result = 'unsupported-feature',
+           xmlns = <<"urn:ietf:params:xml:ns:xmpp-streams">>}).
 -xml(stream_error_unsupported_stanza_type,
      #elem{name = <<"unsupported-stanza-type">>,
            result = 'unsupported-stanza-type',
@@ -1297,6 +1301,8 @@
                    #ref{name = stream_error_undefined_condition,
                         min = 0, max = 1, label = '$reason'},
                    #ref{name = stream_error_unsupported_encoding,
+                        min = 0, max = 1, label = '$reason'},
+		   #ref{name = stream_error_unsupported_feature,
                         min = 0, max = 1, label = '$reason'},
                    #ref{name = stream_error_unsupported_stanza_type,
                         min = 0, max = 1, label = '$reason'},

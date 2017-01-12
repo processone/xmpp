@@ -2025,6 +2025,14 @@ decode({xmlel, _name, _attrs, _} = _el, TopXMLNS,
        <<"urn:ietf:params:xml:ns:xmpp-streams">>} ->
 	  decode_stream_error_unsupported_stanza_type(<<"urn:ietf:params:xml:ns:xmpp-streams">>,
 						      IgnoreEls, _el);
+      {<<"unsupported-feature">>,
+       <<"urn:ietf:params:xml:ns:xmpp-streams">>, _} ->
+	  decode_stream_error_unsupported_feature(<<"urn:ietf:params:xml:ns:xmpp-streams">>,
+						  IgnoreEls, _el);
+      {<<"unsupported-feature">>, <<>>,
+       <<"urn:ietf:params:xml:ns:xmpp-streams">>} ->
+	  decode_stream_error_unsupported_feature(<<"urn:ietf:params:xml:ns:xmpp-streams">>,
+						  IgnoreEls, _el);
       {<<"unsupported-encoding">>,
        <<"urn:ietf:params:xml:ns:xmpp-streams">>, _} ->
 	  decode_stream_error_unsupported_encoding(<<"urn:ietf:params:xml:ns:xmpp-streams">>,
@@ -4557,6 +4565,12 @@ is_known_tag({xmlel, _name, _attrs, _} = _el,
        <<"urn:ietf:params:xml:ns:xmpp-streams">>, _} ->
 	  true;
       {<<"unsupported-stanza-type">>, <<>>,
+       <<"urn:ietf:params:xml:ns:xmpp-streams">>} ->
+	  true;
+      {<<"unsupported-feature">>,
+       <<"urn:ietf:params:xml:ns:xmpp-streams">>, _} ->
+	  true;
+      {<<"unsupported-feature">>, <<>>,
        <<"urn:ietf:params:xml:ns:xmpp-streams">>} ->
 	  true;
       {<<"unsupported-encoding">>,
@@ -26362,6 +26376,21 @@ decode_stream_error_els(__TopXMLNS, __IgnoreEls,
 				  Text, Reason)
     end;
 decode_stream_error_els(__TopXMLNS, __IgnoreEls,
+			[{xmlel, <<"unsupported-feature">>, _attrs, _} = _el
+			 | _els],
+			Text, Reason) ->
+    case get_attr(<<"xmlns">>, _attrs) of
+      <<"urn:ietf:params:xml:ns:xmpp-streams">> ->
+	  decode_stream_error_els(__TopXMLNS, __IgnoreEls, _els,
+				  Text,
+				  decode_stream_error_unsupported_feature(<<"urn:ietf:params:xml:ns:xmpp-streams">>,
+									  __IgnoreEls,
+									  _el));
+      _ ->
+	  decode_stream_error_els(__TopXMLNS, __IgnoreEls, _els,
+				  Text, Reason)
+    end;
+decode_stream_error_els(__TopXMLNS, __IgnoreEls,
 			[{xmlel, <<"unsupported-stanza-type">>, _attrs, _} = _el
 			 | _els],
 			Text, Reason) ->
@@ -26533,6 +26562,12 @@ encode_stream_error({stream_error, Reason, Text},
     [encode_stream_error_unsupported_encoding(Reason,
 					      __TopXMLNS)
      | _acc];
+'encode_stream_error_$reason'('unsupported-feature' =
+				  Reason,
+			      __TopXMLNS, _acc) ->
+    [encode_stream_error_unsupported_feature(Reason,
+					     __TopXMLNS)
+     | _acc];
 'encode_stream_error_$reason'('unsupported-stanza-type' =
 				  Reason,
 			      __TopXMLNS, _acc) ->
@@ -26576,6 +26611,21 @@ encode_stream_error_unsupported_stanza_type('unsupported-stanza-type',
     _els = [],
     _attrs = enc_xmlns_attrs(__NewTopXMLNS, __TopXMLNS),
     {xmlel, <<"unsupported-stanza-type">>, _attrs, _els}.
+
+decode_stream_error_unsupported_feature(__TopXMLNS,
+					__IgnoreEls,
+					{xmlel, <<"unsupported-feature">>,
+					 _attrs, _els}) ->
+    'unsupported-feature'.
+
+encode_stream_error_unsupported_feature('unsupported-feature',
+					__TopXMLNS) ->
+    __NewTopXMLNS =
+	choose_top_xmlns(<<"urn:ietf:params:xml:ns:xmpp-streams">>,
+			 [], __TopXMLNS),
+    _els = [],
+    _attrs = enc_xmlns_attrs(__NewTopXMLNS, __TopXMLNS),
+    {xmlel, <<"unsupported-feature">>, _attrs, _els}.
 
 decode_stream_error_unsupported_encoding(__TopXMLNS,
 					 __IgnoreEls,

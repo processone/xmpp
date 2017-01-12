@@ -92,6 +92,7 @@
          serr_system_shutdown/0, serr_system_shutdown/2,
          serr_undefined_condition/0, serr_undefined_condition/2,
          serr_unsupported_encoding/0, serr_unsupported_encoding/2,
+	 serr_unsupported_feature/0, serr_unsupported_feature/2,
          serr_unsupported_stanza_type/0, serr_unsupported_stanza_type/2,
          serr_unsupported_version/0, serr_unsupported_version/2]).
 
@@ -873,6 +874,14 @@ serr_unsupported_encoding() ->
 -spec serr_unsupported_encoding(reason_text(), lang()) -> stream_error().
 serr_unsupported_encoding(Text, Lang) ->
     serr('unsupported-encoding', Text, Lang).
+
+-spec serr_unsupported_feature() -> stream_error().
+serr_unsupported_feature() ->
+    serr('unsupported-feature').
+
+-spec serr_unsupported_feature(reason_text(), lang()) -> stream_error().
+serr_unsupported_feature(Text, Lang) ->
+    serr('unsupported-feature', Text, Lang).
 
 -spec serr_unsupported_stanza_type() -> stream_error().
 serr_unsupported_stanza_type() ->
