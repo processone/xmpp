@@ -1,3 +1,9 @@
+# Version 1.1.6
+
+Evgeniy Khramtsov:
+* Add xmpp:serr_unsupported_feature()
+* Don't replace existing delay tag with the same 'from'
+
 # Version 1.1.5
 
 Evgeniy Khramtsov:
