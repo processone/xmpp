@@ -41,7 +41,7 @@
 	 set_subtag/2, get_subtag/2, remove_subtag/2, has_subtag/2,
 	 decode_els/1, decode_els/3, pp/1, get_name/1, get_text/1,
 	 get_text/2, mk_text/1, mk_text/2, is_known_tag/1, is_known_tag/2,
-	 append_subtags/2, prep_lang/1]).
+	 append_subtags/2, prep_lang/1, register_codec/1, unregister_codec/1]).
 
 %% XMPP errors
 -export([err_bad_request/0, err_bad_request/2,
@@ -488,6 +488,14 @@ mk_text(Text, Lang) ->
 -spec pp(any()) -> iodata().
 pp(Term) ->
     xmpp_codec:pp(Term).
+
+-spec register_codec(module()) -> ok.
+register_codec(Mod) ->
+    xmpp_codec:register_module(Mod).
+
+-spec unregister_codec(module()) -> ok.
+unregister_codec(Mod) ->
+    xmpp_codec:unregister_module(Mod).
 
 %%%===================================================================
 %%% Functions to construct general XMPP errors

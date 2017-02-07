@@ -6,6 +6,7 @@
 -xml(last,
      #elem{name = <<"query">>,
            xmlns = <<"jabber:iq:last">>,
+	   module = 'xep0012',
            result = {last, '$seconds', '$status'},
            attrs = [#attr{name = <<"seconds">>,
                           enc = {enc_int, []},
@@ -15,24 +16,28 @@
 -xml(version_name,
      #elem{name = <<"name">>,
            xmlns = <<"jabber:iq:version">>,
+	   module = 'xep0092',
            result = '$cdata',
            cdata = #cdata{label = '$cdata', required = true}}).
 
 -xml(version_ver,
      #elem{name = <<"version">>,
            xmlns = <<"jabber:iq:version">>,
+	   module = 'xep0092',
            result = '$cdata',
            cdata = #cdata{label = '$cdata', required = true}}).
 
 -xml(version_os,
      #elem{name = <<"os">>,
            xmlns = <<"jabber:iq:version">>,
+	   module = 'xep0092',
            result = '$cdata',
            cdata = #cdata{label = '$cdata', required = true}}).
 
 -xml(version,
      #elem{name = <<"query">>,
            xmlns = <<"jabber:iq:version">>,
+	   module = 'xep0092',
            result = {version, '$name', '$ver', '$os'},
            refs = [#ref{name = version_name,
                         label = '$name',
@@ -47,12 +52,14 @@
 -xml(roster_group,
      #elem{name = <<"group">>,
            xmlns = <<"jabber:iq:roster">>,
+	   module = rfc6121,
            result = '$cdata',
            cdata = #cdata{required = true, label = '$cdata'}}).
 
 -xml(roster_item,
      #elem{name = <<"item">>,
            xmlns = <<"jabber:iq:roster">>,
+	   module = rfc6121,
            result = {roster_item, '$jid', '$name',
                      '$groups', '$subscription', '$ask'},
            attrs = [#attr{name = <<"jid">>,
@@ -73,6 +80,7 @@
 -xml(roster_query,
      #elem{name = <<"query">>,
            xmlns = <<"jabber:iq:roster">>,
+	   module = rfc6121,
            result = {roster_query, '$items', '$ver'},
            attrs = [#attr{name = <<"ver">>, default = undefined}],
            refs = [#ref{name = roster_item, label = '$items'}]}).
@@ -80,22 +88,34 @@
 -xml(rosterver_feature,
      #elem{name = <<"ver">>,
 	   xmlns = <<"urn:xmpp:features:rosterver">>,
+	   module = rfc6121,
 	   result = {rosterver_feature}}).
 
--xml(privacy_message, #elem{name = <<"message">>, xmlns = <<"jabber:iq:privacy">>,
-                            result = true}).
--xml(privacy_iq, #elem{name = <<"iq">>, xmlns = <<"jabber:iq:privacy">>,
-                       result = true}).
--xml(privacy_presence_in, #elem{name = <<"presence-in">>,
-                                xmlns = <<"jabber:iq:privacy">>,
-                                result = true}).
--xml(privacy_presence_out, #elem{name = <<"presence-out">>,
-                                 xmlns = <<"jabber:iq:privacy">>,
-                                 result = true}).
+-xml(privacy_message,
+     #elem{name = <<"message">>,
+	   xmlns = <<"jabber:iq:privacy">>,
+	   module = 'xep0016',
+	   result = true}).
+-xml(privacy_iq,
+     #elem{name = <<"iq">>,
+	   xmlns = <<"jabber:iq:privacy">>,
+	   module = 'xep0016',
+	   result = true}).
+-xml(privacy_presence_in,
+     #elem{name = <<"presence-in">>,
+	   xmlns = <<"jabber:iq:privacy">>,
+	   module = 'xep0016',
+	   result = true}).
+-xml(privacy_presence_out,
+     #elem{name = <<"presence-out">>,
+	   xmlns = <<"jabber:iq:privacy">>,
+	   module = 'xep0016',
+	   result = true}).
 
 -xml(privacy_item,
      #elem{name = <<"item">>,
            xmlns = <<"jabber:iq:privacy">>,
+	   module = 'xep0016',
            result = {privacy_item, '$order', '$action', '$type', '$value',
 		     '$message', '$iq', '$presence_in', '$presence_out'},
            attrs = [#attr{name = <<"action">>,
@@ -122,6 +142,7 @@
 -xml(privacy_list,
      #elem{name = <<"list">>,
            xmlns = <<"jabber:iq:privacy">>,
+	   module = 'xep0016',
            result = {privacy_list, '$name', '$items'},
            attrs = [#attr{name = <<"name">>,
                           required = true}],
@@ -131,6 +152,7 @@
 -xml(privacy_default_list,
      #elem{name = <<"default">>,
            xmlns = <<"jabber:iq:privacy">>,
+	   module = 'xep0016',
            result = '$name',
            attrs = [#attr{name = <<"name">>,
                           default = none}]}).
@@ -138,6 +160,7 @@
 -xml(privacy_active_list,
      #elem{name = <<"active">>,
            xmlns = <<"jabber:iq:privacy">>,
+	   module = 'xep0016',
            result = '$name',
            attrs = [#attr{name = <<"name">>,
                           default = none}]}).
@@ -145,6 +168,7 @@
 -xml(privacy,
      #elem{name = <<"query">>,
            xmlns = <<"jabber:iq:privacy">>,
+	   module = 'xep0016',
            result = {privacy_query, '$lists', '$default', '$active'},
            refs = [#ref{name = privacy_list,
                         label = '$lists'},
@@ -158,6 +182,7 @@
 -xml(block_item,
      #elem{name = <<"item">>,
            xmlns = <<"urn:xmpp:blocking">>,
+	   module = 'xep0191',
            result = '$jid',
            attrs = [#attr{name = <<"jid">>,
                           required = true,
@@ -167,6 +192,7 @@
 -xml(block,
      #elem{name = <<"block">>,
            xmlns = <<"urn:xmpp:blocking">>,
+	   module = 'xep0191',
            result = {block, '$items'},
            refs = [#ref{name = block_item,
                         label = '$items'}]}).
@@ -174,6 +200,7 @@
 -xml(unblock,
      #elem{name = <<"unblock">>,
            xmlns = <<"urn:xmpp:blocking">>,
+	   module = 'xep0191',
            result = {unblock, '$items'},
            refs = [#ref{name = block_item,
                         label = '$items'}]}).
@@ -181,6 +208,7 @@
 -xml(block_list,
      #elem{name = <<"blocklist">>,
            xmlns = <<"urn:xmpp:blocking">>,
+	   module = 'xep0191',
            result = {block_list, '$items'},
 	   refs = [#ref{name = block_item,
                         label = '$items'}]}).
@@ -188,6 +216,7 @@
 -xml(disco_identity,
      #elem{name = <<"identity">>,
            xmlns = <<"http://jabber.org/protocol/disco#info">>,
+	   module = 'xep0030',
            result = {identity, '$category', '$type', '$lang', '$name'},
            attrs = [#attr{name = <<"category">>,
                           required = true},
@@ -200,6 +229,7 @@
 -xml(disco_feature,
      #elem{name = <<"feature">>,
            xmlns = <<"http://jabber.org/protocol/disco#info">>,
+	   module = 'xep0030',
            result = '$var',
            attrs = [#attr{name = <<"var">>,
                           required = true}]}).
@@ -207,6 +237,7 @@
 -xml(disco_info,
      #elem{name = <<"query">>,
            xmlns = <<"http://jabber.org/protocol/disco#info">>,
+	   module = 'xep0030',
            result = {disco_info, '$node', '$identities', '$features', '$xdata'},
            attrs = [#attr{name = <<"node">>}],
            refs = [#ref{name = disco_identity,
@@ -219,6 +250,7 @@
 -xml(disco_item,
      #elem{name = <<"item">>,
            xmlns = <<"http://jabber.org/protocol/disco#items">>,
+	   module = 'xep0030',
            result = {disco_item, '$jid', '$name', '$node'},
            attrs = [#attr{name = <<"jid">>,
                           dec = {dec_jid, []},
@@ -229,6 +261,7 @@
 -xml(disco_items,
      #elem{name = <<"query">>,
            xmlns = <<"http://jabber.org/protocol/disco#items">>,
+	   module = 'xep0030',
            result = {disco_items, '$node', '$items', '$rsm'},
            attrs = [#attr{name = <<"node">>}],
            refs = [#ref{name = disco_item,
@@ -239,21 +272,25 @@
 -xml(private,
      #elem{name = <<"query">>,
            xmlns = <<"jabber:iq:private">>,
+	   module = 'xep0049',
            result = {private, '$_xmls'}}).
 
 -xml(conference_nick,
      #elem{name = <<"nick">>,
            xmlns = <<"storage:bookmarks">>,
+	   module = 'xep0048',
            result = '$cdata'}).
 
 -xml(conference_password,
      #elem{name = <<"password">>,
            xmlns = <<"storage:bookmarks">>,
+	   module = 'xep0048',
            result = '$cdata'}).
 
 -xml(bookmark_conference,
      #elem{name = <<"conference">>,
            xmlns = <<"storage:bookmarks">>,
+	   module = 'xep0048',
            result = {bookmark_conference, '$name', '$jid',
                      '$autojoin', '$nick', '$password'},
            attrs = [#attr{name = <<"name">>,
@@ -276,6 +313,7 @@
 -xml(bookmark_url,
      #elem{name = <<"url">>,
            xmlns = <<"storage:bookmarks">>,
+	   module = 'xep0048',
            result = {bookmark_url, '$name', '$url'},
            attrs = [#attr{name = <<"name">>,
                           required = true},
@@ -285,6 +323,7 @@
 -xml(bookmarks_storage,
      #elem{name = <<"storage">>,
            xmlns = <<"storage:bookmarks">>,
+	   module = 'xep0048',
            result = {bookmark_storage, '$conference', '$url'},
            refs = [#ref{name = bookmark_conference,
                         label = '$conference'},
@@ -294,6 +333,7 @@
 -xml(stat_error,
      #elem{name = <<"error">>,
            xmlns = <<"http://jabber.org/protocol/stats">>,
+	   module = 'xep0039',
            result = {stat_error, '$code', '$reason'},
 	   cdata = #cdata{default = <<"">>, label = '$reason'},
            attrs = [#attr{name = <<"code">>,
@@ -304,6 +344,7 @@
 -xml(stat,
      #elem{name = <<"stat">>,
            xmlns = <<"http://jabber.org/protocol/stats">>,
+	   module = 'xep0039',
            result = {stat, '$name', '$units', '$value', '$error'},
            attrs = [#attr{name = <<"name">>,
                           required = true},
@@ -315,6 +356,7 @@
 -xml(stats,
      #elem{name = <<"query">>,
            xmlns = <<"http://jabber.org/protocol/stats">>,
+	   module = 'xep0039',
            result = {stats, '$list', '$node'},
 	   attrs = [#attr{name = <<"node">>, default = <<"">>}],
            refs = [#ref{name = stat, label = '$list'}]}).
@@ -338,6 +380,7 @@
      #elem{name = <<"iq">>,
            xmlns = [<<"jabber:client">>, <<"jabber:server">>,
 		    <<"jabber:component:accept">>],
+	   module = rfc6120,
            result = {iq, '$id', '$type', '$lang', '$from', '$to', '$_els', '$_'},
            attrs = [#attr{name = <<"id">>,
                           required = true},
@@ -358,6 +401,7 @@
      #elem{name = <<"subject">>,
            xmlns = [<<"jabber:client">>, <<"jabber:server">>,
 		    <<"jabber:component:accept">>],
+	   module = rfc6120,
            result = {text, '$lang', '$data'},
            cdata = #cdata{label = '$data'},
            attrs = [#attr{name = <<"xml:lang">>, label = '$lang'}]}).
@@ -366,6 +410,7 @@
      #elem{name = <<"body">>,
            xmlns = [<<"jabber:client">>, <<"jabber:server">>,
 		    <<"jabber:component:accept">>],
+	   module = rfc6120,
            result = {text, '$lang', '$data'},
            cdata = #cdata{label = '$data'},
            attrs = [#attr{name = <<"xml:lang">>, label = '$lang'}]}).
@@ -374,6 +419,7 @@
      #elem{name = <<"thread">>,
            xmlns = [<<"jabber:client">>, <<"jabber:server">>,
 		    <<"jabber:component:accept">>],
+	   module = rfc6120,
            result = '$cdata'}).
 
 -record(message, {id = <<>> :: binary(),
@@ -392,6 +438,7 @@
      #elem{name = <<"message">>,
            xmlns = [<<"jabber:client">>, <<"jabber:server">>,
 		    <<"jabber:component:accept">>],
+	   module = rfc6120,
            result = {message, '$id', '$type', '$lang', '$from', '$to',
                      '$subject', '$body', '$thread', '$_els', '$_'},
            attrs = [#attr{name = <<"id">>},
@@ -415,6 +462,7 @@
      #elem{name = <<"show">>,
            xmlns = [<<"jabber:client">>, <<"jabber:server">>,
 		    <<"jabber:component:accept">>],
+	   module = rfc6120,
            result = '$cdata',
            cdata = #cdata{enc = {enc_enum, []},
                           dec = {dec_enum, [[away, chat, dnd, xa]]}}}).
@@ -423,6 +471,7 @@
      #elem{name = <<"status">>,
            xmlns = [<<"jabber:client">>, <<"jabber:server">>,
 		    <<"jabber:component:accept">>],
+	   module = rfc6120,
            result = {text, '$lang', '$data'},
            cdata = #cdata{label = '$data'},
            attrs = [#attr{name = <<"xml:lang">>,
@@ -432,6 +481,7 @@
      #elem{name = <<"priority">>,
            xmlns = [<<"jabber:client">>, <<"jabber:server">>,
 		    <<"jabber:component:accept">>],
+	   module = rfc6120,
            result = '$cdata',
            cdata = #cdata{enc = {enc_int, []},
                           dec = {dec_int, []}}}).
@@ -452,6 +502,7 @@
      #elem{name = <<"presence">>,
            xmlns = [<<"jabber:client">>, <<"jabber:server">>,
 		    <<"jabber:component:accept">>],
+	   module = rfc6120,
            result = {presence, '$id', '$type', '$lang', '$from', '$to',
                      '$show', '$status', '$priority', '$_els', '$_'},
            attrs = [#attr{name = <<"id">>},
@@ -477,96 +528,119 @@
 -xml(error_bad_request,
      #elem{name = <<"bad-request">>,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
+	   module = rfc6120,
            result = 'bad-request'}).
 -xml(error_conflict,
      #elem{name = <<"conflict">>,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
+	   module = rfc6120,
            result = 'conflict'}).
 -xml(error_feature_not_implemented,
      #elem{name = <<"feature-not-implemented">>,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
+	   module = rfc6120,
            result = 'feature-not-implemented'}).
 -xml(error_forbidden,
      #elem{name = <<"forbidden">>,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
+	   module = rfc6120,
            result = 'forbidden'}).
 -xml(error_gone,
      #elem{name = <<"gone">>,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
+	   module = rfc6120,
            cdata = #cdata{label = '$uri'},
            result = {'gone', '$uri'}}).
 -xml(error_internal_server_error,
      #elem{name = <<"internal-server-error">>,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
+	   module = rfc6120,
            result = 'internal-server-error'}).
 -xml(error_item_not_found,
      #elem{name = <<"item-not-found">>,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
+	   module = rfc6120,
            result = 'item-not-found'}).
 -xml(error_jid_malformed,
      #elem{name = <<"jid-malformed">>,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
+	   module = rfc6120,
            result = 'jid-malformed'}).
 -xml(error_not_acceptable,
      #elem{name = <<"not-acceptable">>,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
+	   module = rfc6120,
            result = 'not-acceptable'}).
 -xml(error_not_allowed,
      #elem{name = <<"not-allowed">>,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
+	   module = rfc6120,
            result = 'not-allowed'}).
 -xml(error_not_authorized,
      #elem{name = <<"not-authorized">>,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
+	   module = rfc6120,
            result = 'not-authorized'}).
 -xml(error_payment_required,
      #elem{name = <<"payment-required">>,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
+	   module = rfc6120,
            result = 'payment-required'}).
 -xml(error_policy_violation,
      #elem{name = <<"policy-violation">>,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
+	   module = rfc6120,
            result = 'policy-violation'}).
 -xml(error_recipient_unavailable,
      #elem{name = <<"recipient-unavailable">>,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
+	   module = rfc6120,
            result = 'recipient-unavailable'}).
 -xml(error_redirect,
      #elem{name = <<"redirect">>,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
+	   module = rfc6120,
            cdata = #cdata{label = '$uri'},
            result = {'redirect', '$uri'}}).
 -xml(error_registration_required,
      #elem{name = <<"registration-required">>,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
+	   module = rfc6120,
            result = 'registration-required'}).
 -xml(error_remote_server_not_found,
      #elem{name = <<"remote-server-not-found">>,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
+	   module = rfc6120,
            result = 'remote-server-not-found'}).
 -xml(error_remote_server_timeout,
      #elem{name = <<"remote-server-timeout">>,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
+	   module = rfc6120,
            result = 'remote-server-timeout'}).
 -xml(error_resource_constraint,
      #elem{name = <<"resource-constraint">>,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
+	   module = rfc6120,
            result = 'resource-constraint'}).
 -xml(error_service_unavailable,
      #elem{name = <<"service-unavailable">>,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
+	   module = rfc6120,
            result = 'service-unavailable'}).
 -xml(error_subscription_required,
      #elem{name = <<"subscription-required">>,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
+	   module = rfc6120,
            result = 'subscription-required'}).
 -xml(error_undefined_condition,
      #elem{name = <<"undefined-condition">>,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
+	   module = rfc6120,
            result = 'undefined-condition'}).
 -xml(error_unexpected_request,
      #elem{name = <<"unexpected-request">>,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
+	   module = rfc6120,
            result = 'unexpected-request'}).
 
 -xml(error_text,
@@ -574,6 +648,7 @@
            result = {text, '$lang', '$data'},
            cdata = #cdata{label = '$data'},
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
+	   module = rfc6120,
            attrs = [#attr{name = <<"xml:lang">>,
                           label = '$lang'}]}).
 
@@ -581,6 +656,7 @@
      #elem{name = <<"error">>,
            xmlns = [<<"jabber:client">>, <<"jabber:server">>,
 		    <<"jabber:component:accept">>],
+	   module = rfc6120,
            result = {stanza_error, '$type', '$code', '$by', '$reason', '$text', '$_els'},
            attrs = [#attr{name = <<"type">>,
                           label = '$type',
@@ -645,6 +721,7 @@
 -xml(bind_jid,
      #elem{name = <<"jid">>,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-bind">>,
+	   module = rfc6120,
            result = '$cdata',
            cdata = #cdata{dec = {dec_jid, []},
                           enc = {enc_jid, []}}}).
@@ -652,12 +729,14 @@
 -xml(bind_resource,
      #elem{name = <<"resource">>,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-bind">>,
+	   module = rfc6120,
            result = '$cdata',
            cdata = #cdata{dec = {resourceprep, []},
                           enc = {resourceprep, []}}}).
 
 -xml(bind, #elem{name = <<"bind">>,
                  xmlns = <<"urn:ietf:params:xml:ns:xmpp-bind">>,
+		 module = rfc6120,
                  result = {bind, '$jid', '$resource'},
                  refs = [#ref{name = bind_jid,
                               label = '$jid',
@@ -670,23 +749,28 @@
 -xml(legacy_auth_username,
      #elem{name = <<"username">>,
 	   xmlns = <<"jabber:iq:auth">>,
+	   module = 'xep0078',
 	   result = '$cdata'}).
 -xml(legacy_auth_password,
      #elem{name = <<"password">>,
 	   xmlns = <<"jabber:iq:auth">>,
+	   module = 'xep0078',
 	   result = '$cdata'}).
 -xml(legacy_auth_digest,
      #elem{name = <<"digest">>,
 	   xmlns = <<"jabber:iq:auth">>,
+	   module = 'xep0078',
 	   result = '$cdata'}).
 -xml(legacy_auth_resource,
      #elem{name = <<"resource">>,
 	   xmlns = <<"jabber:iq:auth">>,
+	   module = 'xep0078',
 	   result = '$cdata'}).
 
 -xml(legacy_auth,
      #elem{name = <<"query">>,
 	   xmlns = <<"jabber:iq:auth">>,
+	   module = 'xep0078',
 	   result = {legacy_auth, '$username', '$password',
 		     '$digest', '$resource'},
 	   refs = [#ref{name = legacy_auth_username, min = 0, max = 1,
@@ -701,11 +785,13 @@
 -xml(legacy_auth_feature,
      #elem{name = <<"auth">>,
 	   xmlns = <<"http://jabber.org/features/iq-auth">>,
+	   module = 'xep0078',
 	   result = {legacy_auth_feature}}).
 
 -xml(sasl_auth,
      #elem{name = <<"auth">>,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-sasl">>,
+	   module = rfc6120,
            cdata = #cdata{label = '$text',
                           dec = {base64, mime_decode, []},
                           enc = {base64, encode, []}},
@@ -716,11 +802,13 @@
 -xml(sasl_abort,
      #elem{name = <<"abort">>,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-sasl">>,
+	   module = rfc6120,
            result = {sasl_abort}}).
 
 -xml(sasl_challenge,
      #elem{name = <<"challenge">>,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-sasl">>,
+	   module = rfc6120,
            cdata = #cdata{label = '$text',
                           dec = {base64, mime_decode, []},
                           enc = {base64, encode, []}},
@@ -729,6 +817,7 @@
 -xml(sasl_response,
      #elem{name = <<"response">>,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-sasl">>,
+	   module = rfc6120,
            cdata = #cdata{label = '$text',
                           dec = {base64, mime_decode, []},
                           enc = {base64, encode, []}},
@@ -737,6 +826,7 @@
 -xml(sasl_success,
      #elem{name = <<"success">>,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-sasl">>,
+	   module = rfc6120,
            cdata = #cdata{label = '$text',
                           dec = {base64, mime_decode, []},
                           enc = {base64, encode, []}},
@@ -745,6 +835,7 @@
 -xml(sasl_failure_text,
      #elem{name = <<"text">>,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-sasl">>,
+	   module = rfc6120,
            result = {text, '$lang', '$data'},
            cdata = #cdata{label = '$data'},
            attrs = [#attr{name = <<"xml:lang">>,
@@ -753,55 +844,68 @@
 -xml(sasl_failure_aborted,
      #elem{name = <<"aborted">>,
            result = 'aborted',
+	   module = rfc6120,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-sasl">>}).
 -xml(sasl_failure_account_disabled,
      #elem{name = <<"account-disabled">>,
            result = 'account-disabled',
+	   module = rfc6120,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-sasl">>}).
 -xml(sasl_failure_credentials_expired,
      #elem{name = <<"credentials-expired">>,
            result = 'credentials-expired',
+	   module = rfc6120,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-sasl">>}).
 -xml(sasl_failure_encryption_required,
      #elem{name = <<"encryption-required">>,
            result = 'encryption-required',
+	   module = rfc6120,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-sasl">>}).
 -xml(sasl_failure_incorrect_encoding,
      #elem{name = <<"incorrect-encoding">>,
            result = 'incorrect-encoding',
+	   module = rfc6120,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-sasl">>}).
 -xml(sasl_failure_invalid_authzid,
      #elem{name = <<"invalid-authzid">>,
            result = 'invalid-authzid',
+	   module = rfc6120,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-sasl">>}).
 -xml(sasl_failure_invalid_mechanism,
      #elem{name = <<"invalid-mechanism">>,
            result = 'invalid-mechanism',
+	   module = rfc6120,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-sasl">>}).
 -xml(sasl_failure_malformed_request,
      #elem{name = <<"malformed-request">>,
            result = 'malformed-request',
+	   module = rfc6120,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-sasl">>}).
 -xml(sasl_failure_mechanism_too_weak,
      #elem{name = <<"mechanism-too-weak">>,
            result = 'mechanism-too-weak',
+	   module = rfc6120,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-sasl">>}).
 -xml(sasl_failure_not_authorized,
      #elem{name = <<"not-authorized">>,
            result = 'not-authorized',
+	   module = rfc6120,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-sasl">>}).
 -xml(sasl_failure_bad_protocol,
      #elem{name = <<"bad-protocol">>,
            result = 'bad-protocol',
+	   module = rfc6120,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-sasl">>}).
 -xml(sasl_failure_temporary_auth_failure,
      #elem{name = <<"temporary-auth-failure">>,
            result = 'temporary-auth-failure',
+	   module = rfc6120,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-sasl">>}).
 
 -xml(sasl_failure,
      #elem{name = <<"failure">>,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-sasl">>,
+	   module = rfc6120,
            result = {sasl_failure, '$reason', '$text'},
            refs = [#ref{name = sasl_failure_text,
                         label = '$text'},
@@ -833,11 +937,13 @@
 -xml(sasl_mechanism,
      #elem{name = <<"mechanism">>,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-sasl">>,
+	   module = rfc6120,
            result = '$cdata'}).
 
 -xml(sasl_mechanisms,
      #elem{name = <<"mechanisms">>,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-sasl">>,
+	   module = rfc6120,
            result = {sasl_mechanisms, '$list'},
            refs = [#ref{name = sasl_mechanism,
                         label = '$list'}]}).
@@ -845,11 +951,13 @@
 -xml(starttls_required,
      #elem{name = <<"required">>,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-tls">>,
+	   module = rfc6120,
            result = true}).
 
 -xml(starttls,
      #elem{name = <<"starttls">>,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-tls">>,
+	   module = rfc6120,
            result = {starttls, '$required'},
            refs = [#ref{name = starttls_required,
                         label = '$required',
@@ -859,29 +967,35 @@
 -xml(starttls_proceed,
      #elem{name = <<"proceed">>,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-tls">>,
+	   module = rfc6120,
            result = {starttls_proceed}}).
 
 -xml(starttls_failure,
      #elem{name = <<"failure">>,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-tls">>,
+	   module = rfc6120,
            result = {starttls_failure}}).
 
 -xml(compress_failure_setup_failed,
      #elem{name = <<"setup-failed">>,
            xmlns = <<"http://jabber.org/protocol/compress">>,
+	   module = 'xep0138',
            result = 'setup-failed'}).
 -xml(compress_failure_processing_failed,
      #elem{name = <<"processing-failed">>,
            xmlns = <<"http://jabber.org/protocol/compress">>,
+	   module = 'xep0138',
            result = 'processing-failed'}).
 -xml(compress_failure_unsupported_method,
      #elem{name = <<"unsupported-method">>,
            xmlns = <<"http://jabber.org/protocol/compress">>,
+	   module = 'xep0138',
            result = 'unsupported-method'}).
 
 -xml(compress_failure,
      #elem{name = <<"failure">>,
            xmlns = <<"http://jabber.org/protocol/compress">>,
+	   module = 'xep0138',
            result = {compress_failure, '$reason'},
            refs = [#ref{name = compress_failure_setup_failed,
                         min = 0, max = 1, label = '$reason'},
@@ -893,11 +1007,13 @@
 -xml(compress_method,
      #elem{name = <<"method">>,
            xmlns = <<"http://jabber.org/protocol/compress">>,
+	   module = 'xep0138',
            result = '$cdata'}).
 
 -xml(compress,
      #elem{name = <<"compress">>,
            xmlns = <<"http://jabber.org/protocol/compress">>,
+	   module = 'xep0138',
            result = {compress, '$methods'},
            refs = [#ref{name = compress_method,
                         label = '$methods'}]}).
@@ -905,42 +1021,50 @@
 -xml(compressed,
      #elem{name = <<"compressed">>,
            xmlns = <<"http://jabber.org/protocol/compress">>,
+	   module = 'xep0138',
            result = {compressed}}).
 
 -xml(compression_method,
      #elem{name = <<"method">>,
            xmlns = <<"http://jabber.org/features/compress">>,
+	   module = 'xep0138',
            result = '$cdata'}).
 
 -xml(compression,
      #elem{name = <<"compression">>,
            xmlns = <<"http://jabber.org/features/compress">>,
+	   module = 'xep0138',
            result = {compression, '$methods'},
            refs = [#ref{name = compression_method, label = '$methods'}]}).
 
 -xml(stream_features,
      #elem{name = <<"stream:features">>,
            xmlns = [<<"jabber:client">>, <<"jabber:server">>],
+	   module = rfc6120,
            result = {stream_features, '$_els'}}).
 
 -xml(p1_push,
      #elem{name = <<"push">>,
            result = {p1_push},
+	   module = p1_stream,
            xmlns = <<"p1:push">>}).
 
 -xml(p1_rebind,
      #elem{name = <<"rebind">>,
            result = {p1_rebind},
+	   module = p1_stream,
            xmlns = <<"p1:rebind">>}).
 
 -xml(p1_ack,
      #elem{name = <<"ack">>,
            result = {p1_ack},
+	   module = p1_stream,
            xmlns = <<"p1:ack">>}).
 
 -xml(caps,
      #elem{name = <<"c">>,
            xmlns = <<"http://jabber.org/protocol/caps">>,
+	   module = 'xep0115',
            result = {caps, '$node', '$version', '$hash', '$exts'},
            attrs = [#attr{name = <<"hash">>},
                     #attr{name = <<"node">>},
@@ -955,92 +1079,114 @@
 -xml(feature_register,
      #elem{name = <<"register">>,
            xmlns = <<"http://jabber.org/features/iq-register">>,
+	   module = 'xep0077',
            result = {feature_register}}).
 
 -xml(register_registered,
      #elem{name = <<"registered">>,
            xmlns = <<"jabber:iq:register">>,
+	   module = 'xep0077',
            result = true}).
 -xml(register_remove,
      #elem{name = <<"remove">>,
            xmlns = <<"jabber:iq:register">>,
+	   module = 'xep0077',
            result = true}).
 -xml(register_instructions,
      #elem{name = <<"instructions">>,
            xmlns = <<"jabber:iq:register">>,
+	   module = 'xep0077',
            result = '$cdata'}).
 -xml(register_username,
      #elem{name = <<"username">>,
            xmlns = <<"jabber:iq:register">>,
+	   module = 'xep0077',
            result = '$cdata'}).
 -xml(register_nick,
      #elem{name = <<"nick">>,
            xmlns = <<"jabber:iq:register">>,
+	   module = 'xep0077',
            result = '$cdata'}).
 -xml(register_password,
      #elem{name = <<"password">>,
            xmlns = <<"jabber:iq:register">>,
+	   module = 'xep0077',
            result = '$cdata'}).
 -xml(register_name,
      #elem{name = <<"name">>,
            xmlns = <<"jabber:iq:register">>,
+	   module = 'xep0077',
            result = '$cdata'}).
 -xml(register_first,
      #elem{name = <<"first">>,
            xmlns = <<"jabber:iq:register">>,
+	   module = 'xep0077',
            result = '$cdata'}).
 -xml(register_last,
      #elem{name = <<"last">>,
            xmlns = <<"jabber:iq:register">>,
+	   module = 'xep0077',
            result = '$cdata'}).
 -xml(register_email,
      #elem{name = <<"email">>,
            xmlns = <<"jabber:iq:register">>,
+	   module = 'xep0077',
            result = '$cdata'}).
 -xml(register_address,
      #elem{name = <<"address">>,
            xmlns = <<"jabber:iq:register">>,
+	   module = 'xep0077',
            result = '$cdata'}).
 -xml(register_city,
      #elem{name = <<"city">>,
            xmlns = <<"jabber:iq:register">>,
+	   module = 'xep0077',
            result = '$cdata'}).
 -xml(register_state,
      #elem{name = <<"state">>,
            xmlns = <<"jabber:iq:register">>,
+	   module = 'xep0077',
            result = '$cdata'}).
 -xml(register_zip,
      #elem{name = <<"zip">>,
            xmlns = <<"jabber:iq:register">>,
+	   module = 'xep0077',
            result = '$cdata'}).
 -xml(register_phone,
      #elem{name = <<"phone">>,
            xmlns = <<"jabber:iq:register">>,
+	   module = 'xep0077',
            result = '$cdata'}).
 -xml(register_url,
      #elem{name = <<"url">>,
            xmlns = <<"jabber:iq:register">>,
+	   module = 'xep0077',
            result = '$cdata'}).
 -xml(register_date,
      #elem{name = <<"date">>,
            xmlns = <<"jabber:iq:register">>,
+	   module = 'xep0077',
            result = '$cdata'}).
 -xml(register_misc,
      #elem{name = <<"misc">>,
            xmlns = <<"jabber:iq:register">>,
+	   module = 'xep0077',
            result = '$cdata'}).
 -xml(register_text,
      #elem{name = <<"text">>,
            xmlns = <<"jabber:iq:register">>,
+	   module = 'xep0077',
            result = '$cdata'}).
 -xml(register_key,
      #elem{name = <<"key">>,
            xmlns = <<"jabber:iq:register">>,
+	   module = 'xep0077',
            result = '$cdata'}).
 
 -xml(register,
      #elem{name = <<"query">>,
            xmlns = <<"jabber:iq:register">>,
+	   module = 'xep0077',
            result = {register, '$registered', '$remove', '$instructions',
                      '$username', '$nick', '$password', '$name',
                      '$first', '$last', '$email', '$address',
@@ -1092,11 +1238,13 @@
 -xml(session_optional,
      #elem{name = <<"optional">>,
 	   xmlns = <<"urn:ietf:params:xml:ns:xmpp-session">>,
+	   module = rfc3921,
            result = true}).
 
 -xml(session,
      #elem{name = <<"session">>,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-session">>,
+	   module = rfc3921,
            result = {xmpp_session, '$optional'},
 	   refs = [#ref{name = session_optional,
 			min = 0, max = 1, default = false,
@@ -1105,11 +1253,13 @@
 -xml(ping,
      #elem{name = <<"ping">>,
            xmlns = <<"urn:xmpp:ping">>,
+	   module = 'xep0199',
            result = {ping}}).
 
 -xml(time_utc,
      #elem{name = <<"utc">>,
            xmlns = <<"urn:xmpp:time">>,
+	   module = 'xep0202',
            result = '$cdata',
            cdata = #cdata{dec = {dec_utc, []},
                           enc = {enc_utc, []}}}).
@@ -1117,6 +1267,7 @@
 -xml(time_tzo,
      #elem{name = <<"tzo">>,
            xmlns = <<"urn:xmpp:time">>,
+	   module = 'xep0202',
            result = '$cdata',
            cdata = #cdata{dec = {dec_tzo, []},
                           enc = {enc_tzo, []}}}).
@@ -1124,6 +1275,7 @@
 -xml(time,
      #elem{name = <<"time">>,
            xmlns = <<"urn:xmpp:time">>,
+	   module = 'xep0202',
            result = {time, '$tzo', '$utc'},
            refs = [#ref{name = time_tzo,
                         label = '$tzo',
@@ -1137,84 +1289,104 @@
            result = {text, '$lang', '$data'},
            cdata = #cdata{label = '$data'},
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-streams">>,
+	   module = rfc6120,
            attrs = [#attr{name = <<"xml:lang">>,
                           label = '$lang'}]}).
 
 -xml(stream_error_bad_format,
      #elem{name = <<"bad-format">>,
            result = 'bad-format',
+	   module = rfc6120,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-streams">>}).       
 -xml(stream_error_bad_namespace_prefix,
      #elem{name = <<"bad-namespace-prefix">>,
            result = 'bad-namespace-prefix',
+	   module = rfc6120,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-streams">>}).
 -xml(stream_error_conflict,
      #elem{name = <<"conflict">>,
            result = 'conflict',
+	   module = rfc6120,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-streams">>}).
 -xml(stream_error_connection_timeout,
      #elem{name = <<"connection-timeout">>,
            result = 'connection-timeout',
+	   module = rfc6120,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-streams">>}).
 -xml(stream_error_host_gone,
      #elem{name = <<"host-gone">>,
            result = 'host-gone',
+	   module = rfc6120,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-streams">>}).
 -xml(stream_error_host_unknown,
      #elem{name = <<"host-unknown">>,
            result = 'host-unknown',
+	   module = rfc6120,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-streams">>}).
 -xml(stream_error_improper_addressing,
      #elem{name = <<"improper-addressing">>,
            result = 'improper-addressing',
+	   module = rfc6120,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-streams">>}).
 -xml(stream_error_internal_server_error,
      #elem{name = <<"internal-server-error">>,
            result = 'internal-server-error',
+	   module = rfc6120,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-streams">>}).
 -xml(stream_error_invalid_from,
      #elem{name = <<"invalid-from">>,
            result = 'invalid-from',
+	   module = rfc6120,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-streams">>}).
 -xml(stream_error_invalid_id,
      #elem{name = <<"invalid-id">>,
            result = 'invalid-id',
+	   module = rfc6120,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-streams">>}).
 -xml(stream_error_invalid_namespace,
      #elem{name = <<"invalid-namespace">>,
            result = 'invalid-namespace',
+	   module = rfc6120,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-streams">>}).
 -xml(stream_error_invalid_xml,
      #elem{name = <<"invalid-xml">>,
            result = 'invalid-xml',
+	   module = rfc6120,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-streams">>}).
 -xml(stream_error_not_authorized,
      #elem{name = <<"not-authorized">>,
            result = 'not-authorized',
+	   module = rfc6120,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-streams">>}).
 -xml(stream_error_not_well_formed,
      #elem{name = <<"not-well-formed">>,
            result = 'not-well-formed',
+	   module = rfc6120,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-streams">>}).
 -xml(stream_error_policy_violation,
      #elem{name = <<"policy-violation">>,
            result = 'policy-violation',
+	   module = rfc6120,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-streams">>}).
 -xml(stream_error_remote_connection_failed,
      #elem{name = <<"remote-connection-failed">>,
            result = 'remote-connection-failed',
+	   module = rfc6120,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-streams">>}).
 -xml(stream_error_reset,
      #elem{name = <<"reset">>,
            result = 'reset',
+	   module = rfc6120,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-streams">>}).
 -xml(stream_error_resource_constraint,
      #elem{name = <<"resource-constraint">>,
            result = 'resource-constraint',
+	   module = rfc6120,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-streams">>}).
 -xml(stream_error_restricted_xml,
      #elem{name = <<"restricted-xml">>,
            result = 'restricted-xml',
+	   module = rfc6120,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-streams">>}).
 -xml(stream_error_see_other_host,
      #elem{name = <<"see-other-host">>,
@@ -1222,36 +1394,44 @@
 			  dec = {dec_host_port, []},
 			  enc = {enc_host_port, []}},
            result = {'see-other-host', '$host'},
+	   module = rfc6120,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-streams">>}).
 -xml(stream_error_system_shutdown,
      #elem{name = <<"system-shutdown">>,
            result = 'system-shutdown',
+	   module = rfc6120,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-streams">>}).
 -xml(stream_error_undefined_condition,
      #elem{name = <<"undefined-condition">>,
            result = 'undefined-condition',
+	   module = rfc6120,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-streams">>}).
 -xml(stream_error_unsupported_encoding,
      #elem{name = <<"unsupported-encoding">>,
            result = 'unsupported-encoding',
+	   module = rfc6120,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-streams">>}).
 -xml(stream_error_unsupported_feature,
      #elem{name = <<"unsupported-feature">>,
            result = 'unsupported-feature',
+	   module = rfc6120,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-streams">>}).
 -xml(stream_error_unsupported_stanza_type,
      #elem{name = <<"unsupported-stanza-type">>,
            result = 'unsupported-stanza-type',
+	   module = rfc6120,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-streams">>}).
 -xml(stream_error_unsupported_version,
      #elem{name = <<"unsupported-version">>,
            result = 'unsupported-version',
+	   module = rfc6120,
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-streams">>}).
 
 -xml(stream_error,
      #elem{name = <<"stream:error">>,
            xmlns = [<<"jabber:client">>, <<"jabber:server">>,
 		    <<"jabber:component:accept">>],
+	   module = rfc6120,
            result = {stream_error, '$reason', '$text'},
            refs = [#ref{name = stream_error_text,
                         label = '$text',
@@ -1310,72 +1490,135 @@
                         min = 0, max = 1, label = '$reason'}
                   ]}).
 
--xml(vcard_HOME, #elem{name = <<"HOME">>, xmlns = <<"vcard-temp">>, result = true}).
--xml(vcard_WORK, #elem{name = <<"WORK">>, xmlns = <<"vcard-temp">>, result = true}).
--xml(vcard_VOICE, #elem{name = <<"VOICE">>, xmlns = <<"vcard-temp">>, result = true}).
--xml(vcard_FAX, #elem{name = <<"FAX">>, xmlns = <<"vcard-temp">>, result = true}).
--xml(vcard_PAGER, #elem{name = <<"PAGER">>, xmlns = <<"vcard-temp">>, result = true}).
--xml(vcard_MSG, #elem{name = <<"MSG">>, xmlns = <<"vcard-temp">>, result = true}).
--xml(vcard_CELL, #elem{name = <<"CELL">>, xmlns = <<"vcard-temp">>, result = true}).
--xml(vcard_VIDEO, #elem{name = <<"VIDEO">>, xmlns = <<"vcard-temp">>, result = true}).
--xml(vcard_BBS, #elem{name = <<"BBS">>, xmlns = <<"vcard-temp">>, result = true}).
--xml(vcard_MODEM, #elem{name = <<"MODEM">>, xmlns = <<"vcard-temp">>, result = true}).
--xml(vcard_ISDN, #elem{name = <<"ISDN">>, xmlns = <<"vcard-temp">>, result = true}).
--xml(vcard_PCS, #elem{name = <<"PCS">>, xmlns = <<"vcard-temp">>, result = true}).
--xml(vcard_POSTAL, #elem{name = <<"POSTAL">>, xmlns = <<"vcard-temp">>, result = true}).
--xml(vcard_PARCEL, #elem{name = <<"PARCEL">>, xmlns = <<"vcard-temp">>, result = true}).
--xml(vcard_DOM, #elem{name = <<"DOM">>, xmlns = <<"vcard-temp">>, result = true}).
--xml(vcard_INTL, #elem{name = <<"INTL">>, xmlns = <<"vcard-temp">>, result = true}).
--xml(vcard_PREF, #elem{name = <<"PREF">>, xmlns = <<"vcard-temp">>, result = true}).
--xml(vcard_INTERNET, #elem{name = <<"INTERNET">>, xmlns = <<"vcard-temp">>, result = true}).
--xml(vcard_X400, #elem{name = <<"X400">>, xmlns = <<"vcard-temp">>, result = true}).
--xml(vcard_FAMILY, #elem{name = <<"FAMILY">>, xmlns = <<"vcard-temp">>, result = '$cdata'}).
--xml(vcard_GIVEN, #elem{name = <<"GIVEN">>, xmlns = <<"vcard-temp">>, result = '$cdata'}).
--xml(vcard_MIDDLE, #elem{name = <<"MIDDLE">>, xmlns = <<"vcard-temp">>, result = '$cdata'}).
--xml(vcard_PREFIX, #elem{name = <<"PREFIX">>, xmlns = <<"vcard-temp">>, result = '$cdata'}).
--xml(vcard_SUFFIX, #elem{name = <<"SUFFIX">>, xmlns = <<"vcard-temp">>, result = '$cdata'}).
--xml(vcard_POBOX, #elem{name = <<"POBOX">>, xmlns = <<"vcard-temp">>, result = '$cdata'}).
--xml(vcard_EXTADD, #elem{name = <<"EXTADD">>, xmlns = <<"vcard-temp">>, result = '$cdata'}).
--xml(vcard_STREET, #elem{name = <<"STREET">>, xmlns = <<"vcard-temp">>, result = '$cdata'}).
--xml(vcard_LOCALITY, #elem{name = <<"LOCALITY">>, xmlns = <<"vcard-temp">>, result = '$cdata'}).
--xml(vcard_REGION, #elem{name = <<"REGION">>, xmlns = <<"vcard-temp">>, result = '$cdata'}).
--xml(vcard_PCODE, #elem{name = <<"PCODE">>, xmlns = <<"vcard-temp">>, result = '$cdata'}).
--xml(vcard_CTRY, #elem{name = <<"CTRY">>, xmlns = <<"vcard-temp">>, result = '$cdata'}).
--xml(vcard_LINE, #elem{name = <<"LINE">>, xmlns = <<"vcard-temp">>, result = '$cdata'}).
--xml(vcard_NUMBER, #elem{name = <<"NUMBER">>, xmlns = <<"vcard-temp">>, result = '$cdata'}).
--xml(vcard_USERID, #elem{name = <<"USERID">>, xmlns = <<"vcard-temp">>, result = '$cdata'}).
--xml(vcard_LAT, #elem{name = <<"LAT">>, xmlns = <<"vcard-temp">>, result = '$cdata'}).
--xml(vcard_LON, #elem{name = <<"LON">>, xmlns = <<"vcard-temp">>, result = '$cdata'}).
--xml(vcard_ORGNAME, #elem{name = <<"ORGNAME">>, xmlns = <<"vcard-temp">>, result = '$cdata'}).
--xml(vcard_ORGUNIT, #elem{name = <<"ORGUNIT">>, xmlns = <<"vcard-temp">>, result = '$cdata'}).
--xml(vcard_PHONETIC, #elem{name = <<"PHONETIC">>, xmlns = <<"vcard-temp">>, result = '$cdata'}).
--xml(vcard_CRED, #elem{name = <<"CRED">>, xmlns = <<"vcard-temp">>, result = '$cdata'}).
--xml(vcard_VERSION, #elem{name = <<"VERSION">>, xmlns = <<"vcard-temp">>, result = '$cdata'}).
--xml(vcard_FN, #elem{name = <<"FN">>, xmlns = <<"vcard-temp">>, result = '$cdata'}).
--xml(vcard_NICKNAME, #elem{name = <<"NICKNAME">>, xmlns = <<"vcard-temp">>, result = '$cdata'}).
--xml(vcard_BDAY, #elem{name = <<"BDAY">>, xmlns = <<"vcard-temp">>, result = '$cdata'}).
--xml(vcard_JABBERID, #elem{name = <<"JABBERID">>, xmlns = <<"vcard-temp">>, result = '$cdata'}).
--xml(vcard_MAILER, #elem{name = <<"MAILER">>, xmlns = <<"vcard-temp">>, result = '$cdata'}).
--xml(vcard_TZ, #elem{name = <<"TZ">>, xmlns = <<"vcard-temp">>, result = '$cdata'}).
--xml(vcard_TITLE, #elem{name = <<"TITLE">>, xmlns = <<"vcard-temp">>, result = '$cdata'}).
--xml(vcard_ROLE, #elem{name = <<"ROLE">>, xmlns = <<"vcard-temp">>, result = '$cdata'}).
--xml(vcard_KEYWORD, #elem{name = <<"KEYWORD">>, xmlns = <<"vcard-temp">>, result = '$cdata'}).
--xml(vcard_NOTE, #elem{name = <<"NOTE">>, xmlns = <<"vcard-temp">>, result = '$cdata'}).
--xml(vcard_PRODID, #elem{name = <<"PRODID">>, xmlns = <<"vcard-temp">>, result = '$cdata'}).
--xml(vcard_REV, #elem{name = <<"REV">>, xmlns = <<"vcard-temp">>, result = '$cdata'}).
--xml(vcard_SORT_STRING, #elem{name = <<"SORT-STRING">>, xmlns = <<"vcard-temp">>, result = '$cdata'}).
--xml(vcard_UID, #elem{name = <<"UID">>, xmlns = <<"vcard-temp">>, result = '$cdata'}).
--xml(vcard_URL, #elem{name = <<"URL">>, xmlns = <<"vcard-temp">>, result = '$cdata'}).
--xml(vcard_DESC, #elem{name = <<"DESC">>, xmlns = <<"vcard-temp">>, result = '$cdata'}).
--xml(vcard_TYPE, #elem{name = <<"TYPE">>, xmlns = <<"vcard-temp">>, result = '$cdata'}).
--xml(vcard_EXTVAL, #elem{name = <<"EXTVAL">>, xmlns = <<"vcard-temp">>, result = '$cdata'}).
--xml(vcard_PUBLIC, #elem{name = <<"PUBLIC">>, xmlns = <<"vcard-temp">>, result = public}).
--xml(vcard_PRIVATE, #elem{name = <<"PRIVATE">>, xmlns = <<"vcard-temp">>, result = private}).
--xml(vcard_CONFIDENTIAL, #elem{name = <<"CONFIDENTIAL">>, xmlns = <<"vcard-temp">>, result = confidential}).
+-xml(vcard_HOME, #elem{name = <<"HOME">>, xmlns = <<"vcard-temp">>,
+		       module = 'xep0054', result = true}).
+-xml(vcard_WORK, #elem{name = <<"WORK">>, xmlns = <<"vcard-temp">>,
+		       module = 'xep0054', result = true}).
+-xml(vcard_VOICE, #elem{name = <<"VOICE">>, xmlns = <<"vcard-temp">>,
+			module = 'xep0054', result = true}).
+-xml(vcard_FAX, #elem{name = <<"FAX">>, xmlns = <<"vcard-temp">>,
+		      module = 'xep0054', result = true}).
+-xml(vcard_PAGER, #elem{name = <<"PAGER">>, xmlns = <<"vcard-temp">>,
+			module = 'xep0054', result = true}).
+-xml(vcard_MSG, #elem{name = <<"MSG">>, xmlns = <<"vcard-temp">>,
+		      module = 'xep0054', result = true}).
+-xml(vcard_CELL, #elem{name = <<"CELL">>, xmlns = <<"vcard-temp">>,
+		       module = 'xep0054', result = true}).
+-xml(vcard_VIDEO, #elem{name = <<"VIDEO">>, xmlns = <<"vcard-temp">>,
+			module = 'xep0054', result = true}).
+-xml(vcard_BBS, #elem{name = <<"BBS">>, xmlns = <<"vcard-temp">>,
+		      module = 'xep0054', result = true}).
+-xml(vcard_MODEM, #elem{name = <<"MODEM">>, xmlns = <<"vcard-temp">>,
+			module = 'xep0054', result = true}).
+-xml(vcard_ISDN, #elem{name = <<"ISDN">>, xmlns = <<"vcard-temp">>,
+		       module = 'xep0054', result = true}).
+-xml(vcard_PCS, #elem{name = <<"PCS">>, xmlns = <<"vcard-temp">>,
+		      module = 'xep0054', result = true}).
+-xml(vcard_POSTAL, #elem{name = <<"POSTAL">>, xmlns = <<"vcard-temp">>,
+			 module = 'xep0054', result = true}).
+-xml(vcard_PARCEL, #elem{name = <<"PARCEL">>, xmlns = <<"vcard-temp">>,
+			 module = 'xep0054', result = true}).
+-xml(vcard_DOM, #elem{name = <<"DOM">>, xmlns = <<"vcard-temp">>,
+		      module = 'xep0054', result = true}).
+-xml(vcard_INTL, #elem{name = <<"INTL">>, xmlns = <<"vcard-temp">>,
+		       module = 'xep0054', result = true}).
+-xml(vcard_PREF, #elem{name = <<"PREF">>, xmlns = <<"vcard-temp">>,
+		       module = 'xep0054', result = true}).
+-xml(vcard_INTERNET, #elem{name = <<"INTERNET">>, xmlns = <<"vcard-temp">>,
+			   module = 'xep0054', result = true}).
+-xml(vcard_X400, #elem{name = <<"X400">>, xmlns = <<"vcard-temp">>,
+		       module = 'xep0054', result = true}).
+-xml(vcard_FAMILY, #elem{name = <<"FAMILY">>, xmlns = <<"vcard-temp">>,
+			 module = 'xep0054', result = '$cdata'}).
+-xml(vcard_GIVEN, #elem{name = <<"GIVEN">>, xmlns = <<"vcard-temp">>,
+			module = 'xep0054', result = '$cdata'}).
+-xml(vcard_MIDDLE, #elem{name = <<"MIDDLE">>, xmlns = <<"vcard-temp">>,
+			 module = 'xep0054', result = '$cdata'}).
+-xml(vcard_PREFIX, #elem{name = <<"PREFIX">>, xmlns = <<"vcard-temp">>,
+			 module = 'xep0054', result = '$cdata'}).
+-xml(vcard_SUFFIX, #elem{name = <<"SUFFIX">>, xmlns = <<"vcard-temp">>,
+			 module = 'xep0054', result = '$cdata'}).
+-xml(vcard_POBOX, #elem{name = <<"POBOX">>, xmlns = <<"vcard-temp">>,
+			module = 'xep0054', result = '$cdata'}).
+-xml(vcard_EXTADD, #elem{name = <<"EXTADD">>, xmlns = <<"vcard-temp">>,
+			 module = 'xep0054', result = '$cdata'}).
+-xml(vcard_STREET, #elem{name = <<"STREET">>, xmlns = <<"vcard-temp">>,
+			 module = 'xep0054', result = '$cdata'}).
+-xml(vcard_LOCALITY, #elem{name = <<"LOCALITY">>, xmlns = <<"vcard-temp">>,
+			   module = 'xep0054', result = '$cdata'}).
+-xml(vcard_REGION, #elem{name = <<"REGION">>, xmlns = <<"vcard-temp">>,
+			 module = 'xep0054', result = '$cdata'}).
+-xml(vcard_PCODE, #elem{name = <<"PCODE">>, xmlns = <<"vcard-temp">>,
+			module = 'xep0054', result = '$cdata'}).
+-xml(vcard_CTRY, #elem{name = <<"CTRY">>, xmlns = <<"vcard-temp">>,
+		       module = 'xep0054', result = '$cdata'}).
+-xml(vcard_LINE, #elem{name = <<"LINE">>, xmlns = <<"vcard-temp">>,
+		       module = 'xep0054', result = '$cdata'}).
+-xml(vcard_NUMBER, #elem{name = <<"NUMBER">>, xmlns = <<"vcard-temp">>,
+			 module = 'xep0054', result = '$cdata'}).
+-xml(vcard_USERID, #elem{name = <<"USERID">>, xmlns = <<"vcard-temp">>,
+			 module = 'xep0054', result = '$cdata'}).
+-xml(vcard_LAT, #elem{name = <<"LAT">>, xmlns = <<"vcard-temp">>,
+		      module = 'xep0054', result = '$cdata'}).
+-xml(vcard_LON, #elem{name = <<"LON">>, xmlns = <<"vcard-temp">>,
+		      module = 'xep0054', result = '$cdata'}).
+-xml(vcard_ORGNAME, #elem{name = <<"ORGNAME">>, xmlns = <<"vcard-temp">>,
+			  module = 'xep0054', result = '$cdata'}).
+-xml(vcard_ORGUNIT, #elem{name = <<"ORGUNIT">>, xmlns = <<"vcard-temp">>,
+			  module = 'xep0054', result = '$cdata'}).
+-xml(vcard_PHONETIC, #elem{name = <<"PHONETIC">>, xmlns = <<"vcard-temp">>,
+			   module = 'xep0054', result = '$cdata'}).
+-xml(vcard_CRED, #elem{name = <<"CRED">>, xmlns = <<"vcard-temp">>,
+		       module = 'xep0054', result = '$cdata'}).
+-xml(vcard_VERSION, #elem{name = <<"VERSION">>, xmlns = <<"vcard-temp">>,
+			  module = 'xep0054', result = '$cdata'}).
+-xml(vcard_FN, #elem{name = <<"FN">>, xmlns = <<"vcard-temp">>,
+		     module = 'xep0054', result = '$cdata'}).
+-xml(vcard_NICKNAME, #elem{name = <<"NICKNAME">>, xmlns = <<"vcard-temp">>,
+			   module = 'xep0054', result = '$cdata'}).
+-xml(vcard_BDAY, #elem{name = <<"BDAY">>, xmlns = <<"vcard-temp">>,
+		       module = 'xep0054', result = '$cdata'}).
+-xml(vcard_JABBERID, #elem{name = <<"JABBERID">>, xmlns = <<"vcard-temp">>,
+			   module = 'xep0054', result = '$cdata'}).
+-xml(vcard_MAILER, #elem{name = <<"MAILER">>, xmlns = <<"vcard-temp">>,
+			 module = 'xep0054', result = '$cdata'}).
+-xml(vcard_TZ, #elem{name = <<"TZ">>, xmlns = <<"vcard-temp">>,
+		     module = 'xep0054', result = '$cdata'}).
+-xml(vcard_TITLE, #elem{name = <<"TITLE">>, xmlns = <<"vcard-temp">>,
+			module = 'xep0054', result = '$cdata'}).
+-xml(vcard_ROLE, #elem{name = <<"ROLE">>, xmlns = <<"vcard-temp">>,
+		       module = 'xep0054', result = '$cdata'}).
+-xml(vcard_KEYWORD, #elem{name = <<"KEYWORD">>, xmlns = <<"vcard-temp">>,
+			  module = 'xep0054', result = '$cdata'}).
+-xml(vcard_NOTE, #elem{name = <<"NOTE">>, xmlns = <<"vcard-temp">>,
+		       module = 'xep0054', result = '$cdata'}).
+-xml(vcard_PRODID, #elem{name = <<"PRODID">>, xmlns = <<"vcard-temp">>,
+			 module = 'xep0054', result = '$cdata'}).
+-xml(vcard_REV, #elem{name = <<"REV">>, xmlns = <<"vcard-temp">>,
+		      module = 'xep0054', result = '$cdata'}).
+-xml(vcard_SORT_STRING, #elem{name = <<"SORT-STRING">>, xmlns = <<"vcard-temp">>,
+			      module = 'xep0054', result = '$cdata'}).
+-xml(vcard_UID, #elem{name = <<"UID">>, xmlns = <<"vcard-temp">>,
+		      module = 'xep0054', result = '$cdata'}).
+-xml(vcard_URL, #elem{name = <<"URL">>, xmlns = <<"vcard-temp">>,
+		      module = 'xep0054', result = '$cdata'}).
+-xml(vcard_DESC, #elem{name = <<"DESC">>, xmlns = <<"vcard-temp">>,
+		       module = 'xep0054', result = '$cdata'}).
+-xml(vcard_TYPE, #elem{name = <<"TYPE">>, xmlns = <<"vcard-temp">>,
+		       module = 'xep0054', result = '$cdata'}).
+-xml(vcard_EXTVAL, #elem{name = <<"EXTVAL">>, xmlns = <<"vcard-temp">>,
+			 module = 'xep0054', result = '$cdata'}).
+-xml(vcard_PUBLIC, #elem{name = <<"PUBLIC">>, xmlns = <<"vcard-temp">>,
+			 module = 'xep0054', result = public}).
+-xml(vcard_PRIVATE, #elem{name = <<"PRIVATE">>, xmlns = <<"vcard-temp">>,
+			  module = 'xep0054', result = private}).
+-xml(vcard_CONFIDENTIAL, #elem{name = <<"CONFIDENTIAL">>, xmlns = <<"vcard-temp">>,
+			       module = 'xep0054', result = confidential}).
 
 -xml(vcard_N,
      #elem{name = <<"N">>,
            xmlns = <<"vcard-temp">>,
+	   module = 'xep0054',
            result = {vcard_name, '$family', '$given', '$middle',
                      '$prefix', '$suffix'},
            refs = [#ref{name = vcard_FAMILY, min = 0, max = 1, label = '$family'},
@@ -1387,6 +1630,7 @@
 -xml(vcard_ADR,
      #elem{name = <<"ADR">>,
            xmlns = <<"vcard-temp">>,
+	   module = 'xep0054',
            result = {vcard_adr, '$home', '$work', '$postal', '$parcel',
                      '$dom', '$intl', '$pref', '$pobox', '$extadd', '$street',
                      '$locality', '$region', '$pcode', '$ctry'},
@@ -1415,6 +1659,7 @@
 -xml(vcard_LABEL,
      #elem{name = <<"LABEL">>,
            xmlns = <<"vcard-temp">>,
+	   module = 'xep0054',
            result = {vcard_label, '$home', '$work', '$postal', '$parcel',
                      '$dom', '$intl', '$pref', '$line'},
            refs = [#ref{name = vcard_HOME, default = false,
@@ -1436,6 +1681,7 @@
 -xml(vcard_TEL,
      #elem{name = <<"TEL">>,
            xmlns = <<"vcard-temp">>,
+	   module = 'xep0054',
            result = {vcard_tel, '$home', '$work', '$voice', '$fax',
                      '$pager', '$msg', '$cell', '$video', '$bbs',
                      '$modem', '$isdn', '$pcs', '$pref', '$number'},
@@ -1471,6 +1717,7 @@
 -xml(vcard_EMAIL,
      #elem{name = <<"EMAIL">>,
            xmlns = <<"vcard-temp">>,
+	   module = 'xep0054',
            result = {vcard_email, '$home', '$work',
                      '$internet', '$pref', '$x400', '$userid'},
            refs = [#ref{name = vcard_HOME, default = false,
@@ -1489,6 +1736,7 @@
 -xml(vcard_GEO,
      #elem{name = <<"GEO">>,
            xmlns = <<"vcard-temp">>,
+	   module = 'xep0054',
            result = {vcard_geo, '$lat', '$lon'},
            refs = [#ref{name = vcard_LAT, min = 0, max = 1, label = '$lat'},
                    #ref{name = vcard_LON, min = 0, max = 1, label = '$lon'}]}).
@@ -1496,6 +1744,7 @@
 -xml(vcard_BINVAL,
      #elem{name = <<"BINVAL">>,
            xmlns = <<"vcard-temp">>,
+	   module = 'xep0054',
            cdata = #cdata{dec = {base64, decode, []},
                           enc = {base64, encode, []}},
            result = '$cdata'}).
@@ -1503,6 +1752,7 @@
 -xml(vcard_LOGO,
      #elem{name = <<"LOGO">>,
            xmlns = <<"vcard-temp">>,
+	   module = 'xep0054',
            result = {vcard_logo, '$type', '$binval', '$extval'},
            refs = [#ref{name = vcard_TYPE, min = 0, max = 1, label = '$type'},
                    #ref{name = vcard_BINVAL, min = 0, max = 1, label = '$binval'},
@@ -1511,6 +1761,7 @@
 -xml(vcard_PHOTO,
      #elem{name = <<"PHOTO">>,
            xmlns = <<"vcard-temp">>,
+	   module = 'xep0054',
            result = {vcard_photo, '$type', '$binval', '$extval'},
            refs = [#ref{name = vcard_TYPE, min = 0, max = 1, label = '$type'},
                    #ref{name = vcard_BINVAL, min = 0, max = 1, label = '$binval'},
@@ -1519,6 +1770,7 @@
 -xml(vcard_ORG,
      #elem{name = <<"ORG">>,
            xmlns = <<"vcard-temp">>,
+	   module = 'xep0054',
            result = {vcard_org, '$name', '$units'},
            refs = [#ref{name = vcard_ORGNAME,
                         label = '$name',
@@ -1529,6 +1781,7 @@
 -xml(vcard_SOUND,
      #elem{name = <<"SOUND">>,
            xmlns = <<"vcard-temp">>,
+	   module = 'xep0054',
            result = {vcard_sound, '$phonetic', '$binval', '$extval'},
            refs = [#ref{name = vcard_BINVAL, min = 0, max = 1, label = '$binval'},
                    #ref{name = vcard_EXTVAL, min = 0, max = 1, label = '$extval'},
@@ -1537,6 +1790,7 @@
 -xml(vcard_KEY,
      #elem{name = <<"KEY">>,
            xmlns = <<"vcard-temp">>,
+	   module = 'xep0054',
            result = {vcard_key, '$type', '$cred'},
            refs = [#ref{name = vcard_TYPE, min = 0, max = 1, label = '$type'},
                    #ref{name = vcard_CRED, min = 0, max = 1, label = '$cred'}]}).
@@ -1544,12 +1798,14 @@
 -xml(vcard_CATEGORIES,
      #elem{name = <<"CATEGORIES">>,
            xmlns = <<"vcard-temp">>,
+	   module = 'xep0054',
            result = '$keywords',
            refs = [#ref{name = vcard_KEYWORD, label = '$keywords'}]}).
 
 -xml(vcard_CLASS,
      #elem{name = <<"CLASS">>,
            xmlns = <<"vcard-temp">>,
+	   module = 'xep0054',
            result = '$class',
            refs = [#ref{name = vcard_PUBLIC, min = 0, max = 1, label = '$class'},
                    #ref{name = vcard_PRIVATE, min = 0, max = 1, label = '$class'},
@@ -1558,6 +1814,7 @@
 %% {vcard_AGENT,
 %%  #elem{name = <<"AGENT">>,
 %%        xmlns = <<"vcard-temp">>,
+%%        module = 'xep0054',
 %%        result = {vcard_agent, '$vcard', '$extval'},
 %%        refs = [#ref{name = vcard, min = 0, max = 1, label = '$vcard'},
 %%                #ref{name = vcard_EXTVAL, min = 0, max = 1, label = '$extval'}]}).
@@ -1565,6 +1822,7 @@
 -xml(vcard_temp,
      #elem{name = <<"vCard">>,
            xmlns = <<"vcard-temp">>,
+	   module = 'xep0054',
            result = {vcard_temp, '$version', '$fn', '$n', '$nickname', '$photo',
                      '$bday', '$adr', '$label', '$tel', '$email', '$jabberid',
                      '$mailer', '$tz', '$geo', '$title', '$role', '$logo',
@@ -1607,6 +1865,7 @@
 -xml(vcard_xupdate_photo,
      #elem{name = <<"photo">>,
 	   xmlns = <<"vcard-temp:x:update">>,
+	   module = 'xep0153',
 	   result = '$cdata'}).
 
 -record(vcard_xupdate, {us = {<<>>, <<>>} :: {binary(), binary()},
@@ -1616,6 +1875,7 @@
 -xml(vcard_xupdate,
      #elem{name = <<"x">>,
 	   xmlns = <<"vcard-temp:x:update">>,
+	   module = 'xep0153',
 	   result = {vcard_xupdate, '$_', '$hash'},
 	   refs = [#ref{name = vcard_xupdate_photo, min = 0, max = 1,
 			label = '$hash'}]}).
@@ -1623,17 +1883,25 @@
 -xml(xdata_field_required,
      #elem{name = <<"required">>,
            xmlns = <<"jabber:x:data">>,
+	   module = 'xep0004',
            result = true}).
 
 -xml(xdata_field_desc,
-     #elem{name = <<"desc">>, xmlns = <<"jabber:x:data">>, result = '$cdata'}).
+     #elem{name = <<"desc">>,
+	   xmlns = <<"jabber:x:data">>,
+	   module = 'xep0004',
+	   result = '$cdata'}).
 
 -xml(xdata_field_value,
-     #elem{name = <<"value">>, xmlns = <<"jabber:x:data">>, result = '$cdata'}).
+     #elem{name = <<"value">>,
+	   xmlns = <<"jabber:x:data">>,
+	   module = 'xep0004',
+	   result = '$cdata'}).
 
 -xml(xdata_field_option,
      #elem{name = <<"option">>,
            xmlns = <<"jabber:x:data">>,
+	   module = 'xep0004',
            result = {xdata_option, '$label', '$value'},
 	   attrs = [#attr{name = <<"label">>}],
            refs = [#ref{name = xdata_field_value,
@@ -1643,6 +1911,7 @@
 -xml(xdata_field,
      #elem{name = <<"field">>,
            xmlns = <<"jabber:x:data">>,
+	   module = 'xep0004',
            result = {xdata_field, '$label', '$type', '$var',
                      '$required', '$desc', '$values', '$options', '$_els'},
            attrs = [#attr{name = <<"label">>},
@@ -1674,17 +1943,21 @@
 
 -xml(xdata_instructions,  #elem{name = <<"instructions">>,
                                 xmlns = <<"jabber:x:data">>,
+				module = 'xep0004',
                                 result = '$cdata'}).
 -xml(xdata_title, #elem{name = <<"title">>,
                         xmlns = <<"jabber:x:data">>,
+			module = 'xep0004',
                         result = '$cdata'}).
 -xml(xdata_reported, #elem{name = <<"reported">>,
                            xmlns = <<"jabber:x:data">>,
+			   module = 'xep0004',
                            result = '$fields',
                            refs = [#ref{name = xdata_field,
                                         label = '$fields'}]}).
 -xml(xdata_item,  #elem{name = <<"item">>,
                         xmlns = <<"jabber:x:data">>,
+			module = 'xep0004',
                         result = '$fields',
                         refs = [#ref{name = xdata_field,
                                      label = '$fields'}]}).
@@ -1692,6 +1965,7 @@
 -xml(xdata,
      #elem{name = <<"x">>,
            xmlns = <<"jabber:x:data">>,
+	   module = 'xep0004',
            result = {xdata, '$type', '$instructions', '$title',
                      '$reported', '$items', '$fields'},
            attrs = [#attr{name = <<"type">>,
@@ -1716,6 +1990,7 @@
            xmlns = [<<"http://jabber.org/protocol/pubsub">>,
 		    <<"http://jabber.org/protocol/pubsub#owner">>,
 		    <<"http://jabber.org/protocol/pubsub#event">>],
+	   module = 'xep0060',
 	   result = {ps_subscription, '$xmlns', '$jid', '$type',
 		     '$node', '$subid', '$expiry'},
 	   attrs = [#attr{name = <<"xmlns">>},
@@ -1744,6 +2019,7 @@
 -xml(pubsub_affiliation,
      #elem{name = <<"affiliation">>,
            xmlns = <<"http://jabber.org/protocol/pubsub">>,
+	   module = 'xep0060',
            result = {ps_affiliation, '$xmlns', '$node', '$type', '$_'},
            attrs = [#attr{name = <<"node">>, required = true},
 		    #attr{name = <<"xmlns">>},
@@ -1756,6 +2032,7 @@
 -xml(pubsub_owner_affiliation,
      #elem{name = <<"affiliation">>,
            xmlns = <<"http://jabber.org/protocol/pubsub#owner">>,
+	   module = 'xep0060',
            result = {ps_affiliation, '$xmlns', '$_', '$type', '$jid'},
            attrs = [#attr{name = <<"jid">>,
 			  required = true,
@@ -1771,6 +2048,7 @@
 -xml(pubsub_event_configuration,
      #elem{name = <<"configuration">>,
 	   xmlns = <<"http://jabber.org/protocol/pubsub#event">>,
+	   module = 'xep0060',
 	   result = {'$node', '$xdata'},
 	   attrs = [#attr{name = <<"node">>, required = true}],
 	   refs = [#ref{name = xdata, min = 0, max = 1}]}).
@@ -1778,6 +2056,7 @@
 -xml(pubsub_event_retract,
      #elem{name = <<"retract">>,
            xmlns = <<"http://jabber.org/protocol/pubsub#event">>,
+	   module = 'xep0060',
            result = '$id',
            attrs = [#attr{name = <<"id">>, required = true}]}).
 
@@ -1785,6 +2064,7 @@
      #elem{name = <<"item">>,
            xmlns = [<<"http://jabber.org/protocol/pubsub">>,
 		    <<"http://jabber.org/protocol/pubsub#event">>],
+	   module = 'xep0060',
            result = {ps_item, '$xmlns', '$id', '$_xmls', '$node', '$publisher'},
            attrs = [#attr{name = <<"id">>},
 		    #attr{name = <<"xmlns">>},
@@ -1795,6 +2075,7 @@
      #elem{name = <<"items">>,
            xmlns = [<<"http://jabber.org/protocol/pubsub">>,
 		    <<"http://jabber.org/protocol/pubsub#event">>],
+	   module = 'xep0060',
            result = {ps_items, '$xmlns', '$node', '$items', '$max_items',
                      '$subid', '$retract'},
            attrs = [#attr{name = <<"xmlns">>},
@@ -1811,6 +2092,7 @@
 -xml(pubsub_event,
      #elem{name = <<"event">>,
            xmlns = <<"http://jabber.org/protocol/pubsub#event">>,
+	   module = 'xep0060',
            result = {ps_event, '$items', '$purge', '$subscription', '$delete',
 		    '$create', '$configuration'},
            refs = [#ref{name = pubsub_items, label = '$items',
@@ -1830,6 +2112,7 @@
      #elem{name = <<"subscriptions">>,
            xmlns = [<<"http://jabber.org/protocol/pubsub">>,
 		    <<"http://jabber.org/protocol/pubsub#owner">>],
+	   module = 'xep0060',
            result = {'$node', '$subscriptions'},
            attrs = [#attr{name = <<"node">>}],
            refs = [#ref{name = pubsub_subscription, label = '$subscriptions'}]}).
@@ -1837,6 +2120,7 @@
 -xml(pubsub_affiliations,
      #elem{name = <<"affiliations">>,
            xmlns = <<"http://jabber.org/protocol/pubsub">>,
+	   module = 'xep0060',
            result = {'$node', '$affiliations'},
 	   attrs = [#attr{name = <<"node">>}],
            refs = [#ref{name = pubsub_affiliation, label = '$affiliations'}]}).
@@ -1844,6 +2128,7 @@
 -xml(pubsub_owner_affiliations,
      #elem{name = <<"affiliations">>,
            xmlns = <<"http://jabber.org/protocol/pubsub#owner">>,
+	   module = 'xep0060',
            result = {'$node', '$affiliations'},
 	   attrs = [#attr{name = <<"node">>}],
            refs = [#ref{name = pubsub_owner_affiliation, label = '$affiliations'}]}).
@@ -1851,6 +2136,7 @@
 -xml(pubsub_subscribe,
      #elem{name = <<"subscribe">>,
            xmlns = <<"http://jabber.org/protocol/pubsub">>,
+	   module = 'xep0060',
            result = {ps_subscribe, '$node', '$jid'},
            attrs = [#attr{name = <<"node">>},
                     #attr{name = <<"jid">>,
@@ -1861,6 +2147,7 @@
 -xml(pubsub_unsubscribe,
      #elem{name = <<"unsubscribe">>,
            xmlns = <<"http://jabber.org/protocol/pubsub">>,
+	   module = 'xep0060',
            result = {ps_unsubscribe, '$node', '$jid', '$subid'},
            attrs = [#attr{name = <<"node">>},
                     #attr{name = <<"subid">>},
@@ -1872,6 +2159,7 @@
 -xml(pubsub_publish,
      #elem{name = <<"publish">>,
            xmlns = <<"http://jabber.org/protocol/pubsub">>,
+	   module = 'xep0060',
            result = {ps_publish, '$node', '$items'},
            attrs = [#attr{name = <<"node">>,
                           required = true}],
@@ -1880,6 +2168,7 @@
 -xml(pubsub_options,
      #elem{name = <<"options">>,
            xmlns = <<"http://jabber.org/protocol/pubsub">>,
+	   module = 'xep0060',
            result = {ps_options, '$node', '$jid', '$subid', '$xdata'},
            attrs = [#attr{name = <<"node">>},
                     #attr{name = <<"subid">>},
@@ -1893,6 +2182,7 @@
 -xml(pubsub_retract,
      #elem{name = <<"retract">>,
            xmlns = <<"http://jabber.org/protocol/pubsub">>,
+	   module = 'xep0060',
            result = {ps_retract, '$node', '$notify', '$items'},
            attrs = [#attr{name = <<"node">>,
                           required = true},
@@ -1906,6 +2196,7 @@
      #elem{name = <<"create">>,
 	   xmlns = [<<"http://jabber.org/protocol/pubsub">>,
 		    <<"http://jabber.org/protocol/pubsub#event">>],
+	   module = 'xep0060',
 	   result = '$node',
 	   attrs = [#attr{name = <<"node">>}]}).
 
@@ -1913,6 +2204,7 @@
      #elem{name = <<"configure">>,
 	   xmlns = [<<"http://jabber.org/protocol/pubsub">>,
 		    <<"http://jabber.org/protocol/pubsub#owner">>],
+	   module = 'xep0060',
 	   result = {'$node', '$xdata'},
 	   attrs = [#attr{name = <<"node">>}],
 	   refs = [#ref{name = xdata, min = 0, max = 1}]}).
@@ -1920,6 +2212,7 @@
 -xml(pubsub_publish_options,
      #elem{name = <<"publish-options">>,
 	   xmlns = <<"http://jabber.org/protocol/pubsub">>,
+	   module = 'xep0060',
 	   result = '$xdata',
 	   refs = [#ref{name = xdata, min = 0, max = 1}]}).
 
@@ -1927,6 +2220,7 @@
      #elem{name = <<"default">>,
 	   xmlns = [<<"http://jabber.org/protocol/pubsub">>,
 		    <<"http://jabber.org/protocol/pubsub#owner">>],
+	   module = 'xep0060',
 	   result = {'$node', '$xdata'},
 	   attrs = [#attr{name = <<"node">>}],
 	   refs = [#ref{name = xdata, min = 0, max = 1}]}).
@@ -1936,6 +2230,7 @@
 	   xmlns = [<<"http://jabber.org/protocol/pubsub">>,
 		    <<"http://jabber.org/protocol/pubsub#owner">>,
 		    <<"http://jabber.org/protocol/pubsub#event">>],
+	   module = 'xep0060',
 	   result = '$uri',
 	   attrs = [#attr{name = <<"uri">>, required = true}]}).
 
@@ -1944,6 +2239,7 @@
 	   xmlns = [<<"http://jabber.org/protocol/pubsub">>,
 		    <<"http://jabber.org/protocol/pubsub#owner">>,
 		    <<"http://jabber.org/protocol/pubsub#event">>],
+	   module = 'xep0060',
 	   result = {'$node', '$uri'},
 	   attrs = [#attr{name = <<"node">>, required = true}],
 	   refs = [#ref{name = pubsub_redirect, min = 0, max = 1,
@@ -1954,12 +2250,14 @@
 	   xmlns = [<<"http://jabber.org/protocol/pubsub">>,
 		    <<"http://jabber.org/protocol/pubsub#owner">>,
 		    <<"http://jabber.org/protocol/pubsub#event">>],
+	   module = 'xep0060',
 	   result = '$node',
 	   attrs = [#attr{name = <<"node">>, required = true}]}).
 
 -xml(pubsub,
      #elem{name = <<"pubsub">>,
            xmlns = <<"http://jabber.org/protocol/pubsub">>,
+	   module = 'xep0060',
            result = {pubsub, '$subscriptions', '$subscription',
 		     '$affiliations', '$publish', '$publish_options',
 		     '$subscribe', '$unsubscribe', '$options', '$items',
@@ -2000,6 +2298,7 @@
 -xml(pubsub_owner,
      #elem{name = <<"pubsub">>,
 	   xmlns = <<"http://jabber.org/protocol/pubsub#owner">>,
+	   module = 'xep0060',
 	   result = {pubsub_owner, '$affiliations', '$configure', '$default',
 		     '$delete', '$purge', '$subscriptions'},
 	   refs = [#ref{name = pubsub_owner_affiliations,
@@ -2052,86 +2351,107 @@
 -xml(pubsub_error_closed_node,
      #elem{name = <<"closed-node">>,
            xmlns = <<"http://jabber.org/protocol/pubsub#errors">>,
+	   module = 'xep0060',
            result = {ps_error, 'closed-node', '$_'}}).
 -xml(pubsub_error_configuration_required,
      #elem{name = <<"configuration-required">>,
            xmlns = <<"http://jabber.org/protocol/pubsub#errors">>,
+	   module = 'xep0060',
            result = {ps_error, 'configuration-required', '$_'}}).
 -xml(pubsub_error_invalid_jid,
      #elem{name = <<"invalid-jid">>,
            xmlns = <<"http://jabber.org/protocol/pubsub#errors">>,
+	   module = 'xep0060',
            result = {ps_error, 'invalid-jid', '$_'}}).
 -xml(pubsub_error_invalid_options,
      #elem{name = <<"invalid-options">>,
            xmlns = <<"http://jabber.org/protocol/pubsub#errors">>,
+	   module = 'xep0060',
            result = {ps_error, 'invalid-options', '$_'}}).
 -xml(pubsub_error_invalid_payload,
      #elem{name = <<"invalid-payload">>,
            xmlns = <<"http://jabber.org/protocol/pubsub#errors">>,
+	   module = 'xep0060',
            result = {ps_error, 'invalid-payload', '$_'}}).
 -xml(pubsub_error_invalid_subid,
      #elem{name = <<"invalid-subid">>,
            xmlns = <<"http://jabber.org/protocol/pubsub#errors">>,
+	   module = 'xep0060',
            result = {ps_error, 'invalid-subid', '$_'}}).
 -xml(pubsub_error_item_forbidden,
      #elem{name = <<"item-forbidden">>,
            xmlns = <<"http://jabber.org/protocol/pubsub#errors">>,
+	   module = 'xep0060',
            result = {ps_error, 'item-forbidden', '$_'}}).
 -xml(pubsub_error_item_required,
      #elem{name = <<"item-required">>,
            xmlns = <<"http://jabber.org/protocol/pubsub#errors">>,
+	   module = 'xep0060',
            result = {ps_error, 'item-required', '$_'}}).
 -xml(pubsub_error_jid_required,
      #elem{name = <<"jid-required">>,
            xmlns = <<"http://jabber.org/protocol/pubsub#errors">>,
+	   module = 'xep0060',
            result = {ps_error, 'jid-required', '$_'}}).
 -xml(pubsub_error_max_items_exceeded,
      #elem{name = <<"max-items-exceeded">>,
            xmlns = <<"http://jabber.org/protocol/pubsub#errors">>,
+	   module = 'xep0060',
            result = {ps_error, 'max-items-exceeded', '$_'}}).
 -xml(pubsub_error_max_nodes_exceeded,
      #elem{name = <<"max-nodes-exceeded">>,
            xmlns = <<"http://jabber.org/protocol/pubsub#errors">>,
+	   module = 'xep0060',
            result = {ps_error, 'max-nodes-exceeded', '$_'}}).
 -xml(pubsub_error_nodeid_required,
      #elem{name = <<"nodeid-required">>,
            xmlns = <<"http://jabber.org/protocol/pubsub#errors">>,
+	   module = 'xep0060',
            result = {ps_error, 'nodeid-required', '$_'}}).
 -xml(pubsub_error_not_in_roster_group,
      #elem{name = <<"not-in-roster-group">>,
            xmlns = <<"http://jabber.org/protocol/pubsub#errors">>,
+	   module = 'xep0060',
            result = {ps_error, 'not-in-roster-group', '$_'}}).
 -xml(pubsub_error_not_subscribed,
      #elem{name = <<"not-subscribed">>,
            xmlns = <<"http://jabber.org/protocol/pubsub#errors">>,
+	   module = 'xep0060',
            result = {ps_error, 'not-subscribed', '$_'}}).
 -xml(pubsub_error_payload_too_big,
      #elem{name = <<"payload-too-big">>,
            xmlns = <<"http://jabber.org/protocol/pubsub#errors">>,
+	   module = 'xep0060',
            result = {ps_error, 'payload-too-big', '$_'}}).
 -xml(pubsub_error_payload_required,
      #elem{name = <<"payload-required">>,
            xmlns = <<"http://jabber.org/protocol/pubsub#errors">>,
+	   module = 'xep0060',
            result = {ps_error, 'payload-required', '$_'}}).
 -xml(pubsub_error_pending_subscription,
      #elem{name = <<"pending-subscription">>,
            xmlns = <<"http://jabber.org/protocol/pubsub#errors">>,
+	   module = 'xep0060',
            result = {ps_error, 'pending-subscription', '$_'}}).
 -xml(pubsub_error_presence_subscription_required,
      #elem{name = <<"presence-subscription-required">>,
            xmlns = <<"http://jabber.org/protocol/pubsub#errors">>,
+	   module = 'xep0060',
            result = {ps_error, 'presence-subscription-required', '$_'}}).
 -xml(pubsub_error_subid_required,
      #elem{name = <<"subid-required">>,
            xmlns = <<"http://jabber.org/protocol/pubsub#errors">>,
+	   module = 'xep0060',
            result = {ps_error, 'subid-required', '$_'}}).
 -xml(pubsub_error_too_many_subscriptions,
      #elem{name = <<"too-many-subscriptions">>,
            xmlns = <<"http://jabber.org/protocol/pubsub#errors">>,
+	   module = 'xep0060',
            result = {ps_error, 'too-many-subscriptions', '$_'}}).
 -xml(pubsub_error_unsupported,
      #elem{name = <<"unsupported">>,
            xmlns = <<"http://jabber.org/protocol/pubsub#errors">>,
+	   module = 'xep0060',
            result = {ps_error, 'unsupported', '$feature'},
 	   attrs = [#attr{name = <<"feature">>, required = true,
 			  dec = {dec_enum, [['access-authorize',
@@ -2180,11 +2500,13 @@
 -xml(pubsub_error_unsupported_access_model,
      #elem{name = <<"unsupported-access-model">>,
            xmlns = <<"http://jabber.org/protocol/pubsub#errors">>,
+	   module = 'xep0060',
            result = {ps_error, 'unsupported-access-model', '$_'}}).
 
 -xml(shim_header,
      #elem{name = <<"header">>,
            xmlns = <<"http://jabber.org/protocol/shim">>,
+	   module = 'xep0131',
            result = {'$name', '$cdata'},
            attrs = [#attr{name = <<"name">>,
                           required = true}]}).
@@ -2192,6 +2514,7 @@
 -xml(shim_headers,
      #elem{name = <<"headers">>,
            xmlns = <<"http://jabber.org/protocol/shim">>,
+	   module = 'xep0131',
            result = {shim, '$headers'},
            refs = [#ref{name = shim_header, label = '$headers'}]}).
 
@@ -2201,31 +2524,37 @@
 -xml(chatstate_active,
      #elem{name = <<"active">>,
            xmlns = <<"http://jabber.org/protocol/chatstates">>,
+	   module = 'xep0085',
            result = {chatstate, active}}).
 
 -xml(chatstate_composing,
      #elem{name = <<"composing">>,
            xmlns = <<"http://jabber.org/protocol/chatstates">>,
+	   module = 'xep0085',
            result = {chatstate, composing}}).
 
 -xml(chatstate_gone,
      #elem{name = <<"gone">>,
            xmlns = <<"http://jabber.org/protocol/chatstates">>,
+	   module = 'xep0085',
            result = {chatstate, gone}}).
 
 -xml(chatstate_inactive,
      #elem{name = <<"inactive">>,
            xmlns = <<"http://jabber.org/protocol/chatstates">>,
+	   module = 'xep0085',
            result = {chatstate, inactive}}).
 
 -xml(chatstate_paused,
      #elem{name = <<"paused">>,
            xmlns = <<"http://jabber.org/protocol/chatstates">>,
+	   module = 'xep0085',
            result = {chatstate, paused}}).
 
 -xml(delay,
      #elem{name = <<"delay">>,
            xmlns = <<"urn:xmpp:delay">>,
+	   module = 'xep0203',
            result = {delay, '$stamp', '$from', '$desc'},
 	   cdata = #cdata{label = '$desc', default = <<"">>},
            attrs = [#attr{name = <<"stamp">>,
@@ -2239,6 +2568,7 @@
 -xml(bytestreams_streamhost,
      #elem{name = <<"streamhost">>,
            xmlns = <<"http://jabber.org/protocol/bytestreams">>,
+	   module = 'xep0065',
            result = {streamhost, '$jid', '$host', '$port'},
            attrs = [#attr{name = <<"jid">>,
                           required = true,
@@ -2254,6 +2584,7 @@
 -xml(bytestreams_streamhost_used,
      #elem{name = <<"streamhost-used">>,
            xmlns = <<"http://jabber.org/protocol/bytestreams">>,
+	   module = 'xep0065',
            result = '$jid',
            attrs = [#attr{name = <<"jid">>,
                           required = true,
@@ -2263,12 +2594,14 @@
 -xml(bytestreams_activate,
      #elem{name = <<"activate">>,
            xmlns = <<"http://jabber.org/protocol/bytestreams">>,
+	   module = 'xep0065',
            cdata = #cdata{enc = {enc_jid, []}, dec = {dec_jid, []}},
            result = '$cdata'}).
 
 -xml(bytestreams,
      #elem{name = <<"query">>,
            xmlns = <<"http://jabber.org/protocol/bytestreams">>,
+	   module = 'xep0065',
            result = {bytestreams, '$hosts', '$used', '$activate',
                      '$dstaddr', '$mode', '$sid'},
            attrs = [#attr{name = <<"dstaddr">>},
@@ -2286,6 +2619,7 @@
 -xml(muc_history,
      #elem{name = <<"history">>,
            xmlns = <<"http://jabber.org/protocol/muc">>,
+	   module = 'xep0045',
            result = {muc_history, '$maxchars', '$maxstanzas',
                      '$seconds', '$since'},
            attrs = [#attr{name = <<"maxchars">>,
@@ -2306,11 +2640,13 @@
            xmlns = [<<"http://jabber.org/protocol/muc#user">>,
 		    <<"http://jabber.org/protocol/muc#admin">>,
 		    <<"http://jabber.org/protocol/muc#owner">>],
+	   module = 'xep0045',
            result = '$cdata'}).
 
 -xml(muc_user_decline,
      #elem{name = <<"decline">>,
            xmlns = <<"http://jabber.org/protocol/muc#user">>,
+	   module = 'xep0045',
            result = {muc_decline, '$reason', '$from', '$to'},
            attrs = [#attr{name = <<"to">>,
                           dec = {dec_jid, []},
@@ -2326,6 +2662,7 @@
      #elem{name = <<"destroy">>,
 	   xmlns = [<<"http://jabber.org/protocol/muc#user">>,
 		    <<"http://jabber.org/protocol/muc#owner">>],
+	   module = 'xep0045',
 	   result = {muc_destroy, '$xmlns', '$jid', '$reason', '$password'},
 	   attrs = [#attr{name = <<"jid">>,
                           dec = {dec_jid, []},
@@ -2340,6 +2677,7 @@
 -xml(muc_user_invite,
      #elem{name = <<"invite">>,
            xmlns = <<"http://jabber.org/protocol/muc#user">>,
+	   module = 'xep0045',
            result = {muc_invite, '$reason', '$from', '$to', '$continue'},
            attrs = [#attr{name = <<"to">>,
                           dec = {dec_jid, []},
@@ -2355,6 +2693,7 @@
 -xml(muc_user_actor,
      #elem{name = <<"actor">>,
            xmlns = <<"http://jabber.org/protocol/muc#user">>,
+	   module = 'xep0045',
            result = {muc_actor, '$jid', '$nick'},
            attrs = [#attr{name = <<"jid">>,
                           dec = {dec_jid, []},
@@ -2364,12 +2703,14 @@
 -xml(muc_user_continue,
      #elem{name = <<"continue">>,
            xmlns = <<"http://jabber.org/protocol/muc#user">>,
+	   module = 'xep0045',
            result = '$thread',
            attrs = [#attr{name = <<"thread">>}]}).
 
 -xml(muc_user_status,
      #elem{name = <<"status">>,
            xmlns = <<"http://jabber.org/protocol/muc#user">>,
+	   module = 'xep0045',
            result = '$code',
            attrs = [#attr{name = <<"code">>,
                           dec = {dec_int, [100, 999]},
@@ -2378,6 +2719,7 @@
 -xml(muc_user_item,
      #elem{name = <<"item">>,
            xmlns = <<"http://jabber.org/protocol/muc#user">>,
+	   module = 'xep0045',
            result = {muc_item, '$actor', '$continue', '$reason',
                      '$affiliation', '$role', '$jid', '$nick'},
            refs = [#ref{name = muc_user_actor,
@@ -2402,6 +2744,7 @@
 -xml(muc_user,
      #elem{name = <<"x">>,
            xmlns = <<"http://jabber.org/protocol/muc#user">>,
+	   module = 'xep0045',
            result = {muc_user, '$decline', '$destroy', '$invites',
                      '$items', '$status_codes', '$password'},
            refs = [#ref{name = muc_user_decline, min = 0,
@@ -2419,11 +2762,13 @@
            xmlns = [<<"http://jabber.org/protocol/muc#owner">>,
 		    <<"http://jabber.org/protocol/muc#user">>,
 		    <<"http://jabber.org/protocol/muc">>],
+	   module = 'xep0045',
            result = '$cdata'}).
 
 -xml(muc_owner,
      #elem{name = <<"query">>,
            xmlns = <<"http://jabber.org/protocol/muc#owner">>,
+	   module = 'xep0045',
            result = {muc_owner, '$destroy', '$config', '$items'},
            refs = [#ref{name = muc_destroy, min = 0, max = 1,
 			label = '$destroy'},
@@ -2434,6 +2779,7 @@
 -xml(muc_owner_item,
      #elem{name = <<"item">>,
            xmlns = <<"http://jabber.org/protocol/muc#owner">>,
+	   module = 'xep0045',
            result = {muc_item, '$actor', '$continue', '$reason',
                      '$affiliation', '$role', '$jid', '$nick'},
            refs = [#ref{name = muc_admin_actor,
@@ -2458,6 +2804,7 @@
 -xml(muc_admin_item,
      #elem{name = <<"item">>,
            xmlns = <<"http://jabber.org/protocol/muc#admin">>,
+	   module = 'xep0045',
            result = {muc_item, '$actor', '$continue', '$reason',
                      '$affiliation', '$role', '$jid', '$nick'},
            refs = [#ref{name = muc_admin_actor,
@@ -2482,6 +2829,7 @@
 -xml(muc_admin_actor,
      #elem{name = <<"actor">>,
            xmlns = <<"http://jabber.org/protocol/muc#admin">>,
+	   module = 'xep0045',
            result = {muc_actor, '$jid', '$nick'},
            attrs = [#attr{name = <<"jid">>,
                           dec = {dec_jid, []},
@@ -2491,18 +2839,21 @@
 -xml(muc_admin_continue,
      #elem{name = <<"continue">>,
            xmlns = <<"http://jabber.org/protocol/muc#admin">>,
+	   module = 'xep0045',
            result = '$thread',
            attrs = [#attr{name = <<"thread">>}]}).
 
 -xml(muc_admin,
      #elem{name = <<"query">>,
 	   xmlns = <<"http://jabber.org/protocol/muc#admin">>,
+	   module = 'xep0045',
 	   result = {muc_admin, '$items'},
 	   refs = [#ref{name = muc_admin_item, label = '$items'}]}).
 
 -xml(muc,
      #elem{name = <<"x">>,
            xmlns = <<"http://jabber.org/protocol/muc">>,
+	   module = 'xep0045',
            result = {muc, '$history', '$password'},
            refs = [#ref{name = muc_history, min = 0, max = 1,
                         label = '$history'},
@@ -2512,6 +2863,7 @@
 -xml(muc_unique,
      #elem{name = <<"unique">>,
 	   xmlns = <<"http://jabber.org/protocol/muc#unique">>,
+	   module = 'xep0045',
 	   result = {muc_unique, '$name'},
 	   cdata = #cdata{default = <<"">>,
 			  label = '$name'}}).
@@ -2519,6 +2871,7 @@
 -xml(x_conference,
      #elem{name = <<"x">>,
 	   xmlns = <<"jabber:x:conference">>,
+	   module = 'xep0249',
 	   result = {x_conference, '$jid', '$password', '$reason',
 		     '$continue', '$thread'},
 	   attrs = [#attr{name = <<"jid">>,
@@ -2535,6 +2888,7 @@
 -xml(muc_subscription,
      #elem{name = <<"subscription">>,
 	   xmlns = <<"urn:xmpp:mucsub:0">>,
+	   module = p1_mucsub,
 	   result = '$jid',
            attrs = [#attr{name = <<"jid">>,
                           required = true,
@@ -2544,18 +2898,21 @@
 -xml(muc_subscriptions,
      #elem{name = <<"subscriptions">>,
 	   xmlns = <<"urn:xmpp:mucsub:0">>,
+	   module = p1_mucsub,
 	   result = {muc_subscriptions, '$list'},
 	   refs = [#ref{name = muc_subscription, label = '$list'}]}).
 
 -xml(muc_subscribe_event,
      #elem{name = <<"event">>,
 	   xmlns = <<"urn:xmpp:mucsub:0">>,
+	   module = p1_mucsub,
 	   result = '$node',
 	   attrs = [#attr{name = <<"node">>, required = true}]}).
 
 -xml(muc_subscribe,
      #elem{name = <<"subscribe">>,
 	   xmlns = <<"urn:xmpp:mucsub:0">>,
+	   module = p1_mucsub,
 	   result = {muc_subscribe, '$nick', '$password', '$events'},
 	   attrs = [#attr{name = <<"nick">>, required = true}, #attr{name = <<"password">>}],
 	   refs = [#ref{name = muc_subscribe_event, label = '$events'}]}).
@@ -2563,46 +2920,54 @@
 -xml(muc_unsubscribe,
      #elem{name = <<"unsubscribe">>,
 	   xmlns = <<"urn:xmpp:mucsub:0">>,
+	   module = p1_mucsub,
 	   result = {muc_unsubscribe}}).
 
 -xml(rsm_after,
      #elem{name = <<"after">>,
            xmlns = <<"http://jabber.org/protocol/rsm">>,
+	   module = 'xep0059',
 	   cdata = #cdata{required = true},
            result = '$cdata'}).
 
 -xml(rsm_before,
      #elem{name = <<"before">>,
            xmlns = <<"http://jabber.org/protocol/rsm">>,
+	   module = 'xep0059',
 	   cdata = #cdata{default = <<"">>},
            result = '$cdata'}).
 
 -xml(rsm_last,
      #elem{name = <<"last">>,
            xmlns = <<"http://jabber.org/protocol/rsm">>,
+	   module = 'xep0059',
            result = '$cdata'}).
 
 -xml(rsm_count,
      #elem{name = <<"count">>, result = '$cdata',
            xmlns = <<"http://jabber.org/protocol/rsm">>,
+	   module = 'xep0059',
            cdata = #cdata{dec = {dec_int, [0, infinity]},
                           enc = {enc_int, []}}}).
 
 -xml(rsm_index,
      #elem{name = <<"index">>, result = '$cdata',
            xmlns = <<"http://jabber.org/protocol/rsm">>,
+	   module = 'xep0059',
            cdata = #cdata{dec = {dec_int, [0, infinity]},
                           enc = {enc_int, []}}}).
 
 -xml(rsm_max,
      #elem{name = <<"max">>, result = '$cdata',
            xmlns = <<"http://jabber.org/protocol/rsm">>,
+	   module = 'xep0059',
            cdata = #cdata{dec = {dec_int, [0, infinity]},
                           enc = {enc_int, []}}}).
 
 -xml(rsm_first,
      #elem{name = <<"first">>,
            xmlns = <<"http://jabber.org/protocol/rsm">>,
+	   module = 'xep0059',
            result = {rsm_first, '$index', '$data'},
            cdata = #cdata{label = '$data'},
            attrs = [#attr{name = <<"index">>,
@@ -2612,6 +2977,7 @@
 -xml(rsm_set,
      #elem{name = <<"set">>,
            xmlns = <<"http://jabber.org/protocol/rsm">>,
+	   module = 'xep0059',
            result = {rsm_set, '$after', '$before', '$count',
                      '$first', '$index', '$last', '$max'},
            refs = [#ref{name = rsm_after, label = '$after', min = 0, max = 1},
@@ -2625,6 +2991,7 @@
 -xml(mam_start,
      #elem{name = <<"start">>,
            xmlns = <<"urn:xmpp:mam:tmp">>,
+	   module = 'xep0313',
            result = '$cdata',
            cdata = #cdata{required = true,
                           dec = {dec_utc, []},
@@ -2633,6 +3000,7 @@
 -xml(mam_end,
      #elem{name = <<"end">>,
            xmlns = <<"urn:xmpp:mam:tmp">>,
+	   module = 'xep0313',
            result = '$cdata',
            cdata = #cdata{required = true,
                           dec = {dec_utc, []},
@@ -2641,6 +3009,7 @@
 -xml(mam_with,
      #elem{name = <<"with">>,
            xmlns = <<"urn:xmpp:mam:tmp">>,
+	   module = 'xep0313',
            result = '$cdata',
            cdata = #cdata{required = true,
                           dec = {dec_jid, []},
@@ -2649,12 +3018,14 @@
 -xml(mam_withtext,
      #elem{name = <<"withtext">>,
 	   xmlns = <<"urn:xmpp:mam:tmp">>,
+	   module = 'xep0313',
 	   result = '$cdata',
 	   cdata = #cdata{required = true}}).
 
 -xml(mam_query,
      #elem{name = <<"query">>,
            xmlns = [<<"urn:xmpp:mam:0">>, <<"urn:xmpp:mam:1">>, <<"urn:xmpp:mam:tmp">>],
+	   module = 'xep0313',
            result = {mam_query, '$xmlns', '$id', '$start', '$end', '$with',
 		     '$withtext', '$rsm', '$xdata'},
            attrs = [#attr{name = <<"queryid">>, label = '$id'},
@@ -2669,6 +3040,7 @@
 -xml(mam_archived,
      #elem{name = <<"archived">>,
            xmlns = <<"urn:xmpp:mam:tmp">>,
+	   module = 'xep0313',
            result = {mam_archived, '$by', '$id'},
            attrs = [#attr{name = <<"id">>},
                     #attr{name = <<"by">>,
@@ -2679,6 +3051,7 @@
 -xml(mam_result,
      #elem{name = <<"result">>,
            xmlns = [<<"urn:xmpp:mam:0">>, <<"urn:xmpp:mam:1">>, <<"urn:xmpp:mam:tmp">>],
+	   module = 'xep0313',
            result = {mam_result, '$xmlns', '$queryid', '$id', '$_els'},
            attrs = [#attr{name = <<"queryid">>},
 		    #attr{name = <<"xmlns">>},
@@ -2687,6 +3060,7 @@
 -xml(mam_jid,
      #elem{name = <<"jid">>,
            xmlns = [<<"urn:xmpp:mam:0">>, <<"urn:xmpp:mam:1">>, <<"urn:xmpp:mam:tmp">>],
+	   module = 'xep0313',
            result = '$cdata',
            cdata = #cdata{required = true,
                           dec = {dec_jid, []},
@@ -2695,18 +3069,21 @@
 -xml(mam_never,
      #elem{name = <<"never">>,
            xmlns = [<<"urn:xmpp:mam:0">>, <<"urn:xmpp:mam:1">>, <<"urn:xmpp:mam:tmp">>],
+	   module = 'xep0313',
            result = '$jids',
            refs = [#ref{name = mam_jid, label = '$jids'}]}).
 
 -xml(mam_always,
      #elem{name = <<"always">>,
            xmlns = [<<"urn:xmpp:mam:0">>, <<"urn:xmpp:mam:1">>, <<"urn:xmpp:mam:tmp">>],
+	   module = 'xep0313',
            result = '$jids',
            refs = [#ref{name = mam_jid, label = '$jids'}]}).
 
 -xml(mam_prefs,
      #elem{name = <<"prefs">>,
            xmlns = [<<"urn:xmpp:mam:0">>, <<"urn:xmpp:mam:1">>, <<"urn:xmpp:mam:tmp">>],
+	   module = 'xep0313',
            result = {mam_prefs, '$xmlns', '$default', '$always', '$never'},
            attrs = [#attr{name = <<"default">>,
                           dec = {dec_enum, [[always, never, roster]]},
@@ -2720,6 +3097,7 @@
 -xml(mam_fin,
      #elem{name = <<"fin">>,
 	   xmlns = [<<"urn:xmpp:mam:0">>, <<"urn:xmpp:mam:1">>],
+	   module = 'xep0313',
 	   result = {mam_fin, '$xmlns', '$id', '$rsm', '$stable', '$complete'},
 	   attrs = [#attr{name = <<"queryid">>, label = '$id'},
 		    #attr{name = <<"xmlns">>},
@@ -2734,6 +3112,7 @@
 -xml(forwarded,
      #elem{name = <<"forwarded">>,
            xmlns = <<"urn:xmpp:forward:0">>,
+	   module = 'xep0297',
            result = {forwarded, '$delay', '$_xmls'},
            refs = [#ref{name = delay, min = 0,
                         max = 1, label = '$delay'}]}).
@@ -2741,21 +3120,25 @@
 -xml(carbons_disable,
      #elem{name = <<"disable">>,
            xmlns = <<"urn:xmpp:carbons:2">>,
+	   module = 'xep0280',
            result = {carbons_disable}}).
 
 -xml(carbons_enable,
      #elem{name = <<"enable">>,
 	   xmlns = <<"urn:xmpp:carbons:2">>,
+	   module = 'xep0280',
 	   result = {carbons_enable}}).
 
 -xml(carbons_private,
      #elem{name = <<"private">>,
 	   xmlns = <<"urn:xmpp:carbons:2">>,
+	   module = 'xep0280',
 	   result = {carbons_private}}).
 
 -xml(carbons_received,
      #elem{name = <<"received">>,
 	   xmlns = <<"urn:xmpp:carbons:2">>,
+	   module = 'xep0280',
 	   result = {carbons_received, '$forwarded'},
 	   refs = [#ref{name = forwarded, min = 1,
                         max = 1, label = '$forwarded'}]}).
@@ -2763,6 +3146,7 @@
 -xml(carbons_sent,
      #elem{name = <<"sent">>,
 	   xmlns = <<"urn:xmpp:carbons:2">>,
+	   module = 'xep0280',
 	   result = {carbons_sent, '$forwarded'},
 	   refs = [#ref{name = forwarded, min = 1,
                         max = 1, label = '$forwarded'}]}).
@@ -2770,6 +3154,7 @@
 -xml(feature_csi,
      #elem{name = <<"csi">>,
 	   xmlns = <<"urn:xmpp:csi:0">>,
+	   module = 'xep0352',
 	   result = {feature_csi, '$xmlns'},
 	   attrs = [#attr{name = <<"xmlns">>}]}).
 
@@ -2779,22 +3164,26 @@
 -xml(csi_active,
      #elem{name = <<"active">>,
 	   xmlns = <<"urn:xmpp:csi:0">>,
+	   module = 'xep0352',
 	   result = {csi, active}}).
 
 -xml(csi_inactive,
      #elem{name = <<"inactive">>,
 	   xmlns = <<"urn:xmpp:csi:0">>,
+	   module = 'xep0352',
 	   result = {csi, inactive}}).
 
 -xml(feature_sm,
      #elem{name = <<"sm">>,
 	   xmlns = [<<"urn:xmpp:sm:2">>, <<"urn:xmpp:sm:3">>],
+	   module = 'xep0198',
 	   result = {feature_sm, '$xmlns'},
 	   attrs = [#attr{name = <<"xmlns">>}]}).
 
 -xml(sm_enable,
      #elem{name = <<"enable">>,
 	   xmlns = [<<"urn:xmpp:sm:2">>, <<"urn:xmpp:sm:3">>],
+	   module = 'xep0198',
 	   result = {sm_enable, '$max', '$resume', '$xmlns'},
 	   attrs = [#attr{name = <<"max">>,
 			  dec = {dec_int, [0, infinity]},
@@ -2808,6 +3197,7 @@
 -xml(sm_enabled,
      #elem{name = <<"enabled">>,
 	   xmlns = [<<"urn:xmpp:sm:2">>, <<"urn:xmpp:sm:3">>],
+	   module = 'xep0198',
 	   result = {sm_enabled, '$id', '$location', '$max', '$resume', '$xmlns'},
 	   attrs = [#attr{name = <<"id">>},
 		    #attr{name = <<"location">>},
@@ -2823,6 +3213,7 @@
 -xml(sm_resume,
      #elem{name = <<"resume">>,
 	   xmlns = [<<"urn:xmpp:sm:2">>, <<"urn:xmpp:sm:3">>],
+	   module = 'xep0198',
 	   result = {sm_resume, '$h', '$previd', '$xmlns'},
 	   attrs = [#attr{name = <<"h">>,
 			  required = true,
@@ -2835,6 +3226,7 @@
 -xml(sm_resumed,
      #elem{name = <<"resumed">>,
 	   xmlns = [<<"urn:xmpp:sm:2">>, <<"urn:xmpp:sm:3">>],
+	   module = 'xep0198',
 	   result = {sm_resumed, '$h', '$previd', '$xmlns'},
 	   attrs = [#attr{name = <<"h">>,
 			  required = true,
@@ -2847,12 +3239,14 @@
 -xml(sm_r,
      #elem{name = <<"r">>,
 	   xmlns = [<<"urn:xmpp:sm:2">>, <<"urn:xmpp:sm:3">>],
+	   module = 'xep0198',
 	   result = {sm_r, '$xmlns'},
 	   attrs = [#attr{name = <<"xmlns">>}]}).
 
 -xml(sm_a,
      #elem{name = <<"a">>,
 	   xmlns = [<<"urn:xmpp:sm:2">>, <<"urn:xmpp:sm:3">>],
+	   module = 'xep0198',
 	   result = {sm_a, '$h', '$xmlns'},
 	   attrs = [#attr{name = <<"h">>,
 			  required = true,
@@ -2863,6 +3257,7 @@
 -xml(sm_failed,
      #elem{name = <<"failed">>,
 	   xmlns = [<<"urn:xmpp:sm:2">>, <<"urn:xmpp:sm:3">>],
+	   module = 'xep0198',
 	   result = {sm_failed, '$reason', '$text', '$h', '$xmlns'},
 	   attrs = [#attr{name = <<"h">>,
 			  dec = {dec_int, [0, infinity]},
@@ -2917,16 +3312,19 @@
 -xml(offline_purge,
      #elem{name = <<"purge">>,
 	   xmlns = <<"http://jabber.org/protocol/offline">>,
+	   module = 'xep0013',
 	   result = true}).
 
 -xml(offline_fetch,
      #elem{name = <<"fetch">>,
 	   xmlns = <<"http://jabber.org/protocol/offline">>,
+	   module = 'xep0013',
 	   result = true}).
 
 -xml(offline_item,
      #elem{name = <<"item">>,
 	   xmlns = <<"http://jabber.org/protocol/offline">>,
+	   module = 'xep0013',
 	   result = {offline_item, '$node', '$action'},
 	   attrs = [#attr{name = <<"node">>},
 		    #attr{name = <<"action">>,
@@ -2936,6 +3334,7 @@
 -xml(offline,
      #elem{name = <<"offline">>,
 	   xmlns = <<"http://jabber.org/protocol/offline">>,
+	   module = 'xep0013',
 	   result = {offline, '$items', '$purge', '$fetch'},
 	   refs = [#ref{name = offline_purge, min = 0, max = 1,
 			label = '$purge', default = false},
@@ -2946,6 +3345,7 @@
 -xml(mix_subscribe,
      #elem{name = <<"subscribe">>,
 	   xmlns = <<"urn:xmpp:mix:0">>,
+	   module = 'xep0369',
 	   result = '$node',
 	   attrs = [#attr{name = <<"node">>,
 			  required = true,
@@ -2954,6 +3354,7 @@
 -xml(mix_join,
      #elem{name = <<"join">>,
 	   xmlns = <<"urn:xmpp:mix:0">>,
+	   module = 'xep0369',
 	   result = {mix_join, '$jid', '$subscribe'},
 	   attrs = [#attr{name = <<"jid">>,
 			  label = '$jid',
@@ -2964,11 +3365,13 @@
 -xml(mix_leave,
      #elem{name = <<"leave">>,
 	   xmlns = <<"urn:xmpp:mix:0">>,
+	   module = 'xep0369',
 	   result = {mix_leave}}).
 
 -xml(mix_participant,
      #elem{name = <<"participant">>,
 	   xmlns = <<"urn:xmpp:mix:0">>,
+	   module = 'xep0369',
 	   result = {mix_participant, '$jid', '$nick'},
 	   attrs = [#attr{name = <<"jid">>,
 			  required = true,
@@ -2985,62 +3388,74 @@
 -xml(hint_no_copy,
      #elem{name = <<"no-copy">>,
 	   xmlns = <<"urn:xmpp:hints">>,
+	   module = 'xep0334',
 	   result = {hint, 'no-copy'}}).
 
 -xml(hint_no_store,
      #elem{name = <<"no-store">>,
 	   xmlns = <<"urn:xmpp:hints">>,
+	   module = 'xep0334',
 	   result = {hint, 'no-store'}}).
 
 -xml(hint_no_storage,
      #elem{name = <<"no-storage">>,
 	   xmlns = <<"urn:xmpp:hints">>,
+	   module = 'xep0334',
 	   result = {hint, 'no-storage'}}).
 
 -xml(hint_store,
      #elem{name = <<"store">>,
 	   xmlns = <<"urn:xmpp:hints">>,
+	   module = 'xep0334',
 	   result = {hint, 'store'}}).
 
 -xml(hint_no_permanent_store,
      #elem{name = <<"no-permanent-store">>,
 	   xmlns = <<"urn:xmpp:hints">>,
+	   module = 'xep0334',
 	   result = {hint, 'no-permanent-store'}}).
 
 -xml(hint_no_permanent_storage,
      #elem{name = <<"no-permanent-storage">>,
 	   xmlns = <<"urn:xmpp:hints">>,
+	   module = 'xep0334',
 	   result = {hint, 'no-permanent-storage'}}).
 
 -xml(search_instructions,
      #elem{name = <<"instructions">>,
            xmlns = <<"jabber:iq:search">>,
+	   module = 'xep0055',
            result = '$cdata'}).
 
 -xml(search_first,
      #elem{name = <<"first">>,
 	   xmlns = <<"jabber:iq:search">>,
+	   module = 'xep0055',
 	   cdata = #cdata{default = <<"">>},
            result = '$cdata'}).
 -xml(search_last,
      #elem{name = <<"last">>,
            xmlns = <<"jabber:iq:search">>,
+	   module = 'xep0055',
            cdata = #cdata{default = <<"">>},
            result = '$cdata'}).
 -xml(search_nick,
      #elem{name = <<"nick">>,
            xmlns = <<"jabber:iq:search">>,
+	   module = 'xep0055',
            cdata = #cdata{default = <<"">>},
            result = '$cdata'}).
 -xml(search_email,
      #elem{name = <<"email">>,
            xmlns = <<"jabber:iq:search">>,
+	   module = 'xep0055',
            cdata = #cdata{default = <<"">>},
            result = '$cdata'}).
 
 -xml(search_item,
      #elem{name = <<"item">>,
 	   xmlns = <<"jabber:iq:search">>,
+	   module = 'xep0055',
 	   result = {search_item, '$jid', '$first', '$last', '$nick', '$email'},
 	   attrs = [#attr{name = <<"jid">>,
 			  required = true,
@@ -3058,6 +3473,7 @@
 -xml(search,
      #elem{name = <<"query">>,
 	   xmlns = <<"jabber:iq:search">>,
+	   module = 'xep0055',
 	   result = {search, '$instructions', '$first', '$last',
 		     '$nick', '$email', '$items', '$xdata'},
 	   refs = [#ref{name = search_instructions, min = 0, max = 1,
@@ -3077,28 +3493,34 @@
 -xml(xevent_offline,
      #elem{name = <<"offline">>,
 	   xmlns = <<"jabber:x:event">>,
+	   module = 'xep0022',
 	   result = true}).
 -xml(xevent_delivered,
      #elem{name = <<"delivered">>,
 	   xmlns = <<"jabber:x:event">>,
+	   module = 'xep0022',
 	   result = true}).
 -xml(xevent_displayed,
      #elem{name = <<"displayed">>,
 	   xmlns = <<"jabber:x:event">>,
+	   module = 'xep0022',
 	   result = true}).
 -xml(xevent_composing,
      #elem{name = <<"composing">>,
 	   xmlns = <<"jabber:x:event">>,
+	   module = 'xep0022',
 	   result = true}).
 -xml(xevent_id,
      #elem{name = <<"id">>,
 	   xmlns = <<"jabber:x:event">>,
+	   module = 'xep0022',
 	   cdata = #cdata{},
            result = '$cdata'}).
 
 -xml(xevent,
      #elem{name = <<"x">>,
 	   xmlns = <<"jabber:x:event">>,
+	   module = 'xep0022',
 	   result = {xevent, '$offline', '$delivered', '$displayed',
 		     '$composing', '$id'},
 	   refs = [#ref{name = xevent_offline, min = 0, max = 1,
@@ -3115,6 +3537,7 @@
 -xml(expire,
      #elem{name = <<"x">>,
 	   xmlns = <<"jabber:x:expire">>,
+	   module = 'xep0023',
 	   result = {expire, '$seconds', '$stored'},
 	   attrs = [#attr{name = <<"seconds">>,
 			  required = true,
@@ -3127,6 +3550,7 @@
 -xml(nick,
      #elem{name = <<"nick">>,
 	   xmlns = <<"http://jabber.org/protocol/nick">>,
+	   module = 'xep0172',
 	   result = {nick, '$name'},
 	   cdata = #cdata{label = '$name',
 			  required = true}}).
@@ -3134,6 +3558,7 @@
 -xml(address,
      #elem{name = <<"address">>,
 	   xmlns = <<"http://jabber.org/protocol/address">>,
+	   module = 'xep0033',
 	   result = {address, '$type', '$jid', '$desc', '$node', '$delivered'},
 	   attrs = [#attr{name = <<"type">>,
 			  required = true,
@@ -3152,6 +3577,7 @@
 -xml(addresses,
      #elem{name = <<"addresses">>,
 	   xmlns = <<"http://jabber.org/protocol/address">>,
+	   module = 'xep0033',
 	   result = {addresses, '$list'},
 	   %% TODO: 'min' should be '1', but this is not implemented
 	   refs = [#ref{name = address, label = '$list'}]}).
@@ -3159,6 +3585,7 @@
 -xml(stanza_id,
      #elem{name = <<"stanza-id">>,
 	   xmlns = <<"urn:xmpp:sid:0">>,
+	   module = 'xep0359',
 	   result = {stanza_id, '$by', '$id'},
 	   attrs = [#attr{name = <<"id">>, required = true},
 		    #attr{name = <<"by">>, required = true,
@@ -3168,25 +3595,30 @@
 -xml(client_id,
      #elem{name = <<"client-id">>,
 	   xmlns = <<"urn:xmpp:sid:0">>,
+	   module = 'xep0359',
 	   result = {client_id, '$id'},
 	   attrs = [#attr{name = <<"id">>, required = true}]}).
 
 -xml(adhoc_command_prev,
      #elem{name = <<"prev">>,
 	   xmlns = <<"http://jabber.org/protocol/commands">>,
+	   module = 'xep0050',
 	   result = true}).
 -xml(adhoc_command_next,
      #elem{name = <<"next">>,
 	   xmlns = <<"http://jabber.org/protocol/commands">>,
+	   module = 'xep0050',
 	   result = true}).
 -xml(adhoc_command_complete,
      #elem{name = <<"complete">>,
 	   xmlns = <<"http://jabber.org/protocol/commands">>,
+	   module = 'xep0050',
 	   result = true}).
 
 -xml(adhoc_command_actions,
      #elem{name = <<"actions">>,
 	   xmlns = <<"http://jabber.org/protocol/commands">>,
+	   module = 'xep0050',
 	   result = {adhoc_actions, '$execute', '$prev', '$next', '$complete'},
 	   attrs = [#attr{name = <<"execute">>,
 			  dec = {dec_enum, [[complete, next, prev]]},
@@ -3201,6 +3633,7 @@
 -xml(adhoc_command_notes,
      #elem{name = <<"note">>,
 	   xmlns = <<"http://jabber.org/protocol/commands">>,
+	   module = 'xep0050',
 	   result = {adhoc_note, '$type', '$data'},
 	   attrs = [#attr{name = <<"type">>, default = info,
 			  dec = {dec_enum, [[info, warn, error]]},
@@ -3210,6 +3643,7 @@
 -xml(adhoc_command,
      #elem{name = <<"command">>,
 	   xmlns = <<"http://jabber.org/protocol/commands">>,
+	   module = 'xep0050',
 	   result = {adhoc_command, '$node', '$action', '$sid',
 		     '$status', '$lang', '$actions', '$notes', '$xdata'},
 	   attrs = [#attr{name = <<"node">>, required = true},
@@ -3230,6 +3664,7 @@
 -xml(db_result,
      #elem{name = <<"db:result">>,
 	   xmlns = <<"jabber:server">>,
+	   module = 'xep0220',
 	   result = {db_result, '$from', '$to', '$type', '$key', '$_els'},
 	   cdata = #cdata{default = <<"">>, label = '$key'},
 	   attrs = [#attr{name = <<"from">>, required = true,
@@ -3243,6 +3678,7 @@
 -xml(db_verify,
      #elem{name = <<"db:verify">>,
 	   xmlns = <<"jabber:server">>,
+	   module = 'xep0220',
 	   result = {db_verify, '$from', '$to', '$id', '$type', '$key', '$_els'},
 	   cdata = #cdata{default = <<"">>, label = '$key'},
 	   attrs = [#attr{name = <<"from">>, required = true,
@@ -3257,11 +3693,13 @@
 -xml(db_errors,
      #elem{name = <<"errors">>,
 	   xmlns = <<"urn:xmpp:features:dialback">>,
+	   module = 'xep0220',
 	   result = true}).
 
 -xml(db_feature,
      #elem{name = <<"dialback">>,
 	   xmlns = <<"urn:xmpp:features:dialback">>,
+	   module = 'xep0220',
 	   result = {db_feature, '$errors'},
 	   refs = [#ref{name = db_errors, min = 0, max = 1,
 			default = false, label = '$errors'}]}).
@@ -3269,6 +3707,7 @@
 -xml(handshake,
      #elem{name = <<"handshake">>,
 	   xmlns = <<"jabber:component:accept">>,
+	   module = 'xep0114',
 	   result = {handshake, '$data'},
 	   cdata = #cdata{default = <<"">>, label = '$data'}}).
 
@@ -3276,6 +3715,7 @@
      #elem{name = <<"stream:stream">>,
 	   xmlns = [<<"jabber:client">>, <<"jabber:server">>,
 		    <<"jabber:component:accept">>],
+	   module = rfc6120,
 	   result = {stream_start, '$from', '$to', '$id',
 		     '$version', '$xmlns', '$stream_xmlns',
 		     '$db_xmlns', '$lang'},
@@ -3302,6 +3742,7 @@
 -xml(bob_data,
      #elem{name = <<"data">>,
 	   xmlns = <<"urn:xmpp:bob">>,
+	   module = 'xep0231',
 	   result = {bob_data, '$cid', '$max-age', '$type', '$data'},
 	   attrs = [#attr{name = <<"cid">>, required = true},
 		    #attr{name = <<"max-age">>,
@@ -3315,12 +3756,14 @@
 -xml(captcha,
      #elem{name = <<"captcha">>,
 	   xmlns = <<"urn:xmpp:captcha">>,
+	   module = 'xep0158',
 	   result = {xcaptcha, '$xdata'},
 	   refs = [#ref{name = xdata, min = 1, max = 1}]}).
 
 -xml(media_uri,
      #elem{name = <<"uri">>,
 	   xmlns = <<"urn:xmpp:media-element">>,
+	   module = 'xep0221',
 	   result = {media_uri, '$type', '$uri'},
 	   attrs = [#attr{name = <<"type">>, required = true}],
 	   cdata = #cdata{label = '$uri', default = <<"">>}}).
@@ -3328,6 +3771,7 @@
 -xml(media,
      #elem{name = <<"media">>,
 	   xmlns = <<"urn:xmpp:media-element">>,
+	   module = 'xep0221',
 	   result = {media, '$height', '$width', '$uri'},
 	   attrs = [#attr{name = <<"height">>,
 			  dec = {dec_int, [0, infinity]},
@@ -3340,18 +3784,21 @@
 -xml(oob_url,
      #elem{name = <<"url">>,
 	   xmlns = <<"jabber:x:oob">>,
+	   module = 'xep0066',
 	   result = '$cdata',
 	   cdata = #cdata{required = true}}).
 
 -xml(oob_desc,
      #elem{name = <<"desc">>,
 	   xmlns = <<"jabber:x:oob">>,
+	   module = 'xep0066',
 	   result = '$cdata',
 	   cdata = #cdata{default = <<"">>}}).
 
 -xml(oob_x,
      #elem{name = <<"x">>,
 	   xmlns = <<"jabber:x:oob">>,
+	   module = 'xep0066',
 	   result = {oob_x, '$url', '$desc', '$sid'},
 	   attrs = [#attr{name = <<"sid">>, default = <<"">>}],
 	   refs = [#ref{name = oob_url, min = 1, max = 1,
@@ -3362,6 +3809,7 @@
 -xml(sic_ip,
      #elem{name = <<"ip">>,
 	   xmlns = [<<"urn:xmpp:sic:0">>, <<"urn:xmpp:sic:1">>],
+	   module = 'xep0279',
 	   result = '$cdata',
 	   cdata = #cdata{required = true,
 			  dec = {dec_ip, []},
@@ -3370,6 +3818,7 @@
 -xml(sip_port,
      #elem{name = <<"port">>,
 	   xmlns = <<"urn:xmpp:sic:1">>,
+	   module = 'xep0279',
 	   result = '$cdata',
 	   cdata = #cdata{required = true,
 			  dec = {dec_int, [0, 65535]},
@@ -3378,6 +3827,7 @@
 -xml(sic,
      #elem{name = <<"address">>,
 	   xmlns = [<<"urn:xmpp:sic:0">>, <<"urn:xmpp:sic:1">>],
+	   module = 'xep0279',
 	   result = {sic, '$ip', '$port', '$xmlns'},
 	   attrs = [#attr{name = <<"xmlns">>}],
 	   refs = [#ref{name = sic_ip, min = 0, max = 1, label = '$ip'},
@@ -3387,6 +3837,7 @@
      #elem{name = <<"filename">>,
 	   xmlns = [<<"urn:xmpp:http:upload">>,
 		    <<"eu:siacs:conversations:http:upload">>],
+	   module = 'xep0363',
 	   result = '$cdata',
 	   cdata = #cdata{required = true}}).
 
@@ -3394,6 +3845,7 @@
      #elem{name = <<"size">>,
 	   xmlns = [<<"urn:xmpp:http:upload">>,
 		    <<"eu:siacs:conversations:http:upload">>],
+	   module = 'xep0363',
 	   result = '$cdata',
 	   cdata = #cdata{required = true,
 			  dec = {dec_int, [0, infinity]},
@@ -3403,6 +3855,7 @@
      #elem{name = <<"content-type">>,
 	   xmlns = [<<"urn:xmpp:http:upload">>,
 		    <<"eu:siacs:conversations:http:upload">>],
+	   module = 'xep0363',
 	   result = '$cdata',
 	   cdata = #cdata{default = <<"">>}}).
 
@@ -3410,6 +3863,7 @@
      #elem{name = <<"request">>,
 	   xmlns = [<<"urn:xmpp:http:upload">>,
 		    <<"eu:siacs:conversations:http:upload">>],
+	   module = 'xep0363',
 	   result = {upload_request, '$filename', '$size',
 		     '$content-type', '$xmlns'},
 	   attrs = [#attr{name = <<"xmlns">>}],
@@ -3423,6 +3877,7 @@
      #elem{name = <<"get">>,
 	   xmlns = [<<"urn:xmpp:http:upload">>,
 		    <<"eu:siacs:conversations:http:upload">>],
+	   module = 'xep0363',
 	   result = '$cdata',
 	   cdata = #cdata{required = true}}).
 
@@ -3430,6 +3885,7 @@
      #elem{name = <<"put">>,
 	   xmlns = [<<"urn:xmpp:http:upload">>,
 		    <<"eu:siacs:conversations:http:upload">>],
+	   module = 'xep0363',
 	   result = '$cdata',
 	   cdata = #cdata{required = true}}).
 
@@ -3437,6 +3893,7 @@
      #elem{name = <<"slot">>,
 	   xmlns = [<<"urn:xmpp:http:upload">>,
 		    <<"eu:siacs:conversations:http:upload">>],
+	   module = 'xep0363',
 	   result = {upload_slot, '$get', '$put', '$xmlns'},
 	   attrs = [#attr{name = <<"xmlns">>}],
 	   refs = [#ref{name = upload_get, min = 0, max = 1, label = '$get'},
@@ -3445,6 +3902,7 @@
 -xml(thumbnail,
      #elem{name = <<"thumbnail">>,
 	   xmlns = <<"urn:xmpp:thumbs:1">>,
+	   module = 'xep0264',
 	   result = {thumbnail, '$uri', '$media-type', '$width', '$height'},
 	   attrs = [#attr{name = <<"uri">>, required = true},
 		    #attr{name = <<"media-type">>, default = <<"">>},
@@ -3458,6 +3916,7 @@
 -xml(privilege_perm,
      #elem{name = <<"perm">>,
 	   xmlns = <<"urn:xmpp:privilege:1">>,
+	   module = 'xep0356',
 	   result = {privilege_perm, '$access', '$type'},
 	   attrs = [#attr{name = <<"access">>,
 			  required = true,
@@ -3473,6 +3932,7 @@
 -xml(privilege,
      #elem{name = <<"privilege">>,
 	   xmlns = <<"urn:xmpp:privilege:1">>,
+	   module = 'xep0356',
 	   result = {privilege, '$perms', '$forwarded'},
 	   refs = [#ref{name = privilege_perm, label = '$perms'},
 		   #ref{name = forwarded, min = 0,
@@ -3481,6 +3941,7 @@
 -xml(delegated_attribute,
      #elem{name = <<"attribute">>,
 	   xmlns = <<"urn:xmpp:delegation:1">>,
+	   module = 'xep0355',
 	   result = '$name',
 	   attrs = [#attr{name = <<"name">>,
 			  required = true}]}).
@@ -3488,6 +3949,7 @@
 -xml(delegated,
      #elem{name = <<"delegated">>,
 	   xmlns = <<"urn:xmpp:delegation:1">>,
+	   module = 'xep0355',
 	   result = {delegated, '$ns', '$attrs'},
 	   attrs = [#attr{name = <<"namespace">>,
 			  label = '$ns',
@@ -3498,6 +3960,7 @@
 -xml(delegation,
      #elem{name = <<"delegation">>,
 	   xmlns = <<"urn:xmpp:delegation:1">>,
+	   module = 'xep0355',
 	   result = {delegation, '$delegated', '$forwarded'},
 	   refs = [#ref{name = delegated, label = '$delegated'},
 		   #ref{name = forwarded, min = 0,
@@ -3506,6 +3969,7 @@
 -xml(delegate,
      #elem{name = <<"delegate">>,
 	   xmlns = <<"urn:xmpp:delegation:1">>,
+	   module = 'xep0355',
 	   result = '$namespace',
 	   attrs = [#attr{name = <<"namespace">>,
 			  required = true}]}).
@@ -3513,6 +3977,7 @@
 -xml(delegation_query,
      #elem{name = <<"query">>,
 	   xmlns = <<"urn:xmpp:delegation:1">>,
+	   module = 'xep0355',
 	   result = {delegation_query, '$to', '$delegate'},
 	   attrs = [#attr{name = <<"to">>,
 			  required = true,
