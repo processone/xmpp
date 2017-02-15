@@ -1,3 +1,9 @@
+# Version 1.1.7
+
+Evgeniy Khramtsov:
+* Generate modular code for xmpp_codec
+* Improve type specs for set_from()/set_to()
+
 # Version 1.1.6
 
 Evgeniy Khramtsov:
