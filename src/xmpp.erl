@@ -227,16 +227,16 @@ set_lang(#iq{} = IQ, L) -> IQ#iq{lang = L};
 set_lang(#message{} = Msg, L) -> Msg#message{lang = L};
 set_lang(#presence{} = Pres, L) -> Pres#presence{lang = L}.
 
--spec set_from(iq(), jid:jid()) -> iq();
-	      (message(), jid:jid()) -> message();
-	      (presence(), jid:jid()) -> presence().
+-spec set_from(iq(), jid:jid() | undefined) -> iq();
+	      (message(), jid:jid() | undefined) -> message();
+	      (presence(), jid:jid() | undefined) -> presence().
 set_from(#iq{} = IQ, J) -> IQ#iq{from = J};
 set_from(#message{} = Msg, J) -> Msg#message{from = J};
 set_from(#presence{} = Pres, J) -> Pres#presence{from = J}.
 
--spec set_to(iq(), jid:jid()) -> iq();
-	    (message(), jid:jid()) -> message();
-	    (presence(), jid:jid()) -> presence().
+-spec set_to(iq(), jid:jid() | undefined) -> iq();
+	    (message(), jid:jid() | undefined) -> message();
+	    (presence(), jid:jid() | undefined) -> presence().
 set_to(#iq{} = IQ, J) -> IQ#iq{to = J};
 set_to(#message{} = Msg, J) -> Msg#message{to = J};
 set_to(#presence{} = Pres, J) -> Pres#presence{to = J}.
