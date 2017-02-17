@@ -46,7 +46,7 @@ add_delay_info(Stz, From, Time) ->
 
 add_delay_info(Stz, From, Time, Desc) ->
     NewDelay = #delay{stamp = Time, from = From, desc = Desc},
-    case xmpp:get_subtag(Stz, #delay{}) of
+    case xmpp:get_subtag(Stz, #delay{stamp = {0,0,0}}) of
 	#delay{from = OldFrom} when is_record(OldFrom, jid) ->
 	    case jid:tolower(From) == jid:tolower(OldFrom) of
 		true ->
@@ -61,11 +61,11 @@ add_delay_info(Stz, From, Time, Desc) ->
 -spec unwrap_carbon(stanza()) -> xmpp_element().
 unwrap_carbon(#message{} = Msg) ->
     try
-	case xmpp:get_subtag(Msg, #carbons_sent{}) of
+	case xmpp:get_subtag(Msg, #carbons_sent{forwarded = #forwarded{}}) of
 	    #carbons_sent{forwarded = #forwarded{xml_els = [El]}} ->
 		xmpp:decode(El, ?NS_CLIENT, [ignore_els]);
 	    _ ->
-		case xmpp:get_subtag(Msg, #carbons_received{}) of
+		case xmpp:get_subtag(Msg, #carbons_received{forwarded = #forwarded{}}) of
 		    #carbons_received{forwarded = #forwarded{xml_els = [El]}} ->
 			xmpp:decode(El, ?NS_CLIENT, [ignore_els]);
 		    _ ->

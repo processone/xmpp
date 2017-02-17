@@ -194,7 +194,7 @@ get_to(#presence{to = J}) -> J.
 
 -spec get_error(iq() | message() | presence()) -> undefined | stanza_error().
 get_error(Stanza) ->
-    case get_subtag(Stanza, #stanza_error{}) of
+    case get_subtag(Stanza, #stanza_error{type = cancel}) of
 	false -> undefined;
 	Error -> Error
     end.
@@ -927,7 +927,7 @@ err(Type, Reason, Code, Text, Lang) ->
 serr(Reason) ->
     #stream_error{reason = Reason}.
 
--spec serr(atom() | 'see-other-host'(), binary(),
+-spec serr(atom() | 'see-other-host'(), reason_text(),
 	   binary()) -> stream_error().
 serr(Reason, Text, Lang) ->
     #stream_error{reason = Reason,
