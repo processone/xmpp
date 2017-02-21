@@ -33,8 +33,8 @@
 -export([make_iq_result/1, make_iq_result/2, make_error/2,
 	 decode/1, decode/3, encode/1, encode/2,
 	 get_type/1, get_to/1, get_from/1, get_id/1,
-	 get_lang/1, get_error/1, get_els/1, get_ns/1, get_meta/1,
-	 set_type/2, set_to/2, set_from/2, set_id/2,
+	 get_lang/1, get_error/1, get_els/1, get_ns/1, get_meta/1, get_meta/2,
+	 get_meta/3, set_type/2, set_to/2, set_from/2, set_id/2,
 	 set_lang/2, set_error/2, set_els/2, set_from_to/3,
 	 set_meta/2, put_meta/3, update_meta/3, del_meta/2,
 	 format_error/1, io_format_error/1, is_stanza/1,
@@ -276,6 +276,16 @@ get_name(Pkt) ->
 get_meta(#iq{meta = M}) -> M;
 get_meta(#message{meta = M}) -> M;
 get_meta(#presence{meta = M}) -> M.
+
+-spec get_meta(stanza(), any()) -> any().
+get_meta(#iq{meta = M}, K) -> maps:get(K, M);
+get_meta(#message{meta = M}, K) -> maps:get(K, M);
+get_meta(#presence{meta = M}, K) -> maps:get(K, M).
+
+-spec get_meta(stanza(), any(), any()) -> any().
+get_meta(#iq{meta = M}, K, Def) -> maps:get(K, M, Def);
+get_meta(#message{meta = M}, K, Def) -> maps:get(K, M, Def);
+get_meta(#presence{meta = M}, K, Def) -> maps:get(K, M, Def).
 
 -spec set_meta(iq(), map()) -> iq();
 	      (message(), map()) -> message();
