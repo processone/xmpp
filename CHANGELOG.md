@@ -1,3 +1,9 @@
+# Version 1.1.8
+
+Evgeniy Khramtsov:
+* Add get_meta/2 and get_meta/3
+* Get rid of some dialyzer warnings
+
 # Version 1.1.7
 
 Evgeniy Khramtsov:
