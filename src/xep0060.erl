@@ -753,12 +753,6 @@ dec_int(Val, Min, Max) ->
       Int when Int =< Max, Int >= Min -> Int
     end.
 
-dec_jid(Val) ->
-    case jid:from_string(Val) of
-      error -> erlang:error(badarg);
-      J -> J
-    end.
-
 dec_ps_aff(<<"member">>) -> member;
 dec_ps_aff(<<"none">>) -> none;
 dec_ps_aff(<<"outcast">>) -> outcast;
@@ -774,8 +768,6 @@ enc_bool(true) -> <<"true">>.
 enc_enum(Atom) -> erlang:atom_to_binary(Atom, utf8).
 
 enc_int(Int) -> erlang:integer_to_binary(Int).
-
-enc_jid(J) -> jid:to_string(J).
 
 enc_ps_aff(member) -> <<"member">>;
 enc_ps_aff(none) -> <<"none">>;
@@ -2656,7 +2648,7 @@ decode_pubsub_options_attr_jid(__TopXMLNS, undefined) ->
     erlang:error({xmpp_codec,
 		  {missing_attr, <<"jid">>, <<"options">>, __TopXMLNS}});
 decode_pubsub_options_attr_jid(__TopXMLNS, _val) ->
-    case catch dec_jid(_val) of
+    case catch jid:decode(_val) of
       {'EXIT', _} ->
 	  erlang:error({xmpp_codec,
 			{bad_attr_value, <<"jid">>, <<"options">>,
@@ -2665,7 +2657,7 @@ decode_pubsub_options_attr_jid(__TopXMLNS, _val) ->
     end.
 
 encode_pubsub_options_attr_jid(_val, _acc) ->
-    [{<<"jid">>, enc_jid(_val)} | _acc].
+    [{<<"jid">>, jid:encode(_val)} | _acc].
 
 decode_pubsub_publish(__TopXMLNS, __Opts,
 		      {xmlel, <<"publish">>, _attrs, _els}) ->
@@ -2817,7 +2809,7 @@ decode_pubsub_unsubscribe_attr_jid(__TopXMLNS,
 		  {missing_attr, <<"jid">>, <<"unsubscribe">>,
 		   __TopXMLNS}});
 decode_pubsub_unsubscribe_attr_jid(__TopXMLNS, _val) ->
-    case catch dec_jid(_val) of
+    case catch jid:decode(_val) of
       {'EXIT', _} ->
 	  erlang:error({xmpp_codec,
 			{bad_attr_value, <<"jid">>, <<"unsubscribe">>,
@@ -2826,7 +2818,7 @@ decode_pubsub_unsubscribe_attr_jid(__TopXMLNS, _val) ->
     end.
 
 encode_pubsub_unsubscribe_attr_jid(_val, _acc) ->
-    [{<<"jid">>, enc_jid(_val)} | _acc].
+    [{<<"jid">>, jid:encode(_val)} | _acc].
 
 decode_pubsub_subscribe(__TopXMLNS, __Opts,
 			{xmlel, <<"subscribe">>, _attrs, _els}) ->
@@ -2879,7 +2871,7 @@ decode_pubsub_subscribe_attr_jid(__TopXMLNS,
 		  {missing_attr, <<"jid">>, <<"subscribe">>,
 		   __TopXMLNS}});
 decode_pubsub_subscribe_attr_jid(__TopXMLNS, _val) ->
-    case catch dec_jid(_val) of
+    case catch jid:decode(_val) of
       {'EXIT', _} ->
 	  erlang:error({xmpp_codec,
 			{bad_attr_value, <<"jid">>, <<"subscribe">>,
@@ -2888,7 +2880,7 @@ decode_pubsub_subscribe_attr_jid(__TopXMLNS, _val) ->
     end.
 
 encode_pubsub_subscribe_attr_jid(_val, _acc) ->
-    [{<<"jid">>, enc_jid(_val)} | _acc].
+    [{<<"jid">>, jid:encode(_val)} | _acc].
 
 decode_pubsub_owner_affiliations(__TopXMLNS, __Opts,
 				 {xmlel, <<"affiliations">>, _attrs, _els}) ->
@@ -3834,7 +3826,7 @@ decode_pubsub_owner_affiliation_attr_jid(__TopXMLNS,
 		   __TopXMLNS}});
 decode_pubsub_owner_affiliation_attr_jid(__TopXMLNS,
 					 _val) ->
-    case catch dec_jid(_val) of
+    case catch jid:decode(_val) of
       {'EXIT', _} ->
 	  erlang:error({xmpp_codec,
 			{bad_attr_value, <<"jid">>, <<"affiliation">>,
@@ -3843,7 +3835,7 @@ decode_pubsub_owner_affiliation_attr_jid(__TopXMLNS,
     end.
 
 encode_pubsub_owner_affiliation_attr_jid(_val, _acc) ->
-    [{<<"jid">>, enc_jid(_val)} | _acc].
+    [{<<"jid">>, jid:encode(_val)} | _acc].
 
 decode_pubsub_owner_affiliation_attr_xmlns(__TopXMLNS,
 					   undefined) ->
@@ -4043,7 +4035,7 @@ decode_pubsub_subscription_attr_jid(__TopXMLNS,
 		  {missing_attr, <<"jid">>, <<"subscription">>,
 		   __TopXMLNS}});
 decode_pubsub_subscription_attr_jid(__TopXMLNS, _val) ->
-    case catch dec_jid(_val) of
+    case catch jid:decode(_val) of
       {'EXIT', _} ->
 	  erlang:error({xmpp_codec,
 			{bad_attr_value, <<"jid">>, <<"subscription">>,
@@ -4052,7 +4044,7 @@ decode_pubsub_subscription_attr_jid(__TopXMLNS, _val) ->
     end.
 
 encode_pubsub_subscription_attr_jid(_val, _acc) ->
-    [{<<"jid">>, enc_jid(_val)} | _acc].
+    [{<<"jid">>, jid:encode(_val)} | _acc].
 
 decode_pubsub_subscription_attr_node(__TopXMLNS,
 				     undefined) ->

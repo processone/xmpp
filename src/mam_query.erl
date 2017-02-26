@@ -14,14 +14,6 @@
 
 -export_type([property/0, result/0, form/0]).
 
-enc_jid(J) -> jid:to_string(J).
-
-dec_jid(Val) ->
-    case jid:from_string(Val) of
-      error -> erlang:error(badarg);
-      J -> J
-    end.
-
 format_error({form_type_mismatch, Type}) ->
     <<"FORM_TYPE doesn't match '", Type/binary, "'">>;
 format_error({bad_var_value, Var, Type}) ->
@@ -97,7 +89,7 @@ encode(List, Translate) when is_list(List) ->
 decode([#xdata_field{var = <<"with">>, values = [Value]}
 	| Fs],
        Acc, Required) ->
-    try dec_jid(Value) of
+    try jid:decode(Value) of
       Result -> decode(Fs, [{with, Result} | Acc], Required)
     catch
       _:_ ->
@@ -190,7 +182,7 @@ decode([], Acc, []) -> Acc.
 encode_with(Value, Translate) ->
     Values = case Value of
 	       undefined -> [];
-	       Value -> [enc_jid(Value)]
+	       Value -> [jid:encode(Value)]
 	     end,
     Opts = [],
     #xdata_field{var = <<"with">>, values = Values,

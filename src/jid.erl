@@ -30,8 +30,8 @@
 	 make/2,
 	 make/3,
 	 split/1,
-	 from_string/1,
-	 to_string/1,
+	 decode/1,
+	 encode/1,
 	 is_nodename/1,
 	 nodeprep/1,
 	 nameprep/1,
@@ -39,6 +39,20 @@
 	 tolower/1,
 	 remove_resource/1,
 	 replace_resource/2]).
+
+%% to_string/1 and from_string/1 are deprecated for the following reasons:
+%% (1) The naming is misleading, because there are actually no strings to
+%%     decode/encode
+%% (2) What's more important, a user typically doesn't check the output
+%%     of from_string/1, which leads to hard to debug side effects,
+%%     because the value of 'error' is propagated downstream and will fail
+%%     in unexpected places where it's impossible to understand where
+%%     this 'error' value came from; thus, it's much better to generate
+%%     an exception; to_string/1 is renamed to encode/1 for consistency
+%% (3) As a consequence of (2) Dialyzer produces typings in the form
+%%     of 'error | #jid{}' for some functions which is not very good
+-export([from_string/1, to_string/1]).
+-deprecated([{from_string, 1}, {to_string, 1}]).
 
 -include("jid.hrl").
 
@@ -165,6 +179,17 @@ from_string(S) when is_binary(S) ->
         _ ->
             make(<<>>, S, <<>>)
     end.
+
+-spec decode(binary()) -> jid().
+decode(S) when is_binary(S) ->
+    case from_string(S) of
+       error -> erlang:error({bad_jid, S});
+       J -> J
+    end.
+
+-spec encode(jid() | ljid()) -> binary().
+encode(J) ->
+    to_string(J).
 
 -spec to_string(jid() | ljid()) -> binary().
 

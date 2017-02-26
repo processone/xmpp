@@ -66,14 +66,6 @@ records() ->
     [{muc_subscriptions, 1}, {muc_subscribe, 3},
      {muc_unsubscribe, 0}].
 
-dec_jid(Val) ->
-    case jid:from_string(Val) of
-      error -> erlang:error(badarg);
-      J -> J
-    end.
-
-enc_jid(J) -> jid:to_string(J).
-
 decode_muc_unsubscribe(__TopXMLNS, __Opts,
 		       {xmlel, <<"unsubscribe">>, _attrs, _els}) ->
     {muc_unsubscribe}.
@@ -303,7 +295,7 @@ decode_muc_subscription_attr_jid(__TopXMLNS,
 		  {missing_attr, <<"jid">>, <<"subscription">>,
 		   __TopXMLNS}});
 decode_muc_subscription_attr_jid(__TopXMLNS, _val) ->
-    case catch dec_jid(_val) of
+    case catch jid:decode(_val) of
       {'EXIT', _} ->
 	  erlang:error({xmpp_codec,
 			{bad_attr_value, <<"jid">>, <<"subscription">>,
@@ -312,4 +304,4 @@ decode_muc_subscription_attr_jid(__TopXMLNS, _val) ->
     end.
 
 encode_muc_subscription_attr_jid(_val, _acc) ->
-    [{<<"jid">>, enc_jid(_val)} | _acc].
+    [{<<"jid">>, jid:encode(_val)} | _acc].

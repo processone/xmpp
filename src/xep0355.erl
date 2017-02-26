@@ -62,14 +62,6 @@ records() ->
     [{delegated, 2}, {delegation, 2},
      {delegation_query, 2}].
 
-dec_jid(Val) ->
-    case jid:from_string(Val) of
-      error -> erlang:error(badarg);
-      J -> J
-    end.
-
-enc_jid(J) -> jid:to_string(J).
-
 decode_delegation_query(__TopXMLNS, __Opts,
 			{xmlel, <<"query">>, _attrs, _els}) ->
     Delegate = decode_delegation_query_els(__TopXMLNS,
@@ -138,7 +130,7 @@ decode_delegation_query_attr_to(__TopXMLNS,
     erlang:error({xmpp_codec,
 		  {missing_attr, <<"to">>, <<"query">>, __TopXMLNS}});
 decode_delegation_query_attr_to(__TopXMLNS, _val) ->
-    case catch dec_jid(_val) of
+    case catch jid:decode(_val) of
       {'EXIT', _} ->
 	  erlang:error({xmpp_codec,
 			{bad_attr_value, <<"to">>, <<"query">>, __TopXMLNS}});
@@ -146,7 +138,7 @@ decode_delegation_query_attr_to(__TopXMLNS, _val) ->
     end.
 
 encode_delegation_query_attr_to(_val, _acc) ->
-    [{<<"to">>, enc_jid(_val)} | _acc].
+    [{<<"to">>, jid:encode(_val)} | _acc].
 
 decode_delegate(__TopXMLNS, __Opts,
 		{xmlel, <<"delegate">>, _attrs, _els}) ->

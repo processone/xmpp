@@ -73,16 +73,8 @@ dec_bool(<<"0">>) -> false;
 dec_bool(<<"true">>) -> true;
 dec_bool(<<"1">>) -> true.
 
-dec_jid(Val) ->
-    case jid:from_string(Val) of
-      error -> erlang:error(badarg);
-      J -> J
-    end.
-
 enc_bool(false) -> <<"false">>;
 enc_bool(true) -> <<"true">>.
-
-enc_jid(J) -> jid:to_string(J).
 
 decode_bookmarks_storage(__TopXMLNS, __Opts,
 			 {xmlel, <<"storage">>, _attrs, _els}) ->
@@ -347,7 +339,7 @@ decode_bookmark_conference_attr_jid(__TopXMLNS,
 		  {missing_attr, <<"jid">>, <<"conference">>,
 		   __TopXMLNS}});
 decode_bookmark_conference_attr_jid(__TopXMLNS, _val) ->
-    case catch dec_jid(_val) of
+    case catch jid:decode(_val) of
       {'EXIT', _} ->
 	  erlang:error({xmpp_codec,
 			{bad_attr_value, <<"jid">>, <<"conference">>,
@@ -356,7 +348,7 @@ decode_bookmark_conference_attr_jid(__TopXMLNS, _val) ->
     end.
 
 encode_bookmark_conference_attr_jid(_val, _acc) ->
-    [{<<"jid">>, enc_jid(_val)} | _acc].
+    [{<<"jid">>, jid:encode(_val)} | _acc].
 
 decode_bookmark_conference_attr_autojoin(__TopXMLNS,
 					 undefined) ->

@@ -28,8 +28,7 @@
 -export([compile/1, compile/2]).
 -export([dec_int/1, dec_int/3, dec_enum/2, dec_bool/1, not_empty/1,
 	 dec_enum_int/2, dec_enum_int/4, enc_int/1, enc_enum/1,
-	 enc_bool/1, enc_enum_int/1, format_error/1, io_format_error/1,
-	 enc_jid/1, dec_jid/1]).
+	 enc_bool/1, enc_enum_int/1, format_error/1, io_format_error/1]).
 -include("xmpp.hrl").
 
 -type mfargs() :: {atom(), atom(), list()} | {atom(), list()}.
@@ -166,14 +165,6 @@ dec_bool(<<"false">>) -> false.
 enc_bool(true) -> <<"1">>;
 enc_bool(false) -> <<"0">>.
 
-enc_jid(J) -> jid:to_string(J).
-
-dec_jid(Val) ->
-    case jid:from_string(Val) of
-	error -> erlang:error(badarg);
-	J -> J
-    end.
-
 not_empty(<<_, _/binary>> = Val) ->
     Val.
 
@@ -255,8 +246,6 @@ mk_aux_funs() ->
 				{not_empty, 1} -> true;
 				{dec_bool, 1} -> true;
 				{enc_bool, 1} -> true;
-				{enc_jid, 1} -> true;
-				{dec_jid, 1} -> true;
 				_ -> false
 			    end
 		    end, AbsCode),
@@ -579,7 +568,7 @@ get_dec_fun(Var, Type, Options, State) ->
 		    undefined
 	    end;
 	false when Type == 'jid-multi'; Type == 'jid-single' ->
-	    {undefined, dec_jid, []};
+	    {jid, decode, []};
 	false when Type == boolean ->
 	    {undefined, dec_bool, []};
 	false ->
@@ -595,9 +584,7 @@ get_dec_fun(Var, Type, Options, State) ->
 	{Var, {dec_int, Args}} ->
 	    {undefined, dec_int, Args};
 	{Var, {dec_enum_int, Args}} ->
-	    {undefined, dec_enum_int, Args};
-	{Var, {dec_jid, []}} ->
-	    {undefined, dec_jid, []}
+	    {undefined, dec_enum_int, Args}
     end.
 
 get_enc_fun(Var, Type, Options, State) ->
@@ -610,12 +597,14 @@ get_enc_fun(Var, Type, Options, State) ->
 	    {undefined, enc_int, []};
 	{undefined, dec_enum_int, _} ->
 	    {undefined, enc_enum_int, []};
-	{undefined, dec_jid, _} ->
-	    {undefined, enc_jid, []};
+	{jid, decode, []} ->
+	    {jid, encode, []};
 	_ ->
 	    case lists:keyfind(Var, 1, State#state.enc_mfas) of
 		false ->
 		    undefined;
+		{Var, {jid, decode, []}} ->
+		    {jid, encode, []};
 		{Var, {M, F, A}} ->
 		    {M, F, A};
 		{Var, {enc_bool, []}} ->
@@ -625,9 +614,7 @@ get_enc_fun(Var, Type, Options, State) ->
 		{Var, {enc_int, _}} ->
 		    {undefined, enc_int, []};
 		{Var, {dec_enum_int, _}} ->
-		    {undefined, enc_enum_int, []};
-		{Var, {enc_jid, _}} ->
-		    {undefined, enc_jid, []}
+		    {undefined, enc_enum_int, []}
 	    end
     end.
 
@@ -651,7 +638,7 @@ get_typespec(#xdata_field{var = Var, type = Type, options = Options}, State) ->
 		    enum_spec(Args);
 		{undefined, dec_bool, _} ->
 		    "boolean()";
-		{undefined, dec_jid, _} ->
+		{jid, decode, _} ->
 		    "jid:jid()";
 		{undefined, dec_int, Args} ->
 		    int_spec(Args);

@@ -64,8 +64,8 @@
                      '$groups', '$subscription', '$ask'},
            attrs = [#attr{name = <<"jid">>,
                           required = true,
-                          dec = {dec_jid, []},
-                          enc = {enc_jid, []}},
+                          dec = {jid, decode, []},
+                          enc = {jid, encode, []}},
                     #attr{name = <<"name">>,
 			  default = <<"">>},
                     #attr{name = <<"subscription">>,
@@ -186,8 +186,8 @@
            result = '$jid',
            attrs = [#attr{name = <<"jid">>,
                           required = true,
-                          dec = {dec_jid, []},
-                          enc = {enc_jid, []}}]}).
+                          dec = {jid, decode, []},
+                          enc = {jid, encode, []}}]}).
 
 -xml(block,
      #elem{name = <<"block">>,
@@ -253,8 +253,8 @@
 	   module = 'xep0030',
            result = {disco_item, '$jid', '$name', '$node'},
            attrs = [#attr{name = <<"jid">>,
-                          dec = {dec_jid, []},
-                          enc = {enc_jid, []},
+                          dec = {jid, decode, []},
+                          enc = {jid, encode, []},
                           required = true},
                     #attr{name = <<"name">>},
                     #attr{name = <<"node">>}]}).
@@ -297,8 +297,8 @@
                           required = true},
                     #attr{name = <<"jid">>,
                           required = true,
-                          dec = {dec_jid, []},
-                          enc = {enc_jid, []}},
+                          dec = {jid, decode, []},
+                          enc = {jid, encode, []}},
                     #attr{name = <<"autojoin">>,
                           default = false,
                           dec = {dec_bool, []},
@@ -389,11 +389,11 @@
                           enc = {enc_enum, []},
                           dec = {dec_enum, [[get, set, result, error]]}},
                     #attr{name = <<"from">>,
-                          dec = {dec_jid, []},
-                          enc = {enc_jid, []}},
+                          dec = {jid, decode, []},
+                          enc = {jid, encode, []}},
                     #attr{name = <<"to">>,
-                          dec = {dec_jid, []},
-                          enc = {enc_jid, []}},
+                          dec = {jid, decode, []},
+                          enc = {jid, encode, []}},
                     #attr{name = <<"xml:lang">>,
                           label = '$lang'}]}).
 
@@ -447,11 +447,11 @@
                           enc = {enc_enum, []},
                           dec = {dec_message_type, []}},
                     #attr{name = <<"from">>,
-                          dec = {dec_jid, []},
-                          enc = {enc_jid, []}},
+                          dec = {jid, decode, []},
+                          enc = {jid, encode, []}},
                     #attr{name = <<"to">>,
-                          dec = {dec_jid, []},
-                          enc = {enc_jid, []}},
+                          dec = {jid, decode, []},
+                          enc = {jid, encode, []}},
                     #attr{name = <<"xml:lang">>,
                           label = '$lang'}],
            refs = [#ref{name = message_subject, label = '$subject'},
@@ -513,11 +513,11 @@
                                              unsubscribe, unsubscribed,
                                              available, probe, error]]}},
                     #attr{name = <<"from">>,
-                          dec = {dec_jid, []},
-                          enc = {enc_jid, []}},
+                          dec = {jid, decode, []},
+                          enc = {jid, encode, []}},
                     #attr{name = <<"to">>,
-                          dec = {dec_jid, []},
-                          enc = {enc_jid, []}},
+                          dec = {jid, decode, []},
+                          enc = {jid, encode, []}},
                     #attr{name = <<"xml:lang">>,
                           label = '$lang'}],
            refs = [#ref{name = presence_show, min = 0, max = 1, label = '$show'},
@@ -723,8 +723,8 @@
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-bind">>,
 	   module = rfc6120,
            result = '$cdata',
-           cdata = #cdata{dec = {dec_jid, []},
-                          enc = {enc_jid, []}}}).
+           cdata = #cdata{dec = {jid, decode, []},
+                          enc = {jid, encode, []}}}).
 
 -xml(bind_resource,
      #elem{name = <<"resource">>,
@@ -1996,8 +1996,8 @@
 	   attrs = [#attr{name = <<"xmlns">>},
 		    #attr{name = <<"jid">>,
 			  required = true,
-                          dec = {dec_jid, []},
-                          enc = {enc_jid, []}},
+                          dec = {jid, decode, []},
+                          enc = {jid, encode, []}},
 		    #attr{name = <<"node">>},
                     #attr{name = <<"subid">>},
                     #attr{name = <<"subscription">>,
@@ -2036,8 +2036,8 @@
            result = {ps_affiliation, '$xmlns', '$_', '$type', '$jid'},
            attrs = [#attr{name = <<"jid">>,
 			  required = true,
-			  dec = {dec_jid, []},
-			  enc = {enc_jid, []}},
+			  dec = {jid, decode, []},
+			  enc = {jid, encode, []}},
 		    #attr{name = <<"xmlns">>},
                     #attr{name = <<"affiliation">>,
                           label = '$type',
@@ -2141,8 +2141,8 @@
            attrs = [#attr{name = <<"node">>},
                     #attr{name = <<"jid">>,
                           required = true,
-                          dec = {dec_jid, []},
-                          enc = {enc_jid, []}}]}).
+                          dec = {jid, decode, []},
+                          enc = {jid, encode, []}}]}).
 
 -xml(pubsub_unsubscribe,
      #elem{name = <<"unsubscribe">>,
@@ -2153,8 +2153,8 @@
                     #attr{name = <<"subid">>},
                     #attr{name = <<"jid">>,
                           required = true,
-                          dec = {dec_jid, []},
-                          enc = {enc_jid, []}}]}).
+                          dec = {jid, decode, []},
+                          enc = {jid, encode, []}}]}).
 
 -xml(pubsub_publish,
      #elem{name = <<"publish">>,
@@ -2174,8 +2174,8 @@
                     #attr{name = <<"subid">>},
                     #attr{name = <<"jid">>,
                           required = true,
-                          dec = {dec_jid, []},
-                          enc = {enc_jid, []}}],
+                          dec = {jid, decode, []},
+                          enc = {jid, encode, []}}],
            refs = [#ref{name = xdata, min = 0, max = 1,
                         label = '$xdata'}]}).
 
@@ -2562,8 +2562,8 @@
                           dec = {dec_utc, []},
                           enc = {enc_utc, []}},
                     #attr{name = <<"from">>,
-                          dec = {dec_jid, []},
-                          enc = {enc_jid, []}}]}).
+                          dec = {jid, decode, []},
+                          enc = {jid, encode, []}}]}).
 
 -xml(bytestreams_streamhost,
      #elem{name = <<"streamhost">>,
@@ -2572,8 +2572,8 @@
            result = {streamhost, '$jid', '$host', '$port'},
            attrs = [#attr{name = <<"jid">>,
                           required = true,
-                          dec = {dec_jid, []},
-                          enc = {enc_jid, []}},
+                          dec = {jid, decode, []},
+                          enc = {jid, encode, []}},
                     #attr{name = <<"host">>,
                           required = true},
                     #attr{name = <<"port">>,
@@ -2588,14 +2588,14 @@
            result = '$jid',
            attrs = [#attr{name = <<"jid">>,
                           required = true,
-                          dec = {dec_jid, []},
-                          enc = {enc_jid, []}}]}).
+                          dec = {jid, decode, []},
+                          enc = {jid, encode, []}}]}).
 
 -xml(bytestreams_activate,
      #elem{name = <<"activate">>,
            xmlns = <<"http://jabber.org/protocol/bytestreams">>,
 	   module = 'xep0065',
-           cdata = #cdata{enc = {enc_jid, []}, dec = {dec_jid, []}},
+           cdata = #cdata{enc = {jid, encode, []}, dec = {jid, decode, []}},
            result = '$cdata'}).
 
 -xml(bytestreams,
@@ -2649,11 +2649,11 @@
 	   module = 'xep0045',
            result = {muc_decline, '$reason', '$from', '$to'},
            attrs = [#attr{name = <<"to">>,
-                          dec = {dec_jid, []},
-                          enc = {enc_jid, []}},
+                          dec = {jid, decode, []},
+                          enc = {jid, encode, []}},
                     #attr{name = <<"from">>,
-                          dec = {dec_jid, []},
-                          enc = {enc_jid, []}}],
+                          dec = {jid, decode, []},
+                          enc = {jid, encode, []}}],
            refs = [#ref{name = muc_reason, min = 0,
 			default = <<"">>,
                         max = 1, label = '$reason'}]}).
@@ -2665,8 +2665,8 @@
 	   module = 'xep0045',
 	   result = {muc_destroy, '$xmlns', '$jid', '$reason', '$password'},
 	   attrs = [#attr{name = <<"jid">>,
-                          dec = {dec_jid, []},
-                          enc = {enc_jid, []}},
+                          dec = {jid, decode, []},
+                          enc = {jid, encode, []}},
 		    #attr{name = <<"xmlns">>}],
 	   refs = [#ref{name = muc_reason, min = 0,
 			default = <<"">>,
@@ -2680,11 +2680,11 @@
 	   module = 'xep0045',
            result = {muc_invite, '$reason', '$from', '$to', '$continue'},
            attrs = [#attr{name = <<"to">>,
-                          dec = {dec_jid, []},
-                          enc = {enc_jid, []}},
+                          dec = {jid, decode, []},
+                          enc = {jid, encode, []}},
                     #attr{name = <<"from">>,
-                          dec = {dec_jid, []},
-                          enc = {enc_jid, []}}],
+                          dec = {jid, decode, []},
+                          enc = {jid, encode, []}}],
            refs = [#ref{name = muc_reason, min = 0, default = <<"">>,
                         max = 1, label = '$reason'},
 		   #ref{name = muc_user_continue, min = 0, max = 1,
@@ -2696,8 +2696,8 @@
 	   module = 'xep0045',
            result = {muc_actor, '$jid', '$nick'},
            attrs = [#attr{name = <<"jid">>,
-                          dec = {dec_jid, []},
-                          enc = {enc_jid, []}},
+                          dec = {jid, decode, []},
+                          enc = {jid, encode, []}},
                     #attr{name = <<"nick">>}]}).
 
 -xml(muc_user_continue,
@@ -2737,8 +2737,8 @@
                                              participant, visitor]]},
                           enc = {enc_enum, []}},
                     #attr{name = <<"jid">>,
-                          dec = {dec_jid, []},
-                          enc = {enc_jid, []}},
+                          dec = {jid, decode, []},
+                          enc = {jid, encode, []}},
                     #attr{name = <<"nick">>}]}).
 
 -xml(muc_user,
@@ -2797,8 +2797,8 @@
                                              participant, visitor]]},
                           enc = {enc_enum, []}},
                     #attr{name = <<"jid">>,
-                          dec = {dec_jid, []},
-                          enc = {enc_jid, []}},
+                          dec = {jid, decode, []},
+                          enc = {jid, encode, []}},
                     #attr{name = <<"nick">>}]}).
 
 -xml(muc_admin_item,
@@ -2822,8 +2822,8 @@
                                              participant, visitor]]},
                           enc = {enc_enum, []}},
                     #attr{name = <<"jid">>,
-                          dec = {dec_jid, []},
-                          enc = {enc_jid, []}},
+                          dec = {jid, decode, []},
+                          enc = {jid, encode, []}},
                     #attr{name = <<"nick">>}]}).
 
 -xml(muc_admin_actor,
@@ -2832,8 +2832,8 @@
 	   module = 'xep0045',
            result = {muc_actor, '$jid', '$nick'},
            attrs = [#attr{name = <<"jid">>,
-                          dec = {dec_jid, []},
-                          enc = {enc_jid, []}},
+                          dec = {jid, decode, []},
+                          enc = {jid, encode, []}},
                     #attr{name = <<"nick">>}]}).
 
 -xml(muc_admin_continue,
@@ -2876,8 +2876,8 @@
 		     '$continue', '$thread'},
 	   attrs = [#attr{name = <<"jid">>,
 			  required = true,
-			  dec = {dec_jid, []},
-                          enc = {enc_jid, []}},
+			  dec = {jid, decode, []},
+                          enc = {jid, encode, []}},
 		    #attr{name = <<"password">>, default = <<"">>},
 		    #attr{name = <<"reason">>, default = <<"">>},
 		    #attr{name = <<"thread">>, default = <<"">>},
@@ -2892,8 +2892,8 @@
 	   result = '$jid',
            attrs = [#attr{name = <<"jid">>,
                           required = true,
-                          dec = {dec_jid, []},
-                          enc = {enc_jid, []}}]}).
+                          dec = {jid, decode, []},
+                          enc = {jid, encode, []}}]}).
 
 -xml(muc_subscriptions,
      #elem{name = <<"subscriptions">>,
@@ -3012,8 +3012,8 @@
 	   module = 'xep0313',
            result = '$cdata',
            cdata = #cdata{required = true,
-                          dec = {dec_jid, []},
-                          enc = {enc_jid, []}}}).
+                          dec = {jid, decode, []},
+                          enc = {jid, encode, []}}}).
 
 -xml(mam_withtext,
      #elem{name = <<"withtext">>,
@@ -3045,8 +3045,8 @@
            attrs = [#attr{name = <<"id">>},
                     #attr{name = <<"by">>,
                           required = true,
-                          dec = {dec_jid, []},
-                          enc = {enc_jid, []}}]}).
+                          dec = {jid, decode, []},
+                          enc = {jid, encode, []}}]}).
 
 -xml(mam_result,
      #elem{name = <<"result">>,
@@ -3063,8 +3063,8 @@
 	   module = 'xep0313',
            result = '$cdata',
            cdata = #cdata{required = true,
-                          dec = {dec_jid, []},
-                          enc = {enc_jid, []}}}).
+                          dec = {jid, decode, []},
+                          enc = {jid, encode, []}}}).
 
 -xml(mam_never,
      #elem{name = <<"never">>,
@@ -3358,8 +3358,8 @@
 	   result = {mix_join, '$jid', '$subscribe'},
 	   attrs = [#attr{name = <<"jid">>,
 			  label = '$jid',
-			  dec = {dec_jid, []},
-                          enc = {enc_jid, []}}],
+			  dec = {jid, decode, []},
+                          enc = {jid, encode, []}}],
 	   refs = [#ref{name = mix_subscribe, min = 0, label = '$subscribe'}]}).
 
 -xml(mix_leave,
@@ -3376,8 +3376,8 @@
 	   attrs = [#attr{name = <<"jid">>,
 			  required = true,
 			  label = '$jid',
-			  dec = {dec_jid, []},
-                          enc = {enc_jid, []}},
+			  dec = {jid, decode, []},
+                          enc = {jid, encode, []}},
 		    #attr{name = <<"nick">>,
 			  label = '$nick'}]}).
 
@@ -3459,8 +3459,8 @@
 	   result = {search_item, '$jid', '$first', '$last', '$nick', '$email'},
 	   attrs = [#attr{name = <<"jid">>,
 			  required = true,
-			  enc = {enc_jid, []},
-			  dec = {dec_jid, []}}],
+			  enc = {jid, encode, []},
+			  dec = {jid, decode, []}}],
 	   refs = [#ref{name = search_first, min = 0, max = 1,
 			label = '$first'},
 		   #ref{name = search_last, min = 0, max = 1,
@@ -3566,8 +3566,8 @@
 					     replyroom, replyto, to]]},
 			  enc = {enc_enum, []}},
 		    #attr{name = <<"jid">>,
-			  enc = {enc_jid, []},
-			  dec = {dec_jid, []}},
+			  enc = {jid, encode, []},
+			  dec = {jid, decode, []}},
 		    #attr{name = <<"desc">>},
 		    #attr{name = <<"node">>},
 		    #attr{name = <<"delivered">>,
@@ -3589,8 +3589,8 @@
 	   result = {stanza_id, '$by', '$id'},
 	   attrs = [#attr{name = <<"id">>, required = true},
 		    #attr{name = <<"by">>, required = true,
-			  enc = {enc_jid, []},
-			  dec = {dec_jid, []}}]}).
+			  enc = {jid, encode, []},
+			  dec = {jid, decode, []}}]}).
 
 -xml(client_id,
      #elem{name = <<"client-id">>,
@@ -3720,11 +3720,11 @@
 		     '$version', '$xmlns', '$stream_xmlns',
 		     '$db_xmlns', '$lang'},
 	   attrs = [#attr{name = <<"from">>,
-			  dec = {dec_jid, []},
-			  enc = {enc_jid, []}},
+			  dec = {jid, decode, []},
+			  enc = {jid, encode, []}},
 		    #attr{name = <<"to">>,
-			  dec = {dec_jid, []},
-			  enc = {enc_jid, []}},
+			  dec = {jid, decode, []},
+			  enc = {jid, encode, []}},
 		    #attr{name = <<"xmlns">>},
 		    #attr{name = <<"xmlns:stream">>,
 			  label = '$stream_xmlns',
@@ -3981,8 +3981,8 @@
 	   result = {delegation_query, '$to', '$delegate'},
 	   attrs = [#attr{name = <<"to">>,
 			  required = true,
-			  dec = {dec_jid, []},
-			  enc = {enc_jid, []}}],
+			  dec = {jid, decode, []},
+			  enc = {jid, encode, []}}],
 	   refs = [#ref{name = delegate, label = '$delegate'}]}).
 
 -spec dec_tzo(_) -> {integer(), integer()}.
@@ -4009,17 +4009,7 @@ dec_utc(Val) ->
 enc_utc(Val) ->
     xmpp_util:encode_timestamp(Val).
 
--spec dec_jid(_) -> jid:jid().
-dec_jid(Val) ->
-    case jid:from_string(Val) of
-        error ->
-            erlang:error(badarg);
-        J ->
-            J
-    end.
-
-enc_jid(J) ->            
-    jid:to_string(J).
+-spec jid:decode(_) -> jid:jid().
 
 -spec resourceprep(_) -> binary().
 resourceprep(R) ->

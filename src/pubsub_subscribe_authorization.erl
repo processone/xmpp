@@ -22,14 +22,6 @@ dec_bool(<<"false">>) -> false.
 enc_bool(true) -> <<"1">>;
 enc_bool(false) -> <<"0">>.
 
-enc_jid(J) -> jid:to_string(J).
-
-dec_jid(Val) ->
-    case jid:from_string(Val) of
-      error -> erlang:error(badarg);
-      J -> J
-    end.
-
 format_error({form_type_mismatch, Type}) ->
     <<"FORM_TYPE doesn't match '", Type/binary, "'">>;
 format_error({bad_var_value, Var, Type}) ->
@@ -179,7 +171,7 @@ decode([#xdata_field{var = <<"pubsub#subscriber_jid">>,
 		     values = [Value]}
 	| Fs],
        Acc, Required) ->
-    try dec_jid(Value) of
+    try jid:decode(Value) of
       Result ->
 	  decode(Fs, [{subscriber_jid, Result} | Acc],
 		 lists:delete(<<"pubsub#subscriber_jid">>, Required))
@@ -275,7 +267,7 @@ encode_node(Value, Translate) ->
 encode_subscriber_jid(Value, Translate) ->
     Values = case Value of
 	       undefined -> [];
-	       Value -> [enc_jid(Value)]
+	       Value -> [jid:encode(Value)]
 	     end,
     Opts = [],
     #xdata_field{var = <<"pubsub#subscriber_jid">>,

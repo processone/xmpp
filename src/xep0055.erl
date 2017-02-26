@@ -64,14 +64,6 @@ pp(_, _) -> no.
 
 records() -> [{search_item, 5}, {search, 7}].
 
-dec_jid(Val) ->
-    case jid:from_string(Val) of
-      error -> erlang:error(badarg);
-      J -> J
-    end.
-
-enc_jid(J) -> jid:to_string(J).
-
 decode_search(__TopXMLNS, __Opts,
 	      {xmlel, <<"query">>, _attrs, _els}) ->
     {Xdata, Items, Instructions, Last, First, Nick, Email} =
@@ -399,7 +391,7 @@ decode_search_item_attr_jid(__TopXMLNS, undefined) ->
     erlang:error({xmpp_codec,
 		  {missing_attr, <<"jid">>, <<"item">>, __TopXMLNS}});
 decode_search_item_attr_jid(__TopXMLNS, _val) ->
-    case catch dec_jid(_val) of
+    case catch jid:decode(_val) of
       {'EXIT', _} ->
 	  erlang:error({xmpp_codec,
 			{bad_attr_value, <<"jid">>, <<"item">>, __TopXMLNS}});
@@ -407,7 +399,7 @@ decode_search_item_attr_jid(__TopXMLNS, _val) ->
     end.
 
 encode_search_item_attr_jid(_val, _acc) ->
-    [{<<"jid">>, enc_jid(_val)} | _acc].
+    [{<<"jid">>, jid:encode(_val)} | _acc].
 
 decode_search_email(__TopXMLNS, __Opts,
 		    {xmlel, <<"email">>, _attrs, _els}) ->

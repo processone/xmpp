@@ -37,14 +37,6 @@ pp(_, _) -> no.
 
 records() -> [{stanza_id, 2}, {client_id, 1}].
 
-dec_jid(Val) ->
-    case jid:from_string(Val) of
-      error -> erlang:error(badarg);
-      J -> J
-    end.
-
-enc_jid(J) -> jid:to_string(J).
-
 decode_client_id(__TopXMLNS, __Opts,
 		 {xmlel, <<"client-id">>, _attrs, _els}) ->
     Id = decode_client_id_attrs(__TopXMLNS, _attrs,
@@ -119,7 +111,7 @@ decode_stanza_id_attr_by(__TopXMLNS, undefined) ->
     erlang:error({xmpp_codec,
 		  {missing_attr, <<"by">>, <<"stanza-id">>, __TopXMLNS}});
 decode_stanza_id_attr_by(__TopXMLNS, _val) ->
-    case catch dec_jid(_val) of
+    case catch jid:decode(_val) of
       {'EXIT', _} ->
 	  erlang:error({xmpp_codec,
 			{bad_attr_value, <<"by">>, <<"stanza-id">>,
@@ -128,4 +120,4 @@ decode_stanza_id_attr_by(__TopXMLNS, _val) ->
     end.
 
 encode_stanza_id_attr_by(_val, _acc) ->
-    [{<<"by">>, enc_jid(_val)} | _acc].
+    [{<<"by">>, jid:encode(_val)} | _acc].

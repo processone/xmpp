@@ -820,12 +820,6 @@ dec_ip(S) ->
     {ok, Addr} = inet_parse:address(binary_to_list(S)),
     Addr.
 
-dec_jid(Val) ->
-    case jid:from_string(Val) of
-      error -> erlang:error(badarg);
-      J -> J
-    end.
-
 dec_message_type(<<"chat">>) -> chat;
 dec_message_type(<<"groupchat">>) -> groupchat;
 dec_message_type(<<"headline">>) -> headline;
@@ -855,8 +849,6 @@ enc_ip({0, 0, 0, 0, 0, 65535, A, B}) ->
     enc_ip({(A bsr 8) band 255, A band 255,
 	    (B bsr 8) band 255, B band 255});
 enc_ip(Addr) -> list_to_binary(inet_parse:ntoa(Addr)).
-
-enc_jid(J) -> jid:to_string(J).
 
 enc_version({Maj, Min}) ->
     <<(integer_to_binary(Maj))/binary, $.,
@@ -961,7 +953,7 @@ encode_stream_start({stream_start, From, To, Id,
 decode_stream_start_attr_from(__TopXMLNS, undefined) ->
     undefined;
 decode_stream_start_attr_from(__TopXMLNS, _val) ->
-    case catch dec_jid(_val) of
+    case catch jid:decode(_val) of
       {'EXIT', _} ->
 	  erlang:error({xmpp_codec,
 			{bad_attr_value, <<"from">>, <<"stream:stream">>,
@@ -971,12 +963,12 @@ decode_stream_start_attr_from(__TopXMLNS, _val) ->
 
 encode_stream_start_attr_from(undefined, _acc) -> _acc;
 encode_stream_start_attr_from(_val, _acc) ->
-    [{<<"from">>, enc_jid(_val)} | _acc].
+    [{<<"from">>, jid:encode(_val)} | _acc].
 
 decode_stream_start_attr_to(__TopXMLNS, undefined) ->
     undefined;
 decode_stream_start_attr_to(__TopXMLNS, _val) ->
-    case catch dec_jid(_val) of
+    case catch jid:decode(_val) of
       {'EXIT', _} ->
 	  erlang:error({xmpp_codec,
 			{bad_attr_value, <<"to">>, <<"stream:stream">>,
@@ -986,7 +978,7 @@ decode_stream_start_attr_to(__TopXMLNS, _val) ->
 
 encode_stream_start_attr_to(undefined, _acc) -> _acc;
 encode_stream_start_attr_to(_val, _acc) ->
-    [{<<"to">>, enc_jid(_val)} | _acc].
+    [{<<"to">>, jid:encode(_val)} | _acc].
 
 decode_stream_start_attr_xmlns(__TopXMLNS, undefined) ->
     <<>>;
@@ -3227,7 +3219,7 @@ encode_bind_jid(Cdata, __TopXMLNS) ->
 
 decode_bind_jid_cdata(__TopXMLNS, <<>>) -> undefined;
 decode_bind_jid_cdata(__TopXMLNS, _val) ->
-    case catch dec_jid(_val) of
+    case catch jid:decode(_val) of
       {'EXIT', _} ->
 	  erlang:error({xmpp_codec,
 			{bad_cdata_value, <<>>, <<"jid">>, __TopXMLNS}});
@@ -3236,7 +3228,7 @@ decode_bind_jid_cdata(__TopXMLNS, _val) ->
 
 encode_bind_jid_cdata(undefined, _acc) -> _acc;
 encode_bind_jid_cdata(_val, _acc) ->
-    [{xmlcdata, enc_jid(_val)} | _acc].
+    [{xmlcdata, jid:encode(_val)} | _acc].
 
 decode_error(__TopXMLNS, __Opts,
 	     {xmlel, <<"error">>, _attrs, _els}) ->
@@ -4477,7 +4469,7 @@ encode_presence_attr_type(_val, _acc) ->
 decode_presence_attr_from(__TopXMLNS, undefined) ->
     undefined;
 decode_presence_attr_from(__TopXMLNS, _val) ->
-    case catch dec_jid(_val) of
+    case catch jid:decode(_val) of
       {'EXIT', _} ->
 	  erlang:error({xmpp_codec,
 			{bad_attr_value, <<"from">>, <<"presence">>,
@@ -4487,12 +4479,12 @@ decode_presence_attr_from(__TopXMLNS, _val) ->
 
 encode_presence_attr_from(undefined, _acc) -> _acc;
 encode_presence_attr_from(_val, _acc) ->
-    [{<<"from">>, enc_jid(_val)} | _acc].
+    [{<<"from">>, jid:encode(_val)} | _acc].
 
 decode_presence_attr_to(__TopXMLNS, undefined) ->
     undefined;
 decode_presence_attr_to(__TopXMLNS, _val) ->
-    case catch dec_jid(_val) of
+    case catch jid:decode(_val) of
       {'EXIT', _} ->
 	  erlang:error({xmpp_codec,
 			{bad_attr_value, <<"to">>, <<"presence">>,
@@ -4502,7 +4494,7 @@ decode_presence_attr_to(__TopXMLNS, _val) ->
 
 encode_presence_attr_to(undefined, _acc) -> _acc;
 encode_presence_attr_to(_val, _acc) ->
-    [{<<"to">>, enc_jid(_val)} | _acc].
+    [{<<"to">>, jid:encode(_val)} | _acc].
 
 'decode_presence_attr_xml:lang'(__TopXMLNS,
 				undefined) ->
@@ -4894,7 +4886,7 @@ encode_message_attr_type(_val, _acc) ->
 decode_message_attr_from(__TopXMLNS, undefined) ->
     undefined;
 decode_message_attr_from(__TopXMLNS, _val) ->
-    case catch dec_jid(_val) of
+    case catch jid:decode(_val) of
       {'EXIT', _} ->
 	  erlang:error({xmpp_codec,
 			{bad_attr_value, <<"from">>, <<"message">>,
@@ -4904,12 +4896,12 @@ decode_message_attr_from(__TopXMLNS, _val) ->
 
 encode_message_attr_from(undefined, _acc) -> _acc;
 encode_message_attr_from(_val, _acc) ->
-    [{<<"from">>, enc_jid(_val)} | _acc].
+    [{<<"from">>, jid:encode(_val)} | _acc].
 
 decode_message_attr_to(__TopXMLNS, undefined) ->
     undefined;
 decode_message_attr_to(__TopXMLNS, _val) ->
-    case catch dec_jid(_val) of
+    case catch jid:decode(_val) of
       {'EXIT', _} ->
 	  erlang:error({xmpp_codec,
 			{bad_attr_value, <<"to">>, <<"message">>, __TopXMLNS}});
@@ -4918,7 +4910,7 @@ decode_message_attr_to(__TopXMLNS, _val) ->
 
 encode_message_attr_to(undefined, _acc) -> _acc;
 encode_message_attr_to(_val, _acc) ->
-    [{<<"to">>, enc_jid(_val)} | _acc].
+    [{<<"to">>, jid:encode(_val)} | _acc].
 
 'decode_message_attr_xml:lang'(__TopXMLNS, undefined) ->
     <<>>;
@@ -5191,7 +5183,7 @@ encode_iq_attr_type(_val, _acc) ->
 
 decode_iq_attr_from(__TopXMLNS, undefined) -> undefined;
 decode_iq_attr_from(__TopXMLNS, _val) ->
-    case catch dec_jid(_val) of
+    case catch jid:decode(_val) of
       {'EXIT', _} ->
 	  erlang:error({xmpp_codec,
 			{bad_attr_value, <<"from">>, <<"iq">>, __TopXMLNS}});
@@ -5200,11 +5192,11 @@ decode_iq_attr_from(__TopXMLNS, _val) ->
 
 encode_iq_attr_from(undefined, _acc) -> _acc;
 encode_iq_attr_from(_val, _acc) ->
-    [{<<"from">>, enc_jid(_val)} | _acc].
+    [{<<"from">>, jid:encode(_val)} | _acc].
 
 decode_iq_attr_to(__TopXMLNS, undefined) -> undefined;
 decode_iq_attr_to(__TopXMLNS, _val) ->
-    case catch dec_jid(_val) of
+    case catch jid:decode(_val) of
       {'EXIT', _} ->
 	  erlang:error({xmpp_codec,
 			{bad_attr_value, <<"to">>, <<"iq">>, __TopXMLNS}});
@@ -5213,7 +5205,7 @@ decode_iq_attr_to(__TopXMLNS, _val) ->
 
 encode_iq_attr_to(undefined, _acc) -> _acc;
 encode_iq_attr_to(_val, _acc) ->
-    [{<<"to">>, enc_jid(_val)} | _acc].
+    [{<<"to">>, jid:encode(_val)} | _acc].
 
 'decode_iq_attr_xml:lang'(__TopXMLNS, undefined) ->
     <<>>;

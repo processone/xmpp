@@ -46,14 +46,6 @@ dec_bool(<<"false">>) -> false.
 enc_bool(true) -> <<"1">>;
 enc_bool(false) -> <<"0">>.
 
-enc_jid(J) -> jid:to_string(J).
-
-dec_jid(Val) ->
-    case jid:from_string(Val) of
-      error -> erlang:error(badarg);
-      J -> J
-    end.
-
 format_error({form_type_mismatch, Type}) ->
     <<"FORM_TYPE doesn't match '", Type/binary, "'">>;
 format_error({bad_var_value, Var, Type}) ->
@@ -557,7 +549,7 @@ decode([#xdata_field{var = <<"captcha_whitelist">>,
 		     values = Values}
 	| Fs],
        Acc, Required) ->
-    try [dec_jid(Value) || Value <- Values] of
+    try [jid:decode(Value) || Value <- Values] of
       Result ->
 	  decode(Fs, [{captcha_whitelist, Result} | Acc],
 		 Required)
@@ -1045,7 +1037,7 @@ decode([#xdata_field{var =
 		     values = Values}
 	| Fs],
        Acc, Required) ->
-    try [dec_jid(Value) || Value <- Values] of
+    try [jid:decode(Value) || Value <- Values] of
       Result ->
 	  decode(Fs, [{roomadmins, Result} | Acc], Required)
     catch
@@ -1135,7 +1127,7 @@ decode([#xdata_field{var =
 		     values = Values}
 	| Fs],
        Acc, Required) ->
-    try [dec_jid(Value) || Value <- Values] of
+    try [jid:decode(Value) || Value <- Values] of
       Result ->
 	  decode(Fs, [{roomowners, Result} | Acc], Required)
     catch
@@ -1374,7 +1366,7 @@ encode_captcha_protected(Value, Translate) ->
 encode_captcha_whitelist(Value, Translate) ->
     Values = case Value of
 	       [] -> [];
-	       Value -> [enc_jid(V) || V <- Value]
+	       Value -> [jid:encode(V) || V <- Value]
 	     end,
     Opts = [],
     #xdata_field{var = <<"captcha_whitelist">>,
@@ -1605,7 +1597,7 @@ encode_public_list(Value, Translate) ->
 encode_roomadmins(Value, Translate) ->
     Values = case Value of
 	       [] -> [];
-	       Value -> [enc_jid(V) || V <- Value]
+	       Value -> [jid:encode(V) || V <- Value]
 	     end,
     Opts = [],
     #xdata_field{var = <<"muc#roomconfig_roomadmins">>,
@@ -1638,7 +1630,7 @@ encode_roomname(Value, Translate) ->
 encode_roomowners(Value, Translate) ->
     Values = case Value of
 	       [] -> [];
-	       Value -> [enc_jid(V) || V <- Value]
+	       Value -> [jid:encode(V) || V <- Value]
 	     end,
     Opts = [],
     #xdata_field{var = <<"muc#roomconfig_roomowners">>,

@@ -53,14 +53,6 @@ pp(_, _) -> no.
 records() ->
     [{mix_join, 2}, {mix_leave, 0}, {mix_participant, 2}].
 
-dec_jid(Val) ->
-    case jid:from_string(Val) of
-      error -> erlang:error(badarg);
-      J -> J
-    end.
-
-enc_jid(J) -> jid:to_string(J).
-
 decode_mix_participant(__TopXMLNS, __Opts,
 		       {xmlel, <<"participant">>, _attrs, _els}) ->
     {Jid, Nick} = decode_mix_participant_attrs(__TopXMLNS,
@@ -102,7 +94,7 @@ decode_mix_participant_attr_jid(__TopXMLNS,
 		  {missing_attr, <<"jid">>, <<"participant">>,
 		   __TopXMLNS}});
 decode_mix_participant_attr_jid(__TopXMLNS, _val) ->
-    case catch dec_jid(_val) of
+    case catch jid:decode(_val) of
       {'EXIT', _} ->
 	  erlang:error({xmpp_codec,
 			{bad_attr_value, <<"jid">>, <<"participant">>,
@@ -111,7 +103,7 @@ decode_mix_participant_attr_jid(__TopXMLNS, _val) ->
     end.
 
 encode_mix_participant_attr_jid(_val, _acc) ->
-    [{<<"jid">>, enc_jid(_val)} | _acc].
+    [{<<"jid">>, jid:encode(_val)} | _acc].
 
 decode_mix_participant_attr_nick(__TopXMLNS,
 				 undefined) ->
@@ -198,7 +190,7 @@ encode_mix_join({mix_join, Jid, Subscribe},
 decode_mix_join_attr_jid(__TopXMLNS, undefined) ->
     undefined;
 decode_mix_join_attr_jid(__TopXMLNS, _val) ->
-    case catch dec_jid(_val) of
+    case catch jid:decode(_val) of
       {'EXIT', _} ->
 	  erlang:error({xmpp_codec,
 			{bad_attr_value, <<"jid">>, <<"join">>, __TopXMLNS}});
@@ -207,7 +199,7 @@ decode_mix_join_attr_jid(__TopXMLNS, _val) ->
 
 encode_mix_join_attr_jid(undefined, _acc) -> _acc;
 encode_mix_join_attr_jid(_val, _acc) ->
-    [{<<"jid">>, enc_jid(_val)} | _acc].
+    [{<<"jid">>, jid:encode(_val)} | _acc].
 
 decode_mix_subscribe(__TopXMLNS, __Opts,
 		     {xmlel, <<"subscribe">>, _attrs, _els}) ->

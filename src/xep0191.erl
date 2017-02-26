@@ -51,14 +51,6 @@ pp(_, _) -> no.
 records() ->
     [{block, 1}, {unblock, 1}, {block_list, 1}].
 
-dec_jid(Val) ->
-    case jid:from_string(Val) of
-      error -> erlang:error(badarg);
-      J -> J
-    end.
-
-enc_jid(J) -> jid:to_string(J).
-
 decode_block_list(__TopXMLNS, __Opts,
 		  {xmlel, <<"blocklist">>, _attrs, _els}) ->
     Items = decode_block_list_els(__TopXMLNS, __Opts, _els,
@@ -209,7 +201,7 @@ decode_block_item_attr_jid(__TopXMLNS, undefined) ->
     erlang:error({xmpp_codec,
 		  {missing_attr, <<"jid">>, <<"item">>, __TopXMLNS}});
 decode_block_item_attr_jid(__TopXMLNS, _val) ->
-    case catch dec_jid(_val) of
+    case catch jid:decode(_val) of
       {'EXIT', _} ->
 	  erlang:error({xmpp_codec,
 			{bad_attr_value, <<"jid">>, <<"item">>, __TopXMLNS}});
@@ -217,4 +209,4 @@ decode_block_item_attr_jid(__TopXMLNS, _val) ->
     end.
 
 encode_block_item_attr_jid(_val, _acc) ->
-    [{<<"jid">>, enc_jid(_val)} | _acc].
+    [{<<"jid">>, jid:encode(_val)} | _acc].

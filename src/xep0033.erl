@@ -55,18 +55,10 @@ dec_enum(Val, Enums) ->
       true -> AtomVal
     end.
 
-dec_jid(Val) ->
-    case jid:from_string(Val) of
-      error -> erlang:error(badarg);
-      J -> J
-    end.
-
 enc_bool(false) -> <<"false">>;
 enc_bool(true) -> <<"true">>.
 
 enc_enum(Atom) -> erlang:atom_to_binary(Atom, utf8).
-
-enc_jid(J) -> jid:to_string(J).
 
 decode_addresses(__TopXMLNS, __Opts,
 		 {xmlel, <<"addresses">>, _attrs, _els}) ->
@@ -190,7 +182,7 @@ encode_address_attr_type(_val, _acc) ->
 decode_address_attr_jid(__TopXMLNS, undefined) ->
     undefined;
 decode_address_attr_jid(__TopXMLNS, _val) ->
-    case catch dec_jid(_val) of
+    case catch jid:decode(_val) of
       {'EXIT', _} ->
 	  erlang:error({xmpp_codec,
 			{bad_attr_value, <<"jid">>, <<"address">>,
@@ -200,7 +192,7 @@ decode_address_attr_jid(__TopXMLNS, _val) ->
 
 encode_address_attr_jid(undefined, _acc) -> _acc;
 encode_address_attr_jid(_val, _acc) ->
-    [{<<"jid">>, enc_jid(_val)} | _acc].
+    [{<<"jid">>, jid:encode(_val)} | _acc].
 
 decode_address_attr_desc(__TopXMLNS, undefined) -> <<>>;
 decode_address_attr_desc(__TopXMLNS, _val) -> _val.

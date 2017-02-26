@@ -38,14 +38,6 @@ dec_bool(<<"false">>) -> false.
 enc_bool(true) -> <<"1">>;
 enc_bool(false) -> <<"0">>.
 
-enc_jid(J) -> jid:to_string(J).
-
-dec_jid(Val) ->
-    case jid:from_string(Val) of
-      error -> erlang:error(badarg);
-      J -> J
-    end.
-
 format_error({form_type_mismatch, Type}) ->
     <<"FORM_TYPE doesn't match '", Type/binary, "'">>;
 format_error({bad_var_value, Var, Type}) ->
@@ -329,7 +321,7 @@ decode([#xdata_field{var =
 		     values = Values}
 	| Fs],
        Acc, Required) ->
-    try [dec_jid(Value) || Value <- Values] of
+    try [jid:decode(Value) || Value <- Values] of
       Result ->
 	  decode(Fs,
 		 [{children_association_whitelist, Result} | Acc],
@@ -409,7 +401,7 @@ decode([#xdata_field{var = <<"pubsub#contact">>,
 		     values = Values}
 	| Fs],
        Acc, Required) ->
-    try [dec_jid(Value) || Value <- Values] of
+    try [jid:decode(Value) || Value <- Values] of
       Result ->
 	  decode(Fs, [{contact, Result} | Acc], Required)
     catch
@@ -1221,7 +1213,7 @@ encode_children_association_whitelist(Value,
 				      Translate) ->
     Values = case Value of
 	       [] -> [];
-	       Value -> [enc_jid(V) || V <- Value]
+	       Value -> [jid:encode(V) || V <- Value]
 	     end,
     Opts = [],
     #xdata_field{var =
@@ -1274,7 +1266,7 @@ encode_collection(Value, Translate) ->
 encode_contact(Value, Translate) ->
     Values = case Value of
 	       [] -> [];
-	       Value -> [enc_jid(V) || V <- Value]
+	       Value -> [jid:encode(V) || V <- Value]
 	     end,
     Opts = [],
     #xdata_field{var = <<"pubsub#contact">>,

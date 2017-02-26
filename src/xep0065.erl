@@ -75,17 +75,9 @@ dec_int(Val, Min, Max) ->
       Int when Int =< Max, Int >= Min -> Int
     end.
 
-dec_jid(Val) ->
-    case jid:from_string(Val) of
-      error -> erlang:error(badarg);
-      J -> J
-    end.
-
 enc_enum(Atom) -> erlang:atom_to_binary(Atom, utf8).
 
 enc_int(Int) -> erlang:integer_to_binary(Int).
-
-enc_jid(J) -> jid:to_string(J).
 
 decode_bytestreams(__TopXMLNS, __Opts,
 		   {xmlel, <<"query">>, _attrs, _els}) ->
@@ -283,7 +275,7 @@ encode_bytestreams_activate(Cdata, __TopXMLNS) ->
 decode_bytestreams_activate_cdata(__TopXMLNS, <<>>) ->
     undefined;
 decode_bytestreams_activate_cdata(__TopXMLNS, _val) ->
-    case catch dec_jid(_val) of
+    case catch jid:decode(_val) of
       {'EXIT', _} ->
 	  erlang:error({xmpp_codec,
 			{bad_cdata_value, <<>>, <<"activate">>, __TopXMLNS}});
@@ -293,7 +285,7 @@ decode_bytestreams_activate_cdata(__TopXMLNS, _val) ->
 encode_bytestreams_activate_cdata(undefined, _acc) ->
     _acc;
 encode_bytestreams_activate_cdata(_val, _acc) ->
-    [{xmlcdata, enc_jid(_val)} | _acc].
+    [{xmlcdata, jid:encode(_val)} | _acc].
 
 decode_bytestreams_streamhost_used(__TopXMLNS, __Opts,
 				   {xmlel, <<"streamhost-used">>, _attrs,
@@ -334,7 +326,7 @@ decode_bytestreams_streamhost_used_attr_jid(__TopXMLNS,
 		   __TopXMLNS}});
 decode_bytestreams_streamhost_used_attr_jid(__TopXMLNS,
 					    _val) ->
-    case catch dec_jid(_val) of
+    case catch jid:decode(_val) of
       {'EXIT', _} ->
 	  erlang:error({xmpp_codec,
 			{bad_attr_value, <<"jid">>, <<"streamhost-used">>,
@@ -344,7 +336,7 @@ decode_bytestreams_streamhost_used_attr_jid(__TopXMLNS,
 
 encode_bytestreams_streamhost_used_attr_jid(_val,
 					    _acc) ->
-    [{<<"jid">>, enc_jid(_val)} | _acc].
+    [{<<"jid">>, jid:encode(_val)} | _acc].
 
 decode_bytestreams_streamhost(__TopXMLNS, __Opts,
 			      {xmlel, <<"streamhost">>, _attrs, _els}) ->
@@ -402,7 +394,7 @@ decode_bytestreams_streamhost_attr_jid(__TopXMLNS,
 		   __TopXMLNS}});
 decode_bytestreams_streamhost_attr_jid(__TopXMLNS,
 				       _val) ->
-    case catch dec_jid(_val) of
+    case catch jid:decode(_val) of
       {'EXIT', _} ->
 	  erlang:error({xmpp_codec,
 			{bad_attr_value, <<"jid">>, <<"streamhost">>,
@@ -411,7 +403,7 @@ decode_bytestreams_streamhost_attr_jid(__TopXMLNS,
     end.
 
 encode_bytestreams_streamhost_attr_jid(_val, _acc) ->
-    [{<<"jid">>, enc_jid(_val)} | _acc].
+    [{<<"jid">>, jid:encode(_val)} | _acc].
 
 decode_bytestreams_streamhost_attr_host(__TopXMLNS,
 					undefined) ->

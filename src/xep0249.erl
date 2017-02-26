@@ -36,16 +36,8 @@ dec_bool(<<"0">>) -> false;
 dec_bool(<<"true">>) -> true;
 dec_bool(<<"1">>) -> true.
 
-dec_jid(Val) ->
-    case jid:from_string(Val) of
-      error -> erlang:error(badarg);
-      J -> J
-    end.
-
 enc_bool(false) -> <<"false">>;
 enc_bool(true) -> <<"true">>.
-
-enc_jid(J) -> jid:to_string(J).
 
 decode_x_conference(__TopXMLNS, __Opts,
 		    {xmlel, <<"x">>, _attrs, _els}) ->
@@ -112,7 +104,7 @@ decode_x_conference_attr_jid(__TopXMLNS, undefined) ->
     erlang:error({xmpp_codec,
 		  {missing_attr, <<"jid">>, <<"x">>, __TopXMLNS}});
 decode_x_conference_attr_jid(__TopXMLNS, _val) ->
-    case catch dec_jid(_val) of
+    case catch jid:decode(_val) of
       {'EXIT', _} ->
 	  erlang:error({xmpp_codec,
 			{bad_attr_value, <<"jid">>, <<"x">>, __TopXMLNS}});
@@ -120,7 +112,7 @@ decode_x_conference_attr_jid(__TopXMLNS, _val) ->
     end.
 
 encode_x_conference_attr_jid(_val, _acc) ->
-    [{<<"jid">>, enc_jid(_val)} | _acc].
+    [{<<"jid">>, jid:encode(_val)} | _acc].
 
 decode_x_conference_attr_password(__TopXMLNS,
 				  undefined) ->

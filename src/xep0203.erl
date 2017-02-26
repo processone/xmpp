@@ -27,15 +27,7 @@ pp(_, _) -> no.
 
 records() -> [{delay, 3}].
 
-dec_jid(Val) ->
-    case jid:from_string(Val) of
-      error -> erlang:error(badarg);
-      J -> J
-    end.
-
 dec_utc(Val) -> xmpp_util:decode_timestamp(Val).
-
-enc_jid(J) -> jid:to_string(J).
 
 enc_utc(Val) -> xmpp_util:encode_timestamp(Val).
 
@@ -98,7 +90,7 @@ encode_delay_attr_stamp(_val, _acc) ->
 decode_delay_attr_from(__TopXMLNS, undefined) ->
     undefined;
 decode_delay_attr_from(__TopXMLNS, _val) ->
-    case catch dec_jid(_val) of
+    case catch jid:decode(_val) of
       {'EXIT', _} ->
 	  erlang:error({xmpp_codec,
 			{bad_attr_value, <<"from">>, <<"delay">>, __TopXMLNS}});
@@ -107,7 +99,7 @@ decode_delay_attr_from(__TopXMLNS, _val) ->
 
 encode_delay_attr_from(undefined, _acc) -> _acc;
 encode_delay_attr_from(_val, _acc) ->
-    [{<<"from">>, enc_jid(_val)} | _acc].
+    [{<<"from">>, jid:encode(_val)} | _acc].
 
 decode_delay_cdata(__TopXMLNS, <<>>) -> <<>>;
 decode_delay_cdata(__TopXMLNS, _val) -> _val.

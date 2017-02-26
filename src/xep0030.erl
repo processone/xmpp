@@ -82,14 +82,6 @@ records() ->
     [{identity, 4}, {disco_info, 4}, {disco_item, 3},
      {disco_items, 3}].
 
-dec_jid(Val) ->
-    case jid:from_string(Val) of
-      error -> erlang:error(badarg);
-      J -> J
-    end.
-
-enc_jid(J) -> jid:to_string(J).
-
 decode_disco_items(__TopXMLNS, __Opts,
 		   {xmlel, <<"query">>, _attrs, _els}) ->
     {Items, Rsm} = decode_disco_items_els(__TopXMLNS,
@@ -227,7 +219,7 @@ decode_disco_item_attr_jid(__TopXMLNS, undefined) ->
     erlang:error({xmpp_codec,
 		  {missing_attr, <<"jid">>, <<"item">>, __TopXMLNS}});
 decode_disco_item_attr_jid(__TopXMLNS, _val) ->
-    case catch dec_jid(_val) of
+    case catch jid:decode(_val) of
       {'EXIT', _} ->
 	  erlang:error({xmpp_codec,
 			{bad_attr_value, <<"jid">>, <<"item">>, __TopXMLNS}});
@@ -235,7 +227,7 @@ decode_disco_item_attr_jid(__TopXMLNS, _val) ->
     end.
 
 encode_disco_item_attr_jid(_val, _acc) ->
-    [{<<"jid">>, enc_jid(_val)} | _acc].
+    [{<<"jid">>, jid:encode(_val)} | _acc].
 
 decode_disco_item_attr_name(__TopXMLNS, undefined) ->
     <<>>;

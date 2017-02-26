@@ -159,20 +159,12 @@ dec_enum(Val, Enums) ->
       true -> AtomVal
     end.
 
-dec_jid(Val) ->
-    case jid:from_string(Val) of
-      error -> erlang:error(badarg);
-      J -> J
-    end.
-
 dec_utc(Val) -> xmpp_util:decode_timestamp(Val).
 
 enc_bool(false) -> <<"false">>;
 enc_bool(true) -> <<"true">>.
 
 enc_enum(Atom) -> erlang:atom_to_binary(Atom, utf8).
-
-enc_jid(J) -> jid:to_string(J).
 
 enc_utc(Val) -> xmpp_util:encode_timestamp(Val).
 
@@ -559,7 +551,7 @@ decode_mam_jid_cdata(__TopXMLNS, <<>>) ->
     erlang:error({xmpp_codec,
 		  {missing_cdata, <<>>, <<"jid">>, __TopXMLNS}});
 decode_mam_jid_cdata(__TopXMLNS, _val) ->
-    case catch dec_jid(_val) of
+    case catch jid:decode(_val) of
       {'EXIT', _} ->
 	  erlang:error({xmpp_codec,
 			{bad_cdata_value, <<>>, <<"jid">>, __TopXMLNS}});
@@ -567,7 +559,7 @@ decode_mam_jid_cdata(__TopXMLNS, _val) ->
     end.
 
 encode_mam_jid_cdata(_val, _acc) ->
-    [{xmlcdata, enc_jid(_val)} | _acc].
+    [{xmlcdata, jid:encode(_val)} | _acc].
 
 decode_mam_result(__TopXMLNS, __Opts,
 		  {xmlel, <<"result">>, _attrs, _els}) ->
@@ -706,7 +698,7 @@ decode_mam_archived_attr_by(__TopXMLNS, undefined) ->
     erlang:error({xmpp_codec,
 		  {missing_attr, <<"by">>, <<"archived">>, __TopXMLNS}});
 decode_mam_archived_attr_by(__TopXMLNS, _val) ->
-    case catch dec_jid(_val) of
+    case catch jid:decode(_val) of
       {'EXIT', _} ->
 	  erlang:error({xmpp_codec,
 			{bad_attr_value, <<"by">>, <<"archived">>,
@@ -715,7 +707,7 @@ decode_mam_archived_attr_by(__TopXMLNS, _val) ->
     end.
 
 encode_mam_archived_attr_by(_val, _acc) ->
-    [{<<"by">>, enc_jid(_val)} | _acc].
+    [{<<"by">>, jid:encode(_val)} | _acc].
 
 decode_mam_query(__TopXMLNS, __Opts,
 		 {xmlel, <<"query">>, _attrs, _els}) ->
@@ -978,7 +970,7 @@ decode_mam_with_cdata(__TopXMLNS, <<>>) ->
     erlang:error({xmpp_codec,
 		  {missing_cdata, <<>>, <<"with">>, __TopXMLNS}});
 decode_mam_with_cdata(__TopXMLNS, _val) ->
-    case catch dec_jid(_val) of
+    case catch jid:decode(_val) of
       {'EXIT', _} ->
 	  erlang:error({xmpp_codec,
 			{bad_cdata_value, <<>>, <<"with">>, __TopXMLNS}});
@@ -986,7 +978,7 @@ decode_mam_with_cdata(__TopXMLNS, _val) ->
     end.
 
 encode_mam_with_cdata(_val, _acc) ->
-    [{xmlcdata, enc_jid(_val)} | _acc].
+    [{xmlcdata, jid:encode(_val)} | _acc].
 
 decode_mam_end(__TopXMLNS, __Opts,
 	       {xmlel, <<"end">>, _attrs, _els}) ->
