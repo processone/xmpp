@@ -731,8 +731,8 @@
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-bind">>,
 	   module = rfc6120,
            result = '$cdata',
-           cdata = #cdata{dec = {resourceprep, []},
-                          enc = {resourceprep, []}}}).
+           cdata = #cdata{dec = {check_resource, []},
+                          enc = {check_resource, []}}}).
 
 -xml(bind, #elem{name = <<"bind">>,
                  xmlns = <<"urn:ietf:params:xml:ns:xmpp-bind">>,
@@ -4011,13 +4011,13 @@ enc_utc(Val) ->
 
 -spec jid:decode(_) -> jid:jid().
 
--spec resourceprep(_) -> binary().
-resourceprep(R) ->
+-spec check_resource(_) -> binary().
+check_resource(R) ->
     case jid:resourceprep(R) of
         error ->
             erlang:error(badarg);
-        R1 ->
-            R1
+        _ ->
+	    R
     end.
 
 -spec nameprep(_) -> binary().

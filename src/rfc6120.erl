@@ -792,6 +792,12 @@ records() ->
      {stream_features, 1}, {text, 2}, {'see-other-host', 1},
      {stream_error, 2}, {stream_start, 8}].
 
+check_resource(R) ->
+    case jid:resourceprep(R) of
+      error -> erlang:error(badarg);
+      _ -> R
+    end.
+
 dec_enum(Val, Enums) ->
     AtomVal = erlang:binary_to_existing_atom(Val, utf8),
     case lists:member(AtomVal, Enums) of
@@ -853,12 +859,6 @@ enc_ip(Addr) -> list_to_binary(inet_parse:ntoa(Addr)).
 enc_version({Maj, Min}) ->
     <<(integer_to_binary(Maj))/binary, $.,
       (integer_to_binary(Min))/binary>>.
-
-resourceprep(R) ->
-    case jid:resourceprep(R) of
-      error -> erlang:error(badarg);
-      R1 -> R1
-    end.
 
 decode_stream_start(__TopXMLNS, __Opts,
 		    {xmlel, <<"stream:stream">>, _attrs, _els}) ->
@@ -3181,7 +3181,7 @@ encode_bind_resource(Cdata, __TopXMLNS) ->
 
 decode_bind_resource_cdata(__TopXMLNS, <<>>) -> <<>>;
 decode_bind_resource_cdata(__TopXMLNS, _val) ->
-    case catch resourceprep(_val) of
+    case catch check_resource(_val) of
       {'EXIT', _} ->
 	  erlang:error({xmpp_codec,
 			{bad_cdata_value, <<>>, <<"resource">>, __TopXMLNS}});
@@ -3190,7 +3190,7 @@ decode_bind_resource_cdata(__TopXMLNS, _val) ->
 
 encode_bind_resource_cdata(<<>>, _acc) -> _acc;
 encode_bind_resource_cdata(_val, _acc) ->
-    [{xmlcdata, resourceprep(_val)} | _acc].
+    [{xmlcdata, check_resource(_val)} | _acc].
 
 decode_bind_jid(__TopXMLNS, __Opts,
 		{xmlel, <<"jid">>, _attrs, _els}) ->
