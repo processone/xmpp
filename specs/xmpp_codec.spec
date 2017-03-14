@@ -3815,7 +3815,7 @@
 			  dec = {dec_ip, []},
 			  enc = {enc_ip, []}}}).
 
--xml(sip_port,
+-xml(sic_port,
      #elem{name = <<"port">>,
 	   xmlns = <<"urn:xmpp:sic:1">>,
 	   module = 'xep0279',
@@ -3831,7 +3831,7 @@
 	   result = {sic, '$ip', '$port', '$xmlns'},
 	   attrs = [#attr{name = <<"xmlns">>}],
 	   refs = [#ref{name = sic_ip, min = 0, max = 1, label = '$ip'},
-		   #ref{name = sip_port, min = 0, max = 1, label = '$port'}]}).
+		   #ref{name = sic_port, min = 0, max = 1, label = '$port'}]}).
 
 -xml(upload_filename,
      #elem{name = <<"filename">>,

@@ -439,6 +439,11 @@
                 node = <<>> :: binary()}).
 -type stats() :: #stats{}.
 
+-record(sic, {ip :: undefined | inet:ip_address(),
+              port :: 'undefined' | non_neg_integer(),
+              xmlns = <<>> :: binary()}).
+-type sic() :: #sic{}.
+
 -record(ps_items, {xmlns = <<>> :: binary(),
                    node = <<>> :: binary(),
                    items = [] :: [#ps_item{}],
@@ -446,11 +451,6 @@
                    subid = <<>> :: binary(),
                    retract :: 'undefined' | binary()}).
 -type ps_items() :: #ps_items{}.
-
--record(sic, {ip :: undefined | inet:ip_address(),
-              port :: 'undefined' | non_neg_integer(),
-              xmlns = <<>> :: binary()}).
--type sic() :: #sic{}.
 
 -record(carbons_sent, {forwarded :: #forwarded{}}).
 -type carbons_sent() :: #carbons_sent{}.
@@ -1060,8 +1060,8 @@
                         muc() |
                         stream_features() |
                         stats() |
-                        ps_items() |
                         sic() |
+                        ps_items() |
                         ps_options() |
                         starttls() |
                         db_verify() |
