@@ -99,6 +99,7 @@
 -include("xmpp.hrl").
 -type reason_text() :: binary() | {io:format(), list()}.
 -type lang() :: binary().
+-type decode_option() :: ignore_els.
 
 %%%===================================================================
 %%% Application callbacks
@@ -161,7 +162,7 @@ make_error(#xmlel{attrs = Attrs, children = Els} = El, Err) ->
     Attrs3 = lists:keystore(<<"type">>, 1, Attrs2, {<<"type">>, <<"error">>}),
     El#xmlel{attrs = Attrs3, children = Els ++ [encode(Err, ?NS_CLIENT)]}.
 
--spec get_id(iq() | message() | presence() | xmlel()) -> binary().
+-spec get_id(stanza() | xmlel()) -> binary().
 get_id(#iq{id = ID}) -> ID;
 get_id(#message{id = ID}) -> ID;
 get_id(#presence{id = ID}) -> ID;
@@ -176,30 +177,30 @@ get_type(#message{type = T}) -> T;
 get_type(#presence{type = T}) -> T;
 get_type(#xmlel{attrs = Attrs}) -> fxml:get_attr_s(<<"type">>, Attrs).
 
--spec get_lang(iq() | message() | presence() | xmlel()) -> binary().
+-spec get_lang(stanza() | xmlel()) -> binary().
 get_lang(#iq{lang = L}) -> L;
 get_lang(#message{lang = L}) -> L;
 get_lang(#presence{lang = L}) -> L;
 get_lang(#xmlel{attrs = Attrs}) -> fxml:get_attr_s(<<"xml:lang">>, Attrs).
 
--spec get_from(iq() | message() | presence()) -> undefined | jid:jid().
+-spec get_from(stanza()) -> undefined | jid:jid().
 get_from(#iq{from = J}) -> J;
 get_from(#message{from = J}) -> J;
 get_from(#presence{from = J}) -> J.
 
--spec get_to(iq() | message() | presence()) -> undefined | jid:jid().
+-spec get_to(stanza()) -> undefined | jid:jid().
 get_to(#iq{to = J}) -> J;
 get_to(#message{to = J}) -> J;
 get_to(#presence{to = J}) -> J.
 
--spec get_error(iq() | message() | presence()) -> undefined | stanza_error().
+-spec get_error(stanza()) -> undefined | stanza_error().
 get_error(Stanza) ->
     case get_subtag(Stanza, #stanza_error{type = cancel}) of
 	false -> undefined;
 	Error -> Error
     end.
 
--spec get_els(iq() | message() | presence()) -> [xmpp_element() | xmlel()];
+-spec get_els(stanza()) -> [xmpp_element() | xmlel()];
 	     (xmlel()) -> [xmlel()].
 get_els(#iq{sub_els = Els}) -> Els;
 get_els(#message{sub_els = Els}) -> Els;
@@ -328,7 +329,7 @@ del_meta(#presence{meta = M} = Pres, K) ->
 decode(El) ->
     decode(El, ?NS_CLIENT, []).
 
--spec decode(xmlel() | xmpp_element(), binary(), [proplists:property()]) ->
+-spec decode(xmlel() | xmpp_element(), binary(), [decode_option()]) ->
 		    xmpp_element().
 decode(#xmlel{} = El, TopXMLNS, Opts) ->
     xmpp_codec:decode(El, TopXMLNS, Opts);
