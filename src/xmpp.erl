@@ -472,7 +472,9 @@ has_subtag([El|Els], TagName, XMLNS, TopXMLNS) ->
 has_subtag([], _, _, _) ->
     false.
 
--spec append_subtags(stanza(), [xmpp_element() | xmlel()]) -> stanza().
+-spec append_subtags(iq(), [xmpp_element() | xmlel()]) -> iq();
+		    (message(), [xmpp_element() | xmlel()]) -> message();
+		    (presence(), [xmpp_element() | xmlel()]) -> presence().
 append_subtags(Stanza, Tags) ->
     Els = get_els(Stanza),
     set_els(Stanza, Els ++ Tags).
