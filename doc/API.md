@@ -52,7 +52,7 @@ The following functions are exported from `xmpp` module:
 - [format_error/1](#format_error1)
 - [io_format_error/1](#io_format_error1)
 - [pp/1](#pp1)
-- [set_tr_callback/2](#set_tr_callback2)
+- [set_tr_callback/1](#set_tr_callback1)
 - [get_text/1](#get_text1)
 - [get_text/2](#get_text2)
 - [mk_text/1](#mk_text1)
@@ -1140,11 +1140,12 @@ Pretty printer for XMPP elements.
 #sm_a{h = 10,xmlns = <<"urn:xmpp:sm:3">>}
 ```
 
-## set_tr_callback/2
+## set_tr_callback/1
 ```erlang
--spec set_tr_callback(Module :: module(), Function :: atom()) -> ok.
+-spec set_tr_callback({Module :: module(), Function :: atom()} | undefined) -> ok.
 ```
-Sets `Module:Function/2` as a callback translation function.
+Installs `Module:Function/2` as a callback translation function or
+uninstalls the callback if `undefined` is provided.
 The callback function should be defined as:
 ```erlang
 -spec Module:Function(Lang :: binary(), TextIn :: binary()) -> TextOut :: binary().
@@ -1153,16 +1154,25 @@ where `Lang` is a language tag, `TextIn` is a text to be translated and
 `TextOut` is a resulting translated text.
 By default, no translation callback is set and thus translation is not performed.
 
-**Example**:
+**Example 1**: installing the callback
 ```erlang
 > xmpp:mk_text(<<"hello">>, <<"ru">>).
 [#text{lang = <<"ru">>,data = <<"hello">>}]
 > my_trans_mod:trans(<<"ru">>, <<"hello">>).
 <<"привет">>.
-> xmpp:set_tr_callback(my_trans_mod, trans).
+> xmpp:set_tr_callback({my_trans_mod, trans}).
 ok
 > xmpp:mk_text(<<"hello">>, <<"ru">>).
 [#text{lang = <<"ru">>,data = <<"привет">>}]
+```
+**Example 2**: uninstalling any callback
+```erlang
+> xmpp:mk_text(<<"hello">>, <<"ru">>).
+[#text{lang = <<"ru">>,data = <<"привет">>}]
+> xmpp:set_tr_callback(undefined).
+ok
+> xmpp:mk_text(<<"hello">>, <<"ru">>).
+[#text{lang = <<"ru">>,data = <<"hello">>}]
 ```
 
 ## get_text/1
@@ -1202,7 +1212,7 @@ Shorthand for `mk_text(Text, <<"en">>)`.
 ```
 Creates a list of a single `text()` element from `binary()` or formatted text,
 translated into language using a callback function set in
-[set_tr_callback/2](#set_tr_callback2).
+[set_tr_callback/1](#set_tr_callback1).
 
 **Example**:
 ```erlang

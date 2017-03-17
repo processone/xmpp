@@ -42,7 +42,7 @@
 	 decode_els/1, decode_els/3, pp/1, get_name/1, get_text/1,
 	 get_text/2, mk_text/1, mk_text/2, is_known_tag/1, is_known_tag/2,
 	 append_subtags/2, prep_lang/1, register_codec/1, unregister_codec/1,
-	 set_tr_callback/2]).
+	 set_tr_callback/1]).
 
 %% XMPP errors
 -export([err_bad_request/0, err_bad_request/2,
@@ -511,9 +511,9 @@ register_codec(Mod) ->
 unregister_codec(Mod) ->
     xmpp_codec:unregister_module(Mod).
 
--spec set_tr_callback(module(), atom()) -> ok.
-set_tr_callback(Module, Function) ->
-    Forms = get_tr_forms(Module, Function),
+-spec set_tr_callback({module(), atom()} | undefined) -> ok.
+set_tr_callback(Callback) ->
+    Forms = get_tr_forms(Callback),
     {ok, Code} = case compile:forms(Forms, []) of
 		     {ok, xmpp_tr, Bin} -> {ok, Bin};
 		     {ok, xmpp_tr, Bin, _Warnings} -> {ok, Bin};
@@ -1002,11 +1002,17 @@ get_text([#text{lang = L, data = Data}|Text], Lang, Result) ->
 get_text([], _Lang, Result) ->
     Result.
 
-get_tr_forms(Mod, Fun) ->
+-spec get_tr_forms({module(), atom()} | undefined) -> [erl_parse:abstract_form()].
+get_tr_forms(Callback) ->
     Module = "-module(xmpp_tr).",
     Export = "-export([tr/2]).",
-    Tr = io_lib:format("tr(Lang, Text) -> '~s':'~s'(Lang, Text).",
-		       [Mod, Fun]),
+    Tr = case Callback of
+	     {Mod, Fun} ->
+		 io_lib:format("tr(Lang, Text) -> '~s':'~s'(Lang, Text).",
+			       [Mod, Fun]);
+	     undefined ->
+		 "tr(_, Text) -> Text."
+	 end,
     lists:map(
       fun(Expr) ->
 	      {ok, Tokens, _} =

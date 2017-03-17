@@ -222,7 +222,7 @@ Functions for working with JIDs are provided by [jid module](doc/API.md#jid).
 The library uses a callback function in order to perform language
 translation. The translation is applied when constructing
 [text](#text-elements) or [error](#error-elements) elements.
-To set the callback one can use [set_tr_callback/2](doc/API.md#set_tr_callback2)
+To set the callback one can use [set_tr_callback/1](doc/API.md#set_tr_callback1)
 function. By default, no translation is performed.
 
 # Supported XMPP elements
