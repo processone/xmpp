@@ -41,7 +41,8 @@
 	 set_subtag/2, get_subtag/2, remove_subtag/2, has_subtag/2,
 	 decode_els/1, decode_els/3, pp/1, get_name/1, get_text/1,
 	 get_text/2, mk_text/1, mk_text/2, is_known_tag/1, is_known_tag/2,
-	 append_subtags/2, prep_lang/1, register_codec/1, unregister_codec/1]).
+	 append_subtags/2, prep_lang/1, register_codec/1, unregister_codec/1,
+	 set_tr_callback/2]).
 
 %% XMPP errors
 -export([err_bad_request/0, err_bad_request/2,
@@ -510,6 +511,17 @@ register_codec(Mod) ->
 unregister_codec(Mod) ->
     xmpp_codec:unregister_module(Mod).
 
+-spec set_tr_callback(module(), atom()) -> ok.
+set_tr_callback(Module, Function) ->
+    Forms = get_tr_forms(Module, Function),
+    {ok, Code} = case compile:forms(Forms, []) of
+		     {ok, xmpp_tr, Bin} -> {ok, Bin};
+		     {ok, xmpp_tr, Bin, _Warnings} -> {ok, Bin};
+		     Error -> Error
+		 end,
+    {module, xmpp_tr} = code:load_binary(xmpp_tr, "nofile", Code),
+    ok.
+
 %%%===================================================================
 %%% Functions to construct general XMPP errors
 %%%===================================================================
@@ -963,10 +975,10 @@ match_tag(El, TagName, XMLNS, TopXMLNS) ->
 
 -spec translate(lang(), reason_text()) -> binary().
 translate(Lang, {Format, Args}) ->
-    TranslatedFormat = translate:translate(Lang, iolist_to_binary(Format)),
+    TranslatedFormat = xmpp_tr:tr(Lang, iolist_to_binary(Format)),
     iolist_to_binary(io_lib:format(TranslatedFormat, Args));
 translate(Lang, Text) ->
-    translate:translate(Lang, Text).
+    xmpp_tr:tr(Lang, Text).
 
 -spec prep_lang(binary()) -> binary().
 prep_lang(L) ->
@@ -989,3 +1001,16 @@ get_text([#text{lang = L, data = Data}|Text], Lang, Result) ->
     end;
 get_text([], _Lang, Result) ->
     Result.
+
+get_tr_forms(Mod, Fun) ->
+    Module = "-module(xmpp_tr).",
+    Export = "-export([tr/2]).",
+    Tr = io_lib:format("tr(Lang, Text) -> '~s':'~s'(Lang, Text).",
+		       [Mod, Fun]),
+    lists:map(
+      fun(Expr) ->
+	      {ok, Tokens, _} =
+		  erl_scan:string(lists:flatten(Expr)),
+	      {ok, Form} = erl_parse:parse_form(Tokens),
+	      Form
+      end, [Module, Export, Tr]).
