@@ -215,7 +215,7 @@ Both types and the record are defined in [include/jid.hrl](include/jid.hrl).
 > **WARNING**: you should **not** include `jid.hrl` in your erlang code.
 > Include `xmpp.hrl` instead.
 
-Functions for working with JIDs are provided by [jid module](doc/API.md#jid).
+Functions for working with JIDs are provided by [jid](doc/API.md#jid) module.
 
 ## Language translation
 

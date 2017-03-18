@@ -2139,4 +2139,221 @@ false
 
 # jid
 
-> **TODO**: to be documented
+The following functions are exported from `jid` module:
+
+- [decode/1](#decode1-1)
+- [encode/1](#encode1-1)
+- [make/1](#make1)
+- [make/2](#make2)
+- [make/3](#make3)
+- [nodeprep/1](#nodeprep1)
+- [nameprep/1](#nameprep1)
+- [resourceprep/1](#resourceprep1)
+- [tolower/1](#tolower1)
+- [split/1](#split1)
+- [remove_resource/1](#remove_resource1)
+- [replace_resource/2](#replace_resource2)
+
+## decode/1
+```erlang
+-spec decode(Data :: binary()) -> jid().
+```
+Decodes `Data` into JID. Fails with `{bad_jid, Data}` on failure.
+
+**Example 1**: successful decoding
+```erlang
+> jid:decode(<<"User@Server/Resource">>).
+#jid{user = <<"User">>,server = <<"Server">>,
+     resource = <<"Resource">>,luser = <<"user">>,
+     lserver = <<"server">>,lresource = <<"Resource">>}
+```
+**Example 2**: decoding failure
+```erlang
+> jid:decode(<<"@server">>).
+** exception error: {bad_jid,<<"@server">>}
+     ...
+```
+
+## encode/1
+```erlang
+-spec encode(jid() | ljid()) -> binary().
+```
+Encodes JID.
+
+**Example 1**: encoding `jid()`
+```erlang
+> JID.
+#jid{user = <<"User">>,server = <<"Server">>,
+     resource = <<"Resource">>,luser = <<"user">>,
+     lserver = <<"server">>,lresource = <<"Resource">>}
+> jid:encode(J).
+<<"User@Server/Resource">>
+```
+**Example 2**: encoding `ljid()`
+```erlang
+> jid:encode({<<"user">>, <<"server">>, <<"resource">>}).
+<<"user@server/resource">>
+```
+
+## make/1
+```erlang
+-spec make(ljid() | binary()) -> jid() | error.
+```
+Creates `jid()` from `ljid()` or from namepart. Returns `error` if
+stringprep has failed.
+
+**Example 1**: creating `jid()` from `ljid()`
+```erlang
+> jid:make({<<"User">>, <<"Server">>, <<"Resource">>}).
+#jid{user = <<"User">>,server = <<"Server">>,
+     resource = <<"Resource">>,luser = <<"user">>,
+     lserver = <<"server">>,lresource = <<"Resource">>}
+```
+**Example 2**: creating `jid()` from namepart
+```erlang
+> jid:make(<<"Server">>).
+#jid{user = <<>>,server = <<"Server">>,resource = <<>>,
+     luser = <<>>,lserver = <<"server">>,lresource = <<>>}
+```
+**Example 3**: stringprep failure
+```erlang
+> jid:make({<<"@">>, <<"server">>, <<"resource">>}).
+error
+```
+
+## make/2
+```erlang
+-spec make(User :: binary(), Server :: binary()) -> jid() | error.
+```
+Shorthand for `make({User, Server, <<>>})`.
+
+## make/3
+```erlang
+-spec make(User :: binary(), Server :: binary(), Resource :: binary()) -> jid() | error.
+```
+Same as `make({User, Server, Resource})`.
+
+## nodeprep/1
+```erlang
+-spec nodeprep(binary()) -> binary() | error.
+```
+Applies Nodeprep Profile of Stringprep. Returns `error` on failure.
+
+**Example**:
+```erlang
+> jid:nodeprep(<<"User">>).
+<<"user">>
+> jid:nodeprep(<<"@">>).
+error
+```
+
+## nameprep/1
+```erlang
+-spec nameprep(binary()) -> binary() | error.
+```
+Applies Nameprep Profile of Stringprep. Returns `error` on failure.
+
+**Example**:
+```erlang
+> jid:nameprep(<<"SerVer">>).
+<<"server">>
+```
+
+## resourceprep/1
+```erlang
+-spec resourceprep(binary()) -> binary() | error.
+```
+Applies Resourceprep Profile of Stringprep. Returns `error` on failure.
+
+**Example**:
+```erlang
+> jid:resourceprep(<<"Resource">>).
+<<"Resource">>
+```
+
+## tolower/1
+```erlang
+-spec tolower(jid() | ljid()) -> ljid() | error.
+```
+Creates `ljid()` with Stringprep Profile applied to its parts.
+Returns `error` if stringprep has failed.
+
+**Example 1**: creating from `jid()`
+```erlang
+> JID.
+#jid{user = <<"User">>,server = <<"Server">>,
+     resource = <<"Resource">>,luser = <<"user">>,
+     lserver = <<"server">>,lresource = <<"Resource">>}
+> jid:tolower(JID).
+{<<"user">>,<<"server">>,<<"Resource">>}
+```
+**Example 2**: creating from `ljid()`
+```erlang
+> jid:tolower({<<"User">>, <<"Server">>, <<"Resource">>}).
+{<<"user">>,<<"server">>,<<"Resource">>}
+```
+**Example 3**: stringprep failure
+```erlang
+> jid:tolower({<<"@">>, <<"Server">>, <<"Resource">>}).   
+error
+```
+
+## split/1
+```erlang
+-spec split(jid()) -> ljid().
+```
+Creates `ljid()` from `jid()`.
+Unlike [tolower/1](#tolower1) Strinprep Profile is not applied.
+
+**Example**:
+```erlang
+> JID.
+#jid{user = <<"User">>,server = <<"Server">>,
+     resource = <<"Resource">>,luser = <<"user">>,
+     lserver = <<"server">>,lresource = <<"Resource">>}
+> jid:split(JID).
+{<<"User">>,<<"Server">>,<<"Resource">>}
+```
+
+## remove_resource/1
+```erlang
+-spec remove_resource(jid()) -> jid();
+		     (ljid()) -> ljid().
+```
+Removes resource part of a JID.
+
+**Example 1**: removing resource of `jid()`
+```erlang
+> JID.
+#jid{user = <<"User">>,server = <<"Server">>,
+     resource = <<"Resource">>,luser = <<"user">>,
+     lserver = <<"server">>,lresource = <<"Resource">>}
+> jid:remove_resource(JID).
+#jid{user = <<"User">>,server = <<"Server">>,
+     resource = <<>>,luser = <<"user">>,lserver = <<"server">>,
+     lresource = <<>>}
+```
+**Example 2**: removing resource of `ljid()`
+```erlang
+> jid:remove_resource({<<"User">>, <<"Server">>, <<"Resource">>}).
+{<<"User">>,<<"Server">>,<<>>}
+```
+
+## replace_resource/2
+```erlang
+-spec replace_resource(jid(), binary()) -> error | jid().
+```
+Replaces resource part of a JID.
+Returns `error` if resourceprep has failed.
+
+**Example**: replacing resource
+```erlang
+> JID.
+#jid{user = <<"User">>,server = <<"Server">>,
+     resource = <<"old">>,luser = <<"user">>,
+     lserver = <<"server">>,lresource = <<"old">>}
+> jid:replace_resource(JID, <<"new">>).
+#jid{user = <<"User">>,server = <<"Server">>,
+     resource = <<"new">>,luser = <<"user">>,
+     lserver = <<"server">>,lresource = <<"new">>}
+```
