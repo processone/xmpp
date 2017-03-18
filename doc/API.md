@@ -57,6 +57,104 @@ The following functions are exported from `xmpp` module:
 - [get_text/2](#get_text2)
 - [mk_text/1](#mk_text1)
 - [mk_text/2](#mk_text2)
+- [err_bad_request/0](#err_bad_request0)
+- [err_bad_request/2](#err_bad_request2)
+- [err_conflict/0](#err_conflict0)
+- [err_conflict/2](#err_conflict2)
+- [err_feature_not_implemented/0](#err_feature_not_implemented0)
+- [err_feature_not_implemented/2](#err_feature_not_implemented2)
+- [err_forbidden/0](#err_forbidden0)
+- [err_forbidden/2](#err_forbidden2)
+- [err_gone/0](#err_gone0)
+- [err_gone/2](#err_gone2)
+- [err_internal_server_error/0](#err_internal_server_error0)
+- [err_internal_server_error/2](#err_internal_server_error2)
+- [err_item_not_found/0](#err_item_not_found0)
+- [err_item_not_found/2](#err_item_not_found2)
+- [err_jid_malformed/0](#err_jid_malformed0)
+- [err_jid_malformed/2](#err_jid_malformed2)
+- [err_not_acceptable/0](#err_not_acceptable0)
+- [err_not_acceptable/2](#err_not_acceptable2)
+- [err_not_allowed/0](#err_not_allowed0)
+- [err_not_allowed/2](#err_not_allowed2)
+- [err_not_authorized/0](#err_not_authorized0)
+- [err_not_authorized/2](#err_not_authorized2)
+- [err_payment_required/0](#err_payment_required0)
+- [err_payment_required/2](#err_payment_required2)
+- [err_policy_violation/0](#err_policy_violation0)
+- [err_policy_violation/2](#err_policy_violation2)
+- [err_recipient_unavailable/0](#err_recipient_unavailable0)
+- [err_recipient_unavailable/2](#err_recipient_unavailable2)
+- [err_redirect/0](#err_redirect0)
+- [err_redirect/2](#err_redirect2)
+- [err_registration_required/0](#err_registration_required0)
+- [err_registration_required/2](#err_registration_required2)
+- [err_remote_server_not_found/0](#err_remote_server_not_found0)
+- [err_remote_server_not_found/2](#err_remote_server_not_found2)
+- [err_remote_server_timeout/0](#err_remote_server_timeout0)
+- [err_remote_server_timeout/2](#err_remote_server_timeout2)
+- [err_resource_constraint/0](#err_resource_constraint0)
+- [err_resource_constraint/2](#err_resource_constraint2)
+- [err_service_unavailable/0](#err_service_unavailable0)
+- [err_service_unavailable/2](#err_service_unavailable2)
+- [err_subscription_required/0](#err_subscription_required0)
+- [err_subscription_required/2](#err_subscription_required2)
+- [err_undefined_condition/1](#err_undefined_condition1)
+- [err_undefined_condition/3](#err_undefined_condition3)
+- [err_unexpected_request/0](#err_unexpected_request0)
+- [err_unexpected_request/2](#err_unexpected_request2)
+- [serr_bad_format/0](#serr_bad_format0)
+- [serr_bad_format/2](#serr_bad_format2)
+- [serr_bad_namespace_prefix/0](#serr_bad_namespace_prefix0)
+- [serr_bad_namespace_prefix/2](#serr_bad_namespace_prefix2)
+- [serr_conflict/0](#serr_conflict0)
+- [serr_conflict/2](#serr_conflict2)
+- [serr_connection_timeout/0](#serr_connection_timeout0)
+- [serr_connection_timeout/2](#serr_connection_timeout2)
+- [serr_host_gone/0](#serr_host_gone0)
+- [serr_host_gone/2](#serr_host_gone2)
+- [serr_host_unknown/0](#serr_host_unknown0)
+- [serr_host_unknown/2](#serr_host_unknown2)
+- [serr_improper_addressing/0](#serr_improper_addressing0)
+- [serr_improper_addressing/2](#serr_improper_addressing2)
+- [serr_internal_server_error/0](#serr_internal_server_error0)
+- [serr_internal_server_error/2](#serr_internal_server_error2)
+- [serr_invalid_from/0](#serr_invalid_from0)
+- [serr_invalid_from/2](#serr_invalid_from2)
+- [serr_invalid_id/0](#serr_invalid_id0)
+- [serr_invalid_id/2](#serr_invalid_id2)
+- [serr_invalid_namespace/0](#serr_invalid_namespace0)
+- [serr_invalid_namespace/2](#serr_invalid_namespace2)
+- [serr_invalid_xml/0](#serr_invalid_xml0)
+- [serr_invalid_xml/2](#serr_invalid_xml2)
+- [serr_not_authorized/0](#serr_not_authorized0)
+- [serr_not_authorized/2](#serr_not_authorized2)
+- [serr_not_well_formed/0](#serr_not_well_formed0)
+- [serr_not_well_formed/2](#serr_not_well_formed2)
+- [serr_policy_violation/0](#serr_policy_violation0)
+- [serr_policy_violation/2](#serr_policy_violation2)
+- [serr_remote_connection_failed/0](#serr_remote_connection_failed0)
+- [serr_remote_connection_failed/2](#serr_remote_connection_failed2)
+- [serr_reset/0](#serr_reset0)
+- [serr_reset/2](#serr_reset2)
+- [serr_resource_constraint/0](#serr_resource_constraint0)
+- [serr_resource_constraint/2](#serr_resource_constraint2)
+- [serr_restricted_xml/0](#serr_restricted_xml0)
+- [serr_restricted_xml/2](#serr_restricted_xml2)
+- [serr_see_other_host/0](#serr_see_other_host0)
+- [serr_see_other_host/2](#serr_see_other_host2)
+- [serr_system_shutdown/0](#serr_system_shutdown0)
+- [serr_system_shutdown/2](#serr_system_shutdown2)
+- [serr_undefined_condition/0](#serr_undefined_condition0)
+- [serr_undefined_condition/2](#serr_undefined_condition2)
+- [serr_unsupported_encoding/0](#serr_unsupported_encoding0)
+- [serr_unsupported_encoding/2](#serr_unsupported_encoding2)
+- [serr_unsupported_feature/0](#serr_unsupported_feature0)
+- [serr_unsupported_feature/2](#serr_unsupported_feature2)
+- [serr_unsupported_stanza_type/0](#serr_unsupported_stanza_type0)
+- [serr_unsupported_stanza_type/2](#serr_unsupported_stanza_type2)
+- [serr_unsupported_version/0](#serr_unsupported_version0)
+- [serr_unsupported_version/2](#serr_unsupported_version2)
 
 ## decode/1
 ```erlang
@@ -1221,6 +1319,694 @@ translated into language using a callback function set in
 > xmpp:mk_text({"hello, ~s!", ["Bob"]}, <<"en">>).
 [#text{lang = <<"en">>, data = <<"hello, Bob!">>}]
 ```
+
+## err_bad_request/0
+```erlang
+-spec err_bad_request() -> stanza_error()
+```
+Creates 'bad-request' stanza error.
+
+## err_bad_request/2
+```erlang
+-spec err_bad_request(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stanza_error()
+```
+Creates 'bad-request' stanza error.
+
+## err_conflict/0
+```erlang
+-spec err_conflict() -> stanza_error()
+```
+Creates 'conflict' stanza error.
+
+## err_conflict/2
+```erlang
+-spec err_conflict(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stanza_error()
+```
+Creates 'conflict' stanza error.
+
+## err_feature_not_implemented/0
+```erlang
+-spec err_feature_not_implemented() -> stanza_error()
+```
+Creates 'feature-not-implemented' stanza error.
+
+## err_feature_not_implemented/2
+```erlang
+-spec err_feature_not_implemented(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stanza_error()
+```
+Creates 'feature-not-implemented' stanza error.
+
+## err_forbidden/0
+```erlang
+-spec err_forbidden() -> stanza_error()
+```
+Creates 'forbidden' stanza error.
+
+## err_forbidden/2
+```erlang
+-spec err_forbidden(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stanza_error()
+```
+Creates 'forbidden' stanza error.
+
+## err_gone/0
+```erlang
+-spec err_gone() -> stanza_error()
+```
+Creates 'gone' stanza error.
+
+## err_gone/2
+```erlang
+-spec err_gone(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stanza_error()
+```
+Creates 'gone' stanza error.
+
+## err_internal_server_error/0
+```erlang
+-spec err_internal_server_error() -> stanza_error()
+```
+Creates 'internal-server-error' stanza error.
+
+## err_internal_server_error/2
+```erlang
+-spec err_internal_server_error(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stanza_error()
+```
+Creates 'internal-server-error' stanza error.
+
+## err_item_not_found/0
+```erlang
+-spec err_item_not_found() -> stanza_error()
+```
+Creates 'item-not-found' stanza error.
+
+## err_item_not_found/2
+```erlang
+-spec err_item_not_found(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stanza_error()
+```
+Creates 'item-not-found' stanza error.
+
+## err_jid_malformed/0
+```erlang
+-spec err_jid_malformed() -> stanza_error()
+```
+Creates 'jid-malformed' stanza error.
+
+## err_jid_malformed/2
+```erlang
+-spec err_jid_malformed(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stanza_error()
+```
+Creates 'jid-malformed' stanza error.
+
+## err_not_acceptable/0
+```erlang
+-spec err_not_acceptable() -> stanza_error()
+```
+Creates 'not-acceptable' stanza error.
+
+## err_not_acceptable/2
+```erlang
+-spec err_not_acceptable(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stanza_error()
+```
+Creates 'not-acceptable' stanza error.
+
+## err_not_allowed/0
+```erlang
+-spec err_not_allowed() -> stanza_error()
+```
+Creates 'not-allowed' stanza error.
+
+## err_not_allowed/2
+```erlang
+-spec err_not_allowed(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stanza_error()
+```
+Creates 'not-allowed' stanza error.
+
+## err_not_authorized/0
+```erlang
+-spec err_not_authorized() -> stanza_error()
+```
+Creates 'not-authorized' stanza error.
+
+## err_not_authorized/2
+```erlang
+-spec err_not_authorized(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stanza_error()
+```
+Creates 'not-authorized' stanza error.
+
+## err_payment_required/0
+```erlang
+-spec err_payment_required() -> stanza_error()
+```
+Creates 'payment-required' stanza error.
+
+## err_payment_required/2
+```erlang
+-spec err_payment_required(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stanza_error()
+```
+Creates 'payment-required' stanza error.
+
+## err_policy_violation/0
+```erlang
+-spec err_policy_violation() -> stanza_error()
+```
+Creates 'policy-violation' stanza error.
+
+## err_policy_violation/2
+```erlang
+-spec err_policy_violation(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stanza_error()
+```
+Creates 'policy-violation' stanza error.
+
+## err_recipient_unavailable/0
+```erlang
+-spec err_recipient_unavailable() -> stanza_error()
+```
+Creates 'recipient-unavailable' stanza error.
+
+## err_recipient_unavailable/2
+```erlang
+-spec err_recipient_unavailable(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stanza_error()
+```
+Creates 'recipient-unavailable' stanza error.
+
+## err_redirect/0
+```erlang
+-spec err_redirect() -> stanza_error()
+```
+Creates 'redirect' stanza error.
+
+## err_redirect/2
+```erlang
+-spec err_redirect(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stanza_error()
+```
+Creates 'redirect' stanza error.
+
+## err_registration_required/0
+```erlang
+-spec err_registration_required() -> stanza_error()
+```
+Creates 'registration-required' stanza error.
+
+## err_registration_required/2
+```erlang
+-spec err_registration_required(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stanza_error()
+```
+Creates 'registration-required' stanza error.
+
+## err_remote_server_not_found/0
+```erlang
+-spec err_remote_server_not_found() -> stanza_error()
+```
+Creates 'remote-server-not-found' stanza error.
+
+## err_remote_server_not_found/2
+```erlang
+-spec err_remote_server_not_found(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stanza_error()
+```
+Creates 'remote-server-not-found' stanza error.
+
+## err_remote_server_timeout/0
+```erlang
+-spec err_remote_server_timeout() -> stanza_error()
+```
+Creates 'remote-server-timeout' stanza error.
+
+## err_remote_server_timeout/2
+```erlang
+-spec err_remote_server_timeout(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stanza_error()
+```
+Creates 'remote-server-timeout' stanza error.
+
+## err_resource_constraint/0
+```erlang
+-spec err_resource_constraint() -> stanza_error()
+```
+Creates 'resource-constraint' stanza error.
+
+## err_resource_constraint/2
+```erlang
+-spec err_resource_constraint(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stanza_error()
+```
+Creates 'resource-constraint' stanza error.
+
+## err_service_unavailable/0
+```erlang
+-spec err_service_unavailable() -> stanza_error()
+```
+Creates 'service-unavailable' stanza error.
+
+## err_service_unavailable/2
+```erlang
+-spec err_service_unavailable(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stanza_error()
+```
+Creates 'service-unavailable' stanza error.
+
+## err_subscription_required/0
+```erlang
+-spec err_subscription_required() -> stanza_error()
+```
+Creates 'subscription-required' stanza error.
+
+## err_subscription_required/2
+```erlang
+-spec err_subscription_required(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stanza_error()
+```
+Creates 'subscription-required' stanza error.
+
+## err_undefined_condition/1
+```erlang
+-spec err_undefined_condition(
+         Type :: 'auth' | 'cancel' | 'continue' | 'modify' | 'wait') -> stanza_error()
+```
+Creates 'undefined-condition' stanza error.
+
+## err_undefined_condition/3
+```erlang
+-spec err_undefined_condition(
+         Type :: 'auth' | 'cancel' | 'continue' | 'modify' | 'wait',
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stanza_error()
+```
+Creates 'undefined-condition' stanza error.
+
+## err_unexpected_request/0
+```erlang
+-spec err_unexpected_request() -> stanza_error()
+```
+Creates 'unexpected-request' stanza error.
+
+## err_unexpected_request/2
+```erlang
+-spec err_unexpected_request(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stanza_error()
+```
+Creates 'unexpected-request' stanza error.
+
+## serr_bad_format/0
+```erlang
+-spec serr_bad_format() -> stream_error()
+```
+Creates 'bad-format' stream error.
+
+## serr_bad_format/2
+```erlang
+-spec serr_bad_format(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stream_error()
+```
+Creates 'bad-format' stream error.
+
+## serr_bad_namespace_prefix/0
+```erlang
+-spec serr_bad_namespace_prefix() -> stream_error()
+```
+Creates 'bad-namespace-prefix' stream error.
+
+## serr_bad_namespace_prefix/2
+```erlang
+-spec serr_bad_namespace_prefix(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stream_error()
+```
+Creates 'bad-namespace-prefix' stream error.
+
+## serr_conflict/0
+```erlang
+-spec serr_conflict() -> stream_error()
+```
+Creates 'conflict' stream error.
+
+## serr_conflict/2
+```erlang
+-spec serr_conflict(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stream_error()
+```
+Creates 'conflict' stream error.
+
+## serr_connection_timeout/0
+```erlang
+-spec serr_connection_timeout() -> stream_error()
+```
+Creates 'connection-timeout' stream error.
+
+## serr_connection_timeout/2
+```erlang
+-spec serr_connection_timeout(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stream_error()
+```
+Creates 'connection-timeout' stream error.
+
+## serr_host_gone/0
+```erlang
+-spec serr_host_gone() -> stream_error()
+```
+Creates 'host-gone' stream error.
+
+## serr_host_gone/2
+```erlang
+-spec serr_host_gone(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stream_error()
+```
+Creates 'host-gone' stream error.
+
+## serr_host_unknown/0
+```erlang
+-spec serr_host_unknown() -> stream_error()
+```
+Creates 'host-unknown' stream error.
+
+## serr_host_unknown/2
+```erlang
+-spec serr_host_unknown(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stream_error()
+```
+Creates 'host-unknown' stream error.
+
+## serr_improper_addressing/0
+```erlang
+-spec serr_improper_addressing() -> stream_error()
+```
+Creates 'improper-addressing' stream error.
+
+## serr_improper_addressing/2
+```erlang
+-spec serr_improper_addressing(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stream_error()
+```
+Creates 'improper-addressing' stream error.
+
+## serr_internal_server_error/0
+```erlang
+-spec serr_internal_server_error() -> stream_error()
+```
+Creates 'internal-server-error' stream error.
+
+## serr_internal_server_error/2
+```erlang
+-spec serr_internal_server_error(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stream_error()
+```
+Creates 'internal-server-error' stream error.
+
+## serr_invalid_from/0
+```erlang
+-spec serr_invalid_from() -> stream_error()
+```
+Creates 'invalid-from' stream error.
+
+## serr_invalid_from/2
+```erlang
+-spec serr_invalid_from(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stream_error()
+```
+Creates 'invalid-from' stream error.
+
+## serr_invalid_id/0
+```erlang
+-spec serr_invalid_id() -> stream_error()
+```
+Creates 'invalid-id' stream error.
+
+## serr_invalid_id/2
+```erlang
+-spec serr_invalid_id(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stream_error()
+```
+Creates 'invalid-id' stream error.
+
+## serr_invalid_namespace/0
+```erlang
+-spec serr_invalid_namespace() -> stream_error()
+```
+Creates 'invalid-namespace' stream error.
+
+## serr_invalid_namespace/2
+```erlang
+-spec serr_invalid_namespace(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stream_error()
+```
+Creates 'invalid-namespace' stream error.
+
+## serr_invalid_xml/0
+```erlang
+-spec serr_invalid_xml() -> stream_error()
+```
+Creates 'invalid-xml' stream error.
+
+## serr_invalid_xml/2
+```erlang
+-spec serr_invalid_xml(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stream_error()
+```
+Creates 'invalid-xml' stream error.
+
+## serr_not_authorized/0
+```erlang
+-spec serr_not_authorized() -> stream_error()
+```
+Creates 'not-authorized' stream error.
+
+## serr_not_authorized/2
+```erlang
+-spec serr_not_authorized(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stream_error()
+```
+Creates 'not-authorized' stream error.
+
+## serr_not_well_formed/0
+```erlang
+-spec serr_not_well_formed() -> stream_error()
+```
+Creates 'not-well-formed' stream error.
+
+## serr_not_well_formed/2
+```erlang
+-spec serr_not_well_formed(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stream_error()
+```
+Creates 'not-well-formed' stream error.
+
+## serr_policy_violation/0
+```erlang
+-spec serr_policy_violation() -> stream_error()
+```
+Creates 'policy-violation' stream error.
+
+## serr_policy_violation/2
+```erlang
+-spec serr_policy_violation(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stream_error()
+```
+Creates 'policy-violation' stream error.
+
+## serr_remote_connection_failed/0
+```erlang
+-spec serr_remote_connection_failed() -> stream_error()
+```
+Creates 'remote-connection-failed' stream error.
+
+## serr_remote_connection_failed/2
+```erlang
+-spec serr_remote_connection_failed(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stream_error()
+```
+Creates 'remote-connection-failed' stream error.
+
+## serr_reset/0
+```erlang
+-spec serr_reset() -> stream_error()
+```
+Creates 'reset' stream error.
+
+## serr_reset/2
+```erlang
+-spec serr_reset(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stream_error()
+```
+Creates 'reset' stream error.
+
+## serr_resource_constraint/0
+```erlang
+-spec serr_resource_constraint() -> stream_error()
+```
+Creates 'resource-constraint' stream error.
+
+## serr_resource_constraint/2
+```erlang
+-spec serr_resource_constraint(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stream_error()
+```
+Creates 'resource-constraint' stream error.
+
+## serr_restricted_xml/0
+```erlang
+-spec serr_restricted_xml() -> stream_error()
+```
+Creates 'restricted-xml' stream error.
+
+## serr_restricted_xml/2
+```erlang
+-spec serr_restricted_xml(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stream_error()
+```
+Creates 'restricted-xml' stream error.
+
+## serr_see_other_host/0
+```erlang
+-spec serr_see_other_host() -> stream_error()
+```
+Creates 'see-other-host' stream error.
+
+## serr_see_other_host/2
+```erlang
+-spec serr_see_other_host(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stream_error()
+```
+Creates 'see-other-host' stream error.
+
+## serr_system_shutdown/0
+```erlang
+-spec serr_system_shutdown() -> stream_error()
+```
+Creates 'system-shutdown' stream error.
+
+## serr_system_shutdown/2
+```erlang
+-spec serr_system_shutdown(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stream_error()
+```
+Creates 'system-shutdown' stream error.
+
+## serr_undefined_condition/0
+```erlang
+-spec serr_undefined_condition() -> stream_error()
+```
+Creates 'undefined-condition' stream error.
+
+## serr_undefined_condition/2
+```erlang
+-spec serr_undefined_condition(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stream_error()
+```
+Creates 'undefined-condition' stream error.
+
+## serr_unsupported_encoding/0
+```erlang
+-spec serr_unsupported_encoding() -> stream_error()
+```
+Creates 'unsupported-encoding' stream error.
+
+## serr_unsupported_encoding/2
+```erlang
+-spec serr_unsupported_encoding(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stream_error()
+```
+Creates 'unsupported-encoding' stream error.
+
+## serr_unsupported_feature/0
+```erlang
+-spec serr_unsupported_feature() -> stream_error()
+```
+Creates 'unsupported-feature' stream error.
+
+## serr_unsupported_feature/2
+```erlang
+-spec serr_unsupported_feature(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stream_error()
+```
+Creates 'unsupported-feature' stream error.
+
+## serr_unsupported_stanza_type/0
+```erlang
+-spec serr_unsupported_stanza_type() -> stream_error()
+```
+Creates 'unsupported-stanza-type' stream error.
+
+## serr_unsupported_stanza_type/2
+```erlang
+-spec serr_unsupported_stanza_type(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stream_error()
+```
+Creates 'unsupported-stanza-type' stream error.
+
+## serr_unsupported_version/0
+```erlang
+-spec serr_unsupported_version() -> stream_error()
+```
+Creates 'unsupported-version' stream error.
+
+## serr_unsupported_version/2
+```erlang
+-spec serr_unsupported_version(
+         Desc :: binary() | {io:format(), list()},
+         Lang :: binary()) -> stream_error()
+```
+Creates 'unsupported-version' stream error.
 
 ## xmpp_util
 
