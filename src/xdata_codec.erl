@@ -354,19 +354,19 @@ mk_top_encoder(Fs, State) ->
 		  fun(#xdata_field{var = Var, type = T}) when ?is_list_type(T) ->
 			  Field = var_to_rec_field(Var, State),
 			  io_lib:format(
-			    "{'~s', Val} -> ['encode_~s'(Val, default, Translate)];"
-			    "{'~s', Val, Opts} -> ['encode_~s'(Val, Opts, Translate)]",
+			    "{'~s', Val} -> ['encode_~s'(Val, default, Lang)];"
+			    "{'~s', Val, Opts} -> ['encode_~s'(Val, Opts, Lang)]",
 			    [Field, Field, Field, Field]);
 		     (#xdata_field{var = Var}) ->
 			  Field = var_to_rec_field(Var, State),
 			  io_lib:format(
-			    "{'~s', Val} -> ['encode_~s'(Val, Translate)];"
+			    "{'~s', Val} -> ['encode_~s'(Val, Lang)];"
 			    "{'~s', _, _} -> erlang:error({badarg, Opt})",
 			    [Field, Field, Field])
 		  end, Fs) ++ ["#xdata_field{} -> [Opt]; _ -> []"],
 		";"),
-    emit("encode(Cfg) -> encode(Cfg, fun(Text) -> Text end).~n"),
-    emit("encode(List, Translate) when is_list(List) ->"
+    emit("encode(Cfg) -> encode(Cfg, <<\"en\">>).~n"),
+    emit("encode(List, Lang) when is_list(List) ->"
 	 "  Fs = [case Opt of ~s end || Opt <- List],"
 	 "  FormType = #xdata_field{var = <<\"FORM_TYPE\">>, type = hidden,"
 	 "                          values = [~p]},"
@@ -445,15 +445,15 @@ mk_encoders(Fs, State) ->
 	      EncOpts = mk_encoded_options(F, State),
 	      FieldName = var_to_rec_field(Var, State),
 	      DescStr = if Desc == <<>> -> "<<>>";
-			   true -> io_lib:format("Translate(~p)", [Desc])
+			   true -> io_lib:format("xmpp_tr:tr(Lang, ~p)", [Desc])
 			end,
 	      LabelStr = if Label == <<>> -> "<<>>";
-			    true -> io_lib:format("Translate(~p)", [Label])
+			    true -> io_lib:format("xmpp_tr:tr(Lang, ~p)", [Label])
 			 end,
 	      if ?is_list_type(Type) ->
-		      emit("'encode_~s'(Value, Options, Translate) ->", [FieldName]);
+		      emit("'encode_~s'(Value, Options, Lang) ->", [FieldName]);
 		 true ->
-		      emit("'encode_~s'(Value, Translate) ->", [FieldName])
+		      emit("'encode_~s'(Value, Lang) ->", [FieldName])
 	      end,
 	      emit("  Values = ~s,"
 		   "  Opts = ~s,"
@@ -516,7 +516,7 @@ mk_encoded_options(#xdata_field{var = Var, type = Type,
 			 io_lib:format("#xdata_option{value = ~p}", [V]);
 		     _ ->
 			 io_lib:format(
-			   "#xdata_option{label = Translate(~p), value = ~p}",
+			   "#xdata_option{label = xmpp_tr:tr(Lang, ~p), value = ~p}",
 			   [L, V])
 		 end || #xdata_option{label = L, value = V} <- Options],
 		","),
@@ -525,7 +525,7 @@ mk_encoded_options(#xdata_field{var = Var, type = Type,
 	      "if Options == default ->"
 	      "   [~s];"
 	      "true ->"
-	      "   [#xdata_option{label = Translate(L), value = ~s}"
+	      "   [#xdata_option{label = xmpp_tr:tr(Lang, L), value = ~s}"
 	      "    || {L, V} <- Options]"
 	      "end",
 	      [EncOpts, EncFun]);

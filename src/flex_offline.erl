@@ -76,12 +76,12 @@ decode(Fs, Acc) ->
 			 <<"http://jabber.org/protocol/offline">>}})
     end.
 
-encode(Cfg) -> encode(Cfg, fun (Text) -> Text end).
+encode(Cfg) -> encode(Cfg, <<"en">>).
 
-encode(List, Translate) when is_list(List) ->
+encode(List, Lang) when is_list(List) ->
     Fs = [case Opt of
 	    {number_of_messages, Val} ->
-		[encode_number_of_messages(Val, Translate)];
+		[encode_number_of_messages(Val, Lang)];
 	    {number_of_messages, _, _} ->
 		erlang:error({badarg, Opt});
 	    #xdata_field{} -> [Opt];
@@ -132,7 +132,7 @@ decode([#xdata_field{var = Var} | Fs], Acc, Required) ->
     end;
 decode([], Acc, []) -> Acc.
 
-encode_number_of_messages(Value, Translate) ->
+encode_number_of_messages(Value, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_int(Value)]
@@ -141,4 +141,5 @@ encode_number_of_messages(Value, Translate) ->
     #xdata_field{var = <<"number_of_messages">>,
 		 values = Values, required = false, type = 'text-single',
 		 options = Opts, desc = <<>>,
-		 label = Translate(<<"Number of Offline Messages">>)}.
+		 label =
+		     xmpp_tr:tr(Lang, <<"Number of Offline Messages">>)}.

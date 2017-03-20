@@ -78,14 +78,14 @@ decode(Fs, Acc) ->
 			   "ions">>}})
     end.
 
-encode(Cfg) -> encode(Cfg, fun (Text) -> Text end).
+encode(Cfg) -> encode(Cfg, <<"en">>).
 
-encode(List, Translate) when is_list(List) ->
+encode(List, Lang) when is_list(List) ->
     Fs = [case Opt of
 	    {access_model, Val} ->
-		[encode_access_model(Val, default, Translate)];
+		[encode_access_model(Val, default, Lang)];
 	    {access_model, Val, Opts} ->
-		[encode_access_model(Val, Opts, Translate)];
+		[encode_access_model(Val, Opts, Lang)];
 	    #xdata_field{} -> [Opt];
 	    _ -> []
 	  end
@@ -139,33 +139,39 @@ decode([#xdata_field{var = Var} | Fs], Acc, Required) ->
     end;
 decode([], Acc, []) -> Acc.
 
-encode_access_model(Value, Options, Translate) ->
+encode_access_model(Value, Options, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_enum(Value)]
 	     end,
     Opts = if Options == default ->
 		  [#xdata_option{label =
-				     Translate(<<"Access model of authorize">>),
+				     xmpp_tr:tr(Lang,
+						<<"Access model of authorize">>),
 				 value = <<"authorize">>},
 		   #xdata_option{label =
-				     Translate(<<"Access model of open">>),
+				     xmpp_tr:tr(Lang,
+						<<"Access model of open">>),
 				 value = <<"open">>},
 		   #xdata_option{label =
-				     Translate(<<"Access model of presence">>),
+				     xmpp_tr:tr(Lang,
+						<<"Access model of presence">>),
 				 value = <<"presence">>},
 		   #xdata_option{label =
-				     Translate(<<"Access model of roster">>),
+				     xmpp_tr:tr(Lang,
+						<<"Access model of roster">>),
 				 value = <<"roster">>},
 		   #xdata_option{label =
-				     Translate(<<"Access model of whitelist">>),
+				     xmpp_tr:tr(Lang,
+						<<"Access model of whitelist">>),
 				 value = <<"whitelist">>}];
 	      true ->
-		  [#xdata_option{label = Translate(L),
+		  [#xdata_option{label = xmpp_tr:tr(Lang, L),
 				 value = enc_enum(V)}
 		   || {L, V} <- Options]
 	   end,
     #xdata_field{var = <<"pubsub#access_model">>,
 		 values = Values, required = false, type = 'list-single',
 		 options = Opts, desc = <<>>,
-		 label = Translate(<<"Specify the access model">>)}.
+		 label =
+		     xmpp_tr:tr(Lang, <<"Specify the access model">>)}.

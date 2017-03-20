@@ -84,31 +84,28 @@ decode(Fs, Acc) ->
 			 <<"http://jabber.org/protocol/muc#roominfo">>}})
     end.
 
-encode(Cfg) -> encode(Cfg, fun (Text) -> Text end).
+encode(Cfg) -> encode(Cfg, <<"en">>).
 
-encode(List, Translate) when is_list(List) ->
+encode(List, Lang) when is_list(List) ->
     Fs = [case Opt of
 	    {maxhistoryfetch, Val} ->
-		[encode_maxhistoryfetch(Val, Translate)];
+		[encode_maxhistoryfetch(Val, Lang)];
 	    {maxhistoryfetch, _, _} -> erlang:error({badarg, Opt});
-	    {contactjid, Val} ->
-		[encode_contactjid(Val, Translate)];
+	    {contactjid, Val} -> [encode_contactjid(Val, Lang)];
 	    {contactjid, _, _} -> erlang:error({badarg, Opt});
-	    {description, Val} ->
-		[encode_description(Val, Translate)];
+	    {description, Val} -> [encode_description(Val, Lang)];
 	    {description, _, _} -> erlang:error({badarg, Opt});
-	    {lang, Val} -> [encode_lang(Val, Translate)];
+	    {lang, Val} -> [encode_lang(Val, Lang)];
 	    {lang, _, _} -> erlang:error({badarg, Opt});
-	    {ldapgroup, Val} -> [encode_ldapgroup(Val, Translate)];
+	    {ldapgroup, Val} -> [encode_ldapgroup(Val, Lang)];
 	    {ldapgroup, _, _} -> erlang:error({badarg, Opt});
-	    {logs, Val} -> [encode_logs(Val, Translate)];
+	    {logs, Val} -> [encode_logs(Val, Lang)];
 	    {logs, _, _} -> erlang:error({badarg, Opt});
-	    {occupants, Val} -> [encode_occupants(Val, Translate)];
+	    {occupants, Val} -> [encode_occupants(Val, Lang)];
 	    {occupants, _, _} -> erlang:error({badarg, Opt});
-	    {subject, Val} -> [encode_subject(Val, Translate)];
+	    {subject, Val} -> [encode_subject(Val, Lang)];
 	    {subject, _, _} -> erlang:error({badarg, Opt});
-	    {subjectmod, Val} ->
-		[encode_subjectmod(Val, Translate)];
+	    {subjectmod, Val} -> [encode_subjectmod(Val, Lang)];
 	    {subjectmod, _, _} -> erlang:error({badarg, Opt});
 	    #xdata_field{} -> [Opt];
 	    _ -> []
@@ -387,7 +384,7 @@ decode([#xdata_field{var = Var} | Fs], Acc, Required) ->
     end;
 decode([], Acc, []) -> Acc.
 
-encode_maxhistoryfetch(Value, Translate) ->
+encode_maxhistoryfetch(Value, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_int(Value)]
@@ -397,10 +394,11 @@ encode_maxhistoryfetch(Value, Translate) ->
 		 values = Values, required = false, type = 'text-single',
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"Maximum Number of History Messages Returned "
-				 "by Room">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"Maximum Number of History Messages Returned "
+				  "by Room">>)}.
 
-encode_contactjid(Value, Translate) ->
+encode_contactjid(Value, Lang) ->
     Values = case Value of
 	       [] -> [];
 	       Value -> [jid:encode(V) || V <- Value]
@@ -410,10 +408,11 @@ encode_contactjid(Value, Translate) ->
 		 values = Values, required = false, type = 'jid-multi',
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"Contact Addresses (normally, room owner "
-				 "or owners)">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"Contact Addresses (normally, room owner "
+				  "or owners)">>)}.
 
-encode_description(Value, Translate) ->
+encode_description(Value, Lang) ->
     Values = case Value of
 	       <<>> -> [];
 	       Value -> [Value]
@@ -422,9 +421,9 @@ encode_description(Value, Translate) ->
     #xdata_field{var = <<"muc#roominfo_description">>,
 		 values = Values, required = false, type = 'text-single',
 		 options = Opts, desc = <<>>,
-		 label = Translate(<<"Room description">>)}.
+		 label = xmpp_tr:tr(Lang, <<"Room description">>)}.
 
-encode_lang(Value, Translate) ->
+encode_lang(Value, Lang) ->
     Values = case Value of
 	       <<>> -> [];
 	       Value -> [Value]
@@ -434,9 +433,10 @@ encode_lang(Value, Translate) ->
 		 values = Values, required = false, type = 'text-single',
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"Natural Language for Room Discussions">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"Natural Language for Room Discussions">>)}.
 
-encode_ldapgroup(Value, Translate) ->
+encode_ldapgroup(Value, Lang) ->
     Values = case Value of
 	       <<>> -> [];
 	       Value -> [Value]
@@ -446,13 +446,14 @@ encode_ldapgroup(Value, Translate) ->
 		 values = Values, required = false, type = 'text-single',
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"An associated LDAP group that defines "
-				 "room membership; this should be an LDAP "
-				 "Distinguished Name according to an implementa"
-				 "tion-specific or deployment-specific "
-				 "definition of a group.">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"An associated LDAP group that defines "
+				  "room membership; this should be an LDAP "
+				  "Distinguished Name according to an implementa"
+				  "tion-specific or deployment-specific "
+				  "definition of a group.">>)}.
 
-encode_logs(Value, Translate) ->
+encode_logs(Value, Lang) ->
     Values = case Value of
 	       <<>> -> [];
 	       Value -> [Value]
@@ -462,9 +463,10 @@ encode_logs(Value, Translate) ->
 		 values = Values, required = false, type = 'text-single',
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"URL for Archived Discussion Logs">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"URL for Archived Discussion Logs">>)}.
 
-encode_occupants(Value, Translate) ->
+encode_occupants(Value, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_int(Value)]
@@ -473,9 +475,9 @@ encode_occupants(Value, Translate) ->
     #xdata_field{var = <<"muc#roominfo_occupants">>,
 		 values = Values, required = false, type = 'text-single',
 		 options = Opts, desc = <<>>,
-		 label = Translate(<<"Number of occupants">>)}.
+		 label = xmpp_tr:tr(Lang, <<"Number of occupants">>)}.
 
-encode_subject(Value, Translate) ->
+encode_subject(Value, Lang) ->
     Values = case Value of
 	       <<>> -> [];
 	       Value -> [Value]
@@ -484,9 +486,10 @@ encode_subject(Value, Translate) ->
     #xdata_field{var = <<"muc#roominfo_subject">>,
 		 values = Values, required = false, type = 'text-single',
 		 options = Opts, desc = <<>>,
-		 label = Translate(<<"Current Discussion Topic">>)}.
+		 label =
+		     xmpp_tr:tr(Lang, <<"Current Discussion Topic">>)}.
 
-encode_subjectmod(Value, Translate) ->
+encode_subjectmod(Value, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_bool(Value)]
@@ -496,5 +499,6 @@ encode_subjectmod(Value, Translate) ->
 		 values = Values, required = false, type = boolean,
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"The room subject can be modified by "
-				 "participants">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"The room subject can be modified by "
+				  "participants">>)}.

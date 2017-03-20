@@ -100,125 +100,115 @@ decode(Fs, Acc) ->
 			 <<"http://jabber.org/protocol/muc#roomconfig">>}})
     end.
 
-encode(Cfg) -> encode(Cfg, fun (Text) -> Text end).
+encode(Cfg) -> encode(Cfg, <<"en">>).
 
-encode(List, Translate) when is_list(List) ->
+encode(List, Lang) when is_list(List) ->
     Fs = [case Opt of
 	    {maxhistoryfetch, Val} ->
-		[encode_maxhistoryfetch(Val, Translate)];
+		[encode_maxhistoryfetch(Val, Lang)];
 	    {maxhistoryfetch, _, _} -> erlang:error({badarg, Opt});
-	    {allowpm, Val} ->
-		[encode_allowpm(Val, default, Translate)];
+	    {allowpm, Val} -> [encode_allowpm(Val, default, Lang)];
 	    {allowpm, Val, Opts} ->
-		[encode_allowpm(Val, Opts, Translate)];
+		[encode_allowpm(Val, Opts, Lang)];
 	    {allow_private_messages, Val} ->
-		[encode_allow_private_messages(Val, Translate)];
+		[encode_allow_private_messages(Val, Lang)];
 	    {allow_private_messages, _, _} ->
 		erlang:error({badarg, Opt});
 	    {allow_private_messages_from_visitors, Val} ->
 		[encode_allow_private_messages_from_visitors(Val,
-							     default,
-							     Translate)];
+							     default, Lang)];
 	    {allow_private_messages_from_visitors, Val, Opts} ->
 		[encode_allow_private_messages_from_visitors(Val, Opts,
-							     Translate)];
+							     Lang)];
 	    {allow_visitor_status, Val} ->
-		[encode_allow_visitor_status(Val, Translate)];
+		[encode_allow_visitor_status(Val, Lang)];
 	    {allow_visitor_status, _, _} ->
 		erlang:error({badarg, Opt});
 	    {allow_visitor_nickchange, Val} ->
-		[encode_allow_visitor_nickchange(Val, Translate)];
+		[encode_allow_visitor_nickchange(Val, Lang)];
 	    {allow_visitor_nickchange, _, _} ->
 		erlang:error({badarg, Opt});
 	    {allow_voice_requests, Val} ->
-		[encode_allow_voice_requests(Val, Translate)];
+		[encode_allow_voice_requests(Val, Lang)];
 	    {allow_voice_requests, _, _} ->
 		erlang:error({badarg, Opt});
 	    {allow_subscription, Val} ->
-		[encode_allow_subscription(Val, Translate)];
+		[encode_allow_subscription(Val, Lang)];
 	    {allow_subscription, _, _} ->
 		erlang:error({badarg, Opt});
 	    {voice_request_min_interval, Val} ->
-		[encode_voice_request_min_interval(Val, Translate)];
+		[encode_voice_request_min_interval(Val, Lang)];
 	    {voice_request_min_interval, _, _} ->
 		erlang:error({badarg, Opt});
 	    {captcha_protected, Val} ->
-		[encode_captcha_protected(Val, Translate)];
+		[encode_captcha_protected(Val, Lang)];
 	    {captcha_protected, _, _} ->
 		erlang:error({badarg, Opt});
 	    {captcha_whitelist, Val} ->
-		[encode_captcha_whitelist(Val, Translate)];
+		[encode_captcha_whitelist(Val, Lang)];
 	    {captcha_whitelist, _, _} ->
 		erlang:error({badarg, Opt});
 	    {allow_query_users, Val} ->
-		[encode_allow_query_users(Val, Translate)];
+		[encode_allow_query_users(Val, Lang)];
 	    {allow_query_users, _, _} ->
 		erlang:error({badarg, Opt});
-	    {allowinvites, Val} ->
-		[encode_allowinvites(Val, Translate)];
+	    {allowinvites, Val} -> [encode_allowinvites(Val, Lang)];
 	    {allowinvites, _, _} -> erlang:error({badarg, Opt});
 	    {changesubject, Val} ->
-		[encode_changesubject(Val, Translate)];
+		[encode_changesubject(Val, Lang)];
 	    {changesubject, _, _} -> erlang:error({badarg, Opt});
 	    {enablelogging, Val} ->
-		[encode_enablelogging(Val, Translate)];
+		[encode_enablelogging(Val, Lang)];
 	    {enablelogging, _, _} -> erlang:error({badarg, Opt});
 	    {getmemberlist, Val} ->
-		[encode_getmemberlist(Val, default, Translate)];
+		[encode_getmemberlist(Val, default, Lang)];
 	    {getmemberlist, Val, Opts} ->
-		[encode_getmemberlist(Val, Opts, Translate)];
-	    {lang, Val} -> [encode_lang(Val, Translate)];
+		[encode_getmemberlist(Val, Opts, Lang)];
+	    {lang, Val} -> [encode_lang(Val, Lang)];
 	    {lang, _, _} -> erlang:error({badarg, Opt});
-	    {pubsub, Val} -> [encode_pubsub(Val, Translate)];
+	    {pubsub, Val} -> [encode_pubsub(Val, Lang)];
 	    {pubsub, _, _} -> erlang:error({badarg, Opt});
 	    {maxusers, Val} ->
-		[encode_maxusers(Val, default, Translate)];
+		[encode_maxusers(Val, default, Lang)];
 	    {maxusers, Val, Opts} ->
-		[encode_maxusers(Val, Opts, Translate)];
-	    {membersonly, Val} ->
-		[encode_membersonly(Val, Translate)];
+		[encode_maxusers(Val, Opts, Lang)];
+	    {membersonly, Val} -> [encode_membersonly(Val, Lang)];
 	    {membersonly, _, _} -> erlang:error({badarg, Opt});
 	    {moderatedroom, Val} ->
-		[encode_moderatedroom(Val, Translate)];
+		[encode_moderatedroom(Val, Lang)];
 	    {moderatedroom, _, _} -> erlang:error({badarg, Opt});
 	    {members_by_default, Val} ->
-		[encode_members_by_default(Val, Translate)];
+		[encode_members_by_default(Val, Lang)];
 	    {members_by_default, _, _} ->
 		erlang:error({badarg, Opt});
 	    {passwordprotectedroom, Val} ->
-		[encode_passwordprotectedroom(Val, Translate)];
+		[encode_passwordprotectedroom(Val, Lang)];
 	    {passwordprotectedroom, _, _} ->
 		erlang:error({badarg, Opt});
 	    {persistentroom, Val} ->
-		[encode_persistentroom(Val, Translate)];
+		[encode_persistentroom(Val, Lang)];
 	    {persistentroom, _, _} -> erlang:error({badarg, Opt});
 	    {presencebroadcast, Val} ->
-		[encode_presencebroadcast(Val, default, Translate)];
+		[encode_presencebroadcast(Val, default, Lang)];
 	    {presencebroadcast, Val, Opts} ->
-		[encode_presencebroadcast(Val, Opts, Translate)];
-	    {publicroom, Val} ->
-		[encode_publicroom(Val, Translate)];
+		[encode_presencebroadcast(Val, Opts, Lang)];
+	    {publicroom, Val} -> [encode_publicroom(Val, Lang)];
 	    {publicroom, _, _} -> erlang:error({badarg, Opt});
-	    {public_list, Val} ->
-		[encode_public_list(Val, Translate)];
+	    {public_list, Val} -> [encode_public_list(Val, Lang)];
 	    {public_list, _, _} -> erlang:error({badarg, Opt});
-	    {roomadmins, Val} ->
-		[encode_roomadmins(Val, Translate)];
+	    {roomadmins, Val} -> [encode_roomadmins(Val, Lang)];
 	    {roomadmins, _, _} -> erlang:error({badarg, Opt});
-	    {roomdesc, Val} -> [encode_roomdesc(Val, Translate)];
+	    {roomdesc, Val} -> [encode_roomdesc(Val, Lang)];
 	    {roomdesc, _, _} -> erlang:error({badarg, Opt});
-	    {roomname, Val} -> [encode_roomname(Val, Translate)];
+	    {roomname, Val} -> [encode_roomname(Val, Lang)];
 	    {roomname, _, _} -> erlang:error({badarg, Opt});
-	    {roomowners, Val} ->
-		[encode_roomowners(Val, Translate)];
+	    {roomowners, Val} -> [encode_roomowners(Val, Lang)];
 	    {roomowners, _, _} -> erlang:error({badarg, Opt});
-	    {roomsecret, Val} ->
-		[encode_roomsecret(Val, Translate)];
+	    {roomsecret, Val} -> [encode_roomsecret(Val, Lang)];
 	    {roomsecret, _, _} -> erlang:error({badarg, Opt});
-	    {whois, Val} -> [encode_whois(Val, default, Translate)];
-	    {whois, Val, Opts} ->
-		[encode_whois(Val, Opts, Translate)];
-	    {mam, Val} -> [encode_mam(Val, Translate)];
+	    {whois, Val} -> [encode_whois(Val, default, Lang)];
+	    {whois, Val, Opts} -> [encode_whois(Val, Opts, Lang)];
+	    {mam, Val} -> [encode_mam(Val, Lang)];
 	    {mam, _, _} -> erlang:error({badarg, Opt});
 	    #xdata_field{} -> [Opt];
 	    _ -> []
@@ -1225,7 +1215,7 @@ decode([#xdata_field{var = Var} | Fs], Acc, Required) ->
     end;
 decode([], Acc, []) -> Acc.
 
-encode_maxhistoryfetch(Value, Translate) ->
+encode_maxhistoryfetch(Value, Lang) ->
     Values = case Value of
 	       <<>> -> [];
 	       Value -> [Value]
@@ -1235,26 +1225,28 @@ encode_maxhistoryfetch(Value, Translate) ->
 		 values = Values, required = false, type = 'text-single',
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"Maximum Number of History Messages Returned "
-				 "by Room">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"Maximum Number of History Messages Returned "
+				  "by Room">>)}.
 
-encode_allowpm(Value, Options, Translate) ->
+encode_allowpm(Value, Options, Lang) ->
     Values = case Value of
 	       <<>> -> [];
 	       Value -> [Value]
 	     end,
     Opts = if Options == default -> [];
 	      true ->
-		  [#xdata_option{label = Translate(L), value = V}
+		  [#xdata_option{label = xmpp_tr:tr(Lang, L), value = V}
 		   || {L, V} <- Options]
 	   end,
     #xdata_field{var = <<"muc#roomconfig_allowpm">>,
 		 values = Values, required = false, type = 'list-single',
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"Roles that May Send Private Messages">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"Roles that May Send Private Messages">>)}.
 
-encode_allow_private_messages(Value, Translate) ->
+encode_allow_private_messages(Value, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_bool(Value)]
@@ -1264,23 +1256,25 @@ encode_allow_private_messages(Value, Translate) ->
 		 values = Values, required = false, type = boolean,
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"Allow users to send private messages">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"Allow users to send private messages">>)}.
 
 encode_allow_private_messages_from_visitors(Value,
-					    Options, Translate) ->
+					    Options, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_enum(Value)]
 	     end,
     Opts = if Options == default ->
-		  [#xdata_option{label = Translate(<<"nobody">>),
+		  [#xdata_option{label = xmpp_tr:tr(Lang, <<"nobody">>),
 				 value = <<"nobody">>},
-		   #xdata_option{label = Translate(<<"moderators only">>),
+		   #xdata_option{label =
+				     xmpp_tr:tr(Lang, <<"moderators only">>),
 				 value = <<"moderators">>},
-		   #xdata_option{label = Translate(<<"anyone">>),
+		   #xdata_option{label = xmpp_tr:tr(Lang, <<"anyone">>),
 				 value = <<"anyone">>}];
 	      true ->
-		  [#xdata_option{label = Translate(L),
+		  [#xdata_option{label = xmpp_tr:tr(Lang, L),
 				 value = enc_enum(V)}
 		   || {L, V} <- Options]
 	   end,
@@ -1289,9 +1283,10 @@ encode_allow_private_messages_from_visitors(Value,
 		 values = Values, required = false, type = 'list-single',
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"Allow visitors to send private messages to">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"Allow visitors to send private messages to">>)}.
 
-encode_allow_visitor_status(Value, Translate) ->
+encode_allow_visitor_status(Value, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_bool(Value)]
@@ -1301,10 +1296,11 @@ encode_allow_visitor_status(Value, Translate) ->
 		 values = Values, required = false, type = boolean,
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"Allow visitors to send status text in "
-				 "presence updates">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"Allow visitors to send status text in "
+				  "presence updates">>)}.
 
-encode_allow_visitor_nickchange(Value, Translate) ->
+encode_allow_visitor_nickchange(Value, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_bool(Value)]
@@ -1314,9 +1310,10 @@ encode_allow_visitor_nickchange(Value, Translate) ->
 		 values = Values, required = false, type = boolean,
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"Allow visitors to change nickname">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"Allow visitors to change nickname">>)}.
 
-encode_allow_voice_requests(Value, Translate) ->
+encode_allow_voice_requests(Value, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_bool(Value)]
@@ -1326,9 +1323,10 @@ encode_allow_voice_requests(Value, Translate) ->
 		 values = Values, required = false, type = boolean,
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"Allow visitors to send voice requests">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"Allow visitors to send voice requests">>)}.
 
-encode_allow_subscription(Value, Translate) ->
+encode_allow_subscription(Value, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_bool(Value)]
@@ -1337,9 +1335,9 @@ encode_allow_subscription(Value, Translate) ->
     #xdata_field{var = <<"allow_subscription">>,
 		 values = Values, required = false, type = boolean,
 		 options = Opts, desc = <<>>,
-		 label = Translate(<<"Allow subscription">>)}.
+		 label = xmpp_tr:tr(Lang, <<"Allow subscription">>)}.
 
-encode_voice_request_min_interval(Value, Translate) ->
+encode_voice_request_min_interval(Value, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_int(Value)]
@@ -1349,10 +1347,11 @@ encode_voice_request_min_interval(Value, Translate) ->
 		 values = Values, required = false, type = 'text-single',
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"Minimum interval between voice requests "
-				 "(in seconds)">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"Minimum interval between voice requests "
+				  "(in seconds)">>)}.
 
-encode_captcha_protected(Value, Translate) ->
+encode_captcha_protected(Value, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_bool(Value)]
@@ -1361,9 +1360,10 @@ encode_captcha_protected(Value, Translate) ->
     #xdata_field{var = <<"captcha_protected">>,
 		 values = Values, required = false, type = boolean,
 		 options = Opts, desc = <<>>,
-		 label = Translate(<<"Make room CAPTCHA protected">>)}.
+		 label =
+		     xmpp_tr:tr(Lang, <<"Make room CAPTCHA protected">>)}.
 
-encode_captcha_whitelist(Value, Translate) ->
+encode_captcha_whitelist(Value, Lang) ->
     Values = case Value of
 	       [] -> [];
 	       Value -> [jid:encode(V) || V <- Value]
@@ -1373,9 +1373,10 @@ encode_captcha_whitelist(Value, Translate) ->
 		 values = Values, required = false, type = 'jid-multi',
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"Exclude Jabber IDs from CAPTCHA challenge">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"Exclude Jabber IDs from CAPTCHA challenge">>)}.
 
-encode_allow_query_users(Value, Translate) ->
+encode_allow_query_users(Value, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_bool(Value)]
@@ -1385,9 +1386,10 @@ encode_allow_query_users(Value, Translate) ->
 		 values = Values, required = false, type = boolean,
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"Allow users to query other users">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"Allow users to query other users">>)}.
 
-encode_allowinvites(Value, Translate) ->
+encode_allowinvites(Value, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_bool(Value)]
@@ -1396,9 +1398,10 @@ encode_allowinvites(Value, Translate) ->
     #xdata_field{var = <<"muc#roomconfig_allowinvites">>,
 		 values = Values, required = false, type = boolean,
 		 options = Opts, desc = <<>>,
-		 label = Translate(<<"Allow users to send invites">>)}.
+		 label =
+		     xmpp_tr:tr(Lang, <<"Allow users to send invites">>)}.
 
-encode_changesubject(Value, Translate) ->
+encode_changesubject(Value, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_bool(Value)]
@@ -1408,9 +1411,10 @@ encode_changesubject(Value, Translate) ->
 		 values = Values, required = false, type = boolean,
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"Allow users to change the subject">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"Allow users to change the subject">>)}.
 
-encode_enablelogging(Value, Translate) ->
+encode_enablelogging(Value, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_bool(Value)]
@@ -1419,26 +1423,27 @@ encode_enablelogging(Value, Translate) ->
     #xdata_field{var = <<"muc#roomconfig_enablelogging">>,
 		 values = Values, required = false, type = boolean,
 		 options = Opts, desc = <<>>,
-		 label = Translate(<<"Enable logging">>)}.
+		 label = xmpp_tr:tr(Lang, <<"Enable logging">>)}.
 
-encode_getmemberlist(Value, Options, Translate) ->
+encode_getmemberlist(Value, Options, Lang) ->
     Values = case Value of
 	       [] -> [];
 	       Value -> [Value]
 	     end,
     Opts = if Options == default -> [];
 	      true ->
-		  [#xdata_option{label = Translate(L), value = V}
+		  [#xdata_option{label = xmpp_tr:tr(Lang, L), value = V}
 		   || {L, V} <- Options]
 	   end,
     #xdata_field{var = <<"muc#roomconfig_getmemberlist">>,
 		 values = Values, required = false, type = 'list-multi',
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"Roles and Affiliations that May Retrieve "
-				 "Member List">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"Roles and Affiliations that May Retrieve "
+				  "Member List">>)}.
 
-encode_lang(Value, Translate) ->
+encode_lang(Value, Lang) ->
     Values = case Value of
 	       <<>> -> [];
 	       Value -> [Value]
@@ -1448,9 +1453,10 @@ encode_lang(Value, Translate) ->
 		 values = Values, required = false, type = 'text-single',
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"Natural Language for Room Discussions">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"Natural Language for Room Discussions">>)}.
 
-encode_pubsub(Value, Translate) ->
+encode_pubsub(Value, Lang) ->
     Values = case Value of
 	       <<>> -> [];
 	       Value -> [Value]
@@ -1460,16 +1466,17 @@ encode_pubsub(Value, Translate) ->
 		 values = Values, required = false, type = 'text-single',
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"XMPP URI of Associated Publish-Subscribe "
-				 "Node">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"XMPP URI of Associated Publish-Subscribe "
+				  "Node">>)}.
 
-encode_maxusers(Value, Options, Translate) ->
+encode_maxusers(Value, Options, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_enum_int(Value)]
 	     end,
     Opts = if Options == default ->
-		  [#xdata_option{label = Translate(<<"No limit">>),
+		  [#xdata_option{label = xmpp_tr:tr(Lang, <<"No limit">>),
 				 value = <<"none">>},
 		   #xdata_option{value = <<"5">>},
 		   #xdata_option{value = <<"10">>},
@@ -1483,16 +1490,17 @@ encode_maxusers(Value, Options, Translate) ->
 		   #xdata_option{value = <<"2000">>},
 		   #xdata_option{value = <<"5000">>}];
 	      true ->
-		  [#xdata_option{label = Translate(L),
+		  [#xdata_option{label = xmpp_tr:tr(Lang, L),
 				 value = enc_enum_int(V)}
 		   || {L, V} <- Options]
 	   end,
     #xdata_field{var = <<"muc#roomconfig_maxusers">>,
 		 values = Values, required = false, type = 'list-single',
 		 options = Opts, desc = <<>>,
-		 label = Translate(<<"Maximum Number of Occupants">>)}.
+		 label =
+		     xmpp_tr:tr(Lang, <<"Maximum Number of Occupants">>)}.
 
-encode_membersonly(Value, Translate) ->
+encode_membersonly(Value, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_bool(Value)]
@@ -1501,9 +1509,9 @@ encode_membersonly(Value, Translate) ->
     #xdata_field{var = <<"muc#roomconfig_membersonly">>,
 		 values = Values, required = false, type = boolean,
 		 options = Opts, desc = <<>>,
-		 label = Translate(<<"Make room members-only">>)}.
+		 label = xmpp_tr:tr(Lang, <<"Make room members-only">>)}.
 
-encode_moderatedroom(Value, Translate) ->
+encode_moderatedroom(Value, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_bool(Value)]
@@ -1512,9 +1520,9 @@ encode_moderatedroom(Value, Translate) ->
     #xdata_field{var = <<"muc#roomconfig_moderatedroom">>,
 		 values = Values, required = false, type = boolean,
 		 options = Opts, desc = <<>>,
-		 label = Translate(<<"Make room moderated">>)}.
+		 label = xmpp_tr:tr(Lang, <<"Make room moderated">>)}.
 
-encode_members_by_default(Value, Translate) ->
+encode_members_by_default(Value, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_bool(Value)]
@@ -1523,9 +1531,10 @@ encode_members_by_default(Value, Translate) ->
     #xdata_field{var = <<"members_by_default">>,
 		 values = Values, required = false, type = boolean,
 		 options = Opts, desc = <<>>,
-		 label = Translate(<<"Default users as participants">>)}.
+		 label =
+		     xmpp_tr:tr(Lang, <<"Default users as participants">>)}.
 
-encode_passwordprotectedroom(Value, Translate) ->
+encode_passwordprotectedroom(Value, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_bool(Value)]
@@ -1535,9 +1544,10 @@ encode_passwordprotectedroom(Value, Translate) ->
 		     <<"muc#roomconfig_passwordprotectedroom">>,
 		 values = Values, required = false, type = boolean,
 		 options = Opts, desc = <<>>,
-		 label = Translate(<<"Make room password protected">>)}.
+		 label =
+		     xmpp_tr:tr(Lang, <<"Make room password protected">>)}.
 
-encode_persistentroom(Value, Translate) ->
+encode_persistentroom(Value, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_bool(Value)]
@@ -1546,22 +1556,24 @@ encode_persistentroom(Value, Translate) ->
     #xdata_field{var = <<"muc#roomconfig_persistentroom">>,
 		 values = Values, required = false, type = boolean,
 		 options = Opts, desc = <<>>,
-		 label = Translate(<<"Make room persistent">>)}.
+		 label = xmpp_tr:tr(Lang, <<"Make room persistent">>)}.
 
-encode_presencebroadcast(Value, Options, Translate) ->
+encode_presencebroadcast(Value, Options, Lang) ->
     Values = case Value of
 	       [] -> [];
 	       Value -> [enc_enum(V) || V <- Value]
 	     end,
     Opts = if Options == default ->
-		  [#xdata_option{label = Translate(<<"Moderator">>),
+		  [#xdata_option{label =
+				     xmpp_tr:tr(Lang, <<"Moderator">>),
 				 value = <<"moderator">>},
-		   #xdata_option{label = Translate(<<"Participant">>),
+		   #xdata_option{label =
+				     xmpp_tr:tr(Lang, <<"Participant">>),
 				 value = <<"participant">>},
-		   #xdata_option{label = Translate(<<"Visitor">>),
+		   #xdata_option{label = xmpp_tr:tr(Lang, <<"Visitor">>),
 				 value = <<"visitor">>}];
 	      true ->
-		  [#xdata_option{label = Translate(L),
+		  [#xdata_option{label = xmpp_tr:tr(Lang, L),
 				 value = enc_enum(V)}
 		   || {L, V} <- Options]
 	   end,
@@ -1570,9 +1582,10 @@ encode_presencebroadcast(Value, Options, Translate) ->
 		 values = Values, required = false, type = 'list-multi',
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"Roles for which Presence is Broadcasted">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"Roles for which Presence is Broadcasted">>)}.
 
-encode_publicroom(Value, Translate) ->
+encode_publicroom(Value, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_bool(Value)]
@@ -1581,9 +1594,10 @@ encode_publicroom(Value, Translate) ->
     #xdata_field{var = <<"muc#roomconfig_publicroom">>,
 		 values = Values, required = false, type = boolean,
 		 options = Opts, desc = <<>>,
-		 label = Translate(<<"Make room public searchable">>)}.
+		 label =
+		     xmpp_tr:tr(Lang, <<"Make room public searchable">>)}.
 
-encode_public_list(Value, Translate) ->
+encode_public_list(Value, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_bool(Value)]
@@ -1592,9 +1606,10 @@ encode_public_list(Value, Translate) ->
     #xdata_field{var = <<"public_list">>, values = Values,
 		 required = false, type = boolean, options = Opts,
 		 desc = <<>>,
-		 label = Translate(<<"Make participants list public">>)}.
+		 label =
+		     xmpp_tr:tr(Lang, <<"Make participants list public">>)}.
 
-encode_roomadmins(Value, Translate) ->
+encode_roomadmins(Value, Lang) ->
     Values = case Value of
 	       [] -> [];
 	       Value -> [jid:encode(V) || V <- Value]
@@ -1603,9 +1618,10 @@ encode_roomadmins(Value, Translate) ->
     #xdata_field{var = <<"muc#roomconfig_roomadmins">>,
 		 values = Values, required = false, type = 'jid-multi',
 		 options = Opts, desc = <<>>,
-		 label = Translate(<<"Full List of Room Admins">>)}.
+		 label =
+		     xmpp_tr:tr(Lang, <<"Full List of Room Admins">>)}.
 
-encode_roomdesc(Value, Translate) ->
+encode_roomdesc(Value, Lang) ->
     Values = case Value of
 	       <<>> -> [];
 	       Value -> [Value]
@@ -1614,9 +1630,9 @@ encode_roomdesc(Value, Translate) ->
     #xdata_field{var = <<"muc#roomconfig_roomdesc">>,
 		 values = Values, required = false, type = 'text-single',
 		 options = Opts, desc = <<>>,
-		 label = Translate(<<"Room description">>)}.
+		 label = xmpp_tr:tr(Lang, <<"Room description">>)}.
 
-encode_roomname(Value, Translate) ->
+encode_roomname(Value, Lang) ->
     Values = case Value of
 	       <<>> -> [];
 	       Value -> [Value]
@@ -1625,9 +1641,9 @@ encode_roomname(Value, Translate) ->
     #xdata_field{var = <<"muc#roomconfig_roomname">>,
 		 values = Values, required = false, type = 'text-single',
 		 options = Opts, desc = <<>>,
-		 label = Translate(<<"Room title">>)}.
+		 label = xmpp_tr:tr(Lang, <<"Room title">>)}.
 
-encode_roomowners(Value, Translate) ->
+encode_roomowners(Value, Lang) ->
     Values = case Value of
 	       [] -> [];
 	       Value -> [jid:encode(V) || V <- Value]
@@ -1636,9 +1652,10 @@ encode_roomowners(Value, Translate) ->
     #xdata_field{var = <<"muc#roomconfig_roomowners">>,
 		 values = Values, required = false, type = 'jid-multi',
 		 options = Opts, desc = <<>>,
-		 label = Translate(<<"Full List of Room Owners">>)}.
+		 label =
+		     xmpp_tr:tr(Lang, <<"Full List of Room Owners">>)}.
 
-encode_roomsecret(Value, Translate) ->
+encode_roomsecret(Value, Lang) ->
     Values = case Value of
 	       <<>> -> [];
 	       Value -> [Value]
@@ -1647,29 +1664,31 @@ encode_roomsecret(Value, Translate) ->
     #xdata_field{var = <<"muc#roomconfig_roomsecret">>,
 		 values = Values, required = false,
 		 type = 'text-private', options = Opts, desc = <<>>,
-		 label = Translate(<<"Password">>)}.
+		 label = xmpp_tr:tr(Lang, <<"Password">>)}.
 
-encode_whois(Value, Options, Translate) ->
+encode_whois(Value, Options, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_enum(Value)]
 	     end,
     Opts = if Options == default ->
-		  [#xdata_option{label = Translate(<<"moderators only">>),
+		  [#xdata_option{label =
+				     xmpp_tr:tr(Lang, <<"moderators only">>),
 				 value = <<"moderators">>},
-		   #xdata_option{label = Translate(<<"anyone">>),
+		   #xdata_option{label = xmpp_tr:tr(Lang, <<"anyone">>),
 				 value = <<"anyone">>}];
 	      true ->
-		  [#xdata_option{label = Translate(L),
+		  [#xdata_option{label = xmpp_tr:tr(Lang, L),
 				 value = enc_enum(V)}
 		   || {L, V} <- Options]
 	   end,
     #xdata_field{var = <<"muc#roomconfig_whois">>,
 		 values = Values, required = false, type = 'list-single',
 		 options = Opts, desc = <<>>,
-		 label = Translate(<<"Present real Jabber IDs to">>)}.
+		 label =
+		     xmpp_tr:tr(Lang, <<"Present real Jabber IDs to">>)}.
 
-encode_mam(Value, Translate) ->
+encode_mam(Value, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_bool(Value)]
@@ -1678,4 +1697,5 @@ encode_mam(Value, Translate) ->
     #xdata_field{var = <<"mam">>, values = Values,
 		 required = false, type = boolean, options = Opts,
 		 desc = <<>>,
-		 label = Translate(<<"Enable message archiving">>)}.
+		 label =
+		     xmpp_tr:tr(Lang, <<"Enable message archiving">>)}.

@@ -76,23 +76,23 @@ decode(Fs, Acc) ->
 			 <<"http://jabber.org/protocol/muc#register">>}})
     end.
 
-encode(Cfg) -> encode(Cfg, fun (Text) -> Text end).
+encode(Cfg) -> encode(Cfg, <<"en">>).
 
-encode(List, Translate) when is_list(List) ->
+encode(List, Lang) when is_list(List) ->
     Fs = [case Opt of
-	    {allow, Val} -> [encode_allow(Val, Translate)];
+	    {allow, Val} -> [encode_allow(Val, Lang)];
 	    {allow, _, _} -> erlang:error({badarg, Opt});
-	    {email, Val} -> [encode_email(Val, Translate)];
+	    {email, Val} -> [encode_email(Val, Lang)];
 	    {email, _, _} -> erlang:error({badarg, Opt});
-	    {faqentry, Val} -> [encode_faqentry(Val, Translate)];
+	    {faqentry, Val} -> [encode_faqentry(Val, Lang)];
 	    {faqentry, _, _} -> erlang:error({badarg, Opt});
-	    {first, Val} -> [encode_first(Val, Translate)];
+	    {first, Val} -> [encode_first(Val, Lang)];
 	    {first, _, _} -> erlang:error({badarg, Opt});
-	    {last, Val} -> [encode_last(Val, Translate)];
+	    {last, Val} -> [encode_last(Val, Lang)];
 	    {last, _, _} -> erlang:error({badarg, Opt});
-	    {roomnick, Val} -> [encode_roomnick(Val, Translate)];
+	    {roomnick, Val} -> [encode_roomnick(Val, Lang)];
 	    {roomnick, _, _} -> erlang:error({badarg, Opt});
-	    {url, Val} -> [encode_url(Val, Translate)];
+	    {url, Val} -> [encode_url(Val, Lang)];
 	    {url, _, _} -> erlang:error({badarg, Opt});
 	    #xdata_field{} -> [Opt];
 	    _ -> []
@@ -293,7 +293,7 @@ decode([], _, [Var | _]) ->
 		   <<"http://jabber.org/protocol/muc#register">>}});
 decode([], Acc, []) -> Acc.
 
-encode_allow(Value, Translate) ->
+encode_allow(Value, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_bool(Value)]
@@ -303,10 +303,11 @@ encode_allow(Value, Translate) ->
 		 values = Values, required = false, type = boolean,
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"Allow this person to register with the "
-				 "room?">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"Allow this person to register with the "
+				  "room?">>)}.
 
-encode_email(Value, Translate) ->
+encode_email(Value, Lang) ->
     Values = case Value of
 	       <<>> -> [];
 	       Value -> [Value]
@@ -315,9 +316,9 @@ encode_email(Value, Translate) ->
     #xdata_field{var = <<"muc#register_email">>,
 		 values = Values, required = false, type = 'text-single',
 		 options = Opts, desc = <<>>,
-		 label = Translate(<<"Email Address">>)}.
+		 label = xmpp_tr:tr(Lang, <<"Email Address">>)}.
 
-encode_faqentry(Value, Translate) ->
+encode_faqentry(Value, Lang) ->
     Values = case Value of
 	       [] -> [];
 	       Value -> [Value]
@@ -326,9 +327,9 @@ encode_faqentry(Value, Translate) ->
     #xdata_field{var = <<"muc#register_faqentry">>,
 		 values = Values, required = false, type = 'text-multi',
 		 options = Opts, desc = <<>>,
-		 label = Translate(<<"FAQ Entry">>)}.
+		 label = xmpp_tr:tr(Lang, <<"FAQ Entry">>)}.
 
-encode_first(Value, Translate) ->
+encode_first(Value, Lang) ->
     Values = case Value of
 	       <<>> -> [];
 	       Value -> [Value]
@@ -337,9 +338,9 @@ encode_first(Value, Translate) ->
     #xdata_field{var = <<"muc#register_first">>,
 		 values = Values, required = false, type = 'text-single',
 		 options = Opts, desc = <<>>,
-		 label = Translate(<<"Given Name">>)}.
+		 label = xmpp_tr:tr(Lang, <<"Given Name">>)}.
 
-encode_last(Value, Translate) ->
+encode_last(Value, Lang) ->
     Values = case Value of
 	       <<>> -> [];
 	       Value -> [Value]
@@ -348,9 +349,9 @@ encode_last(Value, Translate) ->
     #xdata_field{var = <<"muc#register_last">>,
 		 values = Values, required = false, type = 'text-single',
 		 options = Opts, desc = <<>>,
-		 label = Translate(<<"Family Name">>)}.
+		 label = xmpp_tr:tr(Lang, <<"Family Name">>)}.
 
-encode_roomnick(Value, Translate) ->
+encode_roomnick(Value, Lang) ->
     Values = case Value of
 	       <<>> -> [];
 	       Value -> [Value]
@@ -359,9 +360,9 @@ encode_roomnick(Value, Translate) ->
     #xdata_field{var = <<"muc#register_roomnick">>,
 		 values = Values, required = false, type = 'text-single',
 		 options = Opts, desc = <<>>,
-		 label = Translate(<<"Nickname">>)}.
+		 label = xmpp_tr:tr(Lang, <<"Nickname">>)}.
 
-encode_url(Value, Translate) ->
+encode_url(Value, Lang) ->
     Values = case Value of
 	       <<>> -> [];
 	       Value -> [Value]
@@ -370,4 +371,4 @@ encode_url(Value, Translate) ->
     #xdata_field{var = <<"muc#register_url">>,
 		 values = Values, required = false, type = 'text-single',
 		 options = Opts, desc = <<>>,
-		 label = Translate(<<"A Web Page">>)}.
+		 label = xmpp_tr:tr(Lang, <<"A Web Page">>)}.

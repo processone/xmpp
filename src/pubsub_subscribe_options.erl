@@ -86,34 +86,33 @@ decode(Fs, Acc) ->
 			   "ptions">>}})
     end.
 
-encode(Cfg) -> encode(Cfg, fun (Text) -> Text end).
+encode(Cfg) -> encode(Cfg, <<"en">>).
 
-encode(List, Translate) when is_list(List) ->
+encode(List, Lang) when is_list(List) ->
     Fs = [case Opt of
-	    {deliver, Val} -> [encode_deliver(Val, Translate)];
+	    {deliver, Val} -> [encode_deliver(Val, Lang)];
 	    {deliver, _, _} -> erlang:error({badarg, Opt});
-	    {digest, Val} -> [encode_digest(Val, Translate)];
+	    {digest, Val} -> [encode_digest(Val, Lang)];
 	    {digest, _, _} -> erlang:error({badarg, Opt});
 	    {digest_frequency, Val} ->
-		[encode_digest_frequency(Val, Translate)];
+		[encode_digest_frequency(Val, Lang)];
 	    {digest_frequency, _, _} -> erlang:error({badarg, Opt});
-	    {expire, Val} -> [encode_expire(Val, Translate)];
+	    {expire, Val} -> [encode_expire(Val, Lang)];
 	    {expire, _, _} -> erlang:error({badarg, Opt});
-	    {include_body, Val} ->
-		[encode_include_body(Val, Translate)];
+	    {include_body, Val} -> [encode_include_body(Val, Lang)];
 	    {include_body, _, _} -> erlang:error({badarg, Opt});
 	    {'show-values', Val} ->
-		['encode_show-values'(Val, default, Translate)];
+		['encode_show-values'(Val, default, Lang)];
 	    {'show-values', Val, Opts} ->
-		['encode_show-values'(Val, Opts, Translate)];
+		['encode_show-values'(Val, Opts, Lang)];
 	    {subscription_type, Val} ->
-		[encode_subscription_type(Val, default, Translate)];
+		[encode_subscription_type(Val, default, Lang)];
 	    {subscription_type, Val, Opts} ->
-		[encode_subscription_type(Val, Opts, Translate)];
+		[encode_subscription_type(Val, Opts, Lang)];
 	    {subscription_depth, Val} ->
-		[encode_subscription_depth(Val, default, Translate)];
+		[encode_subscription_depth(Val, default, Lang)];
 	    {subscription_depth, Val, Opts} ->
-		[encode_subscription_depth(Val, Opts, Translate)];
+		[encode_subscription_depth(Val, Opts, Lang)];
 	    #xdata_field{} -> [Opt];
 	    _ -> []
 	  end
@@ -370,7 +369,7 @@ decode([#xdata_field{var = Var} | Fs], Acc, Required) ->
     end;
 decode([], Acc, []) -> Acc.
 
-encode_deliver(Value, Translate) ->
+encode_deliver(Value, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_bool(Value)]
@@ -380,10 +379,11 @@ encode_deliver(Value, Translate) ->
 		 values = Values, required = false, type = boolean,
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"Whether an entity wants to receive or "
-				 "disable notifications">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"Whether an entity wants to receive or "
+				  "disable notifications">>)}.
 
-encode_digest(Value, Translate) ->
+encode_digest(Value, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_bool(Value)]
@@ -393,11 +393,12 @@ encode_digest(Value, Translate) ->
 		 required = false, type = boolean, options = Opts,
 		 desc = <<>>,
 		 label =
-		     Translate(<<"Whether an entity wants to receive digests "
-				 "(aggregations) of notifications or all "
-				 "notifications individually">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"Whether an entity wants to receive digests "
+				  "(aggregations) of notifications or all "
+				  "notifications individually">>)}.
 
-encode_digest_frequency(Value, Translate) ->
+encode_digest_frequency(Value, Lang) ->
     Values = case Value of
 	       <<>> -> [];
 	       Value -> [Value]
@@ -407,10 +408,11 @@ encode_digest_frequency(Value, Translate) ->
 		 values = Values, required = false, type = 'text-single',
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"The minimum number of milliseconds between "
-				 "sending any two notification digests">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"The minimum number of milliseconds between "
+				  "sending any two notification digests">>)}.
 
-encode_expire(Value, Translate) ->
+encode_expire(Value, Lang) ->
     Values = case Value of
 	       <<>> -> [];
 	       Value -> [Value]
@@ -420,10 +422,11 @@ encode_expire(Value, Translate) ->
 		 required = false, type = 'text-single', options = Opts,
 		 desc = <<>>,
 		 label =
-		     Translate(<<"The DateTime at which a leased subscription "
-				 "will end or has ended">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"The DateTime at which a leased subscription "
+				  "will end or has ended">>)}.
 
-encode_include_body(Value, Translate) ->
+encode_include_body(Value, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_bool(Value)]
@@ -433,33 +436,39 @@ encode_include_body(Value, Translate) ->
 		 values = Values, required = false, type = boolean,
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"Whether an entity wants to receive an "
-				 "XMPP message body in addition to the "
-				 "payload format">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"Whether an entity wants to receive an "
+				  "XMPP message body in addition to the "
+				  "payload format">>)}.
 
-'encode_show-values'(Value, Options, Translate) ->
+'encode_show-values'(Value, Options, Lang) ->
     Values = case Value of
 	       [] -> [];
 	       Value -> [enc_enum(V) || V <- Value]
 	     end,
     Opts = if Options == default ->
 		  [#xdata_option{label =
-				     Translate(<<"XMPP Show Value of Away">>),
+				     xmpp_tr:tr(Lang,
+						<<"XMPP Show Value of Away">>),
 				 value = <<"away">>},
 		   #xdata_option{label =
-				     Translate(<<"XMPP Show Value of Chat">>),
+				     xmpp_tr:tr(Lang,
+						<<"XMPP Show Value of Chat">>),
 				 value = <<"chat">>},
 		   #xdata_option{label =
-				     Translate(<<"XMPP Show Value of DND (Do Not Disturb)">>),
+				     xmpp_tr:tr(Lang,
+						<<"XMPP Show Value of DND (Do Not Disturb)">>),
 				 value = <<"dnd">>},
 		   #xdata_option{label =
-				     Translate(<<"Mere Availability in XMPP (No Show Value)">>),
+				     xmpp_tr:tr(Lang,
+						<<"Mere Availability in XMPP (No Show Value)">>),
 				 value = <<"online">>},
 		   #xdata_option{label =
-				     Translate(<<"XMPP Show Value of XA (Extended Away)">>),
+				     xmpp_tr:tr(Lang,
+						<<"XMPP Show Value of XA (Extended Away)">>),
 				 value = <<"xa">>}];
 	      true ->
-		  [#xdata_option{label = Translate(L),
+		  [#xdata_option{label = xmpp_tr:tr(Lang, L),
 				 value = enc_enum(V)}
 		   || {L, V} <- Options]
 	   end,
@@ -467,23 +476,26 @@ encode_include_body(Value, Translate) ->
 		 values = Values, required = false, type = 'list-multi',
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"The presence states for which an entity "
-				 "wants to receive notifications">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"The presence states for which an entity "
+				  "wants to receive notifications">>)}.
 
-encode_subscription_type(Value, Options, Translate) ->
+encode_subscription_type(Value, Options, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_enum(Value)]
 	     end,
     Opts = if Options == default ->
 		  [#xdata_option{label =
-				     Translate(<<"Receive notification of new items only">>),
+				     xmpp_tr:tr(Lang,
+						<<"Receive notification of new items only">>),
 				 value = <<"items">>},
 		   #xdata_option{label =
-				     Translate(<<"Receive notification of new nodes only">>),
+				     xmpp_tr:tr(Lang,
+						<<"Receive notification of new nodes only">>),
 				 value = <<"nodes">>}];
 	      true ->
-		  [#xdata_option{label = Translate(L),
+		  [#xdata_option{label = xmpp_tr:tr(Lang, L),
 				 value = enc_enum(V)}
 		   || {L, V} <- Options]
 	   end,
@@ -491,22 +503,24 @@ encode_subscription_type(Value, Options, Translate) ->
 		 values = Values, required = false, type = 'list-single',
 		 options = Opts, desc = <<>>, label = <<>>}.
 
-encode_subscription_depth(Value, Options, Translate) ->
+encode_subscription_depth(Value, Options, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_enum(Value)]
 	     end,
     Opts = if Options == default ->
 		  [#xdata_option{label =
-				     Translate(<<"Receive notification from direct child "
-						 "nodes only">>),
+				     xmpp_tr:tr(Lang,
+						<<"Receive notification from direct child "
+						  "nodes only">>),
 				 value = <<"1">>},
 		   #xdata_option{label =
-				     Translate(<<"Receive notification from all descendent "
-						 "nodes">>),
+				     xmpp_tr:tr(Lang,
+						<<"Receive notification from all descendent "
+						  "nodes">>),
 				 value = <<"all">>}];
 	      true ->
-		  [#xdata_option{label = Translate(L),
+		  [#xdata_option{label = xmpp_tr:tr(Lang, L),
 				 value = enc_enum(V)}
 		   || {L, V} <- Options]
 	   end,

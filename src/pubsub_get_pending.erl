@@ -70,13 +70,12 @@ decode(Fs, Acc) ->
 			   "uthorization">>}})
     end.
 
-encode(Cfg) -> encode(Cfg, fun (Text) -> Text end).
+encode(Cfg) -> encode(Cfg, <<"en">>).
 
-encode(List, Translate) when is_list(List) ->
+encode(List, Lang) when is_list(List) ->
     Fs = [case Opt of
-	    {node, Val} -> [encode_node(Val, default, Translate)];
-	    {node, Val, Opts} ->
-		[encode_node(Val, Opts, Translate)];
+	    {node, Val} -> [encode_node(Val, default, Lang)];
+	    {node, Val, Opts} -> [encode_node(Val, Opts, Lang)];
 	    #xdata_field{} -> [Opt];
 	    _ -> []
 	  end
@@ -133,18 +132,19 @@ decode([], _, [Var | _]) ->
 		     "uthorization">>}});
 decode([], Acc, []) -> Acc.
 
-encode_node(Value, Options, Translate) ->
+encode_node(Value, Options, Lang) ->
     Values = case Value of
 	       <<>> -> [];
 	       Value -> [Value]
 	     end,
     Opts = if Options == default -> [];
 	      true ->
-		  [#xdata_option{label = Translate(L), value = V}
+		  [#xdata_option{label = xmpp_tr:tr(Lang, L), value = V}
 		   || {L, V} <- Options]
 	   end,
     #xdata_field{var = <<"pubsub#node">>, values = Values,
 		 required = false, type = 'list-single', options = Opts,
 		 desc = <<>>,
 		 label =
-		     Translate(<<"The NodeID of the relevant node">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"The NodeID of the relevant node">>)}.

@@ -92,115 +92,108 @@ decode(Fs, Acc) ->
 			 <<"http://jabber.org/protocol/pubsub#node_config">>}})
     end.
 
-encode(Cfg) -> encode(Cfg, fun (Text) -> Text end).
+encode(Cfg) -> encode(Cfg, <<"en">>).
 
-encode(List, Translate) when is_list(List) ->
+encode(List, Lang) when is_list(List) ->
     Fs = [case Opt of
 	    {access_model, Val} ->
-		[encode_access_model(Val, default, Translate)];
+		[encode_access_model(Val, default, Lang)];
 	    {access_model, Val, Opts} ->
-		[encode_access_model(Val, Opts, Translate)];
-	    {body_xslt, Val} -> [encode_body_xslt(Val, Translate)];
+		[encode_access_model(Val, Opts, Lang)];
+	    {body_xslt, Val} -> [encode_body_xslt(Val, Lang)];
 	    {body_xslt, _, _} -> erlang:error({badarg, Opt});
 	    {children_association_policy, Val} ->
 		[encode_children_association_policy(Val, default,
-						    Translate)];
+						    Lang)];
 	    {children_association_policy, Val, Opts} ->
-		[encode_children_association_policy(Val, Opts,
-						    Translate)];
+		[encode_children_association_policy(Val, Opts, Lang)];
 	    {children_association_whitelist, Val} ->
-		[encode_children_association_whitelist(Val, Translate)];
+		[encode_children_association_whitelist(Val, Lang)];
 	    {children_association_whitelist, _, _} ->
 		erlang:error({badarg, Opt});
-	    {children, Val} -> [encode_children(Val, Translate)];
+	    {children, Val} -> [encode_children(Val, Lang)];
 	    {children, _, _} -> erlang:error({badarg, Opt});
-	    {children_max, Val} ->
-		[encode_children_max(Val, Translate)];
+	    {children_max, Val} -> [encode_children_max(Val, Lang)];
 	    {children_max, _, _} -> erlang:error({badarg, Opt});
-	    {collection, Val} ->
-		[encode_collection(Val, Translate)];
+	    {collection, Val} -> [encode_collection(Val, Lang)];
 	    {collection, _, _} -> erlang:error({badarg, Opt});
-	    {contact, Val} -> [encode_contact(Val, Translate)];
+	    {contact, Val} -> [encode_contact(Val, Lang)];
 	    {contact, _, _} -> erlang:error({badarg, Opt});
 	    {dataform_xslt, Val} ->
-		[encode_dataform_xslt(Val, Translate)];
+		[encode_dataform_xslt(Val, Lang)];
 	    {dataform_xslt, _, _} -> erlang:error({badarg, Opt});
 	    {deliver_notifications, Val} ->
-		[encode_deliver_notifications(Val, Translate)];
+		[encode_deliver_notifications(Val, Lang)];
 	    {deliver_notifications, _, _} ->
 		erlang:error({badarg, Opt});
 	    {deliver_payloads, Val} ->
-		[encode_deliver_payloads(Val, Translate)];
+		[encode_deliver_payloads(Val, Lang)];
 	    {deliver_payloads, _, _} -> erlang:error({badarg, Opt});
-	    {description, Val} ->
-		[encode_description(Val, Translate)];
+	    {description, Val} -> [encode_description(Val, Lang)];
 	    {description, _, _} -> erlang:error({badarg, Opt});
-	    {item_expire, Val} ->
-		[encode_item_expire(Val, Translate)];
+	    {item_expire, Val} -> [encode_item_expire(Val, Lang)];
 	    {item_expire, _, _} -> erlang:error({badarg, Opt});
 	    {itemreply, Val} ->
-		[encode_itemreply(Val, default, Translate)];
+		[encode_itemreply(Val, default, Lang)];
 	    {itemreply, Val, Opts} ->
-		[encode_itemreply(Val, Opts, Translate)];
+		[encode_itemreply(Val, Opts, Lang)];
 	    {language, Val} ->
-		[encode_language(Val, default, Translate)];
+		[encode_language(Val, default, Lang)];
 	    {language, Val, Opts} ->
-		[encode_language(Val, Opts, Translate)];
-	    {max_items, Val} -> [encode_max_items(Val, Translate)];
+		[encode_language(Val, Opts, Lang)];
+	    {max_items, Val} -> [encode_max_items(Val, Lang)];
 	    {max_items, _, _} -> erlang:error({badarg, Opt});
 	    {max_payload_size, Val} ->
-		[encode_max_payload_size(Val, Translate)];
+		[encode_max_payload_size(Val, Lang)];
 	    {max_payload_size, _, _} -> erlang:error({badarg, Opt});
 	    {node_type, Val} ->
-		[encode_node_type(Val, default, Translate)];
+		[encode_node_type(Val, default, Lang)];
 	    {node_type, Val, Opts} ->
-		[encode_node_type(Val, Opts, Translate)];
+		[encode_node_type(Val, Opts, Lang)];
 	    {notification_type, Val} ->
-		[encode_notification_type(Val, default, Translate)];
+		[encode_notification_type(Val, default, Lang)];
 	    {notification_type, Val, Opts} ->
-		[encode_notification_type(Val, Opts, Translate)];
+		[encode_notification_type(Val, Opts, Lang)];
 	    {notify_config, Val} ->
-		[encode_notify_config(Val, Translate)];
+		[encode_notify_config(Val, Lang)];
 	    {notify_config, _, _} -> erlang:error({badarg, Opt});
 	    {notify_delete, Val} ->
-		[encode_notify_delete(Val, Translate)];
+		[encode_notify_delete(Val, Lang)];
 	    {notify_delete, _, _} -> erlang:error({badarg, Opt});
 	    {notify_retract, Val} ->
-		[encode_notify_retract(Val, Translate)];
+		[encode_notify_retract(Val, Lang)];
 	    {notify_retract, _, _} -> erlang:error({badarg, Opt});
-	    {notify_sub, Val} ->
-		[encode_notify_sub(Val, Translate)];
+	    {notify_sub, Val} -> [encode_notify_sub(Val, Lang)];
 	    {notify_sub, _, _} -> erlang:error({badarg, Opt});
 	    {persist_items, Val} ->
-		[encode_persist_items(Val, Translate)];
+		[encode_persist_items(Val, Lang)];
 	    {persist_items, _, _} -> erlang:error({badarg, Opt});
 	    {presence_based_delivery, Val} ->
-		[encode_presence_based_delivery(Val, Translate)];
+		[encode_presence_based_delivery(Val, Lang)];
 	    {presence_based_delivery, _, _} ->
 		erlang:error({badarg, Opt});
 	    {publish_model, Val} ->
-		[encode_publish_model(Val, default, Translate)];
+		[encode_publish_model(Val, default, Lang)];
 	    {publish_model, Val, Opts} ->
-		[encode_publish_model(Val, Opts, Translate)];
+		[encode_publish_model(Val, Opts, Lang)];
 	    {purge_offline, Val} ->
-		[encode_purge_offline(Val, Translate)];
+		[encode_purge_offline(Val, Lang)];
 	    {purge_offline, _, _} -> erlang:error({badarg, Opt});
 	    {roster_groups_allowed, Val} ->
-		[encode_roster_groups_allowed(Val, default, Translate)];
+		[encode_roster_groups_allowed(Val, default, Lang)];
 	    {roster_groups_allowed, Val, Opts} ->
-		[encode_roster_groups_allowed(Val, Opts, Translate)];
+		[encode_roster_groups_allowed(Val, Opts, Lang)];
 	    {send_last_published_item, Val} ->
-		[encode_send_last_published_item(Val, default,
-						 Translate)];
+		[encode_send_last_published_item(Val, default, Lang)];
 	    {send_last_published_item, Val, Opts} ->
-		[encode_send_last_published_item(Val, Opts, Translate)];
-	    {tempsub, Val} -> [encode_tempsub(Val, Translate)];
+		[encode_send_last_published_item(Val, Opts, Lang)];
+	    {tempsub, Val} -> [encode_tempsub(Val, Lang)];
 	    {tempsub, _, _} -> erlang:error({badarg, Opt});
-	    {subscribe, Val} -> [encode_subscribe(Val, Translate)];
+	    {subscribe, Val} -> [encode_subscribe(Val, Lang)];
 	    {subscribe, _, _} -> erlang:error({badarg, Opt});
-	    {title, Val} -> [encode_title(Val, Translate)];
+	    {title, Val} -> [encode_title(Val, Lang)];
 	    {title, _, _} -> erlang:error({badarg, Opt});
-	    {type, Val} -> [encode_type(Val, Translate)];
+	    {type, Val} -> [encode_type(Val, Lang)];
 	    {type, _, _} -> erlang:error({badarg, Opt});
 	    #xdata_field{} -> [Opt];
 	    _ -> []
@@ -1126,43 +1119,49 @@ decode([#xdata_field{var = Var} | Fs], Acc, Required) ->
     end;
 decode([], Acc, []) -> Acc.
 
-encode_access_model(Value, Options, Translate) ->
+encode_access_model(Value, Options, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_enum(Value)]
 	     end,
     Opts = if Options == default ->
 		  [#xdata_option{label =
-				     Translate(<<"Subscription requests must be approved "
-						 "and only subscribers may retrieve items">>),
+				     xmpp_tr:tr(Lang,
+						<<"Subscription requests must be approved "
+						  "and only subscribers may retrieve items">>),
 				 value = <<"authorize">>},
 		   #xdata_option{label =
-				     Translate(<<"Anyone may subscribe and retrieve items">>),
+				     xmpp_tr:tr(Lang,
+						<<"Anyone may subscribe and retrieve items">>),
 				 value = <<"open">>},
 		   #xdata_option{label =
-				     Translate(<<"Anyone with a presence subscription "
-						 "of both or from may subscribe and retrieve "
-						 "items">>),
+				     xmpp_tr:tr(Lang,
+						<<"Anyone with a presence subscription "
+						  "of both or from may subscribe and retrieve "
+						  "items">>),
 				 value = <<"presence">>},
 		   #xdata_option{label =
-				     Translate(<<"Anyone in the specified roster group(s) "
-						 "may subscribe and retrieve items">>),
+				     xmpp_tr:tr(Lang,
+						<<"Anyone in the specified roster group(s) "
+						  "may subscribe and retrieve items">>),
 				 value = <<"roster">>},
 		   #xdata_option{label =
-				     Translate(<<"Only those on a whitelist may subscribe "
-						 "and retrieve items">>),
+				     xmpp_tr:tr(Lang,
+						<<"Only those on a whitelist may subscribe "
+						  "and retrieve items">>),
 				 value = <<"whitelist">>}];
 	      true ->
-		  [#xdata_option{label = Translate(L),
+		  [#xdata_option{label = xmpp_tr:tr(Lang, L),
 				 value = enc_enum(V)}
 		   || {L, V} <- Options]
 	   end,
     #xdata_field{var = <<"pubsub#access_model">>,
 		 values = Values, required = false, type = 'list-single',
 		 options = Opts, desc = <<>>,
-		 label = Translate(<<"Specify the access model">>)}.
+		 label =
+		     xmpp_tr:tr(Lang, <<"Specify the access model">>)}.
 
-encode_body_xslt(Value, Translate) ->
+encode_body_xslt(Value, Lang) ->
     Values = case Value of
 	       <<>> -> [];
 	       Value -> [Value]
@@ -1172,32 +1171,36 @@ encode_body_xslt(Value, Translate) ->
 		 values = Values, required = false, type = 'text-single',
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"The URL of an XSL transformation which "
-				 "can be applied to payloads in order "
-				 "to generate an appropriate message body "
-				 "element.">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"The URL of an XSL transformation which "
+				  "can be applied to payloads in order "
+				  "to generate an appropriate message body "
+				  "element.">>)}.
 
 encode_children_association_policy(Value, Options,
-				   Translate) ->
+				   Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_enum(Value)]
 	     end,
     Opts = if Options == default ->
 		  [#xdata_option{label =
-				     Translate(<<"Anyone may associate leaf nodes with "
-						 "the collection">>),
+				     xmpp_tr:tr(Lang,
+						<<"Anyone may associate leaf nodes with "
+						  "the collection">>),
 				 value = <<"all">>},
 		   #xdata_option{label =
-				     Translate(<<"Only collection node owners may associate "
-						 "leaf nodes with the collection">>),
+				     xmpp_tr:tr(Lang,
+						<<"Only collection node owners may associate "
+						  "leaf nodes with the collection">>),
 				 value = <<"owners">>},
 		   #xdata_option{label =
-				     Translate(<<"Only those on a whitelist may associate "
-						 "leaf nodes with the collection">>),
+				     xmpp_tr:tr(Lang,
+						<<"Only those on a whitelist may associate "
+						  "leaf nodes with the collection">>),
 				 value = <<"whitelist">>}];
 	      true ->
-		  [#xdata_option{label = Translate(L),
+		  [#xdata_option{label = xmpp_tr:tr(Lang, L),
 				 value = enc_enum(V)}
 		   || {L, V} <- Options]
 	   end,
@@ -1206,11 +1209,11 @@ encode_children_association_policy(Value, Options,
 		 values = Values, required = false, type = 'list-single',
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"Who may associate leaf nodes with a "
-				 "collection">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"Who may associate leaf nodes with a "
+				  "collection">>)}.
 
-encode_children_association_whitelist(Value,
-				      Translate) ->
+encode_children_association_whitelist(Value, Lang) ->
     Values = case Value of
 	       [] -> [];
 	       Value -> [jid:encode(V) || V <- Value]
@@ -1221,10 +1224,11 @@ encode_children_association_whitelist(Value,
 		 values = Values, required = false, type = 'jid-multi',
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"The list of JIDs that may associate "
-				 "leaf nodes with a collection">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"The list of JIDs that may associate "
+				  "leaf nodes with a collection">>)}.
 
-encode_children(Value, Translate) ->
+encode_children(Value, Lang) ->
     Values = case Value of
 	       [] -> [];
 	       Value -> [Value]
@@ -1234,10 +1238,11 @@ encode_children(Value, Translate) ->
 		 values = Values, required = false, type = 'text-multi',
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"The child nodes (leaf or collection) "
-				 "associated with a collection">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"The child nodes (leaf or collection) "
+				  "associated with a collection">>)}.
 
-encode_children_max(Value, Translate) ->
+encode_children_max(Value, Lang) ->
     Values = case Value of
 	       <<>> -> [];
 	       Value -> [Value]
@@ -1247,10 +1252,11 @@ encode_children_max(Value, Translate) ->
 		 values = Values, required = false, type = 'text-single',
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"The maximum number of child nodes that "
-				 "can be associated with a collection">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"The maximum number of child nodes that "
+				  "can be associated with a collection">>)}.
 
-encode_collection(Value, Translate) ->
+encode_collection(Value, Lang) ->
     Values = case Value of
 	       [] -> [];
 	       Value -> [Value]
@@ -1260,10 +1266,11 @@ encode_collection(Value, Translate) ->
 		 values = Values, required = false, type = 'text-multi',
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"The collections with which a node is "
-				 "affiliated">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"The collections with which a node is "
+				  "affiliated">>)}.
 
-encode_contact(Value, Translate) ->
+encode_contact(Value, Lang) ->
     Values = case Value of
 	       [] -> [];
 	       Value -> [jid:encode(V) || V <- Value]
@@ -1273,9 +1280,10 @@ encode_contact(Value, Translate) ->
 		 values = Values, required = false, type = 'jid-multi',
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"The JIDs of those to contact with questions">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"The JIDs of those to contact with questions">>)}.
 
-encode_dataform_xslt(Value, Translate) ->
+encode_dataform_xslt(Value, Lang) ->
     Values = case Value of
 	       <<>> -> [];
 	       Value -> [Value]
@@ -1285,14 +1293,15 @@ encode_dataform_xslt(Value, Translate) ->
 		 values = Values, required = false, type = 'text-single',
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"The URL of an XSL transformation which "
-				 "can be applied to the payload format "
-				 "in order to generate a valid Data Forms "
-				 "result that the client could display "
-				 "using a generic Data Forms rendering "
-				 "engine">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"The URL of an XSL transformation which "
+				  "can be applied to the payload format "
+				  "in order to generate a valid Data Forms "
+				  "result that the client could display "
+				  "using a generic Data Forms rendering "
+				  "engine">>)}.
 
-encode_deliver_notifications(Value, Translate) ->
+encode_deliver_notifications(Value, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_bool(Value)]
@@ -1301,9 +1310,10 @@ encode_deliver_notifications(Value, Translate) ->
     #xdata_field{var = <<"pubsub#deliver_notifications">>,
 		 values = Values, required = false, type = boolean,
 		 options = Opts, desc = <<>>,
-		 label = Translate(<<"Deliver event notifications">>)}.
+		 label =
+		     xmpp_tr:tr(Lang, <<"Deliver event notifications">>)}.
 
-encode_deliver_payloads(Value, Translate) ->
+encode_deliver_payloads(Value, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_bool(Value)]
@@ -1313,9 +1323,10 @@ encode_deliver_payloads(Value, Translate) ->
 		 values = Values, required = false, type = boolean,
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"Deliver payloads with event notifications">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"Deliver payloads with event notifications">>)}.
 
-encode_description(Value, Translate) ->
+encode_description(Value, Lang) ->
     Values = case Value of
 	       <<>> -> [];
 	       Value -> [Value]
@@ -1324,9 +1335,10 @@ encode_description(Value, Translate) ->
     #xdata_field{var = <<"pubsub#description">>,
 		 values = Values, required = false, type = 'text-single',
 		 options = Opts, desc = <<>>,
-		 label = Translate(<<"A description of the node">>)}.
+		 label =
+		     xmpp_tr:tr(Lang, <<"A description of the node">>)}.
 
-encode_item_expire(Value, Translate) ->
+encode_item_expire(Value, Lang) ->
     Values = case Value of
 	       <<>> -> [];
 	       Value -> [Value]
@@ -1336,26 +1348,29 @@ encode_item_expire(Value, Translate) ->
 		 values = Values, required = false, type = 'text-single',
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"Number of seconds after which to automaticall"
-				 "y purge items">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"Number of seconds after which to automaticall"
+				  "y purge items">>)}.
 
-encode_itemreply(Value, Options, Translate) ->
+encode_itemreply(Value, Options, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_enum(Value)]
 	     end,
     Opts = if Options == default ->
 		  [#xdata_option{label =
-				     Translate(<<"Statically specify a replyto of the "
-						 "node owner(s)">>),
+				     xmpp_tr:tr(Lang,
+						<<"Statically specify a replyto of the "
+						  "node owner(s)">>),
 				 value = <<"owner">>},
 		   #xdata_option{label =
-				     Translate(<<"Dynamically specify a replyto of the "
-						 "item publisher">>),
+				     xmpp_tr:tr(Lang,
+						<<"Dynamically specify a replyto of the "
+						  "item publisher">>),
 				 value = <<"publisher">>},
 		   #xdata_option{value = <<"none">>}];
 	      true ->
-		  [#xdata_option{label = Translate(L),
+		  [#xdata_option{label = xmpp_tr:tr(Lang, L),
 				 value = enc_enum(V)}
 		   || {L, V} <- Options]
 	   end,
@@ -1363,26 +1378,28 @@ encode_itemreply(Value, Options, Translate) ->
 		 values = Values, required = false, type = 'list-single',
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"Whether owners or publisher should receive "
-				 "replies to items">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"Whether owners or publisher should receive "
+				  "replies to items">>)}.
 
-encode_language(Value, Options, Translate) ->
+encode_language(Value, Options, Lang) ->
     Values = case Value of
 	       <<>> -> [];
 	       Value -> [Value]
 	     end,
     Opts = if Options == default -> [];
 	      true ->
-		  [#xdata_option{label = Translate(L), value = V}
+		  [#xdata_option{label = xmpp_tr:tr(Lang, L), value = V}
 		   || {L, V} <- Options]
 	   end,
     #xdata_field{var = <<"pubsub#language">>,
 		 values = Values, required = false, type = 'list-single',
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"The default language of the node">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"The default language of the node">>)}.
 
-encode_max_items(Value, Translate) ->
+encode_max_items(Value, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_int(Value)]
@@ -1391,9 +1408,10 @@ encode_max_items(Value, Translate) ->
     #xdata_field{var = <<"pubsub#max_items">>,
 		 values = Values, required = false, type = 'text-single',
 		 options = Opts, desc = <<>>,
-		 label = Translate(<<"Max # of items to persist">>)}.
+		 label =
+		     xmpp_tr:tr(Lang, <<"Max # of items to persist">>)}.
 
-encode_max_payload_size(Value, Translate) ->
+encode_max_payload_size(Value, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_int(Value)]
@@ -1402,22 +1420,25 @@ encode_max_payload_size(Value, Translate) ->
     #xdata_field{var = <<"pubsub#max_payload_size">>,
 		 values = Values, required = false, type = 'text-single',
 		 options = Opts, desc = <<>>,
-		 label = Translate(<<"Max payload size in bytes">>)}.
+		 label =
+		     xmpp_tr:tr(Lang, <<"Max payload size in bytes">>)}.
 
-encode_node_type(Value, Options, Translate) ->
+encode_node_type(Value, Options, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_enum(Value)]
 	     end,
     Opts = if Options == default ->
 		  [#xdata_option{label =
-				     Translate(<<"The node is a leaf node (default)">>),
+				     xmpp_tr:tr(Lang,
+						<<"The node is a leaf node (default)">>),
 				 value = <<"leaf">>},
 		   #xdata_option{label =
-				     Translate(<<"The node is a collection node">>),
+				     xmpp_tr:tr(Lang,
+						<<"The node is a collection node">>),
 				 value = <<"collection">>}];
 	      true ->
-		  [#xdata_option{label = Translate(L),
+		  [#xdata_option{label = xmpp_tr:tr(Lang, L),
 				 value = enc_enum(V)}
 		   || {L, V} <- Options]
 	   end,
@@ -1425,23 +1446,26 @@ encode_node_type(Value, Options, Translate) ->
 		 values = Values, required = false, type = 'list-single',
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"Whether the node is a leaf (default) "
-				 "or a collection">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"Whether the node is a leaf (default) "
+				  "or a collection">>)}.
 
-encode_notification_type(Value, Options, Translate) ->
+encode_notification_type(Value, Options, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_enum(Value)]
 	     end,
     Opts = if Options == default ->
 		  [#xdata_option{label =
-				     Translate(<<"Messages of type normal">>),
+				     xmpp_tr:tr(Lang,
+						<<"Messages of type normal">>),
 				 value = <<"normal">>},
 		   #xdata_option{label =
-				     Translate(<<"Messages of type headline">>),
+				     xmpp_tr:tr(Lang,
+						<<"Messages of type headline">>),
 				 value = <<"headline">>}];
 	      true ->
-		  [#xdata_option{label = Translate(L),
+		  [#xdata_option{label = xmpp_tr:tr(Lang, L),
 				 value = enc_enum(V)}
 		   || {L, V} <- Options]
 	   end,
@@ -1449,9 +1473,9 @@ encode_notification_type(Value, Options, Translate) ->
 		 values = Values, required = false, type = 'list-single',
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"Specify the event message type">>)}.
+		     xmpp_tr:tr(Lang, <<"Specify the event message type">>)}.
 
-encode_notify_config(Value, Translate) ->
+encode_notify_config(Value, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_bool(Value)]
@@ -1461,10 +1485,11 @@ encode_notify_config(Value, Translate) ->
 		 values = Values, required = false, type = boolean,
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"Notify subscribers when the node configuratio"
-				 "n changes">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"Notify subscribers when the node configuratio"
+				  "n changes">>)}.
 
-encode_notify_delete(Value, Translate) ->
+encode_notify_delete(Value, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_bool(Value)]
@@ -1474,10 +1499,11 @@ encode_notify_delete(Value, Translate) ->
 		 values = Values, required = false, type = boolean,
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"Notify subscribers when the node is "
-				 "deleted">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"Notify subscribers when the node is "
+				  "deleted">>)}.
 
-encode_notify_retract(Value, Translate) ->
+encode_notify_retract(Value, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_bool(Value)]
@@ -1487,10 +1513,11 @@ encode_notify_retract(Value, Translate) ->
 		 values = Values, required = false, type = boolean,
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"Notify subscribers when items are removed "
-				 "from the node">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"Notify subscribers when items are removed "
+				  "from the node">>)}.
 
-encode_notify_sub(Value, Translate) ->
+encode_notify_sub(Value, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_bool(Value)]
@@ -1500,10 +1527,11 @@ encode_notify_sub(Value, Translate) ->
 		 values = Values, required = false, type = boolean,
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"Whether to notify owners about new subscriber"
-				 "s and unsubscribes">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"Whether to notify owners about new subscriber"
+				  "s and unsubscribes">>)}.
 
-encode_persist_items(Value, Translate) ->
+encode_persist_items(Value, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_bool(Value)]
@@ -1512,9 +1540,10 @@ encode_persist_items(Value, Translate) ->
     #xdata_field{var = <<"pubsub#persist_items">>,
 		 values = Values, required = false, type = boolean,
 		 options = Opts, desc = <<>>,
-		 label = Translate(<<"Persist items to storage">>)}.
+		 label =
+		     xmpp_tr:tr(Lang, <<"Persist items to storage">>)}.
 
-encode_presence_based_delivery(Value, Translate) ->
+encode_presence_based_delivery(Value, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_bool(Value)]
@@ -1524,35 +1553,39 @@ encode_presence_based_delivery(Value, Translate) ->
 		 values = Values, required = false, type = boolean,
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"Only deliver notifications to available "
-				 "users">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"Only deliver notifications to available "
+				  "users">>)}.
 
-encode_publish_model(Value, Options, Translate) ->
+encode_publish_model(Value, Options, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_enum(Value)]
 	     end,
     Opts = if Options == default ->
 		  [#xdata_option{label =
-				     Translate(<<"Only publishers may publish">>),
+				     xmpp_tr:tr(Lang,
+						<<"Only publishers may publish">>),
 				 value = <<"publishers">>},
 		   #xdata_option{label =
-				     Translate(<<"Subscribers may publish">>),
+				     xmpp_tr:tr(Lang,
+						<<"Subscribers may publish">>),
 				 value = <<"subscribers">>},
 		   #xdata_option{label =
-				     Translate(<<"Anyone may publish">>),
+				     xmpp_tr:tr(Lang, <<"Anyone may publish">>),
 				 value = <<"open">>}];
 	      true ->
-		  [#xdata_option{label = Translate(L),
+		  [#xdata_option{label = xmpp_tr:tr(Lang, L),
 				 value = enc_enum(V)}
 		   || {L, V} <- Options]
 	   end,
     #xdata_field{var = <<"pubsub#publish_model">>,
 		 values = Values, required = false, type = 'list-single',
 		 options = Opts, desc = <<>>,
-		 label = Translate(<<"Specify the publisher model">>)}.
+		 label =
+		     xmpp_tr:tr(Lang, <<"Specify the publisher model">>)}.
 
-encode_purge_offline(Value, Translate) ->
+encode_purge_offline(Value, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_bool(Value)]
@@ -1562,44 +1595,46 @@ encode_purge_offline(Value, Translate) ->
 		 values = Values, required = false, type = boolean,
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"Purge all items when the relevant publisher "
-				 "goes offline">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"Purge all items when the relevant publisher "
+				  "goes offline">>)}.
 
-encode_roster_groups_allowed(Value, Options,
-			     Translate) ->
+encode_roster_groups_allowed(Value, Options, Lang) ->
     Values = case Value of
 	       [] -> [];
 	       Value -> [Value]
 	     end,
     Opts = if Options == default -> [];
 	      true ->
-		  [#xdata_option{label = Translate(L), value = V}
+		  [#xdata_option{label = xmpp_tr:tr(Lang, L), value = V}
 		   || {L, V} <- Options]
 	   end,
     #xdata_field{var = <<"pubsub#roster_groups_allowed">>,
 		 values = Values, required = false, type = 'list-multi',
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"Roster groups allowed to subscribe">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"Roster groups allowed to subscribe">>)}.
 
-encode_send_last_published_item(Value, Options,
-				Translate) ->
+encode_send_last_published_item(Value, Options, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_enum(Value)]
 	     end,
     Opts = if Options == default ->
-		  [#xdata_option{label = Translate(<<"Never">>),
+		  [#xdata_option{label = xmpp_tr:tr(Lang, <<"Never">>),
 				 value = <<"never">>},
 		   #xdata_option{label =
-				     Translate(<<"When a new subscription is processed">>),
+				     xmpp_tr:tr(Lang,
+						<<"When a new subscription is processed">>),
 				 value = <<"on_sub">>},
 		   #xdata_option{label =
-				     Translate(<<"When a new subscription is processed "
-						 "and whenever a subscriber comes online">>),
+				     xmpp_tr:tr(Lang,
+						<<"When a new subscription is processed "
+						  "and whenever a subscriber comes online">>),
 				 value = <<"on_sub_and_presence">>}];
 	      true ->
-		  [#xdata_option{label = Translate(L),
+		  [#xdata_option{label = xmpp_tr:tr(Lang, L),
 				 value = enc_enum(V)}
 		   || {L, V} <- Options]
 	   end,
@@ -1608,9 +1643,10 @@ encode_send_last_published_item(Value, Options,
 		 values = Values, required = false, type = 'list-single',
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"When to send the last published item">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"When to send the last published item">>)}.
 
-encode_tempsub(Value, Translate) ->
+encode_tempsub(Value, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_bool(Value)]
@@ -1620,10 +1656,11 @@ encode_tempsub(Value, Translate) ->
 		 values = Values, required = false, type = boolean,
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"Whether to make all subscriptions temporary, "
-				 "based on subscriber presence">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"Whether to make all subscriptions temporary, "
+				  "based on subscriber presence">>)}.
 
-encode_subscribe(Value, Translate) ->
+encode_subscribe(Value, Lang) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_bool(Value)]
@@ -1633,9 +1670,9 @@ encode_subscribe(Value, Translate) ->
 		 values = Values, required = false, type = boolean,
 		 options = Opts, desc = <<>>,
 		 label =
-		     Translate(<<"Whether to allow subscriptions">>)}.
+		     xmpp_tr:tr(Lang, <<"Whether to allow subscriptions">>)}.
 
-encode_title(Value, Translate) ->
+encode_title(Value, Lang) ->
     Values = case Value of
 	       <<>> -> [];
 	       Value -> [Value]
@@ -1644,9 +1681,10 @@ encode_title(Value, Translate) ->
     #xdata_field{var = <<"pubsub#title">>, values = Values,
 		 required = false, type = 'text-single', options = Opts,
 		 desc = <<>>,
-		 label = Translate(<<"A friendly name for the node">>)}.
+		 label =
+		     xmpp_tr:tr(Lang, <<"A friendly name for the node">>)}.
 
-encode_type(Value, Translate) ->
+encode_type(Value, Lang) ->
     Values = case Value of
 	       <<>> -> [];
 	       Value -> [Value]
@@ -1656,6 +1694,7 @@ encode_type(Value, Translate) ->
 		 required = false, type = 'text-single', options = Opts,
 		 desc = <<>>,
 		 label =
-		     Translate(<<"The type of node data, usually specified "
-				 "by the namespace of the payload (if "
-				 "any)">>)}.
+		     xmpp_tr:tr(Lang,
+				<<"The type of node data, usually specified "
+				  "by the namespace of the payload (if "
+				  "any)">>)}.
