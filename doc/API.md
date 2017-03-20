@@ -175,6 +175,10 @@ if this option is set, lazy decoding is performed.
 By default, full decoding is applied, i.e. all known sub-elements get
 decoded. If `El` doesn't possess an `xmlns` attribute, it is
 assumed that it is within namespace `Namespace`.
+The function might **fail** with `{xmpp_codec, Reason}` exception.
+The value of `Reason` can be used to format the failure reason
+into human readable description using [format_error/1](#format_error1)
+or [io_format_error/1](#io_format_error1) functions.
 
 In the examples below we assume `El` is obtained from the following XML:
 ```xml
@@ -223,11 +227,6 @@ during lazy decoding only top-level element is decoded.
 ```
 Note that in this case `<foo/>` element is dropped from `#message.sub_els`
 because it doesn't correspond to any `xmpp_element()` record.
-
-The function might **fail** with `{xmpp_codec, Reason}` exception.
-The value of `Reason` can be used to format the failure reason
-into human readable description using [format_error/1](#format_error1)
-or [io_format_error/1](#io_format_error1) functions.
 
 **Example 3**: no namespace is provided and `El` doesn't possess any
 ```erlang
@@ -336,7 +335,7 @@ It is safe to apply the function to `xmlel()` elements
 ```erlang
 -spec get_id(stanza() | xmlel()) -> binary().
 ```
-Obtains a value of `id` field of a `stanza()` or a value of `id` attribute
+Returns a value of `id` field of a `stanza()` or a value of `id` attribute
 of an `xmlel()` element.
 
 **Example 1**: obtaining `id` of `message()`
@@ -372,7 +371,7 @@ xmpp:set_id(#iq{}, <<"abcd">>).
 	      (presence()) -> presence_type();
 	      (xmlel()) -> binary().
 ```
-Obtains a value of `type` field of a `stanza()` or a value of `type` attribute
+Returns a value of `type` field of a `stanza()` or a value of `type` attribute
 of an `xmlel()` element.
 
 **Example 1**: obtaining `type` of `presence()`
@@ -406,7 +405,7 @@ Sets `type` field of a `stanza()`.
 ```erlang
 -spec get_lang(stanza() | xmlel()) -> binary().
 ```
-Obtains a value of `lang` field of a `stanza()` or a value of
+Returns a value of `lang` field of a `stanza()` or a value of
 `xml:lang` attribute of an `xmlel()` element.
 
 **Example 1**: obtaining `lang` of `iq()`
@@ -440,7 +439,7 @@ Sets `lang` field of a `stanza()`.
 ```erlang
 -spec get_from(stanza()) -> undefined | jid().
 ```
-Obtains a value of `from` field of a `stanza()`.
+Returns a value of `from` field of a `stanza()`.
 
 **Example 1**: obtaining `from` of `message()`
 ```erlang
@@ -484,7 +483,7 @@ Sets `from` field of a `stanza()`.
 ```erlang
 -spec get_to(stanza()) -> undefined | jid().
 ```
-Obtains a value of `to` field of a `stanza()`.
+Returns a value of `to` field of a `stanza()`.
 
 **Example 1**: obtaining `to` of `message()`
 ```erlang
@@ -552,7 +551,7 @@ Sets `from` and `to` fields of a `stanza()`.
 -spec get_els(stanza()) -> [xmpp_element() | xmlel()];
 	     (xmlel()) -> [xmlel()].
 ```
-Obtains a value of `sub_els` field of a `stanza()` or
+Returns a value of `sub_els` field of a `stanza()` or
 child elements of an `xmlel()` element.
 
 **Example 1**: obtaining `sub_els` of `message()`
@@ -604,7 +603,7 @@ tag name and namespace as `Tag`) or `false`
 if no such element found or decoding of the matched element
 has failed.
 
-**Example 1**: obtaining `delay()` element
+**Example 1**: obtaining `disco_info()` element
 ```erlang
 > IQ.
 #iq{id = <<"id">>,type = result,lang = <<>>,
@@ -1084,15 +1083,15 @@ Returns tag name of `xmpp_element()` or `xmlel()` element.
 ```
 Creates from `IQ` an `iq()` of type `result` with empty sub-elements.
 
+> **WARNING**: only `iq()` of type `set` or `get` should be provided,
+> otherwise the function will fail
+
 **Example 1**: creating a result
 ```erlang
 > xmpp:make_iq_result(#iq{type = get, id = <<"1">>, sub_els = [#ping{}]}).
 #iq{id = <<"1">>,type = result,lang = <<>>,from = undefined,
     to = undefined,sub_els = [],meta = #{}}
 ```
-> **WARNING**: only `iq()` of type `set` or `get` should be provided,
-> otherwise the function will fail
-
 **Example 2**: trying to create a result of a result
 ```erlang
 > xmpp:make_iq_result(#iq{type = result, id = <<"1">>}).
@@ -1105,6 +1104,9 @@ Creates from `IQ` an `iq()` of type `result` with empty sub-elements.
 ```
 Creates from `IQ` an `iq()` of type `result` with sub-elements set to `[El]`.
 
+> **WARNING**: only `iq()` of type `set` or `get` should be provided,
+> otherwise the function will fail
+
 **Example 1**: creating a result
 ```erlang
 > xmpp:make_iq_result(#iq{type = get, id = <<"1">>}, #disco_info{features = [<<"feature">>]}).
@@ -1115,10 +1117,6 @@ Creates from `IQ` an `iq()` of type `result` with sub-elements set to `[El]`.
                            xdata = []}],
     meta = #{}}
 ```
-
-> **WARNING**: only `iq()` of type `set` or `get` should be provided,
-> otherwise the function will fail
-
 **Example 2**: trying to create a result of a result
 ```erlang
 > xmpp:make_iq_result(#iq{type = result, id = <<"1">>}, #disco_items{}).
@@ -1156,7 +1154,7 @@ Constructs `stanza()` of type `error` from `Stanza`.
 -spec get_error(Stanza :: stanza()) -> undefined | stanza_error().
 ```
 Returns `stanza_error()` sub-element from `Stanza` or `undefined`
-if not found.
+if not found of if decoding has failed.
 
 **Example 1**: extracting `stanza_error()` element
 ```erlang
@@ -1309,7 +1307,7 @@ Shorthand for `mk_text(Text, <<"en">>)`.
 -spec mk_text(binary() | {io:format(), list()}, Lang :: binary()) -> [text()].
 ```
 Creates a list of a single `text()` element from `binary()` or formatted text,
-translated into language using a callback function set in
+translated into language `Lang` using a callback function set in
 [set_tr_callback/1](#set_tr_callback1).
 
 **Example**:
@@ -2027,12 +2025,12 @@ format (both `DateTime` and legacy) into `erlang:timestamp()` format.
 Fails with `{bad_timestamp, Data}` exception if `Data` doesn't represent
 a valid timestamp.
 
-**Example 1**: decoding of `DateTime` format
+**Example 1**: decoding from `DateTime` format
 ```erlang
 > xmpp_util:decode_timestamp(<<"2006-12-19T17:58:35Z">>).
 {1166,551115,0}
 ```
-**Example 2**: decoding of legacy format
+**Example 2**: decoding from legacy format
 ```erlang
 > xmpp_util:decode_timestamp(<<"20020910T17:58:35">>).
 {1031,680715,0}
