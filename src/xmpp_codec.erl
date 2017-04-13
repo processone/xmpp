@@ -1389,7 +1389,6 @@ get_mod({vcard_temp, _, _, _, _, _, _, _, _, _, _, _, _,
 	 _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _}) ->
     xep0054;
 get_mod({muc, _, _}) -> xep0045;
-get_mod({muc_unsubscribe}) -> p1_mucsub;
 get_mod({carbons_enable}) -> xep0280;
 get_mod({carbons_private}) -> xep0280;
 get_mod({mix_leave}) -> xep0369;
@@ -1455,6 +1454,7 @@ get_mod({gone, _}) -> rfc6120;
 get_mod({sasl_response, _}) -> rfc6120;
 get_mod({chatstate, _}) -> xep0085;
 get_mod({muc_unique, _}) -> xep0045;
+get_mod({muc_unsubscribe, _}) -> p1_mucsub;
 get_mod({sic, _, _, _}) -> xep0279;
 get_mod({sm_resumed, _, _, _}) -> xep0198;
 get_mod({offline_item, _, _}) -> xep0013;

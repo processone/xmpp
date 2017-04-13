@@ -2921,7 +2921,8 @@
      #elem{name = <<"unsubscribe">>,
 	   xmlns = <<"urn:xmpp:mucsub:0">>,
 	   module = p1_mucsub,
-	   result = {muc_unsubscribe}}).
+	   attrs = [#attr{name = <<"jid">>}],
+	   result = {muc_unsubscribe, '$jid'}}).
 
 -xml(rsm_after,
      #elem{name = <<"after">>,
