@@ -2921,7 +2921,9 @@
      #elem{name = <<"unsubscribe">>,
 	   xmlns = <<"urn:xmpp:mucsub:0">>,
 	   module = p1_mucsub,
-	   attrs = [#attr{name = <<"jid">>}],
+	   attrs = [#attr{name = <<"jid">>,
+			  dec = {jid, decode, []},
+			  enc = {jid, encode, []}}],
 	   result = {muc_unsubscribe, '$jid'}}).
 
 -xml(rsm_after,
