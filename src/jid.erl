@@ -62,36 +62,16 @@
 %%%===================================================================
 %%% API
 %%%===================================================================
--spec start() -> {ok, pid()}.
+-spec start() -> ok | {error, unable_to_load_nif}.
 
 start() ->
-    {ok, Owner} = ets_owner(),
-    SplitPattern = binary:compile_pattern([<<"@">>, <<"/">>]),
-    %% Table is public to allow ETS insert to fix / update the table even if table already exist
-    %% with another owner.
-    catch ets:new(jlib, [named_table, public, set, {keypos, 1}, {heir, Owner, undefined}]),
-    ets:insert(jlib, {string_to_jid_pattern, SplitPattern}),
-    {ok, Owner}.
+    load_nif(p1_nif_utils:get_so_path(?MODULE, [jid], "jid")).
 
-ets_owner() ->
-    case whereis(jlib_ets) of
-        undefined ->
-            Pid = spawn(fun() -> ets_keepalive() end),
-            case catch register(jlib_ets, Pid) of
-                true ->
-                    {ok, Pid};
-                Error -> Error
-            end;
-        Pid ->
-            {ok,Pid}
-    end.
-
-%% Process used to keep jlib ETS table alive in case the original owner dies.
-%% The table need to be public, otherwise subsequent inserts would fail.
-ets_keepalive() ->
-    receive
-        _ ->
-            ets_keepalive()
+load_nif(SOPath) ->
+    case catch erlang:load_nif(SOPath, 0) of
+	ok -> ok;
+	Err -> error_logger:warning_msg("unable to load jid NIF: ~p~n", [Err]),
+	       {error, unable_to_load_nif}
     end.
 
 -spec make(binary(), binary(), binary()) -> jid() | error.
@@ -132,6 +112,10 @@ split(#jid{user = U, server = S, resource = R}) ->
 split(_) ->
     error.
 
+-spec string_to_usr(binary()) -> {binary(), binary(), binary()} | error.
+string_to_usr(_S) ->
+    erlang:nif_error(nif_not_loaded).
+
 -spec from_string(binary() | string()) -> jid() | error.
 from_string(S) when is_list(S) ->
     %% We do not accept list because we want to enforce good practice of
@@ -141,50 +125,13 @@ from_string(S) when is_list(S) ->
 from_string(<<>>) ->
     error;
 from_string(S) when is_binary(S) ->
-    SplitPattern = ets:lookup_element(jlib, string_to_jid_pattern, 2),
-    Size = size(S),
-    End = Size-1,
-    case binary:match(S, SplitPattern) of
-        {0, _} ->
-            error;
-        {End, _} ->
-            error;
-        {Pos1, _} ->
-            case binary:at(S, Pos1) of
-                $/ ->
-                    make(<<>>,
-			 binary:part(S, 0, Pos1),
-			 binary:part(S, Pos1+1, Size-Pos1-1));
-                _ ->
-                    Pos1N = Pos1+1,
-                    case binary:match(S, SplitPattern, [{scope, {Pos1+1, Size-Pos1-1}}]) of
-                        {End, _} ->
-                            error;
-                        {Pos1N, _} ->
-                            error;
-                        {Pos2, _} ->
-                            case binary:at(S, Pos2) of
-                                $/ ->
-                                    make(binary:part(S, 0, Pos1),
-					 binary:part(S, Pos1+1, Pos2-Pos1-1),
-					 binary:part(S, Pos2+1, Size-Pos2-1));
-                                _ -> error
-                            end;
-                        _ ->
-                            make(binary:part(S, 0, Pos1),
-				 binary:part(S, Pos1+1, Size-Pos1-1),
-				 <<>>)
-                    end
-            end;
-        _ ->
-            make(<<>>, S, <<>>)
-    end.
+    make(string_to_usr(S)).
 
 -spec decode(binary()) -> jid().
 decode(S) when is_binary(S) ->
-    case from_string(S) of
+    case string_to_usr(S) of
        error -> erlang:error({bad_jid, S});
-       J -> J
+       Val -> make(Val)
     end.
 
 -spec encode(jid() | ljid()) -> binary().
