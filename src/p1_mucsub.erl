@@ -96,13 +96,20 @@ encode_muc_unsubscribe({muc_unsubscribe, Jid},
 
 decode_muc_unsubscribe_attr_jid(__TopXMLNS,
 				undefined) ->
-    <<>>;
+    undefined;
 decode_muc_unsubscribe_attr_jid(__TopXMLNS, _val) ->
-    _val.
+    case catch jid:decode(_val) of
+      {'EXIT', _} ->
+	  erlang:error({xmpp_codec,
+			{bad_attr_value, <<"jid">>, <<"unsubscribe">>,
+			 __TopXMLNS}});
+      _res -> _res
+    end.
 
-encode_muc_unsubscribe_attr_jid(<<>>, _acc) -> _acc;
+encode_muc_unsubscribe_attr_jid(undefined, _acc) ->
+    _acc;
 encode_muc_unsubscribe_attr_jid(_val, _acc) ->
-    [{<<"jid">>, _val} | _acc].
+    [{<<"jid">>, jid:encode(_val)} | _acc].
 
 decode_muc_subscribe(__TopXMLNS, __Opts,
 		     {xmlel, <<"subscribe">>, _attrs, _els}) ->

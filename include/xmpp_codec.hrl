@@ -146,7 +146,7 @@
                  stored :: 'undefined' | non_neg_integer()}).
 -type expire() :: #expire{}.
 
--record(muc_unsubscribe, {jid = <<>> :: binary()}).
+-record(muc_unsubscribe, {jid :: undefined | jid:jid()}).
 -type muc_unsubscribe() :: #muc_unsubscribe{}.
 
 -record(ps_unsubscribe, {node = <<>> :: binary(),
