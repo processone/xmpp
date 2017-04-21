@@ -3902,6 +3902,48 @@
 	   refs = [#ref{name = upload_get, min = 0, max = 1, label = '$get'},
 		   #ref{name = upload_put, min = 0, max = 1, label = '$put'}]}).
 
+-xml(upload_request_0,
+     #elem{name = <<"request">>,
+	   xmlns = <<"urn:xmpp:http:upload:0">>,
+	   module = 'xep0363',
+	   result = {upload_request_0, '$filename', '$size', '$content-type',
+		     '$xmlns'},
+	   attrs = [#attr{name = <<"xmlns">>},
+		    #attr{name = <<"filename">>,
+			  required = true},
+		    #attr{name = <<"size">>,
+			  dec = {dec_int, [1, inifinity]},
+			  enc = {enc_int, []},
+			  required = true},
+		    #attr{name = <<"content-type">>}]}).
+
+-xml(upload_get_0,
+     #elem{name = <<"get">>,
+	   xmlns = <<"urn:xmpp:http:upload:0">>,
+	   module = 'xep0363',
+	   result = '$url',
+           attrs = [#attr{name = <<"url">>,
+			  required = true}]}).
+
+-xml(upload_put_0,
+     #elem{name = <<"put">>,
+	   xmlns = <<"urn:xmpp:http:upload:0">>,
+	   module = 'xep0363',
+	   result = '$url',
+           attrs = [#attr{name = <<"url">>,
+			  required = true}]}).
+
+-xml(upload_slot_0,
+     #elem{name = <<"slot">>,
+	   xmlns = <<"urn:xmpp:http:upload:0">>,
+	   module = 'xep0363',
+	   result = {upload_slot_0, '$get', '$put', '$xmlns'},
+	   attrs = [#attr{name = <<"xmlns">>}],
+	   refs = [#ref{name = upload_get_0, label = '$get',
+			min = 1, max = 1},
+		   #ref{name = upload_put_0, label = '$put',
+			min = 1, max = 1}]}).
+
 -xml(thumbnail,
      #elem{name = <<"thumbnail">>,
 	   xmlns = <<"urn:xmpp:thumbs:1">>,

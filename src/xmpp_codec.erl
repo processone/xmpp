@@ -421,6 +421,8 @@ get_mod(<<"max-nodes-exceeded">>,
     xep0060;
 get_mod(<<"delay">>, <<"urn:xmpp:delay">>) -> xep0203;
 get_mod(<<"first">>, <<"jabber:iq:search">>) -> xep0055;
+get_mod(<<"request">>, <<"urn:xmpp:http:upload:0">>) ->
+    xep0363;
 get_mod(<<"conflict">>,
 	<<"urn:ietf:params:xml:ns:xmpp-stanzas">>) ->
     rfc6120;
@@ -486,6 +488,8 @@ get_mod(<<"size">>, <<"urn:xmpp:http:upload">>) ->
     xep0363;
 get_mod(<<"slot">>,
 	<<"eu:siacs:conversations:http:upload">>) ->
+    xep0363;
+get_mod(<<"get">>, <<"urn:xmpp:http:upload:0">>) ->
     xep0363;
 get_mod(<<"not-authorized">>,
 	<<"urn:ietf:params:xml:ns:xmpp-stanzas">>) ->
@@ -586,16 +590,12 @@ get_mod(<<"email">>, <<"jabber:iq:search">>) -> xep0055;
 get_mod(<<"filename">>,
 	<<"eu:siacs:conversations:http:upload">>) ->
     xep0363;
-get_mod(<<"body">>, <<"jabber:server">>) -> rfc6120;
-get_mod(<<"restricted-xml">>,
-	<<"urn:ietf:params:xml:ns:xmpp-streams">>) ->
-    rfc6120;
-get_mod(<<"HOME">>, <<"vcard-temp">>) -> xep0054;
+get_mod(<<"put">>, <<"urn:xmpp:http:upload:0">>) ->
+    xep0363;
 get_mod(<<"JABBERID">>, <<"vcard-temp">>) -> xep0054;
 get_mod(<<"subscription">>,
 	<<"http://jabber.org/protocol/pubsub#event">>) ->
     xep0060;
-get_mod(<<"end">>, <<"urn:xmpp:mam:tmp">>) -> xep0313;
 get_mod(<<"iq">>, <<"jabber:iq:privacy">>) -> xep0016;
 get_mod(<<"list">>, <<"jabber:iq:privacy">>) -> xep0016;
 get_mod(<<"key">>, <<"jabber:iq:register">>) -> xep0077;
@@ -852,6 +852,8 @@ get_mod(<<"dialback">>,
 	<<"urn:xmpp:features:dialback">>) ->
     xep0220;
 get_mod(<<"put">>, <<"urn:xmpp:http:upload">>) ->
+    xep0363;
+get_mod(<<"slot">>, <<"urn:xmpp:http:upload:0">>) ->
     xep0363;
 get_mod(<<"query">>, <<"jabber:iq:privacy">>) ->
     xep0016;
@@ -1297,6 +1299,12 @@ get_mod(<<"closed-node">>,
 get_mod(<<"command">>,
 	<<"http://jabber.org/protocol/commands">>) ->
     xep0050;
+get_mod(<<"body">>, <<"jabber:server">>) -> rfc6120;
+get_mod(<<"restricted-xml">>,
+	<<"urn:ietf:params:xml:ns:xmpp-streams">>) ->
+    rfc6120;
+get_mod(<<"HOME">>, <<"vcard-temp">>) -> xep0054;
+get_mod(<<"end">>, <<"urn:xmpp:mam:tmp">>) -> xep0313;
 get_mod(Name, XMLNS) ->
     xmpp_codec_external:lookup(Name, XMLNS).
 
@@ -1435,6 +1443,7 @@ get_mod({roster_query, _, _}) -> rfc6121;
 get_mod({vcard_key, _, _}) -> xep0054;
 get_mod({sm_r, _}) -> xep0198;
 get_mod({media_uri, _, _}) -> xep0221;
+get_mod({upload_slot_0, _, _, _}) -> xep0363;
 get_mod({delegation_query, _, _}) -> xep0355;
 get_mod({sasl_success, _}) -> rfc6120;
 get_mod({compress, _}) -> xep0138;
@@ -1479,6 +1488,7 @@ get_mod({starttls_proceed}) -> rfc6120;
 get_mod({compressed}) -> xep0138;
 get_mod({p1_rebind}) -> p1_stream;
 get_mod({stream_error, _, _}) -> rfc6120;
+get_mod({upload_request_0, _, _, _, _}) -> xep0363;
 get_mod({privacy_item, _, _, _, _, _, _, _, _}) ->
     xep0016;
 get_mod({starttls_failure}) -> rfc6120;
