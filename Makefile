@@ -6,11 +6,11 @@ all: src
 src:
 	$(REBAR) get-deps compile
 
-spec: src/xmpp_codec.erl include/xmpp_codec.hrl
+spec: src/xmpp_codec.erl include/xmpp_codec.hrl deps/fast_xml/ebin/fxml_gen.beam
 	$(ERL) -noinput +B -pa ebin -pa deps/*/ebin -eval \
 	'case fxml_gen:compile("specs/xmpp_codec.spec", [{add_type_specs, xmpp_element}, {erl_dir, "src"}, {hrl_dir, "include"}]) of ok -> halt(0); _ -> halt(1) end.'
 
-xdata:
+xdata: ebin/xdata_codec.beam
 	$(ERL) -noinput +B -pa ebin -pa deps/*/ebin -eval \
 	'case xdata_codec:compile("specs", [{erl_dir, "src"}, {hrl_dir, "include"}]) of ok -> halt(0); _ -> halt(1) end.'
 
@@ -58,5 +58,11 @@ dialyzer: erlang_plt deps_plt xmpp_plt
 	@dialyzer --plts dialyzer/*.plt --no_check_plt \
 	--get_warnings -o dialyzer/error.log ebin; \
 	status=$$? ; if [ $$status -ne 2 ]; then exit $$status; else exit 0; fi
+
+deps/fast_xml/ebin/fxml_gen.beam:
+	$(REBAR) get-deps compile
+
+ebin/xdata_codec.beam:
+	$(REBAR) get-deps compile
 
 .PHONY: clean src all spec xdata dialyzer erlang_plt deps_plt xmpp_plt
