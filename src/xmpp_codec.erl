@@ -1365,7 +1365,6 @@ get_mod({vcard_adr, _, _, _, _, _, _, _, _, _, _, _, _,
     xep0054;
 get_mod({xdata_option, _, _}) -> xep0004;
 get_mod({ps_unsubscribe, _, _, _}) -> xep0060;
-get_mod({muc_subscribe, _, _, _}) -> p1_mucsub;
 get_mod({sm_resume, _, _, _}) -> xep0198;
 get_mod({vcard_geo, _, _}) -> xep0054;
 get_mod({mam_query, _, _, _, _, _, _, _, _}) -> xep0313;
@@ -1431,6 +1430,7 @@ get_mod({upload_request, _, _, _, _}) -> xep0363;
 get_mod({version, _, _, _}) -> xep0092;
 get_mod({vcard_org, _, _}) -> xep0054;
 get_mod({ps_items, _, _, _, _, _, _}) -> xep0060;
+get_mod({muc_subscribe, _, _, _, _}) -> p1_mucsub;
 get_mod({roster_item, _, _, _, _, _}) -> rfc6121;
 get_mod({vcard_tel, _, _, _, _, _, _, _, _, _, _, _, _,
 	 _, _}) ->

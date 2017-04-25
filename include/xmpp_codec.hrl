@@ -213,6 +213,7 @@
 
 -record(muc_subscribe, {nick = <<>> :: binary(),
                         password = <<>> :: binary(),
+                        jid :: undefined | jid:jid(),
                         events = [] :: [binary()]}).
 -type muc_subscribe() :: #muc_subscribe{}.
 
