@@ -109,7 +109,8 @@ start(_StartType, _StartArgs) ->
     try
 	{ok, _} = application:ensure_all_started(fast_xml),
 	{ok, _} = application:ensure_all_started(stringprep),
-	jid:start()
+	ok = jid:start(),
+	{ok, self()}
     catch _:{badmatch, Err} ->
 	    Err
     end.
