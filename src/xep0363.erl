@@ -5,6 +5,22 @@
 
 -compile(export_all).
 
+do_decode(<<"slot">>, <<"urn:xmpp:http:upload:0">>, El,
+	  Opts) ->
+    decode_upload_slot_0(<<"urn:xmpp:http:upload:0">>, Opts,
+			 El);
+do_decode(<<"put">>, <<"urn:xmpp:http:upload:0">>, El,
+	  Opts) ->
+    decode_upload_put_0(<<"urn:xmpp:http:upload:0">>, Opts,
+			El);
+do_decode(<<"get">>, <<"urn:xmpp:http:upload:0">>, El,
+	  Opts) ->
+    decode_upload_get_0(<<"urn:xmpp:http:upload:0">>, Opts,
+			El);
+do_decode(<<"request">>, <<"urn:xmpp:http:upload:0">>,
+	  El, Opts) ->
+    decode_upload_request_0(<<"urn:xmpp:http:upload:0">>,
+			    Opts, El);
 do_decode(<<"slot">>, <<"urn:xmpp:http:upload">>, El,
 	  Opts) ->
     decode_upload_slot(<<"urn:xmpp:http:upload">>, Opts,
@@ -65,7 +81,11 @@ do_decode(Name, XMLNS, _, _) ->
     erlang:error({xmpp_codec, {unknown_tag, Name, XMLNS}}).
 
 tags() ->
-    [{<<"slot">>, <<"urn:xmpp:http:upload">>},
+    [{<<"slot">>, <<"urn:xmpp:http:upload:0">>},
+     {<<"put">>, <<"urn:xmpp:http:upload:0">>},
+     {<<"get">>, <<"urn:xmpp:http:upload:0">>},
+     {<<"request">>, <<"urn:xmpp:http:upload:0">>},
+     {<<"slot">>, <<"urn:xmpp:http:upload">>},
      {<<"slot">>, <<"eu:siacs:conversations:http:upload">>},
      {<<"put">>, <<"urn:xmpp:http:upload">>},
      {<<"put">>, <<"eu:siacs:conversations:http:upload">>},
@@ -87,21 +107,47 @@ do_encode({upload_request, _, _, _, _} = Request,
 	  TopXMLNS) ->
     encode_upload_request(Request, TopXMLNS);
 do_encode({upload_slot, _, _, _} = Slot, TopXMLNS) ->
-    encode_upload_slot(Slot, TopXMLNS).
+    encode_upload_slot(Slot, TopXMLNS);
+do_encode({upload_request_0, _, _, _,
+	   <<"urn:xmpp:http:upload:0">>} =
+	      Request,
+	  TopXMLNS) ->
+    encode_upload_request_0(Request, TopXMLNS);
+do_encode({upload_request_0, _, _, _, <<>>} = Request,
+	  TopXMLNS = <<"urn:xmpp:http:upload:0">>) ->
+    encode_upload_request_0(Request, TopXMLNS);
+do_encode({upload_slot_0, _, _,
+	   <<"urn:xmpp:http:upload:0">>} =
+	      Slot,
+	  TopXMLNS) ->
+    encode_upload_slot_0(Slot, TopXMLNS);
+do_encode({upload_slot_0, _, _, <<>>} = Slot,
+	  TopXMLNS = <<"urn:xmpp:http:upload:0">>) ->
+    encode_upload_slot_0(Slot, TopXMLNS).
 
 do_get_name({upload_request, _, _, _, _}) ->
     <<"request">>;
-do_get_name({upload_slot, _, _, _}) -> <<"slot">>.
+do_get_name({upload_request_0, _, _, _, _}) ->
+    <<"request">>;
+do_get_name({upload_slot, _, _, _}) -> <<"slot">>;
+do_get_name({upload_slot_0, _, _, _}) -> <<"slot">>.
 
 do_get_ns({upload_request, _, _, _, Xmlns}) -> Xmlns;
-do_get_ns({upload_slot, _, _, Xmlns}) -> Xmlns.
+do_get_ns({upload_request_0, _, _, _, Xmlns}) -> Xmlns;
+do_get_ns({upload_slot, _, _, Xmlns}) -> Xmlns;
+do_get_ns({upload_slot_0, _, _, Xmlns}) -> Xmlns.
 
 pp(upload_request, 4) ->
     [filename, size, 'content-type', xmlns];
 pp(upload_slot, 3) -> [get, put, xmlns];
+pp(upload_request_0, 4) ->
+    [filename, size, 'content-type', xmlns];
+pp(upload_slot_0, 3) -> [get, put, xmlns];
 pp(_, _) -> no.
 
-records() -> [{upload_request, 4}, {upload_slot, 3}].
+records() ->
+    [{upload_request, 4}, {upload_slot, 3},
+     {upload_request_0, 4}, {upload_slot_0, 3}].
 
 dec_int(Val, Min, Max) ->
     case erlang:binary_to_integer(Val) of
@@ -110,6 +156,269 @@ dec_int(Val, Min, Max) ->
     end.
 
 enc_int(Int) -> erlang:integer_to_binary(Int).
+
+decode_upload_slot_0(__TopXMLNS, __Opts,
+		     {xmlel, <<"slot">>, _attrs, _els}) ->
+    {Put, Get} = decode_upload_slot_0_els(__TopXMLNS,
+					  __Opts, _els, error, error),
+    Xmlns = decode_upload_slot_0_attrs(__TopXMLNS, _attrs,
+				       undefined),
+    {upload_slot_0, Get, Put, Xmlns}.
+
+decode_upload_slot_0_els(__TopXMLNS, __Opts, [], Put,
+			 Get) ->
+    {case Put of
+       error ->
+	   erlang:error({xmpp_codec,
+			 {missing_tag, <<"put">>, __TopXMLNS}});
+       {value, Put1} -> Put1
+     end,
+     case Get of
+       error ->
+	   erlang:error({xmpp_codec,
+			 {missing_tag, <<"get">>, __TopXMLNS}});
+       {value, Get1} -> Get1
+     end};
+decode_upload_slot_0_els(__TopXMLNS, __Opts,
+			 [{xmlel, <<"get">>, _attrs, _} = _el | _els], Put,
+			 Get) ->
+    case xmpp_codec:get_attr(<<"xmlns">>, _attrs,
+			     __TopXMLNS)
+	of
+      <<"urn:xmpp:http:upload:0">> ->
+	  decode_upload_slot_0_els(__TopXMLNS, __Opts, _els, Put,
+				   {value,
+				    decode_upload_get_0(<<"urn:xmpp:http:upload:0">>,
+							__Opts, _el)});
+      _ ->
+	  decode_upload_slot_0_els(__TopXMLNS, __Opts, _els, Put,
+				   Get)
+    end;
+decode_upload_slot_0_els(__TopXMLNS, __Opts,
+			 [{xmlel, <<"put">>, _attrs, _} = _el | _els], Put,
+			 Get) ->
+    case xmpp_codec:get_attr(<<"xmlns">>, _attrs,
+			     __TopXMLNS)
+	of
+      <<"urn:xmpp:http:upload:0">> ->
+	  decode_upload_slot_0_els(__TopXMLNS, __Opts, _els,
+				   {value,
+				    decode_upload_put_0(<<"urn:xmpp:http:upload:0">>,
+							__Opts, _el)},
+				   Get);
+      _ ->
+	  decode_upload_slot_0_els(__TopXMLNS, __Opts, _els, Put,
+				   Get)
+    end;
+decode_upload_slot_0_els(__TopXMLNS, __Opts, [_ | _els],
+			 Put, Get) ->
+    decode_upload_slot_0_els(__TopXMLNS, __Opts, _els, Put,
+			     Get).
+
+decode_upload_slot_0_attrs(__TopXMLNS,
+			   [{<<"xmlns">>, _val} | _attrs], _Xmlns) ->
+    decode_upload_slot_0_attrs(__TopXMLNS, _attrs, _val);
+decode_upload_slot_0_attrs(__TopXMLNS, [_ | _attrs],
+			   Xmlns) ->
+    decode_upload_slot_0_attrs(__TopXMLNS, _attrs, Xmlns);
+decode_upload_slot_0_attrs(__TopXMLNS, [], Xmlns) ->
+    decode_upload_slot_0_attr_xmlns(__TopXMLNS, Xmlns).
+
+encode_upload_slot_0({upload_slot_0, Get, Put, Xmlns},
+		     __TopXMLNS) ->
+    __NewTopXMLNS = xmpp_codec:choose_top_xmlns(Xmlns,
+						[<<"urn:xmpp:http:upload:0">>],
+						__TopXMLNS),
+    _els = lists:reverse('encode_upload_slot_0_$put'(Put,
+						     __NewTopXMLNS,
+						     'encode_upload_slot_0_$get'(Get,
+										 __NewTopXMLNS,
+										 []))),
+    _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
+					__TopXMLNS),
+    {xmlel, <<"slot">>, _attrs, _els}.
+
+'encode_upload_slot_0_$put'(Put, __TopXMLNS, _acc) ->
+    [encode_upload_put_0(Put, __TopXMLNS) | _acc].
+
+'encode_upload_slot_0_$get'(Get, __TopXMLNS, _acc) ->
+    [encode_upload_get_0(Get, __TopXMLNS) | _acc].
+
+decode_upload_slot_0_attr_xmlns(__TopXMLNS,
+				undefined) ->
+    <<>>;
+decode_upload_slot_0_attr_xmlns(__TopXMLNS, _val) ->
+    _val.
+
+decode_upload_put_0(__TopXMLNS, __Opts,
+		    {xmlel, <<"put">>, _attrs, _els}) ->
+    Url = decode_upload_put_0_attrs(__TopXMLNS, _attrs,
+				    undefined),
+    Url.
+
+decode_upload_put_0_attrs(__TopXMLNS,
+			  [{<<"url">>, _val} | _attrs], _Url) ->
+    decode_upload_put_0_attrs(__TopXMLNS, _attrs, _val);
+decode_upload_put_0_attrs(__TopXMLNS, [_ | _attrs],
+			  Url) ->
+    decode_upload_put_0_attrs(__TopXMLNS, _attrs, Url);
+decode_upload_put_0_attrs(__TopXMLNS, [], Url) ->
+    decode_upload_put_0_attr_url(__TopXMLNS, Url).
+
+encode_upload_put_0(Url, __TopXMLNS) ->
+    __NewTopXMLNS =
+	xmpp_codec:choose_top_xmlns(<<"urn:xmpp:http:upload:0">>,
+				    [], __TopXMLNS),
+    _els = [],
+    _attrs = encode_upload_put_0_attr_url(Url,
+					  xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
+								     __TopXMLNS)),
+    {xmlel, <<"put">>, _attrs, _els}.
+
+decode_upload_put_0_attr_url(__TopXMLNS, undefined) ->
+    erlang:error({xmpp_codec,
+		  {missing_attr, <<"url">>, <<"put">>, __TopXMLNS}});
+decode_upload_put_0_attr_url(__TopXMLNS, _val) -> _val.
+
+encode_upload_put_0_attr_url(_val, _acc) ->
+    [{<<"url">>, _val} | _acc].
+
+decode_upload_get_0(__TopXMLNS, __Opts,
+		    {xmlel, <<"get">>, _attrs, _els}) ->
+    Url = decode_upload_get_0_attrs(__TopXMLNS, _attrs,
+				    undefined),
+    Url.
+
+decode_upload_get_0_attrs(__TopXMLNS,
+			  [{<<"url">>, _val} | _attrs], _Url) ->
+    decode_upload_get_0_attrs(__TopXMLNS, _attrs, _val);
+decode_upload_get_0_attrs(__TopXMLNS, [_ | _attrs],
+			  Url) ->
+    decode_upload_get_0_attrs(__TopXMLNS, _attrs, Url);
+decode_upload_get_0_attrs(__TopXMLNS, [], Url) ->
+    decode_upload_get_0_attr_url(__TopXMLNS, Url).
+
+encode_upload_get_0(Url, __TopXMLNS) ->
+    __NewTopXMLNS =
+	xmpp_codec:choose_top_xmlns(<<"urn:xmpp:http:upload:0">>,
+				    [], __TopXMLNS),
+    _els = [],
+    _attrs = encode_upload_get_0_attr_url(Url,
+					  xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
+								     __TopXMLNS)),
+    {xmlel, <<"get">>, _attrs, _els}.
+
+decode_upload_get_0_attr_url(__TopXMLNS, undefined) ->
+    erlang:error({xmpp_codec,
+		  {missing_attr, <<"url">>, <<"get">>, __TopXMLNS}});
+decode_upload_get_0_attr_url(__TopXMLNS, _val) -> _val.
+
+encode_upload_get_0_attr_url(_val, _acc) ->
+    [{<<"url">>, _val} | _acc].
+
+decode_upload_request_0(__TopXMLNS, __Opts,
+			{xmlel, <<"request">>, _attrs, _els}) ->
+    {Xmlns, Filename, Size, Content_type} =
+	decode_upload_request_0_attrs(__TopXMLNS, _attrs,
+				      undefined, undefined, undefined,
+				      undefined),
+    {upload_request_0, Filename, Size, Content_type, Xmlns}.
+
+decode_upload_request_0_attrs(__TopXMLNS,
+			      [{<<"xmlns">>, _val} | _attrs], _Xmlns, Filename,
+			      Size, Content_type) ->
+    decode_upload_request_0_attrs(__TopXMLNS, _attrs, _val,
+				  Filename, Size, Content_type);
+decode_upload_request_0_attrs(__TopXMLNS,
+			      [{<<"filename">>, _val} | _attrs], Xmlns,
+			      _Filename, Size, Content_type) ->
+    decode_upload_request_0_attrs(__TopXMLNS, _attrs, Xmlns,
+				  _val, Size, Content_type);
+decode_upload_request_0_attrs(__TopXMLNS,
+			      [{<<"size">>, _val} | _attrs], Xmlns, Filename,
+			      _Size, Content_type) ->
+    decode_upload_request_0_attrs(__TopXMLNS, _attrs, Xmlns,
+				  Filename, _val, Content_type);
+decode_upload_request_0_attrs(__TopXMLNS,
+			      [{<<"content-type">>, _val} | _attrs], Xmlns,
+			      Filename, Size, _Content_type) ->
+    decode_upload_request_0_attrs(__TopXMLNS, _attrs, Xmlns,
+				  Filename, Size, _val);
+decode_upload_request_0_attrs(__TopXMLNS, [_ | _attrs],
+			      Xmlns, Filename, Size, Content_type) ->
+    decode_upload_request_0_attrs(__TopXMLNS, _attrs, Xmlns,
+				  Filename, Size, Content_type);
+decode_upload_request_0_attrs(__TopXMLNS, [], Xmlns,
+			      Filename, Size, Content_type) ->
+    {decode_upload_request_0_attr_xmlns(__TopXMLNS, Xmlns),
+     decode_upload_request_0_attr_filename(__TopXMLNS,
+					   Filename),
+     decode_upload_request_0_attr_size(__TopXMLNS, Size),
+     'decode_upload_request_0_attr_content-type'(__TopXMLNS,
+						 Content_type)}.
+
+encode_upload_request_0({upload_request_0, Filename,
+			 Size, Content_type, Xmlns},
+			__TopXMLNS) ->
+    __NewTopXMLNS = xmpp_codec:choose_top_xmlns(Xmlns,
+						[<<"urn:xmpp:http:upload:0">>],
+						__TopXMLNS),
+    _els = [],
+    _attrs =
+	'encode_upload_request_0_attr_content-type'(Content_type,
+						    encode_upload_request_0_attr_size(Size,
+										      encode_upload_request_0_attr_filename(Filename,
+															    xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
+																		       __TopXMLNS)))),
+    {xmlel, <<"request">>, _attrs, _els}.
+
+decode_upload_request_0_attr_xmlns(__TopXMLNS,
+				   undefined) ->
+    <<>>;
+decode_upload_request_0_attr_xmlns(__TopXMLNS, _val) ->
+    _val.
+
+decode_upload_request_0_attr_filename(__TopXMLNS,
+				      undefined) ->
+    erlang:error({xmpp_codec,
+		  {missing_attr, <<"filename">>, <<"request">>,
+		   __TopXMLNS}});
+decode_upload_request_0_attr_filename(__TopXMLNS,
+				      _val) ->
+    _val.
+
+encode_upload_request_0_attr_filename(_val, _acc) ->
+    [{<<"filename">>, _val} | _acc].
+
+decode_upload_request_0_attr_size(__TopXMLNS,
+				  undefined) ->
+    erlang:error({xmpp_codec,
+		  {missing_attr, <<"size">>, <<"request">>, __TopXMLNS}});
+decode_upload_request_0_attr_size(__TopXMLNS, _val) ->
+    case catch dec_int(_val, 1, inifinity) of
+      {'EXIT', _} ->
+	  erlang:error({xmpp_codec,
+			{bad_attr_value, <<"size">>, <<"request">>,
+			 __TopXMLNS}});
+      _res -> _res
+    end.
+
+encode_upload_request_0_attr_size(_val, _acc) ->
+    [{<<"size">>, enc_int(_val)} | _acc].
+
+'decode_upload_request_0_attr_content-type'(__TopXMLNS,
+					    undefined) ->
+    <<>>;
+'decode_upload_request_0_attr_content-type'(__TopXMLNS,
+					    _val) ->
+    _val.
+
+'encode_upload_request_0_attr_content-type'(<<>>,
+					    _acc) ->
+    _acc;
+'encode_upload_request_0_attr_content-type'(_val,
+					    _acc) ->
+    [{<<"content-type">>, _val} | _acc].
 
 decode_upload_slot(__TopXMLNS, __Opts,
 		   {xmlel, <<"slot">>, _attrs, _els}) ->

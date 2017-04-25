@@ -186,6 +186,17 @@
                       to :: undefined | jid:jid()}).
 -type muc_decline() :: #muc_decline{}.
 
+-record(upload_slot_0, {get :: binary(),
+                        put :: binary(),
+                        xmlns = <<>> :: binary()}).
+-type upload_slot_0() :: #upload_slot_0{}.
+
+-record(upload_request_0, {filename = <<>> :: binary(),
+                           size :: pos_integer(),
+                           'content-type' = <<>> :: binary(),
+                           xmlns = <<>> :: binary()}).
+-type upload_request_0() :: #upload_request_0{}.
+
 -record(sm_a, {h :: non_neg_integer(),
                xmlns = <<>> :: binary()}).
 -type sm_a() :: #sm_a{}.
@@ -1054,6 +1065,8 @@
                         privacy_item() |
                         disco_item() |
                         ps_item() |
+                        upload_slot_0() |
+                        upload_request_0() |
                         mam_prefs() |
                         sasl_mechanisms() |
                         caps() |
