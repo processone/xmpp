@@ -1,2 +1,4 @@
+c_src/*.o
 deps/
 ebin/
+priv/
