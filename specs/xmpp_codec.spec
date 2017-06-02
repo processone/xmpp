@@ -1043,24 +1043,6 @@
 	   module = rfc6120,
            result = {stream_features, '$_els'}}).
 
--xml(p1_push,
-     #elem{name = <<"push">>,
-           result = {p1_push},
-	   module = p1_stream,
-           xmlns = <<"p1:push">>}).
-
--xml(p1_rebind,
-     #elem{name = <<"rebind">>,
-           result = {p1_rebind},
-	   module = p1_stream,
-           xmlns = <<"p1:rebind">>}).
-
--xml(p1_ack,
-     #elem{name = <<"ack">>,
-           result = {p1_ack},
-	   module = p1_stream,
-           xmlns = <<"p1:ack">>}).
-
 -xml(caps,
      #elem{name = <<"c">>,
            xmlns = <<"http://jabber.org/protocol/caps">>,

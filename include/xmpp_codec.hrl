@@ -285,9 +285,6 @@
 -record(nick, {name = <<>> :: binary()}).
 -type nick() :: #nick{}.
 
--record(p1_ack, {}).
--type p1_ack() :: #p1_ack{}.
-
 -record(feature_sm, {xmlns = <<>> :: binary()}).
 -type feature_sm() :: #feature_sm{}.
 
@@ -375,9 +372,6 @@
 -record(sasl_auth, {mechanism = <<>> :: binary(),
                     text = <<>> :: binary()}).
 -type sasl_auth() :: #sasl_auth{}.
-
--record(p1_push, {}).
--type p1_push() :: #p1_push{}.
 
 -record(feature_csi, {xmlns = <<>> :: binary()}).
 -type feature_csi() :: #feature_csi{}.
@@ -470,9 +464,6 @@
 -record(mam_archived, {by :: jid:jid(),
                        id = <<>> :: binary()}).
 -type mam_archived() :: #mam_archived{}.
-
--record(p1_rebind, {}).
--type p1_rebind() :: #p1_rebind{}.
 
 -record(compress_failure, {reason :: 'processing-failed' | 'setup-failed' | 'undefined' | 'unsupported-method'}).
 -type compress_failure() :: #compress_failure{}.
@@ -968,7 +959,6 @@
                         privacy_list() |
                         carbons_sent() |
                         mam_archived() |
-                        p1_rebind() |
                         sasl_abort() |
                         db_result() |
                         carbons_received() |
@@ -1038,7 +1028,6 @@
                         search() |
                         ps_publish() |
                         nick() |
-                        p1_ack() |
                         block() |
                         delegation() |
                         mix_join() |
@@ -1115,7 +1104,6 @@
                         ps_unsubscribe() |
                         chatstate() |
                         sasl_auth() |
-                        p1_push() |
                         oob_x() |
                         unblock() |
                         muc_admin() |

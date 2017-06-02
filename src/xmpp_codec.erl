@@ -274,7 +274,6 @@ get_mod(<<"iq">>, <<"jabber:component:accept">>) ->
 get_mod(<<"setup-failed">>,
 	<<"http://jabber.org/protocol/compress">>) ->
     xep0138;
-get_mod(<<"push">>, <<"p1:push">>) -> p1_stream;
 get_mod(<<"query">>,
 	<<"http://jabber.org/protocol/muc#admin">>) ->
     xep0045;
@@ -335,7 +334,6 @@ get_mod(<<"start">>, <<"urn:xmpp:mam:tmp">>) -> xep0313;
 get_mod(<<"received">>, <<"urn:xmpp:carbons:2">>) ->
     xep0280;
 get_mod(<<"x">>, <<"jabber:x:event">>) -> xep0022;
-get_mod(<<"rebind">>, <<"p1:rebind">>) -> p1_stream;
 get_mod(<<"nick">>, <<"jabber:iq:register">>) ->
     xep0077;
 get_mod(<<"internal-server-error">>,
@@ -592,10 +590,16 @@ get_mod(<<"filename">>,
     xep0363;
 get_mod(<<"put">>, <<"urn:xmpp:http:upload:0">>) ->
     xep0363;
+get_mod(<<"body">>, <<"jabber:server">>) -> rfc6120;
+get_mod(<<"restricted-xml">>,
+	<<"urn:ietf:params:xml:ns:xmpp-streams">>) ->
+    rfc6120;
+get_mod(<<"HOME">>, <<"vcard-temp">>) -> xep0054;
 get_mod(<<"JABBERID">>, <<"vcard-temp">>) -> xep0054;
 get_mod(<<"subscription">>,
 	<<"http://jabber.org/protocol/pubsub#event">>) ->
     xep0060;
+get_mod(<<"end">>, <<"urn:xmpp:mam:tmp">>) -> xep0313;
 get_mod(<<"iq">>, <<"jabber:iq:privacy">>) -> xep0016;
 get_mod(<<"list">>, <<"jabber:iq:privacy">>) -> xep0016;
 get_mod(<<"key">>, <<"jabber:iq:register">>) -> xep0077;
@@ -883,7 +887,6 @@ get_mod(<<"stream:stream">>,
     rfc6120;
 get_mod(<<"version">>, <<"jabber:iq:version">>) ->
     xep0092;
-get_mod(<<"ack">>, <<"p1:ack">>) -> p1_stream;
 get_mod(<<"email">>, <<"jabber:iq:register">>) ->
     xep0077;
 get_mod(<<"event">>,
@@ -1299,12 +1302,6 @@ get_mod(<<"closed-node">>,
 get_mod(<<"command">>,
 	<<"http://jabber.org/protocol/commands">>) ->
     xep0050;
-get_mod(<<"body">>, <<"jabber:server">>) -> rfc6120;
-get_mod(<<"restricted-xml">>,
-	<<"urn:ietf:params:xml:ns:xmpp-streams">>) ->
-    rfc6120;
-get_mod(<<"HOME">>, <<"vcard-temp">>) -> xep0054;
-get_mod(<<"end">>, <<"urn:xmpp:mam:tmp">>) -> xep0313;
 get_mod(Name, XMLNS) ->
     xmpp_codec_external:lookup(Name, XMLNS).
 
@@ -1329,7 +1326,6 @@ get_mod({sasl_auth, _, _}) -> rfc6120;
 get_mod({vcard_logo, _, _, _}) -> xep0054;
 get_mod({ps_item, _, _, _, _, _}) -> xep0060;
 get_mod({ps_event, _, _, _, _, _, _}) -> xep0060;
-get_mod({p1_ack}) -> p1_stream;
 get_mod({mam_fin, _, _, _, _, _}) -> xep0313;
 get_mod({legacy_auth, _, _, _, _}) -> xep0078;
 get_mod({sasl_mechanisms, _}) -> rfc6120;
@@ -1419,7 +1415,6 @@ get_mod({adhoc_actions, _, _, _, _}) -> xep0050;
 get_mod({adhoc_note, _, _}) -> xep0050;
 get_mod({disco_item, _, _, _}) -> xep0030;
 get_mod({stat, _, _, _, _}) -> xep0039;
-get_mod({p1_push}) -> p1_stream;
 get_mod({register, _, _, _, _, _, _, _, _, _, _, _, _,
 	 _, _, _, _, _, _, _, _, _, _}) ->
     xep0077;
@@ -1486,7 +1481,6 @@ get_mod({stat_error, _, _}) -> xep0039;
 get_mod({sasl_abort}) -> rfc6120;
 get_mod({starttls_proceed}) -> rfc6120;
 get_mod({compressed}) -> xep0138;
-get_mod({p1_rebind}) -> p1_stream;
 get_mod({stream_error, _, _}) -> rfc6120;
 get_mod({upload_request_0, _, _, _, _}) -> xep0363;
 get_mod({privacy_item, _, _, _, _, _, _, _, _}) ->
