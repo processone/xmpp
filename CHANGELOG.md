@@ -1,3 +1,23 @@
+# Version 1.1.10
+
+Badlop:
+* Add jid support in muc_unsubscribe and muc_subscribe
+
+Evgeniy Khramtsov:
+* Add ?stanza_type, ?stanza_from and ?stanza_to macros
+* Remove unused p1_stream extension
+* Clarify the library's main idea
+
+Holger Weiss (4):
+* Encode/decode muc_unsubscribe JIDs
+* Add support for HTTP File Upload, version 0.3.0
+* Makefile: Add dependencies for spec/xdata targets
+
+Paweł Chmielowski (3):
+* Add nif function jid:string_to_usr and use it
+* Fix return value from xmpp:start
+* Make multiple calls to jid:start() not generate nif reload error
+
 # Version 1.1.9
 
 Evgeniy Khramtsov:
