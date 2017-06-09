@@ -1,3 +1,8 @@
+# Version 1.1.11
+
+* Use fast_xml-1.1.23
+* Use stringprep-1.0.9
+
 # Version 1.1.10
 
 Badlop:
