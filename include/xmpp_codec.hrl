@@ -549,6 +549,10 @@
                   os :: 'undefined' | binary()}).
 -type version() :: #version{}.
 
+-record(push_disable, {jid :: jid:jid(),
+                       node = <<>> :: binary()}).
+-type push_disable() :: #push_disable{}.
+
 -record(legacy_auth_feature, {}).
 -type legacy_auth_feature() :: #legacy_auth_feature{}.
 
@@ -741,6 +745,11 @@
                 fields = [] :: [#xdata_field{}]}).
 -type xdata() :: #xdata{}.
 
+-record(push_enable, {jid :: jid:jid(),
+                      node = <<>> :: binary(),
+                      xdata :: 'undefined' | #xdata{}}).
+-type push_enable() :: #push_enable{}.
+
 -record(xcaptcha, {xdata :: #xdata{}}).
 -type xcaptcha() :: #xcaptcha{}.
 
@@ -878,6 +887,9 @@
                      forwarded :: 'undefined' | #forwarded{}}).
 -type delegation() :: #delegation{}.
 
+-record(push_notification, {xdata :: 'undefined' | #xdata{}}).
+-type push_notification() :: #push_notification{}.
+
 -record(mix_join, {jid :: undefined | jid:jid(),
                    subscribe = [] :: [binary()]}).
 -type mix_join() :: #mix_join{}.
@@ -1010,6 +1022,7 @@
                         sasl_failure() |
                         vcard_name() |
                         adhoc_note() |
+                        push_disable() |
                         legacy_auth_feature() |
                         rosterver_feature() |
                         muc_invite() |
@@ -1030,6 +1043,7 @@
                         nick() |
                         block() |
                         delegation() |
+                        push_notification() |
                         mix_join() |
                         xmpp_session() |
                         xdata() |
@@ -1093,6 +1107,7 @@
                         mix_leave() |
                         muc_subscribe() |
                         privilege() |
+                        push_enable() |
                         muc_unique() |
                         sasl_response() |
                         message() |

@@ -3929,6 +3929,36 @@
 		   #ref{name = upload_put_0, label = '$put',
 			min = 1, max = 1}]}).
 
+-xml(push_enable,
+     #elem{name = <<"enable">>,
+	   xmlns = <<"urn:xmpp:push:0">>,
+	   module = 'xep0357',
+	   result = {push_enable, '$jid', '$node', '$xdata'},
+	   attrs = [#attr{name = <<"jid">>,
+			  dec = {jid, decode, []},
+			  enc = {jid, encode, []},
+			  required = true},
+		    #attr{name = <<"node">>}],
+	   refs = [#ref{name = xdata, min = 0, max = 1}]}).
+
+-xml(push_disable,
+     #elem{name = <<"disable">>,
+	   xmlns = <<"urn:xmpp:push:0">>,
+	   module = 'xep0357',
+	   result = {push_disable, '$jid', '$node'},
+	   attrs = [#attr{name = <<"jid">>,
+			  dec = {jid, decode, []},
+			  enc = {jid, encode, []},
+			  required = true},
+		    #attr{name = <<"node">>}]}).
+
+-xml(push_notification,
+     #elem{name = <<"notification">>,
+	   xmlns = <<"urn:xmpp:push:0">>,
+	   module = 'xep0357',
+	   result = {push_notification, '$xdata'},
+	   refs = [#ref{name = xdata, min = 0, max = 1}]}).
+
 -xml(thumbnail,
      #elem{name = <<"thumbnail">>,
 	   xmlns = <<"urn:xmpp:thumbs:1">>,
