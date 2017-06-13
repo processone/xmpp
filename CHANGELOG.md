@@ -1,3 +1,8 @@
+# Version 1.1.12
+
+Holger Weiss:
+* Support XEP-0357: Push Notifications
+
 # Version 1.1.11
 
 * Use fast_xml-1.1.23
