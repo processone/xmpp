@@ -289,6 +289,7 @@ XMPP elements from the following documents are supported:
 - [XEP-0352](https://xmpp.org/extensions/xep-0352.html):  Client State Indication
 - [XEP-0355](https://xmpp.org/extensions/xep-0355.html):  Namespace Delegation
 - [XEP-0356](https://xmpp.org/extensions/xep-0356.html):  Privileged Entity
+- [XEP-0357](https://xmpp.org/extensions/xep-0357.html):  Push Notifications
 - [XEP-0359](https://xmpp.org/extensions/xep-0359.html):  Unique and Stable Stanza IDs
 - [XEP-0363](https://xmpp.org/extensions/xep-0363.html):  HTTP File Upload
 - [XEP-0369](https://xmpp.org/extensions/xep-0369.html):  Mediated Information eXchange (MIX)
