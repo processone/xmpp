@@ -78,7 +78,7 @@
 -define(NS_PUBSUB_SUBSCRIBE_OPTIONS,
 	<<"http://jabber.org/protocol/pubsub#subscribe_options">>).
 -define(NS_PUBSUB_PUBLISH_OPTIONS,
-	<<"http://jabber.org/protocol/pubsub#publish_options">>).
+	<<"http://jabber.org/protocol/pubsub#publish-options">>).
 -define(NS_PUBSUB_SUB_AUTH,
 	<<"http://jabber.org/protocol/pubsub#subscribe_authorization">>).
 -define(NS_PUBSUB_GET_PENDING,
