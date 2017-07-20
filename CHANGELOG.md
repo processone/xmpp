@@ -1,3 +1,8 @@
+# Version 1.1.14
+
+* Update hex packaging
+* Fix namespace in PubSub publishing options
+
 # Version 1.1.12
 
 Holger Weiss:
