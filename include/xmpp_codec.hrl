@@ -310,6 +310,10 @@
                        ver :: 'undefined' | binary()}).
 -type roster_query() :: #roster_query{}.
 
+-record(yc_info, {sent = <<>> :: binary(),
+                  uid = <<>> :: binary()}).
+-type yc_info() :: #yc_info{}.
+
 -record(sm_r, {xmlns = <<>> :: binary()}).
 -type sm_r() :: #sm_r{}.
 
@@ -678,6 +682,23 @@
                               password :: 'undefined' | binary()}).
 -type bookmark_conference() :: #bookmark_conference{}.
 
+-record(yc_thumbnail, {data = <<>> :: binary()}).
+-type yc_thumbnail() :: #yc_thumbnail{}.
+
+-record(yc_media_item, {type = <<>> :: binary(),
+                        uid = <<>> :: binary(),
+                        url = <<>> :: binary(),
+                        thumbnail = false :: 'false' | #yc_thumbnail{}}).
+-type yc_media_item() :: #yc_media_item{}.
+
+-record(yc_media, {media = [] :: [#yc_media_item{}]}).
+-type yc_media() :: #yc_media{}.
+
+-record(yc_message_data, {xmlns = <<>> :: binary(),
+                          info = false :: 'false' | #yc_info{},
+                          media = false :: 'false' | #yc_media{}}).
+-type yc_message_data() :: #yc_message_data{}.
+
 -record(xmpp_session, {optional = false :: boolean()}).
 -type xmpp_session() :: #xmpp_session{}.
 
@@ -962,13 +983,6 @@
                         xdata_option() |
                         version() |
                         sm_a() |
-                        stanza_id() |
-                        starttls_proceed() |
-                        forwarded() |
-                        client_id() |
-                        sm_resumed() |
-                        xevent() |
-                        privacy_list() |
                         carbons_sent() |
                         mam_archived() |
                         sasl_abort() |
@@ -980,9 +994,6 @@
                         block_list() |
                         delegated() |
                         rsm_set() |
-                        'see-other-host'() |
-                        hint() |
-                        stream_start() |
                         text() |
                         vcard_org() |
                         shim() |
@@ -1005,6 +1016,7 @@
                         identity() |
                         feature_csi() |
                         delay() |
+                        yc_thumbnail() |
                         thumbnail() |
                         vcard_tel() |
                         vcard_geo() |
@@ -1046,8 +1058,10 @@
                         push_notification() |
                         mix_join() |
                         xmpp_session() |
+                        yc_message_data() |
                         xdata() |
                         iq() |
+                        yc_media() |
                         xcaptcha() |
                         streamhost() |
                         bind() |
@@ -1068,6 +1082,7 @@
                         privilege_perm() |
                         privacy_item() |
                         disco_item() |
+                        yc_media_item() |
                         ps_item() |
                         upload_slot_0() |
                         upload_request_0() |
@@ -1089,10 +1104,11 @@
                         csi() |
                         delegation_query() |
                         mam_query() |
-                        bookmark_url() |
                         vcard_email() |
+                        bookmark_url() |
                         vcard_label() |
                         vcard_logo() |
+                        yc_info() |
                         disco_info() |
                         feature_register() |
                         register() |
@@ -1125,4 +1141,14 @@
                         ps_affiliation() |
                         mam_fin() |
                         bob_data() |
-                        media().
+                        media() |
+                        stanza_id() |
+                        starttls_proceed() |
+                        forwarded() |
+                        client_id() |
+                        sm_resumed() |
+                        xevent() |
+                        privacy_list() |
+                        'see-other-host'() |
+                        hint() |
+                        stream_start().

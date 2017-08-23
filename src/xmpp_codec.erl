@@ -441,12 +441,16 @@ get_mod(<<"query">>, <<"jabber:iq:search">>) -> xep0055;
 get_mod(<<"content-type">>,
 	<<"urn:xmpp:http:upload">>) ->
     xep0363;
+get_mod(<<"info">>, <<"urn:yc:message:data">>) ->
+    yc_message_data;
 get_mod(<<"stream:error">>, <<"jabber:server">>) ->
     rfc6120;
 get_mod(<<"field">>, <<"jabber:x:data">>) -> xep0004;
 get_mod(<<"unsubscribe">>,
 	<<"http://jabber.org/protocol/pubsub">>) ->
     xep0060;
+get_mod(<<"item">>, <<"urn:yc:message:data">>) ->
+    yc_message_data;
 get_mod(<<"presence">>, <<"jabber:server">>) -> rfc6120;
 get_mod(<<"configure">>,
 	<<"http://jabber.org/protocol/pubsub#owner">>) ->
@@ -596,24 +600,14 @@ get_mod(<<"JABBERID">>, <<"vcard-temp">>) -> xep0054;
 get_mod(<<"subscription">>,
 	<<"http://jabber.org/protocol/pubsub#event">>) ->
     xep0060;
-get_mod(<<"iq">>, <<"jabber:iq:privacy">>) -> xep0016;
-get_mod(<<"list">>, <<"jabber:iq:privacy">>) -> xep0016;
 get_mod(<<"key">>, <<"jabber:iq:register">>) -> xep0077;
-get_mod(<<"CATEGORIES">>, <<"vcard-temp">>) -> xep0054;
-get_mod(<<"delete">>,
-	<<"http://jabber.org/protocol/pubsub">>) ->
-    xep0060;
 get_mod(<<"unsupported">>,
 	<<"http://jabber.org/protocol/pubsub#errors">>) ->
     xep0060;
 get_mod(<<"unsupported-access-model">>,
 	<<"http://jabber.org/protocol/pubsub#errors">>) ->
     xep0060;
-get_mod(<<"subscribe">>, <<"urn:xmpp:mix:0">>) ->
-    xep0369;
-get_mod(<<"nick">>, <<"jabber:iq:search">>) -> xep0055;
 get_mod(<<"ip">>, <<"urn:xmpp:sic:1">>) -> xep0279;
-get_mod(<<"port">>, <<"urn:xmpp:sic:1">>) -> xep0279;
 get_mod(<<"attribute">>, <<"urn:xmpp:delegation:1">>) ->
     xep0355;
 get_mod(<<"status">>, <<"jabber:component:accept">>) ->
@@ -627,6 +621,8 @@ get_mod(<<"no-permanent-store">>,
     xep0334;
 get_mod(<<"filename">>, <<"urn:xmpp:http:upload">>) ->
     xep0363;
+get_mod(<<"thumbnail">>, <<"urn:yc:message:data">>) ->
+    yc_message_data;
 get_mod(<<"storage">>, <<"storage:bookmarks">>) ->
     xep0048;
 get_mod(<<"LINE">>, <<"vcard-temp">>) -> xep0054;
@@ -1222,6 +1218,8 @@ get_mod(<<"unsupported-stanza-type">>,
 get_mod(<<"INTERNET">>, <<"vcard-temp">>) -> xep0054;
 get_mod(<<"title">>, <<"jabber:x:data">>) -> xep0004;
 get_mod(<<"no-copy">>, <<"urn:xmpp:hints">>) -> xep0334;
+get_mod(<<"media">>, <<"urn:yc:message:data">>) ->
+    yc_message_data;
 get_mod(<<"subscription">>,
 	<<"http://jabber.org/protocol/pubsub#owner">>) ->
     xep0060;
@@ -1307,6 +1305,18 @@ get_mod(<<"restricted-xml">>,
     rfc6120;
 get_mod(<<"HOME">>, <<"vcard-temp">>) -> xep0054;
 get_mod(<<"end">>, <<"urn:xmpp:mam:tmp">>) -> xep0313;
+get_mod(<<"iq">>, <<"jabber:iq:privacy">>) -> xep0016;
+get_mod(<<"list">>, <<"jabber:iq:privacy">>) -> xep0016;
+get_mod(<<"CATEGORIES">>, <<"vcard-temp">>) -> xep0054;
+get_mod(<<"delete">>,
+	<<"http://jabber.org/protocol/pubsub">>) ->
+    xep0060;
+get_mod(<<"subscribe">>, <<"urn:xmpp:mix:0">>) ->
+    xep0369;
+get_mod(<<"nick">>, <<"jabber:iq:search">>) -> xep0055;
+get_mod(<<"port">>, <<"urn:xmpp:sic:1">>) -> xep0279;
+get_mod(<<"yc">>, <<"urn:yc:message:data">>) ->
+    yc_message_data;
 get_mod(Name, XMLNS) ->
     xmpp_codec_external:lookup(Name, XMLNS).
 
@@ -1315,14 +1325,7 @@ get_mod({legacy_auth_feature}) -> xep0078;
 get_mod({carbons_disable}) -> xep0280;
 get_mod({last, _, _}) -> xep0012;
 get_mod({compression, _}) -> xep0138;
-get_mod({caps, _, _, _, _}) -> xep0115;
-get_mod({xdata, _, _, _, _, _, _}) -> xep0004;
-get_mod({ps_options, _, _, _, _}) -> xep0060;
-get_mod({muc_admin, _}) -> xep0045;
 get_mod({mam_prefs, _, _, _, _}) -> xep0313;
-get_mod({search, _, _, _, _, _, _, _}) -> xep0055;
-get_mod({expire, _, _}) -> xep0023;
-get_mod({privilege, _, _}) -> xep0356;
 get_mod({stanza_error, _, _, _, _, _, _}) -> rfc6120;
 get_mod({muc_user, _, _, _, _, _, _}) -> xep0045;
 get_mod({bytestreams, _, _, _, _, _, _}) -> xep0065;
@@ -1339,6 +1342,7 @@ get_mod({stream_features, _}) -> rfc6120;
 get_mod({muc_item, _, _, _, _, _, _, _}) -> xep0045;
 get_mod({stream_start, _, _, _, _, _, _, _, _}) ->
     rfc6120;
+get_mod({yc_message_data, _, _, _}) -> yc_message_data;
 get_mod({block_list, _}) -> xep0191;
 get_mod({'see-other-host', _}) -> rfc6120;
 get_mod({muc_destroy, _, _, _, _}) -> xep0045;
@@ -1442,6 +1446,7 @@ get_mod({vcard_photo, _, _, _}) -> xep0054;
 get_mod({ps_publish, _, _}) -> xep0060;
 get_mod({search_item, _, _, _, _, _}) -> xep0055;
 get_mod({xcaptcha, _}) -> xep0158;
+get_mod({yc_media, _}) -> yc_message_data;
 get_mod({roster_query, _, _}) -> rfc6121;
 get_mod({vcard_key, _, _}) -> xep0054;
 get_mod({sm_r, _}) -> xep0198;
@@ -1480,6 +1485,8 @@ get_mod({address, _, _, _, _, _}) -> xep0033;
 get_mod({thumbnail, _, _, _, _}) -> xep0264;
 get_mod({delegation, _, _}) -> xep0355;
 get_mod({sm_enabled, _, _, _, _, _}) -> xep0198;
+get_mod({yc_media_item, _, _, _, _}) -> yc_message_data;
+get_mod({yc_info, _, _}) -> yc_message_data;
 get_mod({vcard_email, _, _, _, _, _, _}) -> xep0054;
 get_mod({ps_affiliation, _, _, _, _}) -> xep0060;
 get_mod({feature_csi, _}) -> xep0352;
@@ -1495,6 +1502,14 @@ get_mod({privacy_item, _, _, _, _, _, _, _, _}) ->
     xep0016;
 get_mod({starttls_failure}) -> rfc6120;
 get_mod({bob_data, _, _, _, _}) -> xep0231;
+get_mod({yc_thumbnail, _}) -> yc_message_data;
 get_mod({bind, _, _}) -> rfc6120;
 get_mod({rsm_first, _, _}) -> xep0059;
+get_mod({caps, _, _, _, _}) -> xep0115;
+get_mod({xdata, _, _, _, _, _, _}) -> xep0004;
+get_mod({ps_options, _, _, _, _}) -> xep0060;
+get_mod({muc_admin, _}) -> xep0045;
+get_mod({search, _, _, _, _, _, _, _}) -> xep0055;
+get_mod({expire, _, _}) -> xep0023;
+get_mod({privilege, _, _}) -> xep0356;
 get_mod(Record) -> xmpp_codec_external:lookup(Record).
