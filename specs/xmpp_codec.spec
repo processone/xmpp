@@ -4045,6 +4045,48 @@
 			  enc = {jid, encode, []}}],
 	   refs = [#ref{name = delegate, label = '$delegate'}]}).
 
+-xml(yc_media_item_thumbnail,
+     #elem{name = <<"thumbnail">>,
+     xmlns = <<"urn:yc:message:data">>,
+     module = 'yc_message_data',
+           result = {yc_thumbnail, '$data'},
+           cdata = #cdata{label = '$data'}}).
+
+-xml(yc_media_item,
+     #elem{name = <<"item">>,
+           xmlns = [<<"urn:yc:message:data">>],
+     module = 'yc_message_data',
+           result = {yc_media_item, '$type', '$uid', '$url', '$thumbnail'},
+           attrs = [#attr{name = <<"type">>, required = true, label = '$type'},
+                    #attr{name = <<"uid">>, required = true, label = '$uid'},
+                    #attr{name = <<"url">>, required = true, label = '$url'}], 
+                    refs = [#ref{name = yc_media_item_thumbnail, default = false,
+                                 min = 0, max = 1, label = '$thumbnail'}]}).
+-xml(yc_media,
+     #elem{name = <<"media">>,
+           xmlns = <<"urn:yc:message:data">>,
+     module = 'yc_message_data',
+           result = {yc_media, '$media'},
+           refs = [#ref{name = yc_media_item, default = false, label = '$media'}]}).
+
+-xml(yc_media_info,
+     #elem{name = <<"info">>,
+           xmlns = <<"urn:yc:message:data">>,
+     module = 'yc_message_data',
+           result = {yc_info, '$sent', '$uid'},
+           attrs = [#attr{name = <<"sent">>, required = true, label = '$sent'},
+                    #attr{name = <<"uid">>, required = true, label = '$uid'}]}).
+
+-xml(yc_message_data,
+     #elem{name = <<"yc">>,
+     xmlns = <<"urn:yc:message:data">>,
+     module = 'yc_message_data',
+           result = { yc_message_data, '$xmlns','$info', '$media'},
+           attrs = [#attr{name = <<"xmlns">>}],
+           refs = [#ref{name = yc_media_info, default = false, min = 0, max = 1, label = '$info'},
+                   #ref{name = yc_media, default = false, min = 0, max = 1, label = '$media'}]}).
+
+
 -spec dec_tzo(_) -> {integer(), integer()}.
 dec_tzo(Val) ->
     [H1, M1] = binary:split(Val, <<":">>),
