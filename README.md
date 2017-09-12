@@ -262,6 +262,7 @@ XMPP elements from the following documents are supported:
 - [XEP-0066](https://xmpp.org/extensions/xep-0066.html):  Out of Band Data
 - [XEP-0077](https://xmpp.org/extensions/xep-0077.html):  In-Band Registration
 - [XEP-0078](https://xmpp.org/extensions/xep-0078.html):  Non-SASL Authentication
+- [XEP-0084](https://xmpp.org/extensions/xep-0084.html):  User Avatar
 - [XEP-0085](https://xmpp.org/extensions/xep-0085.html):  Chat State Notifications
 - [XEP-0092](https://xmpp.org/extensions/xep-0092.html):  Software Version
 - [XEP-0114](https://xmpp.org/extensions/xep-0114.html):  Jabber Component Protocol

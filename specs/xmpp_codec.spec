@@ -4045,6 +4045,63 @@
 			  enc = {jid, encode, []}}],
 	   refs = [#ref{name = delegate, label = '$delegate'}]}).
 
+-xml(avatar_data,
+     #elem{name = <<"data">>,
+	   xmlns = <<"urn:xmpp:avatar:data">>,
+	   module = 'xep0084',
+	   result = {avatar_data, '$data'},
+	   cdata = #cdata{label = '$data',
+			  required = true,
+			  dec = {base64, decode, []},
+			  enc = {base64, encode, []}}}).
+
+-xml(avatar_info,
+     #elem{name = <<"info">>,
+	   xmlns = <<"urn:xmpp:avatar:metadata">>,
+	   module = 'xep0084',
+	   result = {avatar_info, '$bytes', '$id', '$type',
+		     '$height', '$width', '$url'},
+	   attrs = [#attr{name = <<"bytes">>,
+			  required = true,
+			  dec = {dec_int, [0, infinity]},
+			  enc = {enc_int, []}},
+		    #attr{name = <<"id">>, required = true},
+		    #attr{name = <<"type">>, required = true},
+		    #attr{name = <<"url">>},
+		    #attr{name = <<"height">>,
+			  dec = {dec_int, [0, infinity]},
+			  enc = {enc_int, []}},
+		    #attr{name = <<"width">>,
+			  dec = {dec_int, [0, infinity]},
+			  enc = {enc_int, []}}]}).
+
+-xml(avatar_pointer,
+     #elem{name = <<"pointer">>,
+	   xmlns = <<"urn:xmpp:avatar:metadata">>,
+	   module = 'xep0084',
+	   result = {avatar_pointer, '$bytes', '$id', '$type',
+		     '$height', '$width', '$_xmls'},
+	   attrs = [#attr{name = <<"bytes">>,
+			  dec = {dec_int, [0, infinity]},
+			  enc = {enc_int, []}},
+		    #attr{name = <<"id">>},
+		    #attr{name = <<"type">>},
+		    #attr{name = <<"height">>,
+			  dec = {dec_int, [0, infinity]},
+			  enc = {enc_int, []}},
+		    #attr{name = <<"width">>,
+			  dec = {dec_int, [0, infinity]},
+			  enc = {enc_int, []}}]}).
+
+-xml(avatar_meta,
+     #elem{name = <<"metadata">>,
+	   xmlns = <<"urn:xmpp:avatar:metadata">>,
+	   module = 'xep0084',
+	   result = {avatar_meta, '$info', '$pointer'},
+	   refs = [#ref{name = avatar_info, label = '$info'},
+		   #ref{name = avatar_pointer, label = '$pointer',
+			min = 0, max = 1}]}).
+
 -spec dec_tzo(_) -> {integer(), integer()}.
 dec_tzo(Val) ->
     [H1, M1] = binary:split(Val, <<":">>),

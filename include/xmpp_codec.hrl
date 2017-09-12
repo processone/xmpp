@@ -99,12 +99,11 @@
 		       'no-permanent-store' | 'no-permanent-storage'}).
 -type hint() :: #hint{}.
 
+-record(avatar_data, {data = <<>> :: binary()}).
+-type avatar_data() :: #avatar_data{}.
+
 -record(feature_register, {}).
 -type feature_register() :: #feature_register{}.
-
--record(adhoc_note, {type = info :: 'error' | 'info' | 'warn',
-                     data = <<>> :: binary()}).
--type adhoc_note() :: #adhoc_note{}.
 
 -record(address, {type :: 'bcc' | 'cc' | 'noreply' | 'ofrom' | 'replyroom' | 'replyto' | 'to',
                   jid :: undefined | jid:jid(),
@@ -115,6 +114,10 @@
 
 -record(sasl_success, {text = <<>> :: binary()}).
 -type sasl_success() :: #sasl_success{}.
+
+-record(adhoc_note, {type = info :: 'error' | 'info' | 'warn',
+                     data = <<>> :: binary()}).
+-type adhoc_note() :: #adhoc_note{}.
 
 -record(mam_result, {xmlns = <<>> :: binary(),
                      queryid = <<>> :: binary(),
@@ -146,6 +149,9 @@
                  stored :: 'undefined' | non_neg_integer()}).
 -type expire() :: #expire{}.
 
+-record(mix_leave, {}).
+-type mix_leave() :: #mix_leave{}.
+
 -record(muc_unsubscribe, {jid :: undefined | jid:jid()}).
 -type muc_unsubscribe() :: #muc_unsubscribe{}.
 
@@ -153,9 +159,6 @@
                          jid :: jid:jid(),
                          subid = <<>> :: binary()}).
 -type ps_unsubscribe() :: #ps_unsubscribe{}.
-
--record(mix_leave, {}).
--type mix_leave() :: #mix_leave{}.
 
 -record(ping, {}).
 -type ping() :: #ping{}.
@@ -186,40 +189,20 @@
                       to :: undefined | jid:jid()}).
 -type muc_decline() :: #muc_decline{}.
 
--record(upload_slot_0, {get :: binary(),
-                        put :: binary(),
-                        xmlns = <<>> :: binary()}).
--type upload_slot_0() :: #upload_slot_0{}.
-
 -record(upload_request_0, {filename = <<>> :: binary(),
                            size :: pos_integer(),
                            'content-type' = <<>> :: binary(),
                            xmlns = <<>> :: binary()}).
 -type upload_request_0() :: #upload_request_0{}.
 
+-record(upload_slot_0, {get :: binary(),
+                        put :: binary(),
+                        xmlns = <<>> :: binary()}).
+-type upload_slot_0() :: #upload_slot_0{}.
+
 -record(sm_a, {h :: non_neg_integer(),
                xmlns = <<>> :: binary()}).
 -type sm_a() :: #sm_a{}.
-
--record(stream_start, {from :: undefined | jid:jid(),
-                       to :: undefined | jid:jid(),
-                       id = <<>> :: binary(),
-                       version :: 'undefined' | {non_neg_integer(),non_neg_integer()},
-                       xmlns = <<>> :: binary(),
-                       stream_xmlns = <<>> :: binary(),
-                       db_xmlns = <<>> :: binary(),
-                       lang = <<>> :: binary()}).
--type stream_start() :: #stream_start{}.
-
--record(muc_subscribe, {nick = <<>> :: binary(),
-                        password = <<>> :: binary(),
-                        jid :: undefined | jid:jid(),
-                        events = [] :: [binary()]}).
--type muc_subscribe() :: #muc_subscribe{}.
-
--record(stanza_id, {by :: jid:jid(),
-                    id = <<>> :: binary()}).
--type stanza_id() :: #stanza_id{}.
 
 -record(starttls_proceed, {}).
 -type starttls_proceed() :: #starttls_proceed{}.
@@ -240,13 +223,25 @@
                      xmlns = <<>> :: binary()}).
 -type sm_resumed() :: #sm_resumed{}.
 
--record(sm_enable, {max :: 'undefined' | non_neg_integer(),
-                    resume = false :: boolean(),
-                    xmlns = <<>> :: binary()}).
--type sm_enable() :: #sm_enable{}.
+-record(stream_start, {from :: undefined | jid:jid(),
+                       to :: undefined | jid:jid(),
+                       id = <<>> :: binary(),
+                       version :: 'undefined' | {non_neg_integer(),non_neg_integer()},
+                       xmlns = <<>> :: binary(),
+                       stream_xmlns = <<>> :: binary(),
+                       db_xmlns = <<>> :: binary(),
+                       lang = <<>> :: binary()}).
+-type stream_start() :: #stream_start{}.
 
--record(starttls_failure, {}).
--type starttls_failure() :: #starttls_failure{}.
+-record(muc_subscribe, {nick = <<>> :: binary(),
+                        password = <<>> :: binary(),
+                        jid :: undefined | jid:jid(),
+                        events = [] :: [binary()]}).
+-type muc_subscribe() :: #muc_subscribe{}.
+
+-record(stanza_id, {by :: jid:jid(),
+                    id = <<>> :: binary()}).
+-type stanza_id() :: #stanza_id{}.
 
 -record(sasl_challenge, {text = <<>> :: binary()}).
 -type sasl_challenge() :: #sasl_challenge{}.
@@ -270,6 +265,14 @@
 -record(private, {xml_els = [] :: [fxml:xmlel()]}).
 -type private() :: #private{}.
 
+-record(sm_enable, {max :: 'undefined' | non_neg_integer(),
+                    resume = false :: boolean(),
+                    xmlns = <<>> :: binary()}).
+-type sm_enable() :: #sm_enable{}.
+
+-record(starttls_failure, {}).
+-type starttls_failure() :: #starttls_failure{}.
+
 -record(delegation_query, {to :: jid:jid(),
                            delegate = [] :: [binary()]}).
 -type delegation_query() :: #delegation_query{}.
@@ -285,6 +288,17 @@
 -record(nick, {name = <<>> :: binary()}).
 -type nick() :: #nick{}.
 
+-record(roster_item, {jid :: jid:jid(),
+                      name = <<>> :: binary(),
+                      groups = [] :: [binary()],
+                      subscription = none :: 'both' | 'from' | 'none' | 'remove' | 'to',
+                      ask :: 'subscribe' | 'undefined'}).
+-type roster_item() :: #roster_item{}.
+
+-record(roster_query, {items = [] :: [#roster_item{}],
+                       ver :: 'undefined' | binary()}).
+-type roster_query() :: #roster_query{}.
+
 -record(feature_sm, {xmlns = <<>> :: binary()}).
 -type feature_sm() :: #feature_sm{}.
 
@@ -299,19 +313,13 @@
                      items = [] :: [#ps_item{}]}).
 -type ps_publish() :: #ps_publish{}.
 
--record(roster_item, {jid :: jid:jid(),
-                      name = <<>> :: binary(),
-                      groups = [] :: [binary()],
-                      subscription = none :: 'both' | 'from' | 'none' | 'remove' | 'to',
-                      ask :: 'subscribe' | 'undefined'}).
--type roster_item() :: #roster_item{}.
-
--record(roster_query, {items = [] :: [#roster_item{}],
-                       ver :: 'undefined' | binary()}).
--type roster_query() :: #roster_query{}.
-
--record(sm_r, {xmlns = <<>> :: binary()}).
--type sm_r() :: #sm_r{}.
+-record(avatar_pointer, {bytes :: 'undefined' | non_neg_integer(),
+                         id = <<>> :: binary(),
+                         type = <<>> :: binary(),
+                         height :: 'undefined' | non_neg_integer(),
+                         width :: 'undefined' | non_neg_integer(),
+                         xml_els = [] :: [fxml:xmlel()]}).
+-type avatar_pointer() :: #avatar_pointer{}.
 
 -record(muc_actor, {jid :: undefined | jid:jid(),
                     nick = <<>> :: binary()}).
@@ -327,14 +335,11 @@
                error :: 'undefined' | #stat_error{}}).
 -type stat() :: #stat{}.
 
+-record(sm_r, {xmlns = <<>> :: binary()}).
+-type sm_r() :: #sm_r{}.
+
 -record(addresses, {list = [] :: [#address{}]}).
 -type addresses() :: #addresses{}.
-
--record('see-other-host', {host :: binary() | inet:ip_address() | {binary() | inet:ip_address(),non_neg_integer()}}).
--type 'see-other-host'() :: #'see-other-host'{}.
-
--record(compress, {methods = [] :: [binary()]}).
--type compress() :: #compress{}.
 
 -record(starttls, {required = false :: boolean()}).
 -type starttls() :: #starttls{}.
@@ -353,11 +358,11 @@
                      xmlns = <<>> :: binary()}).
 -type sm_enabled() :: #sm_enabled{}.
 
--record(muc_unique, {name = <<>> :: binary()}).
--type muc_unique() :: #muc_unique{}.
+-record('see-other-host', {host :: binary() | inet:ip_address() | {binary() | inet:ip_address(),non_neg_integer()}}).
+-type 'see-other-host'() :: #'see-other-host'{}.
 
--record(sasl_response, {text = <<>> :: binary()}).
--type sasl_response() :: #sasl_response{}.
+-record(compress, {methods = [] :: [binary()]}).
+-type compress() :: #compress{}.
 
 -record(legacy_auth, {username :: 'undefined' | binary(),
                       password :: 'undefined' | binary(),
@@ -368,6 +373,12 @@
 -record(ps_subscribe, {node = <<>> :: binary(),
                        jid :: jid:jid()}).
 -type ps_subscribe() :: #ps_subscribe{}.
+
+-record(muc_unique, {name = <<>> :: binary()}).
+-type muc_unique() :: #muc_unique{}.
+
+-record(sasl_response, {text = <<>> :: binary()}).
+-type sasl_response() :: #sasl_response{}.
 
 -record(sasl_auth, {mechanism = <<>> :: binary(),
                     text = <<>> :: binary()}).
@@ -401,6 +412,18 @@
                           expiry :: undefined | erlang:timestamp()}).
 -type ps_subscription() :: #ps_subscription{}.
 
+-record(avatar_info, {bytes :: non_neg_integer(),
+                      id = <<>> :: binary(),
+                      type = <<>> :: binary(),
+                      height :: 'undefined' | non_neg_integer(),
+                      width :: 'undefined' | non_neg_integer(),
+                      url = <<>> :: binary()}).
+-type avatar_info() :: #avatar_info{}.
+
+-record(avatar_meta, {info = [] :: [#avatar_info{}],
+                      pointer :: 'undefined' | #avatar_pointer{}}).
+-type avatar_meta() :: #avatar_meta{}.
+
 -record(bob_data, {cid = <<>> :: binary(),
                    'max-age' :: 'undefined' | non_neg_integer(),
                    type = <<>> :: binary(),
@@ -422,12 +445,6 @@
 -record(shim, {headers = [] :: [{binary(),binary()}]}).
 -type shim() :: #shim{}.
 
--record(mam_prefs, {xmlns = <<>> :: binary(),
-                    default :: 'always' | 'never' | 'roster' | 'undefined',
-                    always :: undefined | [jid:jid()],
-                    never :: undefined | [jid:jid()]}).
--type mam_prefs() :: #mam_prefs{}.
-
 -record(caps, {node = <<>> :: binary(),
                version = <<>> :: binary(),
                hash = <<>> :: binary(),
@@ -437,9 +454,6 @@
 -record(muc, {history :: 'undefined' | #muc_history{},
               password :: 'undefined' | binary()}).
 -type muc() :: #muc{}.
-
--record(stream_features, {sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
--type stream_features() :: #stream_features{}.
 
 -record(stats, {list = [] :: [#stat{}],
                 node = <<>> :: binary()}).
@@ -458,25 +472,17 @@
                    retract :: 'undefined' | binary()}).
 -type ps_items() :: #ps_items{}.
 
--record(carbons_sent, {forwarded :: #forwarded{}}).
--type carbons_sent() :: #carbons_sent{}.
+-record(mam_prefs, {xmlns = <<>> :: binary(),
+                    default :: 'always' | 'never' | 'roster' | 'undefined',
+                    always :: undefined | [jid:jid()],
+                    never :: undefined | [jid:jid()]}).
+-type mam_prefs() :: #mam_prefs{}.
 
--record(mam_archived, {by :: jid:jid(),
-                       id = <<>> :: binary()}).
--type mam_archived() :: #mam_archived{}.
-
--record(compress_failure, {reason :: 'processing-failed' | 'setup-failed' | 'undefined' | 'unsupported-method'}).
--type compress_failure() :: #compress_failure{}.
+-record(stream_features, {sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
+-type stream_features() :: #stream_features{}.
 
 -record(sasl_abort, {}).
 -type sasl_abort() :: #sasl_abort{}.
-
--record(xevent, {offline = false :: boolean(),
-                 delivered = false :: boolean(),
-                 displayed = false :: boolean(),
-                 composing = false :: boolean(),
-                 id :: 'undefined' | binary()}).
--type xevent() :: #xevent{}.
 
 -record(vcard_email, {home = false :: boolean(),
                       work = false :: boolean(),
@@ -524,34 +530,27 @@
 -record(block_list, {items = [] :: [jid:jid()]}).
 -type block_list() :: #block_list{}.
 
--record(upload_request, {filename :: binary(),
-                         size :: non_neg_integer(),
-                         'content-type' = <<>> :: binary(),
-                         xmlns = <<>> :: binary()}).
--type upload_request() :: #upload_request{}.
+-record(xevent, {offline = false :: boolean(),
+                 delivered = false :: boolean(),
+                 displayed = false :: boolean(),
+                 composing = false :: boolean(),
+                 id :: 'undefined' | binary()}).
+-type xevent() :: #xevent{}.
 
--record(xdata_option, {label = <<>> :: binary(),
-                       value :: binary()}).
--type xdata_option() :: #xdata_option{}.
+-record(carbons_sent, {forwarded :: #forwarded{}}).
+-type carbons_sent() :: #carbons_sent{}.
 
--record(xdata_field, {label = <<>> :: binary(),
-                      type :: 'boolean' | 'fixed' | 'hidden' | 'jid-multi' | 'jid-single' | 'list-multi' | 'list-single' | 'text-multi' | 'text-private' | 'text-single' | 'undefined',
-                      var = <<>> :: binary(),
-                      required = false :: boolean(),
-                      desc = <<>> :: binary(),
-                      values = [] :: [binary()],
-                      options = [] :: [#xdata_option{}],
-                      sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
--type xdata_field() :: #xdata_field{}.
+-record(mam_archived, {by :: jid:jid(),
+                       id = <<>> :: binary()}).
+-type mam_archived() :: #mam_archived{}.
+
+-record(compress_failure, {reason :: 'processing-failed' | 'setup-failed' | 'undefined' | 'unsupported-method'}).
+-type compress_failure() :: #compress_failure{}.
 
 -record(version, {name :: 'undefined' | binary(),
                   ver :: 'undefined' | binary(),
                   os :: 'undefined' | binary()}).
 -type version() :: #version{}.
-
--record(push_disable, {jid :: jid:jid(),
-                       node = <<>> :: binary()}).
--type push_disable() :: #push_disable{}.
 
 -record(legacy_auth_feature, {}).
 -type legacy_auth_feature() :: #legacy_auth_feature{}.
@@ -583,6 +582,30 @@
                       mode = tcp :: 'tcp' | 'udp',
                       sid = <<>> :: binary()}).
 -type bytestreams() :: #bytestreams{}.
+
+-record(upload_request, {filename :: binary(),
+                         size :: non_neg_integer(),
+                         'content-type' = <<>> :: binary(),
+                         xmlns = <<>> :: binary()}).
+-type upload_request() :: #upload_request{}.
+
+-record(xdata_option, {label = <<>> :: binary(),
+                       value :: binary()}).
+-type xdata_option() :: #xdata_option{}.
+
+-record(xdata_field, {label = <<>> :: binary(),
+                      type :: 'boolean' | 'fixed' | 'hidden' | 'jid-multi' | 'jid-single' | 'list-multi' | 'list-single' | 'text-multi' | 'text-private' | 'text-single' | 'undefined',
+                      var = <<>> :: binary(),
+                      required = false :: boolean(),
+                      desc = <<>> :: binary(),
+                      values = [] :: [binary()],
+                      options = [] :: [#xdata_option{}],
+                      sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
+-type xdata_field() :: #xdata_field{}.
+
+-record(push_disable, {jid :: jid:jid(),
+                       node = <<>> :: binary()}).
+-type push_disable() :: #push_disable{}.
 
 -record(adhoc_actions, {execute :: 'complete' | 'next' | 'prev' | 'undefined',
                         prev = false :: boolean(),
@@ -631,15 +654,6 @@
                     number :: 'undefined' | binary()}).
 -type vcard_tel() :: #vcard_tel{}.
 
--record(media_uri, {type = <<>> :: binary(),
-                    uri = <<>> :: binary()}).
--type media_uri() :: #media_uri{}.
-
--record(media, {height :: 'undefined' | non_neg_integer(),
-                width :: 'undefined' | non_neg_integer(),
-                uri = [] :: [#media_uri{}]}).
--type media() :: #media{}.
-
 -record(muc_destroy, {xmlns = <<>> :: binary(),
                       jid :: undefined | jid:jid(),
                       reason = <<>> :: binary(),
@@ -654,10 +668,6 @@
                    password :: 'undefined' | binary()}).
 -type muc_user() :: #muc_user{}.
 
--record(vcard_key, {type :: 'undefined' | binary(),
-                    cred :: 'undefined' | binary()}).
--type vcard_key() :: #vcard_key{}.
-
 -record(vcard_name, {family :: 'undefined' | binary(),
                      given :: 'undefined' | binary(),
                      middle :: 'undefined' | binary(),
@@ -670,6 +680,19 @@
                    lang = <<>> :: binary(),
                    name = <<>> :: binary()}).
 -type identity() :: #identity{}.
+
+-record(media_uri, {type = <<>> :: binary(),
+                    uri = <<>> :: binary()}).
+-type media_uri() :: #media_uri{}.
+
+-record(media, {height :: 'undefined' | non_neg_integer(),
+                width :: 'undefined' | non_neg_integer(),
+                uri = [] :: [#media_uri{}]}).
+-type media() :: #media{}.
+
+-record(vcard_key, {type :: 'undefined' | binary(),
+                    cred :: 'undefined' | binary()}).
+-type vcard_key() :: #vcard_key{}.
 
 -record(bookmark_conference, {name = <<>> :: binary(),
                               jid :: jid:jid(),
@@ -852,6 +875,9 @@
                      xdata = [] :: [#xdata{}]}).
 -type disco_info() :: #disco_info{}.
 
+-record(sasl_mechanisms, {list = [] :: [binary()]}).
+-type sasl_mechanisms() :: #sasl_mechanisms{}.
+
 -record(offline_item, {node = <<>> :: binary(),
                        action :: 'remove' | 'undefined' | 'view'}).
 -type offline_item() :: #offline_item{}.
@@ -865,23 +891,6 @@
                     config :: 'undefined' | #xdata{},
                     items = [] :: [#muc_item{}]}).
 -type muc_owner() :: #muc_owner{}.
-
--record(sasl_mechanisms, {list = [] :: [binary()]}).
--type sasl_mechanisms() :: #sasl_mechanisms{}.
-
--record(sm_failed, {reason :: atom() | #gone{} | #redirect{},
-                    text = [] :: [#text{}],
-                    h :: 'undefined' | non_neg_integer(),
-                    xmlns = <<>> :: binary()}).
--type sm_failed() :: #sm_failed{}.
-
--record(stanza_error, {type :: 'auth' | 'cancel' | 'continue' | 'modify' | 'wait',
-                       code :: 'undefined' | non_neg_integer(),
-                       by = <<>> :: binary(),
-                       reason :: atom() | #gone{} | #redirect{},
-                       text :: 'undefined' | #text{},
-                       sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
--type stanza_error() :: #stanza_error{}.
 
 -record(delegation, {delegated = [] :: [#delegated{}],
                      forwarded :: 'undefined' | #forwarded{}}).
@@ -916,6 +925,20 @@
 -record(stream_error, {reason :: atom() | #'see-other-host'{},
                        text :: 'undefined' | #text{}}).
 -type stream_error() :: #stream_error{}.
+
+-record(sm_failed, {reason :: atom() | #gone{} | #redirect{},
+                    text = [] :: [#text{}],
+                    h :: 'undefined' | non_neg_integer(),
+                    xmlns = <<>> :: binary()}).
+-type sm_failed() :: #sm_failed{}.
+
+-record(stanza_error, {type :: 'auth' | 'cancel' | 'continue' | 'modify' | 'wait',
+                       code :: 'undefined' | non_neg_integer(),
+                       by = <<>> :: binary(),
+                       reason :: atom() | #gone{} | #redirect{},
+                       text :: 'undefined' | #text{},
+                       sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
+-type stanza_error() :: #stanza_error{}.
 
 -record(vcard_logo, {type :: 'undefined' | binary(),
                      binval :: 'undefined' | binary(),
@@ -957,172 +980,176 @@
                utc :: undefined | erlang:timestamp()}).
 -type time() :: #time{}.
 
--type xmpp_element() :: compression() |
-                        ps_subscription() |
-                        xdata_option() |
-                        version() |
-                        sm_a() |
-                        stanza_id() |
-                        starttls_proceed() |
-                        forwarded() |
-                        client_id() |
-                        sm_resumed() |
-                        xevent() |
-                        privacy_list() |
-                        carbons_sent() |
-                        mam_archived() |
-                        sasl_abort() |
-                        db_result() |
-                        carbons_received() |
-                        upload_slot() |
-                        mix_participant() |
-                        compressed() |
-                        block_list() |
-                        delegated() |
-                        rsm_set() |
-                        'see-other-host'() |
-                        hint() |
-                        stream_start() |
-                        text() |
-                        vcard_org() |
-                        shim() |
-                        search_item() |
-                        offline_item() |
-                        feature_sm() |
-                        roster_item() |
-                        muc_item() |
-                        vcard_temp() |
-                        address() |
-                        sasl_success() |
-                        addresses() |
-                        muc_subscriptions() |
-                        disco_items() |
-                        compress() |
-                        bytestreams() |
-                        adhoc_actions() |
-                        privacy_query() |
-                        muc_history() |
-                        identity() |
-                        feature_csi() |
-                        delay() |
-                        thumbnail() |
-                        vcard_tel() |
-                        vcard_geo() |
-                        vcard_photo() |
-                        pubsub_owner() |
-                        pubsub() |
-                        muc_owner() |
-                        muc_actor() |
-                        ps_error() |
-                        starttls_failure() |
-                        sasl_challenge() |
-                        db_feature() |
-                        x_conference() |
-                        private() |
-                        sasl_failure() |
-                        vcard_name() |
-                        adhoc_note() |
-                        push_disable() |
-                        legacy_auth_feature() |
-                        rosterver_feature() |
-                        muc_invite() |
-                        vcard_xupdate() |
-                        carbons_disable() |
-                        bookmark_conference() |
-                        offline() |
-                        time() |
-                        ps_subscribe() |
-                        sm_enable() |
-                        handshake() |
-                        compress_failure() |
-                        bookmark_storage() |
-                        muc_decline() |
-                        legacy_auth() |
-                        search() |
-                        ps_publish() |
-                        nick() |
-                        block() |
-                        delegation() |
-                        push_notification() |
-                        mix_join() |
-                        xmpp_session() |
-                        xdata() |
-                        iq() |
-                        xcaptcha() |
-                        streamhost() |
-                        bind() |
-                        ps_retract() |
-                        last() |
-                        redirect() |
-                        sm_enabled() |
-                        vcard_sound() |
-                        ps_event() |
-                        mam_result() |
-                        rsm_first() |
-                        stat() |
-                        upload_request() |
-                        xdata_field() |
-                        adhoc_command() |
-                        sm_failed() |
-                        ping() |
-                        privilege_perm() |
-                        privacy_item() |
-                        disco_item() |
-                        ps_item() |
-                        upload_slot_0() |
-                        upload_request_0() |
-                        mam_prefs() |
-                        sasl_mechanisms() |
-                        caps() |
-                        muc() |
-                        stream_features() |
-                        stats() |
-                        sic() |
-                        ps_items() |
-                        ps_options() |
-                        starttls() |
-                        db_verify() |
-                        roster_query() |
-                        media_uri() |
-                        muc_destroy() |
-                        vcard_key() |
-                        csi() |
-                        delegation_query() |
-                        mam_query() |
-                        bookmark_url() |
-                        vcard_email() |
-                        vcard_label() |
-                        vcard_logo() |
+-type xmpp_element() :: muc_subscriptions() |
                         disco_info() |
+                        stats() |
                         feature_register() |
-                        register() |
-                        sm_r() |
-                        stat_error() |
-                        stanza_error() |
-                        stream_error() |
-                        muc_user() |
-                        vcard_adr() |
-                        gone() |
-                        carbons_private() |
-                        mix_leave() |
-                        muc_subscribe() |
-                        privilege() |
-                        push_enable() |
-                        muc_unique() |
-                        sasl_response() |
-                        message() |
-                        presence() |
+                        compress_failure() |
                         sm_resume() |
-                        carbons_enable() |
-                        expire() |
-                        muc_unsubscribe() |
-                        ps_unsubscribe() |
-                        chatstate() |
-                        sasl_auth() |
-                        oob_x() |
-                        unblock() |
+                        adhoc_actions() |
                         muc_admin() |
-                        ps_affiliation() |
+                        bookmark_conference() |
+                        chatstate() |
+                        vcard_label() |
+                        sm_resumed() |
+                        xcaptcha() |
+                        upload_request_0() |
+                        starttls_proceed() |
+                        pubsub() |
+                        muc_destroy() |
+                        stream_features() |
+                        privacy_item() |
+                        csi() |
+                        db_verify() |
+                        stat() |
+                        feature_csi() |
+                        privilege_perm() |
                         mam_fin() |
+                        vcard_sound() |
+                        avatar_data() |
+                        ps_retract() |
+                        vcard_photo() |
+                        version() |
+                        stat_error() |
+                        sasl_challenge() |
+                        compression() |
+                        text() |
+                        addresses() |
+                        vcard_tel() |
+                        media() |
+                        xdata_option() |
+                        xevent() |
+                        muc_subscribe() |
+                        sasl_auth() |
+                        stanza_error() |
+                        presence() |
+                        starttls() |
+                        carbons_private() |
+                        muc_history() |
+                        ps_options() |
+                        'see-other-host'() |
+                        handshake() |
+                        hint() |
+                        redirect() |
+                        sasl_mechanisms() |
+                        mam_result() |
+                        ps_item() |
+                        upload_slot() |
+                        ps_unsubscribe() |
+                        bookmark_storage() |
+                        gone() |
+                        muc_invite() |
+                        xmpp_session() |
+                        legacy_auth_feature() |
+                        oob_x() |
+                        ps_subscription() |
+                        upload_request() |
+                        vcard_adr() |
+                        block_list() |
+                        sm_enabled() |
+                        rsm_set() |
+                        vcard_key() |
+                        address() |
+                        ps_subscribe() |
+                        delegation() |
+                        vcard_xupdate() |
+                        expire() |
+                        vcard_email() |
+                        mam_archived() |
+                        thumbnail() |
+                        vcard_logo() |
+                        vcard_geo() |
+                        ps_publish() |
+                        mix_leave() |
+                        carbons_received() |
+                        privacy_list() |
+                        block() |
+                        sasl_failure() |
+                        disco_item() |
+                        search_item() |
+                        carbons_disable() |
+                        upload_slot_0() |
+                        sm_a() |
+                        forwarded() |
+                        ping() |
+                        sasl_abort() |
+                        ps_items() |
+                        client_id() |
+                        push_disable() |
+                        sasl_success() |
+                        privacy_query() |
+                        carbons_sent() |
+                        db_feature() |
+                        muc_item() |
+                        muc_unique() |
+                        caps() |
+                        roster_item() |
+                        mam_prefs() |
+                        sasl_response() |
+                        adhoc_command() |
+                        feature_sm() |
+                        offline_item() |
+                        mix_join() |
+                        identity() |
+                        muc() |
+                        bytestreams() |
+                        sm_failed() |
+                        adhoc_note() |
+                        unblock() |
+                        delay() |
+                        avatar_pointer() |
+                        xdata() |
+                        stanza_id() |
+                        db_result() |
+                        avatar_info() |
+                        privilege() |
+                        delegation_query() |
+                        delegated() |
+                        compressed() |
+                        muc_owner() |
+                        push_enable() |
                         bob_data() |
-                        media().
+                        muc_actor() |
+                        muc_unsubscribe() |
+                        carbons_enable() |
+                        x_conference() |
+                        streamhost() |
+                        vcard_name() |
+                        sm_r() |
+                        disco_items() |
+                        ps_affiliation() |
+                        vcard_org() |
+                        bookmark_url() |
+                        ps_error() |
+                        roster_query() |
+                        shim() |
+                        starttls_failure() |
+                        last() |
+                        private() |
+                        sm_enable() |
+                        search() |
+                        stream_start() |
+                        media_uri() |
+                        rosterver_feature() |
+                        xdata_field() |
+                        vcard_temp() |
+                        mam_query() |
+                        stream_error() |
+                        offline() |
+                        bind() |
+                        muc_user() |
+                        muc_decline() |
+                        compress() |
+                        sic() |
+                        avatar_meta() |
+                        iq() |
+                        mix_participant() |
+                        push_notification() |
+                        ps_event() |
+                        rsm_first() |
+                        legacy_auth() |
+                        register() |
+                        time() |
+                        pubsub_owner() |
+                        nick() |
+                        message().

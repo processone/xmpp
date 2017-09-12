@@ -180,3 +180,5 @@
 -define(NS_MUCSUB_NODES_SUBJECT, <<"urn:xmpp:mucsub:nodes:subject">>).
 -define(NS_MUCSUB_NODES_CONFIG, <<"urn:xmpp:mucsub:nodes:config">>).
 -define(NS_MUCSUB_NODES_SYSTEM, <<"urn:xmpp:mucsub:nodes:system">>).
+-define(NS_AVATAR_DATA, <<"urn:xmpp:avatar:data">>).
+-define(NS_AVATAR_METADATA, <<"urn:xmpp:avatar:metadata">>).
