@@ -1,3 +1,8 @@
+# Version 1.1.15
+
+* Compatibility with R19.3+
+* XEP-0084 (User Avatar) support
+
 # Version 1.1.14
 
 * Update hex packaging
