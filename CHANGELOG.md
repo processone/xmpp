@@ -1,5 +1,8 @@
 # Version 1.1.15
 
+* Updating fast_xml to version 1.1.23.
+* Updating p1_utils to version 1.0.10.
+* Updating stringprep to version 1.0.10.
 * Compatibility with R19.3+
 * XEP-0084 (User Avatar) support
 
