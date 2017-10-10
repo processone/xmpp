@@ -22,6 +22,14 @@ dec_enum(Val, Enums) ->
 
 enc_enum(Atom) -> erlang:atom_to_binary(Atom, utf8).
 
+dec_bool(<<"1">>) -> true;
+dec_bool(<<"0">>) -> false;
+dec_bool(<<"true">>) -> true;
+dec_bool(<<"false">>) -> false.
+
+enc_bool(true) -> <<"1">>;
+enc_bool(false) -> <<"0">>.
+
 format_error({form_type_mismatch, Type}) ->
     <<"FORM_TYPE doesn't match '", Type/binary, "'">>;
 format_error({bad_var_value, Var, Type}) ->
@@ -82,6 +90,11 @@ encode(Cfg) -> encode(Cfg, <<"en">>).
 
 encode(List, Lang) when is_list(List) ->
     Fs = [case Opt of
+	    {persist_items, Val} ->
+		[encode_persist_items(Val, Lang)];
+	    {persist_items, _, _} -> erlang:error({badarg, Opt});
+	    {secret, Val} -> [encode_secret(Val, Lang)];
+	    {secret, _, _} -> erlang:error({badarg, Opt});
 	    {access_model, Val} ->
 		[encode_access_model(Val, default, Lang)];
 	    {access_model, Val, Opts} ->
@@ -97,6 +110,62 @@ encode(List, Lang) when is_list(List) ->
 				   "ions">>]},
     [FormType | lists:flatten(Fs)].
 
+decode([#xdata_field{var = <<"pubsub#persist_items">>,
+		     values = [Value]}
+	| Fs],
+       Acc, Required) ->
+    try dec_bool(Value) of
+      Result ->
+	  decode(Fs, [{persist_items, Result} | Acc], Required)
+    catch
+      _:_ ->
+	  erlang:error({?MODULE,
+			{bad_var_value, <<"pubsub#persist_items">>,
+			 <<"http://jabber.org/protocol/pubsub#publish-opt"
+			   "ions">>}})
+    end;
+decode([#xdata_field{var = <<"pubsub#persist_items">>,
+		     values = []} =
+	    F
+	| Fs],
+       Acc, Required) ->
+    decode([F#xdata_field{var = <<"pubsub#persist_items">>,
+			  values = [<<>>]}
+	    | Fs],
+	   Acc, Required);
+decode([#xdata_field{var = <<"pubsub#persist_items">>}
+	| _],
+       _, _) ->
+    erlang:error({?MODULE,
+		  {too_many_values, <<"pubsub#persist_items">>,
+		   <<"http://jabber.org/protocol/pubsub#publish-opt"
+		     "ions">>}});
+decode([#xdata_field{var = <<"secret">>,
+		     values = [Value]}
+	| Fs],
+       Acc, Required) ->
+    try Value of
+      Result -> decode(Fs, [{secret, Result} | Acc], Required)
+    catch
+      _:_ ->
+	  erlang:error({?MODULE,
+			{bad_var_value, <<"secret">>,
+			 <<"http://jabber.org/protocol/pubsub#publish-opt"
+			   "ions">>}})
+    end;
+decode([#xdata_field{var = <<"secret">>, values = []} =
+	    F
+	| Fs],
+       Acc, Required) ->
+    decode([F#xdata_field{var = <<"secret">>,
+			  values = [<<>>]}
+	    | Fs],
+	   Acc, Required);
+decode([#xdata_field{var = <<"secret">>} | _], _, _) ->
+    erlang:error({?MODULE,
+		  {too_many_values, <<"secret">>,
+		   <<"http://jabber.org/protocol/pubsub#publish-opt"
+		     "ions">>}});
 decode([#xdata_field{var = <<"pubsub#access_model">>,
 		     values = [Value]}
 	| Fs],
@@ -138,6 +207,28 @@ decode([#xdata_field{var = Var} | Fs], Acc, Required) ->
        true -> decode(Fs, Acc, Required)
     end;
 decode([], Acc, []) -> Acc.
+
+encode_persist_items(Value, Lang) ->
+    Values = case Value of
+	       undefined -> [];
+	       Value -> [enc_bool(Value)]
+	     end,
+    Opts = [],
+    #xdata_field{var = <<"pubsub#persist_items">>,
+		 values = Values, required = false, type = boolean,
+		 options = Opts, desc = <<>>,
+		 label =
+		     xmpp_tr:tr(Lang, <<"Persist items to storage">>)}.
+
+encode_secret(Value, Lang) ->
+    Values = case Value of
+	       <<>> -> [];
+	       Value -> [Value]
+	     end,
+    Opts = [],
+    #xdata_field{var = <<"secret">>, values = Values,
+		 required = false, type = 'text-single', options = Opts,
+		 desc = <<>>, label = xmpp_tr:tr(Lang, <<"Secret">>)}.
 
 encode_access_model(Value, Options, Lang) ->
     Values = case Value of
