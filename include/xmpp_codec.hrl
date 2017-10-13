@@ -923,7 +923,7 @@
 -type privacy_query() :: #privacy_query{}.
 
 -record(stream_error, {reason :: atom() | #'see-other-host'{},
-                       text :: 'undefined' | #text{}}).
+                       text = [] :: [#text{}]}).
 -type stream_error() :: #stream_error{}.
 
 -record(sm_failed, {reason :: atom() | #gone{} | #redirect{},
@@ -936,7 +936,7 @@
                        code :: 'undefined' | non_neg_integer(),
                        by = <<>> :: binary(),
                        reason :: atom() | #gone{} | #redirect{},
-                       text :: 'undefined' | #text{},
+                       text = [] :: [#text{}],
                        sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
 -type stanza_error() :: #stanza_error{}.
 
@@ -1012,8 +1012,8 @@
                         version() |
                         stat_error() |
                         sasl_challenge() |
-                        compression() |
                         text() |
+                        compression() |
                         addresses() |
                         vcard_tel() |
                         media() |
@@ -1107,6 +1107,7 @@
                         delegated() |
                         compressed() |
                         muc_owner() |
+                        search() |
                         push_enable() |
                         bob_data() |
                         muc_actor() |
@@ -1127,7 +1128,6 @@
                         last() |
                         private() |
                         sm_enable() |
-                        search() |
                         stream_start() |
                         media_uri() |
                         rosterver_feature() |

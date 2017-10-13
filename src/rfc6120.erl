@@ -1045,13 +1045,12 @@ encode_stream_start_attr_id(_val, _acc) ->
 decode_stream_error(__TopXMLNS, __Opts,
 		    {xmlel, <<"stream:error">>, _attrs, _els}) ->
     {Text, Reason} = decode_stream_error_els(__TopXMLNS,
-					     __Opts, _els, undefined,
-					     undefined),
+					     __Opts, _els, [], undefined),
     {stream_error, Reason, Text}.
 
 decode_stream_error_els(__TopXMLNS, __Opts, [], Text,
 			Reason) ->
-    {Text, Reason};
+    {lists:reverse(Text), Reason};
 decode_stream_error_els(__TopXMLNS, __Opts,
 			[{xmlel, <<"text">>, _attrs, _} = _el | _els], Text,
 			Reason) ->
@@ -1060,8 +1059,9 @@ decode_stream_error_els(__TopXMLNS, __Opts,
 	of
       <<"urn:ietf:params:xml:ns:xmpp-streams">> ->
 	  decode_stream_error_els(__TopXMLNS, __Opts, _els,
-				  decode_stream_error_text(<<"urn:ietf:params:xml:ns:xmpp-streams">>,
-							   __Opts, _el),
+				  [decode_stream_error_text(<<"urn:ietf:params:xml:ns:xmpp-streams">>,
+							    __Opts, _el)
+				   | Text],
 				  Reason);
       _ ->
 	  decode_stream_error_els(__TopXMLNS, __Opts, _els, Text,
@@ -1488,11 +1488,13 @@ encode_stream_error({stream_error, Reason, Text},
 					__TopXMLNS),
     {xmlel, <<"stream:error">>, _attrs, _els}.
 
-'encode_stream_error_$text'(undefined, __TopXMLNS,
-			    _acc) ->
+'encode_stream_error_$text'([], __TopXMLNS, _acc) ->
     _acc;
-'encode_stream_error_$text'(Text, __TopXMLNS, _acc) ->
-    [encode_stream_error_text(Text, __TopXMLNS) | _acc].
+'encode_stream_error_$text'([Text | _els], __TopXMLNS,
+			    _acc) ->
+    'encode_stream_error_$text'(_els, __TopXMLNS,
+				[encode_stream_error_text(Text, __TopXMLNS)
+				 | _acc]).
 
 'encode_stream_error_$reason'(undefined, __TopXMLNS,
 			      _acc) ->
@@ -3233,8 +3235,7 @@ encode_bind_jid_cdata(_val, _acc) ->
 decode_error(__TopXMLNS, __Opts,
 	     {xmlel, <<"error">>, _attrs, _els}) ->
     {Text, Reason, __Els} = decode_error_els(__TopXMLNS,
-					     __Opts, _els, undefined, undefined,
-					     []),
+					     __Opts, _els, [], undefined, []),
     {Type, Code, By} = decode_error_attrs(__TopXMLNS,
 					  _attrs, undefined, undefined,
 					  undefined),
@@ -3242,7 +3243,7 @@ decode_error(__TopXMLNS, __Opts,
 
 decode_error_els(__TopXMLNS, __Opts, [], Text, Reason,
 		 __Els) ->
-    {Text, Reason, lists:reverse(__Els)};
+    {lists:reverse(Text), Reason, lists:reverse(__Els)};
 decode_error_els(__TopXMLNS, __Opts,
 		 [{xmlel, <<"text">>, _attrs, _} = _el | _els], Text,
 		 Reason, __Els) ->
@@ -3251,8 +3252,9 @@ decode_error_els(__TopXMLNS, __Opts,
 	of
       <<"urn:ietf:params:xml:ns:xmpp-stanzas">> ->
 	  decode_error_els(__TopXMLNS, __Opts, _els,
-			   decode_error_text(<<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
-					     __Opts, _el),
+			   [decode_error_text(<<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
+					      __Opts, _el)
+			    | Text],
 			   Reason, __Els);
       _ ->
 	  decode_error_els(__TopXMLNS, __Opts, _els, Text, Reason,
@@ -3681,10 +3683,10 @@ encode_error({stanza_error, Type, Code, By, Reason,
 													   __TopXMLNS)))),
     {xmlel, <<"error">>, _attrs, _els}.
 
-'encode_error_$text'(undefined, __TopXMLNS, _acc) ->
-    _acc;
-'encode_error_$text'(Text, __TopXMLNS, _acc) ->
-    [encode_error_text(Text, __TopXMLNS) | _acc].
+'encode_error_$text'([], __TopXMLNS, _acc) -> _acc;
+'encode_error_$text'([Text | _els], __TopXMLNS, _acc) ->
+    'encode_error_$text'(_els, __TopXMLNS,
+			 [encode_error_text(Text, __TopXMLNS) | _acc]).
 
 'encode_error_$reason'(undefined, __TopXMLNS, _acc) ->
     _acc;
