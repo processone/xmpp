@@ -946,8 +946,7 @@ err(Type, Reason, Code) ->
 	  reason_text(), lang()) -> stanza_error().
 err(Type, Reason, Code, Text, Lang) ->
     #stanza_error{type = Type, reason = Reason, code = Code,
-		  text = #text{lang = Lang,
-			       data = translate(Lang, Text)}}.
+		  text = mk_text(Text, Lang)}.
 
 -spec serr(atom() | 'see-other-host'()) -> stream_error().
 serr(Reason) ->
@@ -956,9 +955,7 @@ serr(Reason) ->
 -spec serr(atom() | 'see-other-host'(), reason_text(),
 	   binary()) -> stream_error().
 serr(Reason, Text, Lang) ->
-    #stream_error{reason = Reason,
-		  text = #text{lang = Lang,
-			       data = translate(Lang, Text)}}.
+    #stream_error{reason = Reason, text = mk_text(Text, Lang)}.
 
 -spec match_tag(xmlel() | xmpp_element(),
 		binary(), binary(), binary()) -> boolean().

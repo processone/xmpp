@@ -6,6 +6,15 @@
     defines METADATA to be attached to the item, a per-item OVERRIDE of the node
     configuration, or a PRECONDITION to be checked against the node configuration.
   </desc>
+  <!-- Defined in XEP-0223 -->
+  <field var='pubsub#persist_items'
+         type='boolean'
+         label='Persist items to storage'/>
+  <!-- Defined in XEP-0357 -->
+  <field var='secret'
+	 type='text-single'
+	 label='Secret'/>
+  <!-- Defined in XEP-0060 -->
   <field var='pubsub#access_model'
          type='list-single'
          label='Specify the access model'>
