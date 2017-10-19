@@ -54,6 +54,9 @@
 -export([from_string/1, to_string/1]).
 -deprecated([{from_string, 1}, {to_string, 1}]).
 
+%% For tests only
+-export([string_to_usr/1]).
+
 -include("jid.hrl").
 
 -export_type([jid/0]).
@@ -131,8 +134,13 @@ from_string(S) when is_binary(S) ->
 -spec decode(binary()) -> jid().
 decode(S) when is_binary(S) ->
     case string_to_usr(S) of
-       error -> erlang:error({bad_jid, S});
-       Val -> make(Val)
+	error ->
+	    erlang:error({bad_jid, S});
+	Val ->
+	    case make(Val) of
+		error -> erlang:error({bad_jid, S});
+		Prepped -> Prepped
+	    end
     end.
 
 -spec encode(jid() | ljid()) -> binary().
