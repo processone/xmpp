@@ -26,22 +26,23 @@ static int load(ErlNifEnv* env, void** priv, ERL_NIF_TERM load_info)
 static ERL_NIF_TERM mk_binary_term(ErlNifEnv* env, char *start, char *stop,
 				   int start_offset, int stop_offset)
 {
+  ERL_NIF_TERM result;
+
   if (stop && start) {
     stop += stop_offset;
     start += start_offset;
     if (stop > start) {
-      ErlNifBinary bin;
       size_t size = stop - start;
-      if (enif_alloc_binary(size, &bin)) {
-	memcpy(bin.data, start, size);
-	return enif_make_binary(env, &bin);
+      unsigned char *buf = enif_make_new_binary(env, size, &result);
+      if (buf) {
+	memcpy(buf, start, size);
+	return result;
       }
     }
   }
 
-  ERL_NIF_TERM empty;
-  enif_make_new_binary(env, 0, &empty);
-  return empty;
+  enif_make_new_binary(env, 0, &result);
+  return result;
 }
 
 static ERL_NIF_TERM string_to_usr(ErlNifEnv* env, int argc,
@@ -60,7 +61,7 @@ static ERL_NIF_TERM string_to_usr(ErlNifEnv* env, int argc,
   if (argc != 1)
     return enif_make_badarg(env);
 
-  if (!(enif_inspect_iolist_as_binary(env, argv[0], &input)))
+  if (!(enif_inspect_binary(env, argv[0], &input)))
     return enif_make_badarg(env);
 
   if (!input.size)
@@ -71,14 +72,14 @@ static ERL_NIF_TERM string_to_usr(ErlNifEnv* env, int argc,
   char *eof = pe;
 
   
-#line 75 "jid.c"
+#line 76 "jid.c"
 	{
 	cs = foo_start;
 	}
 
-#line 85 "jid.rl"
+#line 86 "jid.rl"
   
-#line 82 "jid.c"
+#line 83 "jid.c"
 	{
 	if ( p == pe )
 		goto _test_eof;
@@ -124,7 +125,7 @@ tr0:
 #line 15 "jid.rl"
 	{ ret = 0; }
 	goto st0;
-#line 128 "jid.c"
+#line 129 "jid.c"
 st0:
 cs = 0;
 	goto _out;
@@ -138,7 +139,7 @@ st2:
 	if ( ++p == pe )
 		goto _test_eof2;
 case 2:
-#line 142 "jid.c"
+#line 143 "jid.c"
 	if ( (*p) <= -65 )
 		goto tr11;
 	goto tr0;
@@ -158,7 +159,7 @@ st33:
 	if ( ++p == pe )
 		goto _test_eof33;
 case 33:
-#line 162 "jid.c"
+#line 163 "jid.c"
 	switch( (*p) ) {
 		case -32: goto st3;
 		case -19: goto st5;
@@ -204,7 +205,7 @@ st3:
 	if ( ++p == pe )
 		goto _test_eof3;
 case 3:
-#line 208 "jid.c"
+#line 209 "jid.c"
 	if ( -96 <= (*p) && (*p) <= -65 )
 		goto st2;
 	goto tr0;
@@ -218,7 +219,7 @@ st4:
 	if ( ++p == pe )
 		goto _test_eof4;
 case 4:
-#line 222 "jid.c"
+#line 223 "jid.c"
 	if ( (*p) <= -65 )
 		goto st2;
 	goto tr0;
@@ -232,7 +233,7 @@ st5:
 	if ( ++p == pe )
 		goto _test_eof5;
 case 5:
-#line 236 "jid.c"
+#line 237 "jid.c"
 	if ( (*p) <= -97 )
 		goto st2;
 	goto tr0;
@@ -246,7 +247,7 @@ st6:
 	if ( ++p == pe )
 		goto _test_eof6;
 case 6:
-#line 250 "jid.c"
+#line 251 "jid.c"
 	if ( -112 <= (*p) && (*p) <= -65 )
 		goto st4;
 	goto tr0;
@@ -260,7 +261,7 @@ st7:
 	if ( ++p == pe )
 		goto _test_eof7;
 case 7:
-#line 264 "jid.c"
+#line 265 "jid.c"
 	if ( (*p) <= -65 )
 		goto st4;
 	goto tr0;
@@ -274,7 +275,7 @@ st8:
 	if ( ++p == pe )
 		goto _test_eof8;
 case 8:
-#line 278 "jid.c"
+#line 279 "jid.c"
 	if ( (*p) <= -113 )
 		goto st4;
 	goto tr0;
@@ -300,7 +301,7 @@ st34:
 	if ( ++p == pe )
 		goto _test_eof34;
 case 34:
-#line 304 "jid.c"
+#line 305 "jid.c"
 	switch( (*p) ) {
 		case -32: goto st10;
 		case -19: goto st12;
@@ -337,7 +338,7 @@ st9:
 	if ( ++p == pe )
 		goto _test_eof9;
 case 9:
-#line 341 "jid.c"
+#line 342 "jid.c"
 	if ( (*p) <= -65 )
 		goto tr14;
 	goto tr0;
@@ -349,7 +350,7 @@ st10:
 	if ( ++p == pe )
 		goto _test_eof10;
 case 10:
-#line 353 "jid.c"
+#line 354 "jid.c"
 	if ( -96 <= (*p) && (*p) <= -65 )
 		goto st9;
 	goto tr0;
@@ -361,7 +362,7 @@ st11:
 	if ( ++p == pe )
 		goto _test_eof11;
 case 11:
-#line 365 "jid.c"
+#line 366 "jid.c"
 	if ( (*p) <= -65 )
 		goto st9;
 	goto tr0;
@@ -373,7 +374,7 @@ st12:
 	if ( ++p == pe )
 		goto _test_eof12;
 case 12:
-#line 377 "jid.c"
+#line 378 "jid.c"
 	if ( (*p) <= -97 )
 		goto st9;
 	goto tr0;
@@ -385,7 +386,7 @@ st13:
 	if ( ++p == pe )
 		goto _test_eof13;
 case 13:
-#line 389 "jid.c"
+#line 390 "jid.c"
 	if ( -112 <= (*p) && (*p) <= -65 )
 		goto st11;
 	goto tr0;
@@ -397,7 +398,7 @@ st14:
 	if ( ++p == pe )
 		goto _test_eof14;
 case 14:
-#line 401 "jid.c"
+#line 402 "jid.c"
 	if ( (*p) <= -65 )
 		goto st11;
 	goto tr0;
@@ -409,7 +410,7 @@ st15:
 	if ( ++p == pe )
 		goto _test_eof15;
 case 15:
-#line 413 "jid.c"
+#line 414 "jid.c"
 	if ( (*p) <= -113 )
 		goto st11;
 	goto tr0;
@@ -421,7 +422,7 @@ st35:
 	if ( ++p == pe )
 		goto _test_eof35;
 case 35:
-#line 425 "jid.c"
+#line 426 "jid.c"
 	switch( (*p) ) {
 		case -32: goto st10;
 		case -19: goto st12;
@@ -458,7 +459,7 @@ st16:
 	if ( ++p == pe )
 		goto _test_eof16;
 case 16:
-#line 462 "jid.c"
+#line 463 "jid.c"
 	switch( (*p) ) {
 		case -32: goto st18;
 		case -19: goto st20;
@@ -495,7 +496,7 @@ st36:
 	if ( ++p == pe )
 		goto _test_eof36;
 case 36:
-#line 499 "jid.c"
+#line 500 "jid.c"
 	switch( (*p) ) {
 		case -32: goto st18;
 		case -19: goto st20;
@@ -567,7 +568,7 @@ st37:
 	if ( ++p == pe )
 		goto _test_eof37;
 case 37:
-#line 571 "jid.c"
+#line 572 "jid.c"
 	switch( (*p) ) {
 		case -32: goto st3;
 		case -19: goto st5;
@@ -611,7 +612,7 @@ st24:
 	if ( ++p == pe )
 		goto _test_eof24;
 case 24:
-#line 615 "jid.c"
+#line 616 "jid.c"
 	switch( (*p) ) {
 		case -32: goto st26;
 		case -19: goto st28;
@@ -703,7 +704,7 @@ st32:
 	if ( ++p == pe )
 		goto _test_eof32;
 case 32:
-#line 707 "jid.c"
+#line 708 "jid.c"
 	switch( (*p) ) {
 		case -32: goto tr35;
 		case -19: goto tr37;
@@ -817,14 +818,14 @@ case 32:
 #line 15 "jid.rl"
 	{ ret = 0; }
 	break;
-#line 821 "jid.c"
+#line 822 "jid.c"
 	}
 	}
 
 	_out: {}
 	}
 
-#line 86 "jid.rl"
+#line 87 "jid.rl"
 
   if (ret) {
     node = mk_binary_term(env, node_start, node_end, 0, 0);

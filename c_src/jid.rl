@@ -37,22 +37,23 @@ static int load(ErlNifEnv* env, void** priv, ERL_NIF_TERM load_info)
 static ERL_NIF_TERM mk_binary_term(ErlNifEnv* env, char *start, char *stop,
 				   int start_offset, int stop_offset)
 {
+  ERL_NIF_TERM result;
+
   if (stop && start) {
     stop += stop_offset;
     start += start_offset;
     if (stop > start) {
-      ErlNifBinary bin;
       size_t size = stop - start;
-      if (enif_alloc_binary(size, &bin)) {
-	memcpy(bin.data, start, size);
-	return enif_make_binary(env, &bin);
+      unsigned char *buf = enif_make_new_binary(env, size, &result);
+      if (buf) {
+	memcpy(buf, start, size);
+	return result;
       }
     }
   }
 
-  ERL_NIF_TERM empty;
-  enif_make_new_binary(env, 0, &empty);
-  return empty;
+  enif_make_new_binary(env, 0, &result);
+  return result;
 }
 
 static ERL_NIF_TERM string_to_usr(ErlNifEnv* env, int argc,
@@ -71,7 +72,7 @@ static ERL_NIF_TERM string_to_usr(ErlNifEnv* env, int argc,
   if (argc != 1)
     return enif_make_badarg(env);
 
-  if (!(enif_inspect_iolist_as_binary(env, argv[0], &input)))
+  if (!(enif_inspect_binary(env, argv[0], &input)))
     return enif_make_badarg(env);
 
   if (!input.size)
