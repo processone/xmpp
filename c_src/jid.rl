@@ -18,7 +18,7 @@
   domainbyte = UTF8_char -- (space | [.@/]);
 
   node = (idbyte+ '@')?;
-  domain = (domainbyte+ '.')* domainbyte*;
+  domain = (domainbyte+ '.')* domainbyte+ '.'?;
   resource = ('/' UTF8_char+)?;
   main := (
 	   (node     > node_start     @ node_end)
