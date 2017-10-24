@@ -9,7 +9,7 @@
                     {'creator', jid:jid()} |
                     {'description', binary()} |
                     {'language', binary()} |
-                    {'num_subscribers', binary()} |
+                    {'num_subscribers', non_neg_integer()} |
                     {'owner', [jid:jid()]} |
                     {'publisher', [jid:jid()]} |
                     {'title', binary()} |

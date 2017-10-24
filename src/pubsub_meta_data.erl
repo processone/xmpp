@@ -14,6 +14,14 @@
 
 -export_type([property/0, result/0, form/0]).
 
+dec_int(Val, Min, Max) ->
+    case list_to_integer(binary_to_list(Val)) of
+      Int when Int =< Max, Min == infinity -> Int;
+      Int when Int =< Max, Int >= Min -> Int
+    end.
+
+enc_int(Int) -> integer_to_binary(Int).
+
 format_error({form_type_mismatch, Type}) ->
     <<"FORM_TYPE doesn't match '", Type/binary, "'">>;
 format_error({bad_var_value, Var, Type}) ->
@@ -243,7 +251,7 @@ decode([#xdata_field{var = <<"pubsub#num_subscribers">>,
 		     values = [Value]}
 	| Fs],
        Acc, Required) ->
-    try Value of
+    try dec_int(Value, 0, infinity) of
       Result ->
 	  decode(Fs, [{num_subscribers, Result} | Acc], Required)
     catch
@@ -443,8 +451,8 @@ encode_language(Value, Options, Lang) ->
 
 encode_num_subscribers(Value, Lang) ->
     Values = case Value of
-	       <<>> -> [];
-	       Value -> [Value]
+	       undefined -> [];
+	       Value -> [enc_int(Value)]
 	     end,
     Opts = [],
     #xdata_field{var = <<"pubsub#num_subscribers">>,
