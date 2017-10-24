@@ -5,7 +5,7 @@
 
 
 -type property() :: {'contact', [jid:jid()]} |
-                    {'creation_date', binary()} |
+                    {'creation_date', erlang:timestamp()} |
                     {'creator', jid:jid()} |
                     {'description', binary()} |
                     {'language', binary()} |

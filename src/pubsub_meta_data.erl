@@ -141,7 +141,7 @@ decode([#xdata_field{var = <<"pubsub#creation_date">>,
 		     values = [Value]}
 	| Fs],
        Acc, Required) ->
-    try Value of
+    try xmpp_util:decode_timestamp(Value) of
       Result ->
 	  decode(Fs, [{creation_date, Result} | Acc], Required)
     catch
@@ -397,8 +397,8 @@ encode_contact(Value, Lang) ->
 
 encode_creation_date(Value, Lang) ->
     Values = case Value of
-	       <<>> -> [];
-	       Value -> [Value]
+	       undefined -> [];
+	       Value -> [xmpp_util:encode_timestamp(Value)]
 	     end,
     Opts = [],
     #xdata_field{var = <<"pubsub#creation_date">>,
