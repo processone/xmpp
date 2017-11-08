@@ -560,6 +560,7 @@ get_mod(<<"system-shutdown">>,
 get_mod(<<"items">>,
 	<<"http://jabber.org/protocol/pubsub#event">>) ->
     xep0060;
+get_mod(<<"query">>, <<"urn:xmpp:mam:2">>) -> xep0313;
 get_mod(<<"prev">>,
 	<<"http://jabber.org/protocol/commands">>) ->
     xep0050;
@@ -616,12 +617,7 @@ get_mod(<<"status">>, <<"jabber:component:accept">>) ->
 get_mod(<<"query">>, <<"jabber:iq:register">>) ->
     xep0077;
 get_mod(<<"CLASS">>, <<"vcard-temp">>) -> xep0054;
-get_mod(<<"desc">>, <<"jabber:x:data">>) -> xep0004;
-get_mod(<<"no-permanent-store">>,
-	<<"urn:xmpp:hints">>) ->
-    xep0334;
-get_mod(<<"filename">>, <<"urn:xmpp:http:upload">>) ->
-    xep0363;
+get_mod(<<"result">>, <<"urn:xmpp:mam:2">>) -> xep0313;
 get_mod(<<"storage">>, <<"storage:bookmarks">>) ->
     xep0048;
 get_mod(<<"LINE">>, <<"vcard-temp">>) -> xep0054;
@@ -675,6 +671,7 @@ get_mod(<<"items">>,
 get_mod(<<"password">>,
 	<<"http://jabber.org/protocol/muc#user">>) ->
     xep0045;
+get_mod(<<"jid">>, <<"urn:xmpp:mam:2">>) -> xep0313;
 get_mod(<<"never">>, <<"urn:xmpp:mam:1">>) -> xep0313;
 get_mod(<<"metadata">>,
 	<<"urn:xmpp:avatar:metadata">>) ->
@@ -972,6 +969,7 @@ get_mod(<<"block">>, <<"urn:xmpp:blocking">>) ->
 get_mod(<<"delete">>,
 	<<"http://jabber.org/protocol/pubsub#event">>) ->
     xep0060;
+get_mod(<<"prefs">>, <<"urn:xmpp:mam:2">>) -> xep0313;
 get_mod(<<"sm">>, <<"urn:xmpp:sm:3">>) -> xep0198;
 get_mod(<<"fetch">>,
 	<<"http://jabber.org/protocol/offline">>) ->
@@ -1088,9 +1086,11 @@ get_mod(<<"PAGER">>, <<"vcard-temp">>) -> xep0054;
 get_mod(<<"MSG">>, <<"vcard-temp">>) -> xep0054;
 get_mod(<<"PHONETIC">>, <<"vcard-temp">>) -> xep0054;
 get_mod(<<"jid">>, <<"urn:xmpp:mam:0">>) -> xep0313;
+get_mod(<<"fin">>, <<"urn:xmpp:mam:2">>) -> xep0313;
 get_mod(<<"ver">>, <<"urn:xmpp:features:rosterver">>) ->
     rfc6121;
 get_mod(<<"body">>, <<"jabber:client">>) -> rfc6120;
+get_mod(<<"always">>, <<"urn:xmpp:mam:2">>) -> xep0313;
 get_mod(<<"composing">>, <<"jabber:x:event">>) ->
     xep0022;
 get_mod(<<"reset">>,
@@ -1206,6 +1206,7 @@ get_mod(<<"PREF">>, <<"vcard-temp">>) -> xep0054;
 get_mod(<<"reason">>,
 	<<"http://jabber.org/protocol/muc#user">>) ->
     xep0045;
+get_mod(<<"never">>, <<"urn:xmpp:mam:2">>) -> xep0313;
 get_mod(<<"stat">>,
 	<<"http://jabber.org/protocol/stats">>) ->
     xep0039;
@@ -1317,6 +1318,12 @@ get_mod(<<"subscribe">>, <<"urn:xmpp:mix:0">>) ->
     xep0369;
 get_mod(<<"nick">>, <<"jabber:iq:search">>) -> xep0055;
 get_mod(<<"port">>, <<"urn:xmpp:sic:1">>) -> xep0279;
+get_mod(<<"desc">>, <<"jabber:x:data">>) -> xep0004;
+get_mod(<<"no-permanent-store">>,
+	<<"urn:xmpp:hints">>) ->
+    xep0334;
+get_mod(<<"filename">>, <<"urn:xmpp:http:upload">>) ->
+    xep0363;
 get_mod(Name, XMLNS) ->
     xmpp_codec_external:lookup(Name, XMLNS).
 

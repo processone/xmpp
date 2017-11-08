@@ -3010,7 +3010,8 @@
 
 -xml(mam_query,
      #elem{name = <<"query">>,
-           xmlns = [<<"urn:xmpp:mam:0">>, <<"urn:xmpp:mam:1">>, <<"urn:xmpp:mam:tmp">>],
+           xmlns = [<<"urn:xmpp:mam:0">>, <<"urn:xmpp:mam:1">>,
+		    <<"urn:xmpp:mam:2">>, <<"urn:xmpp:mam:tmp">>],
 	   module = 'xep0313',
            result = {mam_query, '$xmlns', '$id', '$start', '$end', '$with',
 		     '$withtext', '$rsm', '$xdata'},
@@ -3036,7 +3037,8 @@
 
 -xml(mam_result,
      #elem{name = <<"result">>,
-           xmlns = [<<"urn:xmpp:mam:0">>, <<"urn:xmpp:mam:1">>, <<"urn:xmpp:mam:tmp">>],
+           xmlns = [<<"urn:xmpp:mam:0">>, <<"urn:xmpp:mam:1">>,
+		    <<"urn:xmpp:mam:2">>, <<"urn:xmpp:mam:tmp">>],
 	   module = 'xep0313',
            result = {mam_result, '$xmlns', '$queryid', '$id', '$_els'},
            attrs = [#attr{name = <<"queryid">>},
@@ -3045,7 +3047,8 @@
 
 -xml(mam_jid,
      #elem{name = <<"jid">>,
-           xmlns = [<<"urn:xmpp:mam:0">>, <<"urn:xmpp:mam:1">>, <<"urn:xmpp:mam:tmp">>],
+           xmlns = [<<"urn:xmpp:mam:0">>, <<"urn:xmpp:mam:1">>,
+		    <<"urn:xmpp:mam:2">>, <<"urn:xmpp:mam:tmp">>],
 	   module = 'xep0313',
            result = '$cdata',
            cdata = #cdata{required = true,
@@ -3054,21 +3057,24 @@
 
 -xml(mam_never,
      #elem{name = <<"never">>,
-           xmlns = [<<"urn:xmpp:mam:0">>, <<"urn:xmpp:mam:1">>, <<"urn:xmpp:mam:tmp">>],
+           xmlns = [<<"urn:xmpp:mam:0">>, <<"urn:xmpp:mam:1">>,
+		    <<"urn:xmpp:mam:2">>, <<"urn:xmpp:mam:tmp">>],
 	   module = 'xep0313',
            result = '$jids',
            refs = [#ref{name = mam_jid, label = '$jids'}]}).
 
 -xml(mam_always,
      #elem{name = <<"always">>,
-           xmlns = [<<"urn:xmpp:mam:0">>, <<"urn:xmpp:mam:1">>, <<"urn:xmpp:mam:tmp">>],
+           xmlns = [<<"urn:xmpp:mam:0">>, <<"urn:xmpp:mam:1">>,
+		    <<"urn:xmpp:mam:2">>, <<"urn:xmpp:mam:tmp">>],
 	   module = 'xep0313',
            result = '$jids',
            refs = [#ref{name = mam_jid, label = '$jids'}]}).
 
 -xml(mam_prefs,
      #elem{name = <<"prefs">>,
-           xmlns = [<<"urn:xmpp:mam:0">>, <<"urn:xmpp:mam:1">>, <<"urn:xmpp:mam:tmp">>],
+           xmlns = [<<"urn:xmpp:mam:0">>, <<"urn:xmpp:mam:1">>,
+		    <<"urn:xmpp:mam:2">>, <<"urn:xmpp:mam:tmp">>],
 	   module = 'xep0313',
            result = {mam_prefs, '$xmlns', '$default', '$always', '$never'},
            attrs = [#attr{name = <<"default">>,
@@ -3082,7 +3088,7 @@
 
 -xml(mam_fin,
      #elem{name = <<"fin">>,
-	   xmlns = [<<"urn:xmpp:mam:0">>, <<"urn:xmpp:mam:1">>],
+	   xmlns = [<<"urn:xmpp:mam:0">>, <<"urn:xmpp:mam:1">>, <<"urn:xmpp:mam:2">>],
 	   module = 'xep0313',
 	   result = {mam_fin, '$xmlns', '$id', '$rsm', '$stable', '$complete'},
 	   attrs = [#attr{name = <<"queryid">>, label = '$id'},

@@ -9,12 +9,17 @@ do_decode(<<"fin">>, <<"urn:xmpp:mam:0">>, El, Opts) ->
     decode_mam_fin(<<"urn:xmpp:mam:0">>, Opts, El);
 do_decode(<<"fin">>, <<"urn:xmpp:mam:1">>, El, Opts) ->
     decode_mam_fin(<<"urn:xmpp:mam:1">>, Opts, El);
+do_decode(<<"fin">>, <<"urn:xmpp:mam:2">>, El, Opts) ->
+    decode_mam_fin(<<"urn:xmpp:mam:2">>, Opts, El);
 do_decode(<<"prefs">>, <<"urn:xmpp:mam:0">>, El,
 	  Opts) ->
     decode_mam_prefs(<<"urn:xmpp:mam:0">>, Opts, El);
 do_decode(<<"prefs">>, <<"urn:xmpp:mam:1">>, El,
 	  Opts) ->
     decode_mam_prefs(<<"urn:xmpp:mam:1">>, Opts, El);
+do_decode(<<"prefs">>, <<"urn:xmpp:mam:2">>, El,
+	  Opts) ->
+    decode_mam_prefs(<<"urn:xmpp:mam:2">>, Opts, El);
 do_decode(<<"prefs">>, <<"urn:xmpp:mam:tmp">>, El,
 	  Opts) ->
     decode_mam_prefs(<<"urn:xmpp:mam:tmp">>, Opts, El);
@@ -24,6 +29,9 @@ do_decode(<<"always">>, <<"urn:xmpp:mam:0">>, El,
 do_decode(<<"always">>, <<"urn:xmpp:mam:1">>, El,
 	  Opts) ->
     decode_mam_always(<<"urn:xmpp:mam:1">>, Opts, El);
+do_decode(<<"always">>, <<"urn:xmpp:mam:2">>, El,
+	  Opts) ->
+    decode_mam_always(<<"urn:xmpp:mam:2">>, Opts, El);
 do_decode(<<"always">>, <<"urn:xmpp:mam:tmp">>, El,
 	  Opts) ->
     decode_mam_always(<<"urn:xmpp:mam:tmp">>, Opts, El);
@@ -33,6 +41,9 @@ do_decode(<<"never">>, <<"urn:xmpp:mam:0">>, El,
 do_decode(<<"never">>, <<"urn:xmpp:mam:1">>, El,
 	  Opts) ->
     decode_mam_never(<<"urn:xmpp:mam:1">>, Opts, El);
+do_decode(<<"never">>, <<"urn:xmpp:mam:2">>, El,
+	  Opts) ->
+    decode_mam_never(<<"urn:xmpp:mam:2">>, Opts, El);
 do_decode(<<"never">>, <<"urn:xmpp:mam:tmp">>, El,
 	  Opts) ->
     decode_mam_never(<<"urn:xmpp:mam:tmp">>, Opts, El);
@@ -40,6 +51,8 @@ do_decode(<<"jid">>, <<"urn:xmpp:mam:0">>, El, Opts) ->
     decode_mam_jid(<<"urn:xmpp:mam:0">>, Opts, El);
 do_decode(<<"jid">>, <<"urn:xmpp:mam:1">>, El, Opts) ->
     decode_mam_jid(<<"urn:xmpp:mam:1">>, Opts, El);
+do_decode(<<"jid">>, <<"urn:xmpp:mam:2">>, El, Opts) ->
+    decode_mam_jid(<<"urn:xmpp:mam:2">>, Opts, El);
 do_decode(<<"jid">>, <<"urn:xmpp:mam:tmp">>, El,
 	  Opts) ->
     decode_mam_jid(<<"urn:xmpp:mam:tmp">>, Opts, El);
@@ -49,6 +62,9 @@ do_decode(<<"result">>, <<"urn:xmpp:mam:0">>, El,
 do_decode(<<"result">>, <<"urn:xmpp:mam:1">>, El,
 	  Opts) ->
     decode_mam_result(<<"urn:xmpp:mam:1">>, Opts, El);
+do_decode(<<"result">>, <<"urn:xmpp:mam:2">>, El,
+	  Opts) ->
+    decode_mam_result(<<"urn:xmpp:mam:2">>, Opts, El);
 do_decode(<<"result">>, <<"urn:xmpp:mam:tmp">>, El,
 	  Opts) ->
     decode_mam_result(<<"urn:xmpp:mam:tmp">>, Opts, El);
@@ -61,6 +77,9 @@ do_decode(<<"query">>, <<"urn:xmpp:mam:0">>, El,
 do_decode(<<"query">>, <<"urn:xmpp:mam:1">>, El,
 	  Opts) ->
     decode_mam_query(<<"urn:xmpp:mam:1">>, Opts, El);
+do_decode(<<"query">>, <<"urn:xmpp:mam:2">>, El,
+	  Opts) ->
+    decode_mam_query(<<"urn:xmpp:mam:2">>, Opts, El);
 do_decode(<<"query">>, <<"urn:xmpp:mam:tmp">>, El,
 	  Opts) ->
     decode_mam_query(<<"urn:xmpp:mam:tmp">>, Opts, El);
@@ -84,24 +103,31 @@ do_decode(Name, XMLNS, _, _) ->
 tags() ->
     [{<<"fin">>, <<"urn:xmpp:mam:0">>},
      {<<"fin">>, <<"urn:xmpp:mam:1">>},
+     {<<"fin">>, <<"urn:xmpp:mam:2">>},
      {<<"prefs">>, <<"urn:xmpp:mam:0">>},
      {<<"prefs">>, <<"urn:xmpp:mam:1">>},
+     {<<"prefs">>, <<"urn:xmpp:mam:2">>},
      {<<"prefs">>, <<"urn:xmpp:mam:tmp">>},
      {<<"always">>, <<"urn:xmpp:mam:0">>},
      {<<"always">>, <<"urn:xmpp:mam:1">>},
+     {<<"always">>, <<"urn:xmpp:mam:2">>},
      {<<"always">>, <<"urn:xmpp:mam:tmp">>},
      {<<"never">>, <<"urn:xmpp:mam:0">>},
      {<<"never">>, <<"urn:xmpp:mam:1">>},
+     {<<"never">>, <<"urn:xmpp:mam:2">>},
      {<<"never">>, <<"urn:xmpp:mam:tmp">>},
      {<<"jid">>, <<"urn:xmpp:mam:0">>},
      {<<"jid">>, <<"urn:xmpp:mam:1">>},
+     {<<"jid">>, <<"urn:xmpp:mam:2">>},
      {<<"jid">>, <<"urn:xmpp:mam:tmp">>},
      {<<"result">>, <<"urn:xmpp:mam:0">>},
      {<<"result">>, <<"urn:xmpp:mam:1">>},
+     {<<"result">>, <<"urn:xmpp:mam:2">>},
      {<<"result">>, <<"urn:xmpp:mam:tmp">>},
      {<<"archived">>, <<"urn:xmpp:mam:tmp">>},
      {<<"query">>, <<"urn:xmpp:mam:0">>},
      {<<"query">>, <<"urn:xmpp:mam:1">>},
+     {<<"query">>, <<"urn:xmpp:mam:2">>},
      {<<"query">>, <<"urn:xmpp:mam:tmp">>},
      {<<"withtext">>, <<"urn:xmpp:mam:tmp">>},
      {<<"with">>, <<"urn:xmpp:mam:tmp">>},
@@ -229,7 +255,8 @@ encode_mam_fin({mam_fin, Xmlns, Id, Rsm, Stable,
 	       __TopXMLNS) ->
     __NewTopXMLNS = xmpp_codec:choose_top_xmlns(Xmlns,
 						[<<"urn:xmpp:mam:0">>,
-						 <<"urn:xmpp:mam:1">>],
+						 <<"urn:xmpp:mam:1">>,
+						 <<"urn:xmpp:mam:2">>],
 						__TopXMLNS),
     _els = lists:reverse('encode_mam_fin_$rsm'(Rsm,
 					       __NewTopXMLNS, [])),
@@ -311,6 +338,10 @@ decode_mam_prefs_els(__TopXMLNS, __Opts,
 	  decode_mam_prefs_els(__TopXMLNS, __Opts, _els, Never,
 			       decode_mam_always(<<"urn:xmpp:mam:1">>, __Opts,
 						 _el));
+      <<"urn:xmpp:mam:2">> ->
+	  decode_mam_prefs_els(__TopXMLNS, __Opts, _els, Never,
+			       decode_mam_always(<<"urn:xmpp:mam:2">>, __Opts,
+						 _el));
       <<"urn:xmpp:mam:tmp">> ->
 	  decode_mam_prefs_els(__TopXMLNS, __Opts, _els, Never,
 			       decode_mam_always(<<"urn:xmpp:mam:tmp">>, __Opts,
@@ -333,6 +364,11 @@ decode_mam_prefs_els(__TopXMLNS, __Opts,
       <<"urn:xmpp:mam:1">> ->
 	  decode_mam_prefs_els(__TopXMLNS, __Opts, _els,
 			       decode_mam_never(<<"urn:xmpp:mam:1">>, __Opts,
+						_el),
+			       Always);
+      <<"urn:xmpp:mam:2">> ->
+	  decode_mam_prefs_els(__TopXMLNS, __Opts, _els,
+			       decode_mam_never(<<"urn:xmpp:mam:2">>, __Opts,
 						_el),
 			       Always);
       <<"urn:xmpp:mam:tmp">> ->
@@ -371,6 +407,7 @@ encode_mam_prefs({mam_prefs, Xmlns, Default, Always,
     __NewTopXMLNS = xmpp_codec:choose_top_xmlns(Xmlns,
 						[<<"urn:xmpp:mam:0">>,
 						 <<"urn:xmpp:mam:1">>,
+						 <<"urn:xmpp:mam:2">>,
 						 <<"urn:xmpp:mam:tmp">>],
 						__TopXMLNS),
     _els = lists:reverse('encode_mam_prefs_$never'(Never,
@@ -437,6 +474,11 @@ decode_mam_always_els(__TopXMLNS, __Opts,
 				[decode_mam_jid(<<"urn:xmpp:mam:1">>, __Opts,
 						_el)
 				 | Jids]);
+      <<"urn:xmpp:mam:2">> ->
+	  decode_mam_always_els(__TopXMLNS, __Opts, _els,
+				[decode_mam_jid(<<"urn:xmpp:mam:2">>, __Opts,
+						_el)
+				 | Jids]);
       <<"urn:xmpp:mam:tmp">> ->
 	  decode_mam_always_els(__TopXMLNS, __Opts, _els,
 				[decode_mam_jid(<<"urn:xmpp:mam:tmp">>, __Opts,
@@ -453,6 +495,7 @@ encode_mam_always(Jids, __TopXMLNS) ->
     __NewTopXMLNS = xmpp_codec:choose_top_xmlns(<<>>,
 						[<<"urn:xmpp:mam:0">>,
 						 <<"urn:xmpp:mam:1">>,
+						 <<"urn:xmpp:mam:2">>,
 						 <<"urn:xmpp:mam:tmp">>],
 						__TopXMLNS),
     _els = lists:reverse('encode_mam_always_$jids'(Jids,
@@ -490,6 +533,11 @@ decode_mam_never_els(__TopXMLNS, __Opts,
 			       [decode_mam_jid(<<"urn:xmpp:mam:1">>, __Opts,
 					       _el)
 				| Jids]);
+      <<"urn:xmpp:mam:2">> ->
+	  decode_mam_never_els(__TopXMLNS, __Opts, _els,
+			       [decode_mam_jid(<<"urn:xmpp:mam:2">>, __Opts,
+					       _el)
+				| Jids]);
       <<"urn:xmpp:mam:tmp">> ->
 	  decode_mam_never_els(__TopXMLNS, __Opts, _els,
 			       [decode_mam_jid(<<"urn:xmpp:mam:tmp">>, __Opts,
@@ -506,6 +554,7 @@ encode_mam_never(Jids, __TopXMLNS) ->
     __NewTopXMLNS = xmpp_codec:choose_top_xmlns(<<>>,
 						[<<"urn:xmpp:mam:0">>,
 						 <<"urn:xmpp:mam:1">>,
+						 <<"urn:xmpp:mam:2">>,
 						 <<"urn:xmpp:mam:tmp">>],
 						__TopXMLNS),
     _els = lists:reverse('encode_mam_never_$jids'(Jids,
@@ -540,6 +589,7 @@ encode_mam_jid(Cdata, __TopXMLNS) ->
     __NewTopXMLNS = xmpp_codec:choose_top_xmlns(<<>>,
 						[<<"urn:xmpp:mam:0">>,
 						 <<"urn:xmpp:mam:1">>,
+						 <<"urn:xmpp:mam:2">>,
 						 <<"urn:xmpp:mam:tmp">>],
 						__TopXMLNS),
     _els = encode_mam_jid_cdata(Cdata, []),
@@ -624,6 +674,7 @@ encode_mam_result({mam_result, Xmlns, Queryid, Id,
     __NewTopXMLNS = xmpp_codec:choose_top_xmlns(Xmlns,
 						[<<"urn:xmpp:mam:0">>,
 						 <<"urn:xmpp:mam:1">>,
+						 <<"urn:xmpp:mam:2">>,
 						 <<"urn:xmpp:mam:tmp">>],
 						__TopXMLNS),
     _els = [xmpp_codec:encode(_el, __NewTopXMLNS)
@@ -840,6 +891,7 @@ encode_mam_query({mam_query, Xmlns, Id, Start, End,
     __NewTopXMLNS = xmpp_codec:choose_top_xmlns(Xmlns,
 						[<<"urn:xmpp:mam:0">>,
 						 <<"urn:xmpp:mam:1">>,
+						 <<"urn:xmpp:mam:2">>,
 						 <<"urn:xmpp:mam:tmp">>],
 						__TopXMLNS),
     _els = lists:reverse('encode_mam_query_$xdata'(Xdata,
