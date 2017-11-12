@@ -7,16 +7,7 @@
 #line 28 "jid.rl"
 
 
-
-#line 12 "jid.c"
-static const int foo_start = 1;
-static const int foo_first_final = 33;
-static const int foo_error = 0;
-
-static const int foo_en_main = 1;
-
-
-#line 31 "jid.rl"
+static const int jid_start = 1;
 
 static int load(ErlNifEnv* env, void** priv, ERL_NIF_TERM load_info)
 {
@@ -72,14 +63,14 @@ static ERL_NIF_TERM string_to_usr(ErlNifEnv* env, int argc,
   char *eof = pe;
 
   
-#line 76 "jid.c"
+#line 67 "jid.c"
 	{
-	cs = foo_start;
+	cs = jid_start;
 	}
 
 #line 86 "jid.rl"
   
-#line 83 "jid.c"
+#line 74 "jid.c"
 	{
 	if ( p == pe )
 		goto _test_eof;
@@ -125,7 +116,7 @@ tr0:
 #line 15 "jid.rl"
 	{ ret = 0; }
 	goto st0;
-#line 129 "jid.c"
+#line 120 "jid.c"
 st0:
 cs = 0;
 	goto _out;
@@ -139,7 +130,7 @@ st2:
 	if ( ++p == pe )
 		goto _test_eof2;
 case 2:
-#line 143 "jid.c"
+#line 134 "jid.c"
 	if ( (*p) <= -65 )
 		goto tr11;
 	goto tr0;
@@ -159,7 +150,7 @@ st33:
 	if ( ++p == pe )
 		goto _test_eof33;
 case 33:
-#line 163 "jid.c"
+#line 154 "jid.c"
 	switch( (*p) ) {
 		case -32: goto st3;
 		case -19: goto st5;
@@ -205,7 +196,7 @@ st3:
 	if ( ++p == pe )
 		goto _test_eof3;
 case 3:
-#line 209 "jid.c"
+#line 200 "jid.c"
 	if ( -96 <= (*p) && (*p) <= -65 )
 		goto st2;
 	goto tr0;
@@ -219,7 +210,7 @@ st4:
 	if ( ++p == pe )
 		goto _test_eof4;
 case 4:
-#line 223 "jid.c"
+#line 214 "jid.c"
 	if ( (*p) <= -65 )
 		goto st2;
 	goto tr0;
@@ -233,7 +224,7 @@ st5:
 	if ( ++p == pe )
 		goto _test_eof5;
 case 5:
-#line 237 "jid.c"
+#line 228 "jid.c"
 	if ( (*p) <= -97 )
 		goto st2;
 	goto tr0;
@@ -247,7 +238,7 @@ st6:
 	if ( ++p == pe )
 		goto _test_eof6;
 case 6:
-#line 251 "jid.c"
+#line 242 "jid.c"
 	if ( -112 <= (*p) && (*p) <= -65 )
 		goto st4;
 	goto tr0;
@@ -261,7 +252,7 @@ st7:
 	if ( ++p == pe )
 		goto _test_eof7;
 case 7:
-#line 265 "jid.c"
+#line 256 "jid.c"
 	if ( (*p) <= -65 )
 		goto st4;
 	goto tr0;
@@ -275,7 +266,7 @@ st8:
 	if ( ++p == pe )
 		goto _test_eof8;
 case 8:
-#line 279 "jid.c"
+#line 270 "jid.c"
 	if ( (*p) <= -113 )
 		goto st4;
 	goto tr0;
@@ -301,7 +292,7 @@ st34:
 	if ( ++p == pe )
 		goto _test_eof34;
 case 34:
-#line 305 "jid.c"
+#line 296 "jid.c"
 	switch( (*p) ) {
 		case -32: goto st10;
 		case -19: goto st12;
@@ -338,7 +329,7 @@ st9:
 	if ( ++p == pe )
 		goto _test_eof9;
 case 9:
-#line 342 "jid.c"
+#line 333 "jid.c"
 	if ( (*p) <= -65 )
 		goto tr14;
 	goto tr0;
@@ -350,7 +341,7 @@ st10:
 	if ( ++p == pe )
 		goto _test_eof10;
 case 10:
-#line 354 "jid.c"
+#line 345 "jid.c"
 	if ( -96 <= (*p) && (*p) <= -65 )
 		goto st9;
 	goto tr0;
@@ -362,7 +353,7 @@ st11:
 	if ( ++p == pe )
 		goto _test_eof11;
 case 11:
-#line 366 "jid.c"
+#line 357 "jid.c"
 	if ( (*p) <= -65 )
 		goto st9;
 	goto tr0;
@@ -374,7 +365,7 @@ st12:
 	if ( ++p == pe )
 		goto _test_eof12;
 case 12:
-#line 378 "jid.c"
+#line 369 "jid.c"
 	if ( (*p) <= -97 )
 		goto st9;
 	goto tr0;
@@ -386,7 +377,7 @@ st13:
 	if ( ++p == pe )
 		goto _test_eof13;
 case 13:
-#line 390 "jid.c"
+#line 381 "jid.c"
 	if ( -112 <= (*p) && (*p) <= -65 )
 		goto st11;
 	goto tr0;
@@ -398,7 +389,7 @@ st14:
 	if ( ++p == pe )
 		goto _test_eof14;
 case 14:
-#line 402 "jid.c"
+#line 393 "jid.c"
 	if ( (*p) <= -65 )
 		goto st11;
 	goto tr0;
@@ -410,7 +401,7 @@ st15:
 	if ( ++p == pe )
 		goto _test_eof15;
 case 15:
-#line 414 "jid.c"
+#line 405 "jid.c"
 	if ( (*p) <= -113 )
 		goto st11;
 	goto tr0;
@@ -422,7 +413,7 @@ st35:
 	if ( ++p == pe )
 		goto _test_eof35;
 case 35:
-#line 426 "jid.c"
+#line 417 "jid.c"
 	switch( (*p) ) {
 		case -32: goto st10;
 		case -19: goto st12;
@@ -459,7 +450,7 @@ st16:
 	if ( ++p == pe )
 		goto _test_eof16;
 case 16:
-#line 463 "jid.c"
+#line 454 "jid.c"
 	switch( (*p) ) {
 		case -32: goto st18;
 		case -19: goto st20;
@@ -496,7 +487,7 @@ st36:
 	if ( ++p == pe )
 		goto _test_eof36;
 case 36:
-#line 500 "jid.c"
+#line 491 "jid.c"
 	switch( (*p) ) {
 		case -32: goto st18;
 		case -19: goto st20;
@@ -568,7 +559,7 @@ st37:
 	if ( ++p == pe )
 		goto _test_eof37;
 case 37:
-#line 572 "jid.c"
+#line 563 "jid.c"
 	switch( (*p) ) {
 		case -32: goto st3;
 		case -19: goto st5;
@@ -612,7 +603,7 @@ st24:
 	if ( ++p == pe )
 		goto _test_eof24;
 case 24:
-#line 616 "jid.c"
+#line 607 "jid.c"
 	switch( (*p) ) {
 		case -32: goto st26;
 		case -19: goto st28;
@@ -704,7 +695,7 @@ st32:
 	if ( ++p == pe )
 		goto _test_eof32;
 case 32:
-#line 708 "jid.c"
+#line 699 "jid.c"
 	switch( (*p) ) {
 		case -32: goto tr35;
 		case -19: goto tr37;
@@ -818,7 +809,7 @@ case 32:
 #line 15 "jid.rl"
 	{ ret = 0; }
 	break;
-#line 822 "jid.c"
+#line 813 "jid.c"
 	}
 	}
 

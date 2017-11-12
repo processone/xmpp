@@ -2,7 +2,7 @@
 #include <string.h>
 
 %%{
-  machine foo;
+  machine jid;
 
   include utf8 "utf8.rl";
 
@@ -27,7 +27,7 @@
 	  ) $! parse_error;
 }%%
 
-%% write data;
+static const int jid_start = 1;
 
 static int load(ErlNifEnv* env, void** priv, ERL_NIF_TERM load_info)
 {
