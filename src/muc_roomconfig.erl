@@ -719,7 +719,7 @@ decode([#xdata_field{var = <<"muc#roomconfig_pubsub">>,
 		     values = [Value]}
 	| Fs],
        Acc, Required) ->
-    try Value of
+    try xmpp_uri:check(Value) of
       Result -> decode(Fs, [{pubsub, Result} | Acc], Required)
     catch
       _:_ ->
@@ -1458,7 +1458,7 @@ encode_lang(Value, Lang) ->
 
 encode_pubsub(Value, Lang) ->
     Values = case Value of
-	       <<>> -> [];
+	       undefined -> [];
 	       Value -> [Value]
 	     end,
     Opts = [],

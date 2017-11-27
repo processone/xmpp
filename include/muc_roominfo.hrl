@@ -12,7 +12,8 @@
                     {'logs', binary()} |
                     {'occupants', non_neg_integer()} |
                     {'subject', binary()} |
-                    {'subjectmod', boolean()}.
+                    {'subjectmod', boolean()} |
+                    {'pubsub', binary()}.
 -type result() :: [property()].
 
 -type form() :: [property() | xdata_field()].

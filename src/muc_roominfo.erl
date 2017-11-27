@@ -107,6 +107,8 @@ encode(List, Lang) when is_list(List) ->
 	    {subject, _, _} -> erlang:error({badarg, Opt});
 	    {subjectmod, Val} -> [encode_subjectmod(Val, Lang)];
 	    {subjectmod, _, _} -> erlang:error({badarg, Opt});
+	    {pubsub, Val} -> [encode_pubsub(Val, Lang)];
+	    {pubsub, _, _} -> erlang:error({badarg, Opt});
 	    #xdata_field{} -> [Opt];
 	    _ -> []
 	  end
@@ -375,6 +377,33 @@ decode([#xdata_field{var =
     erlang:error({?MODULE,
 		  {too_many_values, <<"muc#roominfo_subjectmod">>,
 		   <<"http://jabber.org/protocol/muc#roominfo">>}});
+decode([#xdata_field{var = <<"muc#roominfo_pubsub">>,
+		     values = [Value]}
+	| Fs],
+       Acc, Required) ->
+    try xmpp_uri:check(Value) of
+      Result -> decode(Fs, [{pubsub, Result} | Acc], Required)
+    catch
+      _:_ ->
+	  erlang:error({?MODULE,
+			{bad_var_value, <<"muc#roominfo_pubsub">>,
+			 <<"http://jabber.org/protocol/muc#roominfo">>}})
+    end;
+decode([#xdata_field{var = <<"muc#roominfo_pubsub">>,
+		     values = []} =
+	    F
+	| Fs],
+       Acc, Required) ->
+    decode([F#xdata_field{var = <<"muc#roominfo_pubsub">>,
+			  values = [<<>>]}
+	    | Fs],
+	   Acc, Required);
+decode([#xdata_field{var = <<"muc#roominfo_pubsub">>}
+	| _],
+       _, _) ->
+    erlang:error({?MODULE,
+		  {too_many_values, <<"muc#roominfo_pubsub">>,
+		   <<"http://jabber.org/protocol/muc#roominfo">>}});
 decode([#xdata_field{var = Var} | Fs], Acc, Required) ->
     if Var /= <<"FORM_TYPE">> ->
 	   erlang:error({?MODULE,
@@ -502,3 +531,17 @@ encode_subjectmod(Value, Lang) ->
 		     xmpp_tr:tr(Lang,
 				<<"The room subject can be modified by "
 				  "participants">>)}.
+
+encode_pubsub(Value, Lang) ->
+    Values = case Value of
+	       undefined -> [];
+	       Value -> [Value]
+	     end,
+    Opts = [],
+    #xdata_field{var = <<"muc#roominfo_pubsub">>,
+		 values = Values, required = false, type = 'text-single',
+		 options = Opts, desc = <<>>,
+		 label =
+		     xmpp_tr:tr(Lang,
+				<<"XMPP URI of Associated Publish-Subscribe "
+				  "Node">>)}.

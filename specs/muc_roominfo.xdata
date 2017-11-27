@@ -46,6 +46,10 @@
       var='muc#roominfo_subjectmod'
       type='boolean'
       label='The room subject can be modified by participants'/>
+  <field
+      var='muc#roominfo_pubsub'
+      type='text-single'
+      label='XMPP URI of Associated Publish-Subscribe Node'/>
 </form_type>
 
 <!--
