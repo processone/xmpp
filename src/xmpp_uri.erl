@@ -47,6 +47,8 @@ is_valid(_) ->
     erlang:nif_error(nif_not_loaded).
 
 -spec check(binary()) -> binary().
+check(<<>>) ->
+    <<>>;
 check(S) ->
     case is_valid(S) of
 	true ->
