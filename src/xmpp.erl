@@ -110,6 +110,7 @@ start(_StartType, _StartArgs) ->
 	{ok, _} = application:ensure_all_started(fast_xml),
 	{ok, _} = application:ensure_all_started(stringprep),
 	ok = jid:start(),
+	ok = xmpp_uri:start(),
 	{ok, self()}
     catch _:{badmatch, Err} ->
 	    Err

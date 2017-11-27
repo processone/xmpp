@@ -33,7 +33,7 @@
   {env,          []},
 
   %% hex.pm packaging:
-  {files, ["src/", "include/", "c_src/jid.c", "rebar.config", "rebar.config.script", "README.md", "LICENSE.txt"]},
+  {files, ["src/", "include/", "c_src/jid.c", "c_src/xmpp_uri.c", "rebar.config", "rebar.config.script", "README.md", "LICENSE.txt"]},
   {licenses, ["Apache 2.0"]},
   {maintainers, ["ProcessOne"]},
   {links, [{"Github", "https://github.com/processone/xmpp"}]}]}.
