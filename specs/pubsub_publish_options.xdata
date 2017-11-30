@@ -10,10 +10,6 @@
   <field var='pubsub#persist_items'
          type='boolean'
          label='Persist items to storage'/>
-  <!-- Defined in XEP-0357 -->
-  <field var='secret'
-	 type='text-single'
-	 label='Secret'/>
   <!-- Defined in XEP-0060 -->
   <field var='pubsub#access_model'
          type='list-single'
