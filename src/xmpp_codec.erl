@@ -998,6 +998,9 @@ get_mod(<<"invalid-id">>,
 	<<"urn:ietf:params:xml:ns:xmpp-streams">>) ->
     rfc6120;
 get_mod(<<"PUBLIC">>, <<"vcard-temp">>) -> xep0054;
+get_mod(<<"precondition-not-met">>,
+	<<"http://jabber.org/protocol/pubsub#errors">>) ->
+    xep0060;
 get_mod(<<"item">>,
 	<<"http://jabber.org/protocol/offline">>) ->
     xep0013;

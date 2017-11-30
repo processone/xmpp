@@ -63,6 +63,7 @@
 			 'nodeid-required' | 'not-in-roster-group' |
 			 'not-subscribed' | 'payload-too-big' |
 			 'payload-required' | 'pending-subscription' |
+			 'precondition-not-met' |
 			 'presence-subscription-required' | 'subid-required' |
 			 'too-many-subscriptions' | 'unsupported' |
 			 'unsupported-access-model'.

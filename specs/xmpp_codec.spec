@@ -2301,6 +2301,7 @@
 			 'nodeid-required' | 'not-in-roster-group' |
 			 'not-subscribed' | 'payload-too-big' |
 			 'payload-required' | 'pending-subscription' |
+			 'precondition-not-met' |
 			 'presence-subscription-required' | 'subid-required' |
 			 'too-many-subscriptions' | 'unsupported' |
 			 'unsupported-access-model'.
@@ -2412,6 +2413,11 @@
            xmlns = <<"http://jabber.org/protocol/pubsub#errors">>,
 	   module = 'xep0060',
            result = {ps_error, 'pending-subscription', '$_'}}).
+-xml(pubsub_error_precondition_not_met,
+     #elem{name = <<"precondition-not-met">>,
+           xmlns = <<"http://jabber.org/protocol/pubsub#errors">>,
+	   module = 'xep0060',
+           result = {ps_error, 'precondition-not-met', '$_'}}).
 -xml(pubsub_error_presence_subscription_required,
      #elem{name = <<"presence-subscription-required">>,
            xmlns = <<"http://jabber.org/protocol/pubsub#errors">>,

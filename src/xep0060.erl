@@ -30,6 +30,11 @@ do_decode(<<"presence-subscription-required">>,
 	  Opts) ->
     decode_pubsub_error_presence_subscription_required(<<"http://jabber.org/protocol/pubsub#errors">>,
 						       Opts, El);
+do_decode(<<"precondition-not-met">>,
+	  <<"http://jabber.org/protocol/pubsub#errors">>, El,
+	  Opts) ->
+    decode_pubsub_error_precondition_not_met(<<"http://jabber.org/protocol/pubsub#errors">>,
+					     Opts, El);
 do_decode(<<"pending-subscription">>,
 	  <<"http://jabber.org/protocol/pubsub#errors">>, El,
 	  Opts) ->
@@ -307,6 +312,8 @@ tags() ->
       <<"http://jabber.org/protocol/pubsub#errors">>},
      {<<"presence-subscription-required">>,
       <<"http://jabber.org/protocol/pubsub#errors">>},
+     {<<"precondition-not-met">>,
+      <<"http://jabber.org/protocol/pubsub#errors">>},
      {<<"pending-subscription">>,
       <<"http://jabber.org/protocol/pubsub#errors">>},
      {<<"payload-required">>,
@@ -544,6 +551,11 @@ do_encode({ps_error, 'pending-subscription', _} =
 	  TopXMLNS) ->
     encode_pubsub_error_pending_subscription(Pending_subscription,
 					     TopXMLNS);
+do_encode({ps_error, 'precondition-not-met', _} =
+	      Precondition_not_met,
+	  TopXMLNS) ->
+    encode_pubsub_error_precondition_not_met(Precondition_not_met,
+					     TopXMLNS);
 do_encode({ps_error, 'presence-subscription-required',
 	   _} =
 	      Presence_subscription_required,
@@ -605,6 +617,8 @@ do_get_name({ps_error, 'payload-too-big', _}) ->
     <<"payload-too-big">>;
 do_get_name({ps_error, 'pending-subscription', _}) ->
     <<"pending-subscription">>;
+do_get_name({ps_error, 'precondition-not-met', _}) ->
+    <<"precondition-not-met">>;
 do_get_name({ps_error, 'presence-subscription-required',
 	     _}) ->
     <<"presence-subscription-required">>;
@@ -670,6 +684,8 @@ do_get_ns({ps_error, 'payload-required', _}) ->
 do_get_ns({ps_error, 'payload-too-big', _}) ->
     <<"http://jabber.org/protocol/pubsub#errors">>;
 do_get_ns({ps_error, 'pending-subscription', _}) ->
+    <<"http://jabber.org/protocol/pubsub#errors">>;
+do_get_ns({ps_error, 'precondition-not-met', _}) ->
     <<"http://jabber.org/protocol/pubsub#errors">>;
 do_get_ns({ps_error, 'presence-subscription-required',
 	   _}) ->
@@ -919,6 +935,23 @@ encode_pubsub_error_presence_subscription_required({ps_error,
 					__TopXMLNS),
     {xmlel, <<"presence-subscription-required">>, _attrs,
      _els}.
+
+decode_pubsub_error_precondition_not_met(__TopXMLNS,
+					 __Opts,
+					 {xmlel, <<"precondition-not-met">>,
+					  _attrs, _els}) ->
+    {ps_error, 'precondition-not-met', undefined}.
+
+encode_pubsub_error_precondition_not_met({ps_error,
+					  'precondition-not-met', _},
+					 __TopXMLNS) ->
+    __NewTopXMLNS =
+	xmpp_codec:choose_top_xmlns(<<"http://jabber.org/protocol/pubsub#errors">>,
+				    [], __TopXMLNS),
+    _els = [],
+    _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
+					__TopXMLNS),
+    {xmlel, <<"precondition-not-met">>, _attrs, _els}.
 
 decode_pubsub_error_pending_subscription(__TopXMLNS,
 					 __Opts,
