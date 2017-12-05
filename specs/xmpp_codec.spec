@@ -3804,6 +3804,19 @@
 		   #ref{name = oob_desc, default = <<"">>,
 			min = 0, max = 1, label = '$desc'}]}).
 
+-xml(receipt_request,
+     #elem{name = <<"request">>,
+	   xmlns = <<"urn:xmpp:receipts">>,
+	   module = 'xep0184',
+	   result = {receipt_request}}).
+
+-xml(receipt_response,
+     #elem{name = <<"received">>,
+	   xmlns = <<"urn:xmpp:receipts">>,
+	   module = 'xep0184',
+	   result = {receipt_response, '$id'},
+	   attrs = [#attr{name = <<"id">>}]}).
+
 -xml(sic_ip,
      #elem{name = <<"ip">>,
 	   xmlns = [<<"urn:xmpp:sic:0">>, <<"urn:xmpp:sic:1">>],
