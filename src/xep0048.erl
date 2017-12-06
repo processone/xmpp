@@ -62,14 +62,7 @@ pp(bookmark_conference, 5) ->
     [name, jid, autojoin, nick, password];
 pp(bookmark_url, 2) -> [name, url];
 pp(bookmark_storage, 2) -> [conference, url];
-pp(xmlel, 3) -> [name, attrs, children];
-pp(Name, Arity) ->
-    case xmpp_codec:get_mod(erlang:make_tuple(Arity + 1,
-					      undefined, [{1, Name}]))
-	of
-      undefined -> no;
-      Mod -> Mod:pp(Name, Arity)
-    end.
+pp(_, _) -> no.
 
 records() ->
     [{bookmark_conference, 5}, {bookmark_url, 2},

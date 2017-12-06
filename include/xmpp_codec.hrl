@@ -194,16 +194,16 @@
                       to :: undefined | jid:jid()}).
 -type muc_decline() :: #muc_decline{}.
 
+-record(upload_slot_0, {get :: binary(),
+                        put :: binary(),
+                        xmlns = <<>> :: binary()}).
+-type upload_slot_0() :: #upload_slot_0{}.
+
 -record(upload_request_0, {filename = <<>> :: binary(),
                            size :: pos_integer(),
                            'content-type' = <<>> :: binary(),
                            xmlns = <<>> :: binary()}).
 -type upload_request_0() :: #upload_request_0{}.
-
--record(upload_slot_0, {get :: binary(),
-                        put :: binary(),
-                        xmlns = <<>> :: binary()}).
--type upload_slot_0() :: #upload_slot_0{}.
 
 -record(sm_a, {h :: non_neg_integer(),
                xmlns = <<>> :: binary()}).
@@ -1000,11 +1000,10 @@
                         muc_item() |
                         redirect() |
                         db_feature() |
-                        sic() |
-                        upload_slot_0() |
+                        push_disable() |
+                        upload_request_0() |
                         xmpp_session() |
                         bytestreams() |
-                        text() |
                         feature_register() |
                         starttls_failure() |
                         mam_fin() |
@@ -1012,7 +1011,9 @@
                         vcard_sound() |
                         offline() |
                         vcard_xupdate() |
+                        receipt_request() |
                         vcard_geo() |
+                        privilege_perm() |
                         sm_resume() |
                         client_id() |
                         compression() |
@@ -1029,49 +1030,47 @@
                         starttls_proceed() |
                         db_verify() |
                         ps_retract() |
-                        delegation_query() |
                         xdata_field() |
                         ps_subscription() |
                         starttls() |
                         ps_publish() |
                         adhoc_command() |
+                        upload_request() |
                         sm_r() |
-                        delegated() |
                         sm_enabled() |
                         legacy_auth_feature() |
+                        receipt_response() |
                         muc_owner() |
                         'see-other-host'() |
+                        delegation_query() |
                         disco_item() |
                         address() |
-                        thumbnail() |
                         carbons_disable() |
                         caps() |
                         vcard_tel() |
-                        upload_slot() |
                         bookmark_url() |
                         rsm_first() |
                         stream_start() |
                         muc_unsubscribe() |
                         mam_prefs() |
                         mix_leave() |
-                        avatar_info() |
                         vcard_adr() |
                         block() |
                         ps_subscribe() |
+                        avatar_meta() |
+                        sic() |
                         stanza_id() |
                         muc_admin() |
                         xdata_option() |
                         mam_archived() |
                         vcard_key() |
-                        delegation() |
-                        avatar_data() |
+                        delegated() |
                         ping() |
-                        avatar_pointer() |
                         bookmark_conference() |
-                        upload_request() |
+                        avatar_data() |
                         delay() |
                         expire() |
-                        avatar_meta() |
+                        avatar_info() |
                         sasl_challenge() |
                         adhoc_actions() |
                         addresses() |
@@ -1087,9 +1086,8 @@
                         bookmark_storage() |
                         block_list() |
                         stat_error() |
-                        push_notification() |
+                        push_enable() |
                         rsm_set() |
-                        privilege() |
                         sasl_response() |
                         mix_participant() |
                         iq() |
@@ -1117,14 +1115,14 @@
                         sm_failed() |
                         bob_data() |
                         handshake() |
-                        push_disable() |
+                        upload_slot_0() |
                         stream_error() |
                         mam_result() |
                         last() |
+                        text() |
                         private() |
                         xcaptcha() |
                         adhoc_note() |
-                        receipt_request() |
                         search() |
                         ps_items() |
                         muc_subscriptions() |
@@ -1132,28 +1130,31 @@
                         pubsub_owner() |
                         ps_unsubscribe() |
                         vcard_photo() |
+                        push_notification() |
                         feature_sm() |
                         vcard_org() |
                         sasl_failure() |
                         legacy_auth() |
                         bind() |
-                        push_enable() |
                         privacy_query() |
                         muc_destroy() |
                         presence() |
                         compress() |
                         media_uri() |
+                        privilege() |
                         mam_query() |
                         sm_resumed() |
                         oob_x() |
+                        avatar_pointer() |
                         stanza_error() |
                         register() |
                         time() |
-                        privilege_perm() |
+                        thumbnail() |
                         sm_a() |
                         vcard_name() |
+                        delegation() |
                         search_item() |
-                        upload_request_0() |
+                        upload_slot() |
                         vcard_label() |
                         offline_item() |
                         ps_options() |
@@ -1161,5 +1162,4 @@
                         message() |
                         vcard_temp() |
                         hint() |
-                        receipt_response() |
                         rosterver_feature().

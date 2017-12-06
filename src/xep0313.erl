@@ -176,14 +176,7 @@ pp(mam_archived, 2) -> [by, id];
 pp(mam_result, 4) -> [xmlns, queryid, id, sub_els];
 pp(mam_prefs, 4) -> [xmlns, default, always, never];
 pp(mam_fin, 5) -> [xmlns, id, rsm, stable, complete];
-pp(xmlel, 3) -> [name, attrs, children];
-pp(Name, Arity) ->
-    case xmpp_codec:get_mod(erlang:make_tuple(Arity + 1,
-					      undefined, [{1, Name}]))
-	of
-      undefined -> no;
-      Mod -> Mod:pp(Name, Arity)
-    end.
+pp(_, _) -> no.
 
 records() ->
     [{mam_query, 8}, {mam_archived, 2}, {mam_result, 4},

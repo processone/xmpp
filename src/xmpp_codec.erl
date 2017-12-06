@@ -38,8 +38,6 @@ get_els(Term) -> Mod = get_mod(Term), Mod:get_els(Term).
 set_els(Term, Els) ->
     Mod = get_mod(Term), Mod:set_els(Term, Els).
 
-pp(Term) -> io_lib_pretty:print(Term, fun pp/2).
-
 do_decode(Name, <<>>, _, _) ->
     erlang:error({xmpp_codec, {missing_tag_xmlns, Name}});
 do_decode(Name, XMLNS, _, _) ->
@@ -199,8 +197,8 @@ recompile_resolver(Mods, ResolverMod) ->
 
 pp(xmlel, 3) -> [name, attrs, children];
 pp(Name, Arity) ->
-    case xmpp_codec:get_mod(erlang:make_tuple(Arity + 1,
-					      undefined, [{1, Name}]))
+    case get_mod(erlang:make_tuple(Arity + 1, undefined,
+				   [{1, Name}]))
 	of
       undefined -> no;
       Mod -> Mod:pp(Name, Arity)
@@ -627,22 +625,12 @@ get_mod(<<"query">>, <<"jabber:iq:register">>) ->
     xep0077;
 get_mod(<<"CLASS">>, <<"vcard-temp">>) -> xep0054;
 get_mod(<<"result">>, <<"urn:xmpp:mam:2">>) -> xep0313;
-get_mod(<<"storage">>, <<"storage:bookmarks">>) ->
-    xep0048;
-get_mod(<<"LINE">>, <<"vcard-temp">>) -> xep0054;
-get_mod(<<"PRODID">>, <<"vcard-temp">>) -> xep0054;
-get_mod(<<"publish-options">>,
-	<<"http://jabber.org/protocol/pubsub">>) ->
-    xep0060;
 get_mod(<<"purge">>,
 	<<"http://jabber.org/protocol/pubsub#event">>) ->
     xep0060;
 get_mod(<<"header">>,
 	<<"http://jabber.org/protocol/shim">>) ->
     xep0131;
-get_mod(<<"reason">>,
-	<<"http://jabber.org/protocol/muc#admin">>) ->
-    xep0045;
 get_mod(<<"failed">>, <<"urn:xmpp:sm:3">>) -> xep0198;
 get_mod(<<"x">>, <<"jabber:x:expire">>) -> xep0023;
 get_mod(<<"policy-violation">>,
@@ -1340,6 +1328,16 @@ get_mod(<<"no-permanent-store">>,
     xep0334;
 get_mod(<<"filename">>, <<"urn:xmpp:http:upload">>) ->
     xep0363;
+get_mod(<<"storage">>, <<"storage:bookmarks">>) ->
+    xep0048;
+get_mod(<<"LINE">>, <<"vcard-temp">>) -> xep0054;
+get_mod(<<"PRODID">>, <<"vcard-temp">>) -> xep0054;
+get_mod(<<"publish-options">>,
+	<<"http://jabber.org/protocol/pubsub">>) ->
+    xep0060;
+get_mod(<<"reason">>,
+	<<"http://jabber.org/protocol/muc#admin">>) ->
+    xep0045;
 get_mod(Name, XMLNS) ->
     xmpp_codec_external:lookup(Name, XMLNS).
 

@@ -44,14 +44,7 @@ do_get_ns({xevent, _, _, _, _, _}) ->
 
 pp(xevent, 5) ->
     [offline, delivered, displayed, composing, id];
-pp(xmlel, 3) -> [name, attrs, children];
-pp(Name, Arity) ->
-    case xmpp_codec:get_mod(erlang:make_tuple(Arity + 1,
-					      undefined, [{1, Name}]))
-	of
-      undefined -> no;
-      Mod -> Mod:pp(Name, Arity)
-    end.
+pp(_, _) -> no.
 
 records() -> [{xevent, 5}].
 

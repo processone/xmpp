@@ -48,14 +48,7 @@ do_get_ns({push_notification, _}) ->
 pp(push_enable, 3) -> [jid, node, xdata];
 pp(push_disable, 2) -> [jid, node];
 pp(push_notification, 1) -> [xdata];
-pp(xmlel, 3) -> [name, attrs, children];
-pp(Name, Arity) ->
-    case xmpp_codec:get_mod(erlang:make_tuple(Arity + 1,
-					      undefined, [{1, Name}]))
-	of
-      undefined -> no;
-      Mod -> Mod:pp(Name, Arity)
-    end.
+pp(_, _) -> no.
 
 records() ->
     [{push_enable, 3}, {push_disable, 2},

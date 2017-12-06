@@ -84,14 +84,7 @@ pp(xdata_field, 8) ->
      sub_els];
 pp(xdata, 6) ->
     [type, instructions, title, reported, items, fields];
-pp(xmlel, 3) -> [name, attrs, children];
-pp(Name, Arity) ->
-    case xmpp_codec:get_mod(erlang:make_tuple(Arity + 1,
-					      undefined, [{1, Name}]))
-	of
-      undefined -> no;
-      Mod -> Mod:pp(Name, Arity)
-    end.
+pp(_, _) -> no.
 
 records() ->
     [{xdata_option, 2}, {xdata_field, 8}, {xdata, 6}].

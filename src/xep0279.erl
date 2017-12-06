@@ -37,14 +37,7 @@ do_get_name({sic, _, _, _}) -> <<"address">>.
 do_get_ns({sic, _, _, Xmlns}) -> Xmlns.
 
 pp(sic, 3) -> [ip, port, xmlns];
-pp(xmlel, 3) -> [name, attrs, children];
-pp(Name, Arity) ->
-    case xmpp_codec:get_mod(erlang:make_tuple(Arity + 1,
-					      undefined, [{1, Name}]))
-	of
-      undefined -> no;
-      Mod -> Mod:pp(Name, Arity)
-    end.
+pp(_, _) -> no.
 
 records() -> [{sic, 3}].
 

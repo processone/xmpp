@@ -78,14 +78,7 @@ pp(privacy_item, 8) ->
      presence_out];
 pp(privacy_list, 2) -> [name, items];
 pp(privacy_query, 3) -> [lists, default, active];
-pp(xmlel, 3) -> [name, attrs, children];
-pp(Name, Arity) ->
-    case xmpp_codec:get_mod(erlang:make_tuple(Arity + 1,
-					      undefined, [{1, Name}]))
-	of
-      undefined -> no;
-      Mod -> Mod:pp(Name, Arity)
-    end.
+pp(_, _) -> no.
 
 records() ->
     [{privacy_item, 8}, {privacy_list, 2},

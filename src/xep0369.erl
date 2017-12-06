@@ -48,14 +48,7 @@ do_get_ns({mix_participant, _, _}) ->
 pp(mix_join, 2) -> [jid, subscribe];
 pp(mix_leave, 0) -> [];
 pp(mix_participant, 2) -> [jid, nick];
-pp(xmlel, 3) -> [name, attrs, children];
-pp(Name, Arity) ->
-    case xmpp_codec:get_mod(erlang:make_tuple(Arity + 1,
-					      undefined, [{1, Name}]))
-	of
-      undefined -> no;
-      Mod -> Mod:pp(Name, Arity)
-    end.
+pp(_, _) -> no.
 
 records() ->
     [{mix_join, 2}, {mix_leave, 0}, {mix_participant, 2}].

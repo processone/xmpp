@@ -22,14 +22,7 @@ do_get_name({bob_data, _, _, _, _}) -> <<"data">>.
 do_get_ns({bob_data, _, _, _, _}) -> <<"urn:xmpp:bob">>.
 
 pp(bob_data, 4) -> [cid, 'max-age', type, data];
-pp(xmlel, 3) -> [name, attrs, children];
-pp(Name, Arity) ->
-    case xmpp_codec:get_mod(erlang:make_tuple(Arity + 1,
-					      undefined, [{1, Name}]))
-	of
-      undefined -> no;
-      Mod -> Mod:pp(Name, Arity)
-    end.
+pp(_, _) -> no.
 
 records() -> [{bob_data, 4}].
 

@@ -490,7 +490,7 @@ mk_text(Text, Lang) ->
 
 -spec pp(any()) -> iodata().
 pp(Term) ->
-    xmpp_codec:pp(Term).
+    io_lib_pretty:print(Term, fun pp/2).
 
 -spec register_codec(module()) -> ok.
 register_codec(Mod) ->
@@ -1006,3 +1006,8 @@ get_tr_forms(Callback) ->
 	      {ok, Form} = erl_parse:parse_form(Tokens),
 	      Form
       end, [Module, Export, Tr]).
+
+pp(jid, 6) ->
+    record_info(fields, jid);
+pp(Name, Arity) ->
+    xmpp_codec:pp(Name, Arity).

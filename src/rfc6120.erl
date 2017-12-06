@@ -815,14 +815,7 @@ pp(stream_error, 2) -> [reason, text];
 pp(stream_start, 8) ->
     [from, to, id, version, xmlns, stream_xmlns, db_xmlns,
      lang];
-pp(xmlel, 3) -> [name, attrs, children];
-pp(Name, Arity) ->
-    case xmpp_codec:get_mod(erlang:make_tuple(Arity + 1,
-					      undefined, [{1, Name}]))
-	of
-      undefined -> no;
-      Mod -> Mod:pp(Name, Arity)
-    end.
+pp(_, _) -> no.
 
 records() ->
     [{iq, 7}, {message, 10}, {presence, 10}, {gone, 1},

@@ -27,14 +27,7 @@ do_get_ns({x_conference, _, _, _, _, _}) ->
 
 pp(x_conference, 5) ->
     [jid, password, reason, continue, thread];
-pp(xmlel, 3) -> [name, attrs, children];
-pp(Name, Arity) ->
-    case xmpp_codec:get_mod(erlang:make_tuple(Arity + 1,
-					      undefined, [{1, Name}]))
-	of
-      undefined -> no;
-      Mod -> Mod:pp(Name, Arity)
-    end.
+pp(_, _) -> no.
 
 records() -> [{x_conference, 5}].
 

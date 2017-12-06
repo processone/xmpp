@@ -48,14 +48,7 @@ do_get_ns({stats, _, _}) ->
 pp(stat_error, 2) -> [code, reason];
 pp(stat, 4) -> [name, units, value, error];
 pp(stats, 2) -> [list, node];
-pp(xmlel, 3) -> [name, attrs, children];
-pp(Name, Arity) ->
-    case xmpp_codec:get_mod(erlang:make_tuple(Arity + 1,
-					      undefined, [{1, Name}]))
-	of
-      undefined -> no;
-      Mod -> Mod:pp(Name, Arity)
-    end.
+pp(_, _) -> no.
 
 records() -> [{stat_error, 2}, {stat, 4}, {stats, 2}].
 

@@ -69,14 +69,7 @@ set_els({db_verify, _from, _to, _id, _type, _key, _},
 pp(db_result, 5) -> [from, to, type, key, sub_els];
 pp(db_verify, 6) -> [from, to, id, type, key, sub_els];
 pp(db_feature, 1) -> [errors];
-pp(xmlel, 3) -> [name, attrs, children];
-pp(Name, Arity) ->
-    case xmpp_codec:get_mod(erlang:make_tuple(Arity + 1,
-					      undefined, [{1, Name}]))
-	of
-      undefined -> no;
-      Mod -> Mod:pp(Name, Arity)
-    end.
+pp(_, _) -> no.
 
 records() ->
     [{db_result, 5}, {db_verify, 6}, {db_feature, 1}].

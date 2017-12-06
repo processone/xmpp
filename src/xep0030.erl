@@ -76,14 +76,7 @@ pp(disco_info, 4) ->
     [node, identities, features, xdata];
 pp(disco_item, 3) -> [jid, name, node];
 pp(disco_items, 3) -> [node, items, rsm];
-pp(xmlel, 3) -> [name, attrs, children];
-pp(Name, Arity) ->
-    case xmpp_codec:get_mod(erlang:make_tuple(Arity + 1,
-					      undefined, [{1, Name}]))
-	of
-      undefined -> no;
-      Mod -> Mod:pp(Name, Arity)
-    end.
+pp(_, _) -> no.
 
 records() ->
     [{identity, 4}, {disco_info, 4}, {disco_item, 3},

@@ -58,14 +58,7 @@ do_get_ns({legacy_auth_feature}) ->
 pp(legacy_auth, 4) ->
     [username, password, digest, resource];
 pp(legacy_auth_feature, 0) -> [];
-pp(xmlel, 3) -> [name, attrs, children];
-pp(Name, Arity) ->
-    case xmpp_codec:get_mod(erlang:make_tuple(Arity + 1,
-					      undefined, [{1, Name}]))
-	of
-      undefined -> no;
-      Mod -> Mod:pp(Name, Arity)
-    end.
+pp(_, _) -> no.
 
 records() ->
     [{legacy_auth, 4}, {legacy_auth_feature, 0}].

@@ -143,14 +143,7 @@ pp(upload_slot, 3) -> [get, put, xmlns];
 pp(upload_request_0, 4) ->
     [filename, size, 'content-type', xmlns];
 pp(upload_slot_0, 3) -> [get, put, xmlns];
-pp(xmlel, 3) -> [name, attrs, children];
-pp(Name, Arity) ->
-    case xmpp_codec:get_mod(erlang:make_tuple(Arity + 1,
-					      undefined, [{1, Name}]))
-	of
-      undefined -> no;
-      Mod -> Mod:pp(Name, Arity)
-    end.
+pp(_, _) -> no.
 
 records() ->
     [{upload_request, 4}, {upload_slot, 3},

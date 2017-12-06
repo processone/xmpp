@@ -24,14 +24,7 @@ do_get_ns({forwarded, _, _}) ->
     <<"urn:xmpp:forward:0">>.
 
 pp(forwarded, 2) -> [delay, xml_els];
-pp(xmlel, 3) -> [name, attrs, children];
-pp(Name, Arity) ->
-    case xmpp_codec:get_mod(erlang:make_tuple(Arity + 1,
-					      undefined, [{1, Name}]))
-	of
-      undefined -> no;
-      Mod -> Mod:pp(Name, Arity)
-    end.
+pp(_, _) -> no.
 
 records() -> [{forwarded, 2}].
 
