@@ -60,7 +60,14 @@ do_get_ns({search_item, _, _, _, _, _}) ->
 pp(search_item, 5) -> [jid, first, last, nick, email];
 pp(search, 7) ->
     [instructions, first, last, nick, email, items, xdata];
-pp(_, _) -> no.
+pp(xmlel, 3) -> [name, attrs, children];
+pp(Name, Arity) ->
+    case xmpp_codec:get_mod(erlang:make_tuple(Arity + 1,
+					      undefined, [{1, Name}]))
+	of
+      undefined -> no;
+      Mod -> Mod:pp(Name, Arity)
+    end.
 
 records() -> [{search_item, 5}, {search, 7}].
 

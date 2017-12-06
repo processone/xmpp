@@ -196,19 +196,19 @@ get_to(#iq{to = J}) -> J;
 get_to(#message{to = J}) -> J;
 get_to(#presence{to = J}) -> J.
 
--spec get_error(stanza()) -> undefined | stanza_error().
-get_error(Stanza) ->
-    case get_subtag(Stanza, #stanza_error{type = cancel}) of
+-spec get_error(xmpp_element()) -> undefined | stanza_error().
+get_error(Pkt) ->
+    case get_subtag(Pkt, #stanza_error{type = cancel}) of
 	false -> undefined;
 	Error -> Error
     end.
 
--spec get_els(stanza()) -> [xmpp_element() | xmlel()];
+-spec get_els(xmpp_element()) -> [xmpp_element() | xmlel()];
 	     (xmlel()) -> [xmlel()].
-get_els(#iq{sub_els = Els}) -> Els;
-get_els(#message{sub_els = Els}) -> Els;
-get_els(#presence{sub_els = Els}) -> Els;
-get_els(#xmlel{children = Els}) -> [El || El = #xmlel{} <- Els].
+get_els(#xmlel{children = Els}) ->
+    [El || El = #xmlel{} <- Els];
+get_els(Pkt) ->
+    xmpp_codec:get_els(Pkt).
 
 -spec set_id(iq(), binary()) -> iq();
 	    (message(), binary()) -> message();
@@ -257,12 +257,9 @@ set_from_to(#presence{} = Pres, F, T) -> Pres#presence{from = F, to = T}.
 	       (presence(), stanza_error()) -> presence().
 set_error(Stanza, E) -> set_subtag(Stanza, E).
 
--spec set_els(iq(), [xmpp_element() | xmlel()]) -> iq();
-	     (message(), [xmpp_element() | xmlel()]) -> message();
-	     (presence(), [xmpp_element() | xmlel()]) -> presence().
-set_els(#iq{} = IQ, Els) -> IQ#iq{sub_els = Els};
-set_els(#message{} = Msg, Els) -> Msg#message{sub_els = Els};
-set_els(#presence{} = Pres, Els) -> Pres#presence{sub_els = Els}.
+-spec set_els(xmpp_element(), [xmpp_element() | xmlel()]) -> xmpp_element().
+set_els(Pkt, Els) ->
+    xmpp_codec:set_els(Pkt, Els).
 
 -spec get_ns(xmpp_element() | xmlel()) -> binary().
 get_ns(#xmlel{attrs = Attrs}) ->
@@ -339,27 +336,23 @@ decode(#xmlel{} = El, TopXMLNS, Opts) ->
 decode(Pkt, _, _) ->
     Pkt.
 
--spec decode_els(iq()) -> iq();
-		(message()) -> message();
-		(presence()) -> presence().
-decode_els(Stanza) ->
-    decode_els(Stanza, ?NS_CLIENT, fun is_known_tag/1).
+-spec decode_els(xmpp_element()) -> xmpp_element().
+decode_els(Pkt) ->
+    decode_els(Pkt, ?NS_CLIENT, fun is_known_tag/1).
 
 -type match_fun() :: fun((xmlel()) -> boolean()).
--spec decode_els(iq(), binary(), match_fun()) -> iq();
-		(message(), binary(), match_fun()) -> message();
-		(presence(), binary(), match_fun()) -> presence().
-decode_els(Stanza, TopXMLNS, MatchFun) ->
+-spec decode_els(xmpp_element(), binary(), match_fun()) -> xmpp_element().
+decode_els(Pkt, TopXMLNS, MatchFun) ->
     Els = lists:map(
 	    fun(#xmlel{} = El) ->
 		    case MatchFun(El) of
 			true ->	decode(El, TopXMLNS, []);
 			false -> El
 		    end;
-	       (Pkt) ->
-		    Pkt
-	    end, get_els(Stanza)),
-    set_els(Stanza, Els).
+	       (El) ->
+		    El
+	    end, get_els(Pkt)),
+    set_els(Pkt, Els).
 
 -spec encode(xmpp_element() | xmlel()) -> xmlel().
 encode(Pkt) ->
@@ -393,16 +386,14 @@ is_stanza(#xmlel{name = Name}) ->
     (Name == <<"iq">>) or (Name == <<"message">>) or (Name == <<"presence">>);
 is_stanza(_) -> false.
 
--spec set_subtag(iq(), xmpp_element()) -> iq();
-		(message(), xmpp_element()) -> message();
-		(presence(), xmpp_element()) -> presence().
-set_subtag(Stanza, Tag) ->
+-spec set_subtag(xmpp_element(), xmpp_element()) -> xmpp_element().
+set_subtag(Pkt, Tag) ->
     TagName = xmpp_codec:get_name(Tag),
-    TopXMLNS = xmpp_codec:get_ns(Stanza),
+    TopXMLNS = xmpp_codec:get_ns(Pkt),
     XMLNS = xmpp_codec:get_ns(Tag),
-    Els = get_els(Stanza),
+    Els = get_els(Pkt),
     NewEls = set_subtag(Els, Tag, TagName, XMLNS, TopXMLNS),
-    set_els(Stanza, NewEls).
+    set_els(Pkt, NewEls).
 
 set_subtag([El|Els], Tag, TagName, XMLNS, TopXMLNS) ->
     case match_tag(El, TagName, XMLNS, TopXMLNS) of
@@ -414,10 +405,10 @@ set_subtag([El|Els], Tag, TagName, XMLNS, TopXMLNS) ->
 set_subtag([], Tag, _, _, _) ->
     [Tag].
 
--spec get_subtag(stanza(), xmpp_element()) -> xmpp_element() | false.
-get_subtag(Stanza, Tag) ->
-    Els = get_els(Stanza),
-    TopXMLNS = xmpp_codec:get_ns(Stanza),
+-spec get_subtag(xmpp_element(), xmpp_element()) -> xmpp_element() | false.
+get_subtag(Pkt, Tag) ->
+    Els = get_els(Pkt),
+    TopXMLNS = xmpp_codec:get_ns(Pkt),
     TagName = xmpp_codec:get_name(Tag),
     XMLNS = xmpp_codec:get_ns(Tag),
     get_subtag(Els, TagName, XMLNS, TopXMLNS).
@@ -436,16 +427,14 @@ get_subtag([El|Els], TagName, XMLNS, TopXMLNS) ->
 get_subtag([], _, _, _) ->
     false.
 
--spec remove_subtag(iq(), xmpp_element()) -> iq();
-		   (message(), xmpp_element()) -> message();
-		   (presence(), xmpp_element()) -> presence().
-remove_subtag(Stanza, Tag) ->
-    Els = get_els(Stanza),
+-spec remove_subtag(xmpp_element(), xmpp_element()) -> xmpp_element().
+remove_subtag(Pkt, Tag) ->
+    Els = get_els(Pkt),
     TagName = xmpp_codec:get_name(Tag),
-    TopXMLNS = xmpp_codec:get_ns(Stanza),
+    TopXMLNS = xmpp_codec:get_ns(Pkt),
     XMLNS = xmpp_codec:get_ns(Tag),
     NewEls = remove_subtag(Els, TagName, XMLNS, TopXMLNS),
-    set_els(Stanza, NewEls).
+    set_els(Pkt, NewEls).
 
 remove_subtag([El|Els], TagName, XMLNS, TopXMLNS) ->
     case match_tag(El, TagName, XMLNS, TopXMLNS) of
@@ -457,11 +446,11 @@ remove_subtag([El|Els], TagName, XMLNS, TopXMLNS) ->
 remove_subtag([], _, _, _) ->
     [].
 
--spec has_subtag(stanza(), xmpp_element()) -> boolean().
-has_subtag(Stanza, Tag) ->
-    Els = get_els(Stanza),
+-spec has_subtag(xmpp_element(), xmpp_element()) -> boolean().
+has_subtag(Pkt, Tag) ->
+    Els = get_els(Pkt),
     TagName = xmpp_codec:get_name(Tag),
-    TopXMLNS = xmpp_codec:get_ns(Stanza),
+    TopXMLNS = xmpp_codec:get_ns(Pkt),
     XMLNS = xmpp_codec:get_ns(Tag),
     has_subtag(Els, TagName, XMLNS, TopXMLNS).
 
@@ -475,12 +464,10 @@ has_subtag([El|Els], TagName, XMLNS, TopXMLNS) ->
 has_subtag([], _, _, _) ->
     false.
 
--spec append_subtags(iq(), [xmpp_element() | xmlel()]) -> iq();
-		    (message(), [xmpp_element() | xmlel()]) -> message();
-		    (presence(), [xmpp_element() | xmlel()]) -> presence().
-append_subtags(Stanza, Tags) ->
-    Els = get_els(Stanza),
-    set_els(Stanza, Els ++ Tags).
+-spec append_subtags(xmpp_element(), [xmpp_element() | xmlel()]) -> xmpp_element().
+append_subtags(Pkt, Tags) ->
+    Els = get_els(Pkt),
+    set_els(Pkt, Els ++ Tags).
 
 -spec get_text([text()]) -> binary().
 get_text(Text) ->

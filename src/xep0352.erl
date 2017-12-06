@@ -44,7 +44,14 @@ do_get_ns({feature_csi, Xmlns}) -> Xmlns.
 
 pp(feature_csi, 1) -> [xmlns];
 pp(csi, 1) -> [type];
-pp(_, _) -> no.
+pp(xmlel, 3) -> [name, attrs, children];
+pp(Name, Arity) ->
+    case xmpp_codec:get_mod(erlang:make_tuple(Arity + 1,
+					      undefined, [{1, Name}]))
+	of
+      undefined -> no;
+      Mod -> Mod:pp(Name, Arity)
+    end.
 
 records() -> [{feature_csi, 1}, {csi, 1}].
 

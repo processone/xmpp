@@ -33,12 +33,12 @@ is_known_tag({xmlel, Name, Attrs, _}, TopXMLNS) ->
     XMLNS = get_attr(<<"xmlns">>, Attrs, TopXMLNS),
     get_mod(Name, XMLNS) /= undefined.
 
-pp(Term) ->
-    case get_mod(Term) of
-      undefined ->
-	  io_lib_pretty:print(Term, fun (_, _) -> no end);
-      Mod -> io_lib_pretty:print(Term, fun Mod:pp/2)
-    end.
+get_els(Term) -> Mod = get_mod(Term), Mod:get_els(Term).
+
+set_els(Term, Els) ->
+    Mod = get_mod(Term), Mod:set_els(Term, Els).
+
+pp(Term) -> io_lib_pretty:print(Term, fun pp/2).
 
 do_decode(Name, <<>>, _, _) ->
     erlang:error({xmpp_codec, {missing_tag_xmlns, Name}});
@@ -196,6 +196,15 @@ recompile_resolver(Mods, ResolverMod) ->
     {module, ResolverMod} = code:load_binary(ResolverMod,
 					     "nofile", Code),
     ok.
+
+pp(xmlel, 3) -> [name, attrs, children];
+pp(Name, Arity) ->
+    case xmpp_codec:get_mod(erlang:make_tuple(Arity + 1,
+					      undefined, [{1, Name}]))
+	of
+      undefined -> no;
+      Mod -> Mod:pp(Name, Arity)
+    end.
 
 records() -> [].
 

@@ -29,7 +29,14 @@ do_get_name({oob_x, _, _, _}) -> <<"x">>.
 do_get_ns({oob_x, _, _, _}) -> <<"jabber:x:oob">>.
 
 pp(oob_x, 3) -> [url, desc, sid];
-pp(_, _) -> no.
+pp(xmlel, 3) -> [name, attrs, children];
+pp(Name, Arity) ->
+    case xmpp_codec:get_mod(erlang:make_tuple(Arity + 1,
+					      undefined, [{1, Name}]))
+	of
+      undefined -> no;
+      Mod -> Mod:pp(Name, Arity)
+    end.
 
 records() -> [{oob_x, 3}].
 

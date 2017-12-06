@@ -49,7 +49,14 @@ do_get_ns({offline_item, _, _}) ->
 
 pp(offline_item, 2) -> [node, action];
 pp(offline, 3) -> [items, purge, fetch];
-pp(_, _) -> no.
+pp(xmlel, 3) -> [name, attrs, children];
+pp(Name, Arity) ->
+    case xmpp_codec:get_mod(erlang:make_tuple(Arity + 1,
+					      undefined, [{1, Name}]))
+	of
+      undefined -> no;
+      Mod -> Mod:pp(Name, Arity)
+    end.
 
 records() -> [{offline_item, 2}, {offline, 3}].
 

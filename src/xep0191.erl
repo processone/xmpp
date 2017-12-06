@@ -46,7 +46,14 @@ do_get_ns({unblock, _}) -> <<"urn:xmpp:blocking">>.
 pp(block, 1) -> [items];
 pp(unblock, 1) -> [items];
 pp(block_list, 1) -> [items];
-pp(_, _) -> no.
+pp(xmlel, 3) -> [name, attrs, children];
+pp(Name, Arity) ->
+    case xmpp_codec:get_mod(erlang:make_tuple(Arity + 1,
+					      undefined, [{1, Name}]))
+	of
+      undefined -> no;
+      Mod -> Mod:pp(Name, Arity)
+    end.
 
 records() ->
     [{block, 1}, {unblock, 1}, {block_list, 1}].

@@ -65,7 +65,14 @@ pp(avatar_info, 6) ->
 pp(avatar_pointer, 6) ->
     [bytes, id, type, height, width, xml_els];
 pp(avatar_meta, 2) -> [info, pointer];
-pp(_, _) -> no.
+pp(xmlel, 3) -> [name, attrs, children];
+pp(Name, Arity) ->
+    case xmpp_codec:get_mod(erlang:make_tuple(Arity + 1,
+					      undefined, [{1, Name}]))
+	of
+      undefined -> no;
+      Mod -> Mod:pp(Name, Arity)
+    end.
 
 records() ->
     [{avatar_data, 1}, {avatar_info, 6},

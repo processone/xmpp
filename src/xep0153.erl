@@ -31,7 +31,14 @@ do_get_ns({vcard_xupdate, _, _}) ->
     <<"vcard-temp:x:update">>.
 
 pp(vcard_xupdate, 2) -> [us, hash];
-pp(_, _) -> no.
+pp(xmlel, 3) -> [name, attrs, children];
+pp(Name, Arity) ->
+    case xmpp_codec:get_mod(erlang:make_tuple(Arity + 1,
+					      undefined, [{1, Name}]))
+	of
+      undefined -> no;
+      Mod -> Mod:pp(Name, Arity)
+    end.
 
 records() -> [{vcard_xupdate, 2}].
 

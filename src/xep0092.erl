@@ -37,7 +37,14 @@ do_get_ns({version, _, _, _}) ->
     <<"jabber:iq:version">>.
 
 pp(version, 3) -> [name, ver, os];
-pp(_, _) -> no.
+pp(xmlel, 3) -> [name, attrs, children];
+pp(Name, Arity) ->
+    case xmpp_codec:get_mod(erlang:make_tuple(Arity + 1,
+					      undefined, [{1, Name}]))
+	of
+      undefined -> no;
+      Mod -> Mod:pp(Name, Arity)
+    end.
 
 records() -> [{version, 3}].
 

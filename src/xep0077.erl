@@ -139,13 +139,36 @@ do_get_ns({register, _, _, _, _, _, _, _, _, _, _, _, _,
 	   _, _, _, _, _, _, _, _, _, _}) ->
     <<"jabber:iq:register">>.
 
+get_els({register, _registered, _remove, _instructions,
+	 _username, _nick, _password, _name, _first, _last,
+	 _email, _address, _city, _state, _zip, _phone, _url,
+	 _date, _misc, _text, _key, _xdata, _sub_els}) ->
+    _sub_els.
+
+set_els({register, _registered, _remove, _instructions,
+	 _username, _nick, _password, _name, _first, _last,
+	 _email, _address, _city, _state, _zip, _phone, _url,
+	 _date, _misc, _text, _key, _xdata, _},
+	_sub_els) ->
+    {register, _registered, _remove, _instructions,
+     _username, _nick, _password, _name, _first, _last,
+     _email, _address, _city, _state, _zip, _phone, _url,
+     _date, _misc, _text, _key, _xdata, _sub_els}.
+
 pp(feature_register, 0) -> [];
 pp(register, 22) ->
     [registered, remove, instructions, username, nick,
      password, name, first, last, email, address, city,
      state, zip, phone, url, date, misc, text, key, xdata,
      sub_els];
-pp(_, _) -> no.
+pp(xmlel, 3) -> [name, attrs, children];
+pp(Name, Arity) ->
+    case xmpp_codec:get_mod(erlang:make_tuple(Arity + 1,
+					      undefined, [{1, Name}]))
+	of
+      undefined -> no;
+      Mod -> Mod:pp(Name, Arity)
+    end.
 
 records() -> [{feature_register, 0}, {register, 22}].
 

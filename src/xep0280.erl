@@ -68,7 +68,14 @@ pp(carbons_enable, 0) -> [];
 pp(carbons_private, 0) -> [];
 pp(carbons_received, 1) -> [forwarded];
 pp(carbons_sent, 1) -> [forwarded];
-pp(_, _) -> no.
+pp(xmlel, 3) -> [name, attrs, children];
+pp(Name, Arity) ->
+    case xmpp_codec:get_mod(erlang:make_tuple(Arity + 1,
+					      undefined, [{1, Name}]))
+	of
+      undefined -> no;
+      Mod -> Mod:pp(Name, Arity)
+    end.
 
 records() ->
     [{carbons_disable, 0}, {carbons_enable, 0},

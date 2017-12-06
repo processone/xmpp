@@ -23,7 +23,14 @@ do_get_name({last, _, _}) -> <<"query">>.
 do_get_ns({last, _, _}) -> <<"jabber:iq:last">>.
 
 pp(last, 2) -> [seconds, status];
-pp(_, _) -> no.
+pp(xmlel, 3) -> [name, attrs, children];
+pp(Name, Arity) ->
+    case xmpp_codec:get_mod(erlang:make_tuple(Arity + 1,
+					      undefined, [{1, Name}]))
+	of
+      undefined -> no;
+      Mod -> Mod:pp(Name, Arity)
+    end.
 
 records() -> [{last, 2}].
 

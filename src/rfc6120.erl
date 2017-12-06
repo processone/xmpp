@@ -751,6 +751,41 @@ do_get_ns({stream_features, _}) -> <<"jabber:client">>;
 do_get_ns({stream_start, _, _, _, _, Xmlns, _, _, _}) ->
     Xmlns.
 
+get_els({iq, _id, _type, _lang, _from, _to, _sub_els,
+	 _meta}) ->
+    _sub_els;
+get_els({message, _id, _type, _lang, _from, _to,
+	 _subject, _body, _thread, _sub_els, _meta}) ->
+    _sub_els;
+get_els({presence, _id, _type, _lang, _from, _to, _show,
+	 _status, _priority, _sub_els, _meta}) ->
+    _sub_els;
+get_els({stanza_error, _type, _code, _by, _reason,
+	 _text, _sub_els}) ->
+    _sub_els;
+get_els({stream_features, _sub_els}) -> _sub_els.
+
+set_els({iq, _id, _type, _lang, _from, _to, _, _meta},
+	_sub_els) ->
+    {iq, _id, _type, _lang, _from, _to, _sub_els, _meta};
+set_els({message, _id, _type, _lang, _from, _to,
+	 _subject, _body, _thread, _, _meta},
+	_sub_els) ->
+    {message, _id, _type, _lang, _from, _to, _subject,
+     _body, _thread, _sub_els, _meta};
+set_els({presence, _id, _type, _lang, _from, _to, _show,
+	 _status, _priority, _, _meta},
+	_sub_els) ->
+    {presence, _id, _type, _lang, _from, _to, _show,
+     _status, _priority, _sub_els, _meta};
+set_els({stanza_error, _type, _code, _by, _reason,
+	 _text, _},
+	_sub_els) ->
+    {stanza_error, _type, _code, _by, _reason, _text,
+     _sub_els};
+set_els({stream_features, _}, _sub_els) ->
+    {stream_features, _sub_els}.
+
 pp(iq, 7) -> [id, type, lang, from, to, sub_els, meta];
 pp(message, 10) ->
     [id, type, lang, from, to, subject, body, thread,
@@ -780,7 +815,14 @@ pp(stream_error, 2) -> [reason, text];
 pp(stream_start, 8) ->
     [from, to, id, version, xmlns, stream_xmlns, db_xmlns,
      lang];
-pp(_, _) -> no.
+pp(xmlel, 3) -> [name, attrs, children];
+pp(Name, Arity) ->
+    case xmpp_codec:get_mod(erlang:make_tuple(Arity + 1,
+					      undefined, [{1, Name}]))
+	of
+      undefined -> no;
+      Mod -> Mod:pp(Name, Arity)
+    end.
 
 records() ->
     [{iq, 7}, {message, 10}, {presence, 10}, {gone, 1},

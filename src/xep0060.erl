@@ -743,7 +743,14 @@ pp(pubsub_owner, 6) ->
     [affiliations, configure, default, delete, purge,
      subscriptions];
 pp(ps_error, 2) -> [type, feature];
-pp(_, _) -> no.
+pp(xmlel, 3) -> [name, attrs, children];
+pp(Name, Arity) ->
+    case xmpp_codec:get_mod(erlang:make_tuple(Arity + 1,
+					      undefined, [{1, Name}]))
+	of
+      undefined -> no;
+      Mod -> Mod:pp(Name, Arity)
+    end.
 
 records() ->
     [{ps_subscription, 6}, {ps_affiliation, 4},

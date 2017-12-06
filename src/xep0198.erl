@@ -115,7 +115,14 @@ pp(sm_resumed, 3) -> [h, previd, xmlns];
 pp(sm_r, 1) -> [xmlns];
 pp(sm_a, 2) -> [h, xmlns];
 pp(sm_failed, 4) -> [reason, text, h, xmlns];
-pp(_, _) -> no.
+pp(xmlel, 3) -> [name, attrs, children];
+pp(Name, Arity) ->
+    case xmpp_codec:get_mod(erlang:make_tuple(Arity + 1,
+					      undefined, [{1, Name}]))
+	of
+      undefined -> no;
+      Mod -> Mod:pp(Name, Arity)
+    end.
 
 records() ->
     [{feature_sm, 1}, {sm_enable, 3}, {sm_enabled, 5},

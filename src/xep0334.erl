@@ -77,7 +77,14 @@ do_get_ns({hint, 'no-store'}) -> <<"urn:xmpp:hints">>;
 do_get_ns({hint, store}) -> <<"urn:xmpp:hints">>.
 
 pp(hint, 1) -> [type];
-pp(_, _) -> no.
+pp(xmlel, 3) -> [name, attrs, children];
+pp(Name, Arity) ->
+    case xmpp_codec:get_mod(erlang:make_tuple(Arity + 1,
+					      undefined, [{1, Name}]))
+	of
+      undefined -> no;
+      Mod -> Mod:pp(Name, Arity)
+    end.
 
 records() -> [{hint, 1}].
 

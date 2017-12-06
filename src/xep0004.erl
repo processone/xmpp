@@ -68,13 +68,30 @@ do_get_ns({xdata_field, _, _, _, _, _, _, _, _}) ->
     <<"jabber:x:data">>;
 do_get_ns({xdata_option, _, _}) -> <<"jabber:x:data">>.
 
+get_els({xdata_field, _label, _type, _var, _required,
+	 _desc, _values, _options, _sub_els}) ->
+    _sub_els.
+
+set_els({xdata_field, _label, _type, _var, _required,
+	 _desc, _values, _options, _},
+	_sub_els) ->
+    {xdata_field, _label, _type, _var, _required, _desc,
+     _values, _options, _sub_els}.
+
 pp(xdata_option, 2) -> [label, value];
 pp(xdata_field, 8) ->
     [label, type, var, required, desc, values, options,
      sub_els];
 pp(xdata, 6) ->
     [type, instructions, title, reported, items, fields];
-pp(_, _) -> no.
+pp(xmlel, 3) -> [name, attrs, children];
+pp(Name, Arity) ->
+    case xmpp_codec:get_mod(erlang:make_tuple(Arity + 1,
+					      undefined, [{1, Name}]))
+	of
+      undefined -> no;
+      Mod -> Mod:pp(Name, Arity)
+    end.
 
 records() ->
     [{xdata_option, 2}, {xdata_field, 8}, {xdata, 6}].

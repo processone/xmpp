@@ -52,10 +52,31 @@ do_get_ns({db_result, _, _, _, _, _}) ->
 do_get_ns({db_verify, _, _, _, _, _, _}) ->
     <<"jabber:server">>.
 
+get_els({db_result, _from, _to, _type, _key,
+	 _sub_els}) ->
+    _sub_els;
+get_els({db_verify, _from, _to, _id, _type, _key,
+	 _sub_els}) ->
+    _sub_els.
+
+set_els({db_result, _from, _to, _type, _key, _},
+	_sub_els) ->
+    {db_result, _from, _to, _type, _key, _sub_els};
+set_els({db_verify, _from, _to, _id, _type, _key, _},
+	_sub_els) ->
+    {db_verify, _from, _to, _id, _type, _key, _sub_els}.
+
 pp(db_result, 5) -> [from, to, type, key, sub_els];
 pp(db_verify, 6) -> [from, to, id, type, key, sub_els];
 pp(db_feature, 1) -> [errors];
-pp(_, _) -> no.
+pp(xmlel, 3) -> [name, attrs, children];
+pp(Name, Arity) ->
+    case xmpp_codec:get_mod(erlang:make_tuple(Arity + 1,
+					      undefined, [{1, Name}]))
+	of
+      undefined -> no;
+      Mod -> Mod:pp(Name, Arity)
+    end.
 
 records() ->
     [{db_result, 5}, {db_verify, 6}, {db_feature, 1}].

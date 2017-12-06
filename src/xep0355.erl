@@ -56,7 +56,14 @@ do_get_ns({delegation_query, _, _}) ->
 pp(delegated, 2) -> [ns, attrs];
 pp(delegation, 2) -> [delegated, forwarded];
 pp(delegation_query, 2) -> [to, delegate];
-pp(_, _) -> no.
+pp(xmlel, 3) -> [name, attrs, children];
+pp(Name, Arity) ->
+    case xmpp_codec:get_mod(erlang:make_tuple(Arity + 1,
+					      undefined, [{1, Name}]))
+	of
+      undefined -> no;
+      Mod -> Mod:pp(Name, Arity)
+    end.
 
 records() ->
     [{delegated, 2}, {delegation, 2},
