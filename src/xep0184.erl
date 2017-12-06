@@ -36,7 +36,14 @@ do_get_ns({receipt_response, _}) ->
 
 pp(receipt_request, 0) -> [];
 pp(receipt_response, 1) -> [id];
-pp(_, _) -> no.
+pp(xmlel, 3) -> [name, attrs, children];
+pp(Name, Arity) ->
+    case xmpp_codec:get_mod(erlang:make_tuple(Arity + 1,
+					      undefined, [{1, Name}]))
+	of
+      undefined -> no;
+      Mod -> Mod:pp(Name, Arity)
+    end.
 
 records() ->
     [{receipt_request, 0}, {receipt_response, 1}].
