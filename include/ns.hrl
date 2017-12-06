@@ -162,6 +162,7 @@
 -define(NS_HTTP_UPLOAD_OLD, <<"eu:siacs:conversations:http:upload">>).
 -define(NS_THUMBS_1, <<"urn:xmpp:thumbs:1">>).
 -define(NS_NICK,  <<"http://jabber.org/protocol/nick">>).
+-define(NS_RECEIPTS, <<"urn:xmpp:receipts">>).
 -define(NS_SIC_0, <<"urn:xmpp:sic:0">>).
 -define(NS_SIC_1, <<"urn:xmpp:sic:1">>).
 -define(NS_MIX_0, <<"urn:xmpp:mix:0">>).

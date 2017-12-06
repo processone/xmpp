@@ -146,6 +146,9 @@
 -record(carbons_private, {}).
 -type carbons_private() :: #carbons_private{}.
 
+-record(receipt_response, {id = <<>> :: binary()}).
+-type receipt_response() :: #receipt_response{}.
+
 -record(expire, {seconds :: non_neg_integer(),
                  stored :: 'undefined' | non_neg_integer()}).
 -type expire() :: #expire{}.
@@ -485,6 +488,9 @@
 
 -record(sasl_abort, {}).
 -type sasl_abort() :: #sasl_abort{}.
+
+-record(receipt_request, {}).
+-type receipt_request() :: #receipt_request{}.
 
 -record(vcard_email, {home = false :: boolean(),
                       work = false :: boolean(),
@@ -1118,6 +1124,7 @@
                         private() |
                         xcaptcha() |
                         adhoc_note() |
+                        receipt_request() |
                         search() |
                         ps_items() |
                         muc_subscriptions() |
@@ -1154,4 +1161,5 @@
                         message() |
                         vcard_temp() |
                         hint() |
+                        receipt_response() |
                         rosterver_feature().
