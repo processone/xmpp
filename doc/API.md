@@ -660,7 +660,7 @@ as show in the following example.
 ```erlang
 -spec try_subtag(Stanza :: stanza(), Tag :: xmpp_element()) -> xmpp_element() | false.
 ```
-Works exactly like #get_subtag2, but raises `{xmpp_codec, _}` exception
+Works exactly like `get_subtag/2`, but raises `{xmpp_codec, _}` exception
 if decoding of a matching subtag fails.
 
 **Example 1**
