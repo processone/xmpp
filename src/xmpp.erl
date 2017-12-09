@@ -37,7 +37,7 @@
 	 get_meta/3, set_type/2, set_to/2, set_from/2, set_id/2,
 	 set_lang/2, set_error/2, set_els/2, set_from_to/3,
 	 set_meta/2, put_meta/3, update_meta/3, del_meta/2,
-	 format_error/1, io_format_error/1, is_stanza/1,
+	 format_error/1, io_format_error/1, is_stanza/1, try_subtag/2,
 	 set_subtag/2, get_subtag/2, remove_subtag/2, has_subtag/2,
 	 decode_els/1, decode_els/3, pp/1, get_name/1, get_text/1,
 	 get_text/2, mk_text/1, mk_text/2, is_known_tag/1, is_known_tag/2,
@@ -425,6 +425,24 @@ get_subtag([El|Els], TagName, XMLNS, TopXMLNS) ->
 	    get_subtag(Els, TagName, XMLNS, TopXMLNS)
     end;
 get_subtag([], _, _, _) ->
+    false.
+
+-spec try_subtag(xmpp_element(), xmpp_element()) -> xmpp_element() | false.
+try_subtag(Pkt, Tag) ->
+    Els = get_els(Pkt),
+    TopXMLNS = xmpp_codec:get_ns(Pkt),
+    TagName = xmpp_codec:get_name(Tag),
+    XMLNS = xmpp_codec:get_ns(Tag),
+    try_subtag(Els, TagName, XMLNS, TopXMLNS).
+
+try_subtag([El|Els], TagName, XMLNS, TopXMLNS) ->
+    case match_tag(El, TagName, XMLNS, TopXMLNS) of
+	true ->
+	    decode(El);
+	false ->
+	    try_subtag(Els, TagName, XMLNS, TopXMLNS)
+    end;
+try_subtag([], _, _, _) ->
     false.
 
 -spec remove_subtag(xmpp_element(), xmpp_element()) -> xmpp_element().

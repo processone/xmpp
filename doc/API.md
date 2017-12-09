@@ -29,6 +29,7 @@ The following functions are exported from `xmpp` module:
 - [get_els/1](#get_els1)
 - [set_els/2](#set_els2)
 - [get_subtag/2](#get_subtag2)
+- [try_subtag/2](#try_subtag2)
 - [set_subtag/2](#set_subtag2)
 - [remove_subtag/2](#remove_subtag2)
 - [has_subtag/2](#has_subtag2)
@@ -653,6 +654,27 @@ as show in the following example.
 ```erlang
 > xmpp:get_subtag(#iq{sub_els = [#ping{}]}, #ping{}).
 #ping{}
+```
+
+## try_subtag/2
+```erlang
+-spec try_subtag(Stanza :: stanza(), Tag :: xmpp_element()) -> xmpp_element() | false.
+```
+Works exactly like #get_subtag2, but raises `{xmpp_codec, _}` exception
+if decoding of a matching subtag fails.
+
+**Example 1**
+```erlang
+> Msg = #message{sub_els = [#xmlel{name = <<"iq">>}]}.
+#message{id = <<>>,type = normal,lang = <<>>,
+         from = undefined,to = undefined,subject = [],body = [],
+         thread = undefined,
+         sub_els = [#xmlel{name = <<"iq">>,attrs = [],children = []}],
+         meta = #{}}
+> xmpp:get_subtag(Msg, #iq{}).
+false
+> xmpp:try_subtag(Msg, #iq{}).
+** exception error: {xmpp_codec,{missing_attr,<<"id">>,<<"iq">>, <<"jabber:client">>}}
 ```
 
 ## set_subtag/2
