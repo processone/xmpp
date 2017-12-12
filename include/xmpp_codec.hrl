@@ -86,7 +86,8 @@
 		      'retract-items' | 'retrieve-affiliations' |
 		      'retrieve-default' | 'retrieve-items' |
 		      'retrieve-subscriptions' | 'subscribe' |
-		      'subscription-options' | 'subscription-notifications'.
+		      'subscription-options' | 'subscription-notifications' |
+		      'multi-items'.
 -record(ps_error, {type :: ps_error_type(), feature :: ps_feature()}).
 -type ps_error() :: #ps_error{}.
 
@@ -988,178 +989,178 @@
                utc :: undefined | erlang:timestamp()}).
 -type time() :: #time{}.
 
--type xmpp_element() :: nick() |
-                        stats() |
+-type xmpp_element() :: stats() |
+                        text() |
                         sasl_mechanisms() |
-                        carbons_private() |
-                        xevent() |
+                        carbons_enable() |
+                        mam_result() |
                         xdata() |
                         stream_features() |
-                        carbons_received() |
-                        carbons_sent() |
-                        muc_item() |
+                        adhoc_command() |
+                        db_verify() |
+                        carbons_private() |
                         redirect() |
-                        db_feature() |
-                        push_disable() |
-                        upload_request_0() |
                         xmpp_session() |
-                        bytestreams() |
                         feature_register() |
                         starttls_failure() |
-                        mam_fin() |
-                        muc_invite() |
+                        adhoc_actions() |
                         vcard_sound() |
-                        offline() |
                         vcard_xupdate() |
-                        receipt_request() |
+                        oob_x() |
+                        mam_query() |
                         vcard_geo() |
-                        privilege_perm() |
-                        sm_resume() |
-                        client_id() |
+                        avatar_meta() |
                         compression() |
-                        sm_enable() |
-                        x_conference() |
-                        carbons_enable() |
+                        receipt_request() |
+                        csi() |
+                        muc_unique() |
                         ps_affiliation() |
+                        sm_enabled() |
+                        search() |
                         roster_query() |
                         identity() |
                         vcard_email() |
                         version() |
                         privacy_item() |
+                        muc_actor() |
+                        bytestreams() |
                         sasl_abort() |
                         starttls_proceed() |
-                        db_verify() |
+                        xevent() |
+                        handshake() |
                         ps_retract() |
+                        delegation() |
+                        muc_owner() |
+                        expire() |
+                        forwarded() |
                         xdata_field() |
                         ps_subscription() |
                         starttls() |
+                        nick() |
                         ps_publish() |
-                        adhoc_command() |
-                        upload_request() |
-                        sm_r() |
-                        sm_enabled() |
+                        delay() |
+                        avatar_info() |
+                        adhoc_note() |
+                        sm_resumed() |
+                        privilege() |
+                        rsm_first() |
                         legacy_auth_feature() |
-                        receipt_response() |
-                        muc_owner() |
+                        streamhost() |
+                        muc_subscriptions() |
                         'see-other-host'() |
-                        delegation_query() |
                         disco_item() |
-                        address() |
+                        bob_data() |
                         carbons_disable() |
+                        address() |
+                        push_enable() |
                         caps() |
                         vcard_tel() |
                         bookmark_url() |
-                        rsm_first() |
-                        stream_start() |
-                        muc_unsubscribe() |
-                        mam_prefs() |
-                        mix_leave() |
+                        muc_item() |
+                        mix_join() |
+                        delegation_query() |
+                        stanza_id() |
                         vcard_adr() |
                         block() |
                         ps_subscribe() |
-                        avatar_meta() |
-                        sic() |
-                        stanza_id() |
-                        muc_admin() |
-                        xdata_option() |
-                        mam_archived() |
-                        vcard_key() |
-                        delegated() |
-                        ping() |
-                        bookmark_conference() |
-                        avatar_data() |
-                        delay() |
-                        expire() |
-                        avatar_info() |
-                        sasl_challenge() |
-                        adhoc_actions() |
+                        avatar_pointer() |
                         addresses() |
-                        chatstate() |
-                        forwarded() |
+                        xdata_option() |
+                        feature_csi() |
+                        vcard_key() |
+                        ping() |
                         muc_subscribe() |
+                        avatar_data() |
+                        bookmark_conference() |
+                        upload_request() |
+                        carbons_received() |
+                        sasl_challenge() |
+                        privilege_perm() |
+                        feature_sm() |
+                        sm_resume() |
                         privacy_list() |
-                        media() |
-                        csi() |
+                        stream_start() |
                         vcard_logo() |
                         unblock() |
-                        muc() |
+                        muc_admin() |
                         bookmark_storage() |
                         block_list() |
                         stat_error() |
-                        push_enable() |
+                        upload_slot_0() |
+                        search_item() |
                         rsm_set() |
+                        media() |
+                        upload_slot() |
+                        thumbnail() |
                         sasl_response() |
-                        mix_participant() |
+                        delegated() |
+                        mix_leave() |
+                        hint() |
+                        chatstate() |
                         iq() |
                         compressed() |
-                        muc_actor() |
                         disco_info() |
                         gone() |
-                        muc_decline() |
                         sasl_success() |
                         stat() |
+                        sic() |
                         ps_item() |
-                        db_result() |
-                        muc_history() |
-                        ps_event() |
-                        streamhost() |
-                        muc_user() |
-                        muc_unique() |
-                        pubsub() |
                         ps_error() |
-                        feature_csi() |
-                        sasl_auth() |
+                        ps_event() |
+                        media_uri() |
+                        db_result() |
+                        pubsub() |
                         shim() |
+                        offline_item() |
+                        carbons_sent() |
+                        sasl_auth() |
                         disco_items() |
                         roster_item() |
-                        sm_failed() |
-                        bob_data() |
-                        handshake() |
-                        upload_slot_0() |
+                        sm_a() |
                         stream_error() |
-                        mam_result() |
+                        mam_archived() |
+                        muc_unsubscribe() |
                         last() |
-                        text() |
                         private() |
-                        xcaptcha() |
-                        adhoc_note() |
-                        search() |
                         ps_items() |
-                        muc_subscriptions() |
-                        mix_join() |
+                        muc_history() |
+                        db_feature() |
+                        offline() |
+                        muc_user() |
+                        muc_invite() |
                         pubsub_owner() |
                         ps_unsubscribe() |
+                        receipt_response() |
                         vcard_photo() |
-                        push_notification() |
-                        feature_sm() |
+                        push_disable() |
+                        mam_prefs() |
                         vcard_org() |
                         sasl_failure() |
                         legacy_auth() |
+                        sm_failed() |
+                        sm_enable() |
                         bind() |
+                        upload_request_0() |
                         privacy_query() |
-                        muc_destroy() |
+                        muc_decline() |
                         presence() |
                         compress() |
-                        media_uri() |
-                        privilege() |
-                        mam_query() |
-                        sm_resumed() |
-                        oob_x() |
-                        avatar_pointer() |
+                        muc() |
+                        xcaptcha() |
+                        x_conference() |
+                        client_id() |
                         stanza_error() |
                         register() |
                         time() |
-                        thumbnail() |
-                        sm_a() |
+                        push_notification() |
+                        sm_r() |
                         vcard_name() |
-                        delegation() |
-                        search_item() |
-                        upload_slot() |
                         vcard_label() |
-                        offline_item() |
+                        mam_fin() |
                         ps_options() |
                         compress_failure() |
                         message() |
                         vcard_temp() |
-                        hint() |
+                        mix_participant() |
+                        muc_destroy() |
                         rosterver_feature().

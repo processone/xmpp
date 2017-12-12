@@ -104,6 +104,8 @@ encode(List, Lang) when is_list(List) ->
 	    {title, _, _} -> erlang:error({badarg, Opt});
 	    {type, Val} -> [encode_type(Val, Lang)];
 	    {type, _, _} -> erlang:error({badarg, Opt});
+	    {max_items, Val} -> [encode_max_items(Val, Lang)];
+	    {max_items, _, _} -> erlang:error({badarg, Opt});
 	    #xdata_field{} -> [Opt];
 	    _ -> []
 	  end
@@ -373,6 +375,33 @@ decode([#xdata_field{var = <<"pubsub#type">>} | _], _,
     erlang:error({?MODULE,
 		  {too_many_values, <<"pubsub#type">>,
 		   <<"http://jabber.org/protocol/pubsub#meta-data">>}});
+decode([#xdata_field{var = <<"pubsub#max_items">>,
+		     values = [Value]}
+	| Fs],
+       Acc, Required) ->
+    try dec_int(Value, 0, infinity) of
+      Result ->
+	  decode(Fs, [{max_items, Result} | Acc], Required)
+    catch
+      _:_ ->
+	  erlang:error({?MODULE,
+			{bad_var_value, <<"pubsub#max_items">>,
+			 <<"http://jabber.org/protocol/pubsub#meta-data">>}})
+    end;
+decode([#xdata_field{var = <<"pubsub#max_items">>,
+		     values = []} =
+	    F
+	| Fs],
+       Acc, Required) ->
+    decode([F#xdata_field{var = <<"pubsub#max_items">>,
+			  values = [<<>>]}
+	    | Fs],
+	   Acc, Required);
+decode([#xdata_field{var = <<"pubsub#max_items">>} | _],
+       _, _) ->
+    erlang:error({?MODULE,
+		  {too_many_values, <<"pubsub#max_items">>,
+		   <<"http://jabber.org/protocol/pubsub#meta-data">>}});
 decode([#xdata_field{var = Var} | Fs], Acc, Required) ->
     if Var /= <<"FORM_TYPE">> ->
 	   erlang:error({?MODULE,
@@ -511,3 +540,16 @@ encode_type(Value, Lang) ->
 		 required = false, type = 'text-single', options = Opts,
 		 desc = <<>>,
 		 label = xmpp_tr:tr(Lang, <<"Payload type">>)}.
+
+encode_max_items(Value, Lang) ->
+    Values = case Value of
+	       undefined -> [];
+	       Value -> [enc_int(Value)]
+	     end,
+    Opts = [],
+    #xdata_field{var = <<"pubsub#max_items">>,
+		 values = Values, required = false, type = 'text-single',
+		 options = Opts, desc = <<>>,
+		 label =
+		     xmpp_tr:tr(Lang,
+				<<"Maximum number of items to persist">>)}.

@@ -32,6 +32,9 @@
   <field var='pubsub#type'
          type='text-single'
          label='Payload type'/>
+  <field var='pubsub#max_items'
+         type='text-single'
+         label='Maximum number of items to persist'/>
 </form_type>
 
 <!--

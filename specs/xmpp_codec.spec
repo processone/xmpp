@@ -2324,7 +2324,8 @@
 		      'retract-items' | 'retrieve-affiliations' |
 		      'retrieve-default' | 'retrieve-items' |
 		      'retrieve-subscriptions' | 'subscribe' |
-		      'subscription-options' | 'subscription-notifications'.
+		      'subscription-options' | 'subscription-notifications' |
+		      'multi-items'.
 -record(ps_error, {type :: ps_error_type(), feature :: ps_feature()}).
 -type ps_error() :: #ps_error{}.
 
@@ -2463,6 +2464,7 @@
                                              'meta-data',
                                              'modify-affiliations',
                                              'multi-collection',
+					     'multi-items',
                                              'multi-subscribe',
                                              'outcast-affiliation',
                                              'persistent-items',

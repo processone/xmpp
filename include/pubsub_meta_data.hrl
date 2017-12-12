@@ -13,7 +13,8 @@
                     {'owner', [jid:jid()]} |
                     {'publisher', [jid:jid()]} |
                     {'title', binary()} |
-                    {'type', binary()}.
+                    {'type', binary()} |
+                    {'max_items', non_neg_integer()}.
 -type result() :: [property()].
 
 -type options(T) :: [{binary(), T}].
