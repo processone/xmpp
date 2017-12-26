@@ -1,3 +1,18 @@
+# Version 1.1.17
+
+* Register pubsub#multi-items feature and add pubsub#max_items field to meta-data
+* Mention try_subtag/2 in the README
+* Fix formatting in API.md
+* New function: xmpp:try_subtag/2
+* Make pretty printer understand jid records
+* Support XEP-0184: Message Delivery Receipts
+* Improve pretty printer and sub-elements processing
+* Add PubSub error condition: 'precondition-not-met'
+* pubsub_publish_options.xdata: Reject 'secret'
+* Allow empty URIs in xmpp_uri:check/1
+* Update muc#roominfo form and add validation for 'muc#room*_pubsub' fields
+* Introduce xmpp_uri module
+
 # Version 1.1.16
 
 * Updating fast_xml to version 1.1.25.
