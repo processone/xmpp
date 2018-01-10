@@ -1,3 +1,7 @@
+# Version 1.1.19
+
+* Updating fast_xml to version 1.1.28.
+
 # Version 1.1.18
 
 * Updating fast_xml to version 1.1.27.
