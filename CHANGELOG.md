@@ -1,5 +1,6 @@
 # Version 1.1.18
 
+* Updating fast_xml to version 1.1.27.
 * Don't treat xmpp: URI as valid
 
 # Version 1.1.17
