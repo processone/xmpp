@@ -1,3 +1,7 @@
+# Version 1.1.18
+
+* Don't treat xmpp: URI as valid
+
 # Version 1.1.17
 
 * Register pubsub#multi-items feature and add pubsub#max_items field to meta-data
