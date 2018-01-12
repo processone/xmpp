@@ -1,5 +1,7 @@
+# Download ABNF Compiler from https://github.com/zinid/abnfc
+ABNFC=abnfc
 all:
-	abnfgen core utf8.abnf | sed 's/generated_from_abnf/utf8/g' | grep -v 'main:=' > utf8.rl
-	abnfgen core uri.abnf | sed 's/generated_from_abnf/uri/g' | grep -v 'main:=' > uri.rl
+	$(ABNFC) core utf8.abnf -i -n utf8 -o utf8.rl
+	$(ABNFC) core uri.abnf -i -n uri -o uri.rl
 	ragel -G2 jid.rl -o jid.c
 	ragel -G2 xmpp_uri.rl -o xmpp_uri.c
