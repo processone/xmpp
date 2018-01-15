@@ -1847,15 +1847,11 @@
 	   module = 'xep0153',
 	   result = '$cdata'}).
 
--record(vcard_xupdate, {us = {<<>>, <<>>} :: {binary(), binary()},
-			hash :: undefined | binary()}).
--type vcard_xupdate() :: #vcard_xupdate{}.
-
 -xml(vcard_xupdate,
      #elem{name = <<"x">>,
 	   xmlns = <<"vcard-temp:x:update">>,
 	   module = 'xep0153',
-	   result = {vcard_xupdate, '$_', '$hash'},
+	   result = {vcard_xupdate, '$hash'},
 	   refs = [#ref{name = vcard_xupdate_photo, min = 0, max = 1,
 			label = '$hash'}]}).
 

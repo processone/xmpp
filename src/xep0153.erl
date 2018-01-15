@@ -22,24 +22,24 @@ tags() ->
     [{<<"x">>, <<"vcard-temp:x:update">>},
      {<<"photo">>, <<"vcard-temp:x:update">>}].
 
-do_encode({vcard_xupdate, _, _} = X, TopXMLNS) ->
+do_encode({vcard_xupdate, _} = X, TopXMLNS) ->
     encode_vcard_xupdate(X, TopXMLNS).
 
-do_get_name({vcard_xupdate, _, _}) -> <<"x">>.
+do_get_name({vcard_xupdate, _}) -> <<"x">>.
 
-do_get_ns({vcard_xupdate, _, _}) ->
+do_get_ns({vcard_xupdate, _}) ->
     <<"vcard-temp:x:update">>.
 
-pp(vcard_xupdate, 2) -> [us, hash];
+pp(vcard_xupdate, 1) -> [hash];
 pp(_, _) -> no.
 
-records() -> [{vcard_xupdate, 2}].
+records() -> [{vcard_xupdate, 1}].
 
 decode_vcard_xupdate(__TopXMLNS, __Opts,
 		     {xmlel, <<"x">>, _attrs, _els}) ->
     Hash = decode_vcard_xupdate_els(__TopXMLNS, __Opts,
 				    _els, undefined),
-    {vcard_xupdate, {<<>>, <<>>}, Hash}.
+    {vcard_xupdate, Hash}.
 
 decode_vcard_xupdate_els(__TopXMLNS, __Opts, [],
 			 Hash) ->
@@ -62,7 +62,7 @@ decode_vcard_xupdate_els(__TopXMLNS, __Opts, [_ | _els],
     decode_vcard_xupdate_els(__TopXMLNS, __Opts, _els,
 			     Hash).
 
-encode_vcard_xupdate({vcard_xupdate, _, Hash},
+encode_vcard_xupdate({vcard_xupdate, Hash},
 		     __TopXMLNS) ->
     __NewTopXMLNS =
 	xmpp_codec:choose_top_xmlns(<<"vcard-temp:x:update">>,
