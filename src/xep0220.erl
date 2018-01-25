@@ -170,7 +170,7 @@ decode_db_verify_els(__TopXMLNS, __Opts,
 	  case xmpp_codec:get_mod(_name, __XMLNS) of
 	    undefined ->
 		decode_db_verify_els(__TopXMLNS, __Opts, _els, Key,
-				     __Els);
+				     [_el | __Els]);
 	    Mod ->
 		decode_db_verify_els(__TopXMLNS, __Opts, _els, Key,
 				     [Mod:do_decode(_name, __XMLNS, _el, __Opts)
@@ -312,7 +312,7 @@ decode_db_result_els(__TopXMLNS, __Opts,
 	  case xmpp_codec:get_mod(_name, __XMLNS) of
 	    undefined ->
 		decode_db_result_els(__TopXMLNS, __Opts, _els, Key,
-				     __Els);
+				     [_el | __Els]);
 	    Mod ->
 		decode_db_result_els(__TopXMLNS, __Opts, _els, Key,
 				     [Mod:do_decode(_name, __XMLNS, _el, __Opts)

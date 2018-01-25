@@ -720,10 +720,18 @@ do_get_ns({pubsub, _, _, _, _, _, _, _, _, _, _, _, _,
 do_get_ns({pubsub_owner, _, _, _, _, _, _}) ->
     <<"http://jabber.org/protocol/pubsub#owner">>.
 
+get_els({ps_item, _xmlns, _id, _sub_els, _node,
+	 _publisher}) ->
+    _sub_els.
+
+set_els({ps_item, _xmlns, _id, _, _node, _publisher},
+	_sub_els) ->
+    {ps_item, _xmlns, _id, _sub_els, _node, _publisher}.
+
 pp(ps_subscription, 6) ->
     [xmlns, jid, type, node, subid, expiry];
 pp(ps_affiliation, 4) -> [xmlns, node, type, jid];
-pp(ps_item, 5) -> [xmlns, id, xml_els, node, publisher];
+pp(ps_item, 5) -> [xmlns, id, sub_els, node, publisher];
 pp(ps_items, 6) ->
     [xmlns, node, items, max_items, subid, retract];
 pp(ps_event, 6) ->
@@ -3586,24 +3594,22 @@ encode_pubsub_items_attr_subid(_val, _acc) ->
 
 decode_pubsub_item(__TopXMLNS, __Opts,
 		   {xmlel, <<"item">>, _attrs, _els}) ->
-    __Xmls = decode_pubsub_item_els(__TopXMLNS, __Opts,
-				    _els, []),
+    __Els = decode_pubsub_item_els(__TopXMLNS, __Opts, _els,
+				   []),
     {Id, Xmlns, Node, Publisher} =
 	decode_pubsub_item_attrs(__TopXMLNS, _attrs, undefined,
 				 undefined, undefined, undefined),
-    {ps_item, Xmlns, Id, __Xmls, Node, Publisher}.
+    {ps_item, Xmlns, Id, __Els, Node, Publisher}.
 
-decode_pubsub_item_els(__TopXMLNS, __Opts, [],
-		       __Xmls) ->
-    lists:reverse(__Xmls);
+decode_pubsub_item_els(__TopXMLNS, __Opts, [], __Els) ->
+    lists:reverse(__Els);
 decode_pubsub_item_els(__TopXMLNS, __Opts,
-		       [{xmlel, _name, _attrs, _} = _el | _els], __Xmls) ->
+		       [{xmlel, _name, _attrs, _} = _el | _els], __Els) ->
     decode_pubsub_item_els(__TopXMLNS, __Opts, _els,
-			   [_el | __Xmls]);
+			   [_el | __Els]);
 decode_pubsub_item_els(__TopXMLNS, __Opts, [_ | _els],
-		       __Xmls) ->
-    decode_pubsub_item_els(__TopXMLNS, __Opts, _els,
-			   __Xmls).
+		       __Els) ->
+    decode_pubsub_item_els(__TopXMLNS, __Opts, _els, __Els).
 
 decode_pubsub_item_attrs(__TopXMLNS,
 			 [{<<"id">>, _val} | _attrs], _Id, Xmlns, Node,
@@ -3637,14 +3643,15 @@ decode_pubsub_item_attrs(__TopXMLNS, [], Id, Xmlns,
      decode_pubsub_item_attr_publisher(__TopXMLNS,
 				       Publisher)}.
 
-encode_pubsub_item({ps_item, Xmlns, Id, __Xmls, Node,
+encode_pubsub_item({ps_item, Xmlns, Id, __Els, Node,
 		    Publisher},
 		   __TopXMLNS) ->
     __NewTopXMLNS = xmpp_codec:choose_top_xmlns(Xmlns,
 						[<<"http://jabber.org/protocol/pubsub">>,
 						 <<"http://jabber.org/protocol/pubsub#event">>],
 						__TopXMLNS),
-    _els = __Xmls,
+    _els = [xmpp_codec:encode(_el, __NewTopXMLNS)
+	    || _el <- __Els],
     _attrs = encode_pubsub_item_attr_publisher(Publisher,
 					       encode_pubsub_item_attr_node(Node,
 									    encode_pubsub_item_attr_id(Id,

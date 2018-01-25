@@ -460,7 +460,7 @@ decode_xdata_field_els(__TopXMLNS, __Opts,
 				 __Els);
       _ ->
 	  decode_xdata_field_els(__TopXMLNS, __Opts, _els,
-				 Options, Values, Desc, Required, __Els)
+				 Options, Values, Desc, Required, [_el | __Els])
     end;
 decode_xdata_field_els(__TopXMLNS, __Opts,
 		       [{xmlel, <<"desc">>, _attrs, _} = _el | _els], Options,
@@ -476,7 +476,7 @@ decode_xdata_field_els(__TopXMLNS, __Opts,
 				 Required, __Els);
       _ ->
 	  decode_xdata_field_els(__TopXMLNS, __Opts, _els,
-				 Options, Values, Desc, Required, __Els)
+				 Options, Values, Desc, Required, [_el | __Els])
     end;
 decode_xdata_field_els(__TopXMLNS, __Opts,
 		       [{xmlel, <<"value">>, _attrs, _} = _el | _els], Options,
@@ -493,7 +493,7 @@ decode_xdata_field_els(__TopXMLNS, __Opts,
 				 Desc, Required, __Els);
       _ ->
 	  decode_xdata_field_els(__TopXMLNS, __Opts, _els,
-				 Options, Values, Desc, Required, __Els)
+				 Options, Values, Desc, Required, [_el | __Els])
     end;
 decode_xdata_field_els(__TopXMLNS, __Opts,
 		       [{xmlel, <<"option">>, _attrs, _} = _el | _els],
@@ -509,7 +509,7 @@ decode_xdata_field_els(__TopXMLNS, __Opts,
 				 Values, Desc, Required, __Els);
       _ ->
 	  decode_xdata_field_els(__TopXMLNS, __Opts, _els,
-				 Options, Values, Desc, Required, __Els)
+				 Options, Values, Desc, Required, [_el | __Els])
     end;
 decode_xdata_field_els(__TopXMLNS, __Opts,
 		       [{xmlel, _name, _attrs, _} = _el | _els], Options,
@@ -525,7 +525,8 @@ decode_xdata_field_els(__TopXMLNS, __Opts,
 	  case xmpp_codec:get_mod(_name, __XMLNS) of
 	    undefined ->
 		decode_xdata_field_els(__TopXMLNS, __Opts, _els,
-				       Options, Values, Desc, Required, __Els);
+				       Options, Values, Desc, Required,
+				       [_el | __Els]);
 	    Mod ->
 		decode_xdata_field_els(__TopXMLNS, __Opts, _els,
 				       Options, Values, Desc, Required,

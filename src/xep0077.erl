@@ -210,7 +210,7 @@ decode_register_els(__TopXMLNS, __Opts,
 			      Xdata, Misc, Address, Instructions, Text, Last,
 			      First, Password, Registered, Date, Phone, State,
 			      Name, Username, Remove, Key, City, Nick, Url,
-			      Email, __Els)
+			      Email, [_el | __Els])
     end;
 decode_register_els(__TopXMLNS, __Opts,
 		    [{xmlel, <<"registered">>, _attrs, _} = _el | _els],
@@ -233,7 +233,7 @@ decode_register_els(__TopXMLNS, __Opts,
 			      Xdata, Misc, Address, Instructions, Text, Last,
 			      First, Password, Registered, Date, Phone, State,
 			      Name, Username, Remove, Key, City, Nick, Url,
-			      Email, __Els)
+			      Email, [_el | __Els])
     end;
 decode_register_els(__TopXMLNS, __Opts,
 		    [{xmlel, <<"remove">>, _attrs, _} = _el | _els], Zip,
@@ -256,7 +256,7 @@ decode_register_els(__TopXMLNS, __Opts,
 			      Xdata, Misc, Address, Instructions, Text, Last,
 			      First, Password, Registered, Date, Phone, State,
 			      Name, Username, Remove, Key, City, Nick, Url,
-			      Email, __Els)
+			      Email, [_el | __Els])
     end;
 decode_register_els(__TopXMLNS, __Opts,
 		    [{xmlel, <<"instructions">>, _attrs, _} = _el | _els],
@@ -279,7 +279,7 @@ decode_register_els(__TopXMLNS, __Opts,
 			      Xdata, Misc, Address, Instructions, Text, Last,
 			      First, Password, Registered, Date, Phone, State,
 			      Name, Username, Remove, Key, City, Nick, Url,
-			      Email, __Els)
+			      Email, [_el | __Els])
     end;
 decode_register_els(__TopXMLNS, __Opts,
 		    [{xmlel, <<"username">>, _attrs, _} = _el | _els], Zip,
@@ -302,7 +302,7 @@ decode_register_els(__TopXMLNS, __Opts,
 			      Xdata, Misc, Address, Instructions, Text, Last,
 			      First, Password, Registered, Date, Phone, State,
 			      Name, Username, Remove, Key, City, Nick, Url,
-			      Email, __Els)
+			      Email, [_el | __Els])
     end;
 decode_register_els(__TopXMLNS, __Opts,
 		    [{xmlel, <<"nick">>, _attrs, _} = _el | _els], Zip,
@@ -325,7 +325,7 @@ decode_register_els(__TopXMLNS, __Opts,
 			      Xdata, Misc, Address, Instructions, Text, Last,
 			      First, Password, Registered, Date, Phone, State,
 			      Name, Username, Remove, Key, City, Nick, Url,
-			      Email, __Els)
+			      Email, [_el | __Els])
     end;
 decode_register_els(__TopXMLNS, __Opts,
 		    [{xmlel, <<"password">>, _attrs, _} = _el | _els], Zip,
@@ -348,7 +348,7 @@ decode_register_els(__TopXMLNS, __Opts,
 			      Xdata, Misc, Address, Instructions, Text, Last,
 			      First, Password, Registered, Date, Phone, State,
 			      Name, Username, Remove, Key, City, Nick, Url,
-			      Email, __Els)
+			      Email, [_el | __Els])
     end;
 decode_register_els(__TopXMLNS, __Opts,
 		    [{xmlel, <<"name">>, _attrs, _} = _el | _els], Zip,
@@ -371,7 +371,7 @@ decode_register_els(__TopXMLNS, __Opts,
 			      Xdata, Misc, Address, Instructions, Text, Last,
 			      First, Password, Registered, Date, Phone, State,
 			      Name, Username, Remove, Key, City, Nick, Url,
-			      Email, __Els)
+			      Email, [_el | __Els])
     end;
 decode_register_els(__TopXMLNS, __Opts,
 		    [{xmlel, <<"first">>, _attrs, _} = _el | _els], Zip,
@@ -394,7 +394,7 @@ decode_register_els(__TopXMLNS, __Opts,
 			      Xdata, Misc, Address, Instructions, Text, Last,
 			      First, Password, Registered, Date, Phone, State,
 			      Name, Username, Remove, Key, City, Nick, Url,
-			      Email, __Els)
+			      Email, [_el | __Els])
     end;
 decode_register_els(__TopXMLNS, __Opts,
 		    [{xmlel, <<"last">>, _attrs, _} = _el | _els], Zip,
@@ -417,7 +417,7 @@ decode_register_els(__TopXMLNS, __Opts,
 			      Xdata, Misc, Address, Instructions, Text, Last,
 			      First, Password, Registered, Date, Phone, State,
 			      Name, Username, Remove, Key, City, Nick, Url,
-			      Email, __Els)
+			      Email, [_el | __Els])
     end;
 decode_register_els(__TopXMLNS, __Opts,
 		    [{xmlel, <<"email">>, _attrs, _} = _el | _els], Zip,
@@ -440,7 +440,7 @@ decode_register_els(__TopXMLNS, __Opts,
 			      Xdata, Misc, Address, Instructions, Text, Last,
 			      First, Password, Registered, Date, Phone, State,
 			      Name, Username, Remove, Key, City, Nick, Url,
-			      Email, __Els)
+			      Email, [_el | __Els])
     end;
 decode_register_els(__TopXMLNS, __Opts,
 		    [{xmlel, <<"address">>, _attrs, _} = _el | _els], Zip,
@@ -463,7 +463,7 @@ decode_register_els(__TopXMLNS, __Opts,
 			      Xdata, Misc, Address, Instructions, Text, Last,
 			      First, Password, Registered, Date, Phone, State,
 			      Name, Username, Remove, Key, City, Nick, Url,
-			      Email, __Els)
+			      Email, [_el | __Els])
     end;
 decode_register_els(__TopXMLNS, __Opts,
 		    [{xmlel, <<"city">>, _attrs, _} = _el | _els], Zip,
@@ -486,7 +486,7 @@ decode_register_els(__TopXMLNS, __Opts,
 			      Xdata, Misc, Address, Instructions, Text, Last,
 			      First, Password, Registered, Date, Phone, State,
 			      Name, Username, Remove, Key, City, Nick, Url,
-			      Email, __Els)
+			      Email, [_el | __Els])
     end;
 decode_register_els(__TopXMLNS, __Opts,
 		    [{xmlel, <<"state">>, _attrs, _} = _el | _els], Zip,
@@ -509,7 +509,7 @@ decode_register_els(__TopXMLNS, __Opts,
 			      Xdata, Misc, Address, Instructions, Text, Last,
 			      First, Password, Registered, Date, Phone, State,
 			      Name, Username, Remove, Key, City, Nick, Url,
-			      Email, __Els)
+			      Email, [_el | __Els])
     end;
 decode_register_els(__TopXMLNS, __Opts,
 		    [{xmlel, <<"zip">>, _attrs, _} = _el | _els], Zip,
@@ -532,7 +532,7 @@ decode_register_els(__TopXMLNS, __Opts,
 			      Xdata, Misc, Address, Instructions, Text, Last,
 			      First, Password, Registered, Date, Phone, State,
 			      Name, Username, Remove, Key, City, Nick, Url,
-			      Email, __Els)
+			      Email, [_el | __Els])
     end;
 decode_register_els(__TopXMLNS, __Opts,
 		    [{xmlel, <<"phone">>, _attrs, _} = _el | _els], Zip,
@@ -555,7 +555,7 @@ decode_register_els(__TopXMLNS, __Opts,
 			      Xdata, Misc, Address, Instructions, Text, Last,
 			      First, Password, Registered, Date, Phone, State,
 			      Name, Username, Remove, Key, City, Nick, Url,
-			      Email, __Els)
+			      Email, [_el | __Els])
     end;
 decode_register_els(__TopXMLNS, __Opts,
 		    [{xmlel, <<"url">>, _attrs, _} = _el | _els], Zip,
@@ -578,7 +578,7 @@ decode_register_els(__TopXMLNS, __Opts,
 			      Xdata, Misc, Address, Instructions, Text, Last,
 			      First, Password, Registered, Date, Phone, State,
 			      Name, Username, Remove, Key, City, Nick, Url,
-			      Email, __Els)
+			      Email, [_el | __Els])
     end;
 decode_register_els(__TopXMLNS, __Opts,
 		    [{xmlel, <<"date">>, _attrs, _} = _el | _els], Zip,
@@ -601,7 +601,7 @@ decode_register_els(__TopXMLNS, __Opts,
 			      Xdata, Misc, Address, Instructions, Text, Last,
 			      First, Password, Registered, Date, Phone, State,
 			      Name, Username, Remove, Key, City, Nick, Url,
-			      Email, __Els)
+			      Email, [_el | __Els])
     end;
 decode_register_els(__TopXMLNS, __Opts,
 		    [{xmlel, <<"misc">>, _attrs, _} = _el | _els], Zip,
@@ -625,7 +625,7 @@ decode_register_els(__TopXMLNS, __Opts,
 			      Xdata, Misc, Address, Instructions, Text, Last,
 			      First, Password, Registered, Date, Phone, State,
 			      Name, Username, Remove, Key, City, Nick, Url,
-			      Email, __Els)
+			      Email, [_el | __Els])
     end;
 decode_register_els(__TopXMLNS, __Opts,
 		    [{xmlel, <<"text">>, _attrs, _} = _el | _els], Zip,
@@ -648,7 +648,7 @@ decode_register_els(__TopXMLNS, __Opts,
 			      Xdata, Misc, Address, Instructions, Text, Last,
 			      First, Password, Registered, Date, Phone, State,
 			      Name, Username, Remove, Key, City, Nick, Url,
-			      Email, __Els)
+			      Email, [_el | __Els])
     end;
 decode_register_els(__TopXMLNS, __Opts,
 		    [{xmlel, <<"key">>, _attrs, _} = _el | _els], Zip,
@@ -671,7 +671,7 @@ decode_register_els(__TopXMLNS, __Opts,
 			      Xdata, Misc, Address, Instructions, Text, Last,
 			      First, Password, Registered, Date, Phone, State,
 			      Name, Username, Remove, Key, City, Nick, Url,
-			      Email, __Els)
+			      Email, [_el | __Els])
     end;
 decode_register_els(__TopXMLNS, __Opts,
 		    [{xmlel, _name, _attrs, _} = _el | _els], Zip, Xdata,
@@ -694,7 +694,7 @@ decode_register_els(__TopXMLNS, __Opts,
 				    Xdata, Misc, Address, Instructions, Text,
 				    Last, First, Password, Registered, Date,
 				    Phone, State, Name, Username, Remove, Key,
-				    City, Nick, Url, Email, __Els);
+				    City, Nick, Url, Email, [_el | __Els]);
 	    Mod ->
 		decode_register_els(__TopXMLNS, __Opts, _els, Zip,
 				    Xdata, Misc, Address, Instructions, Text,

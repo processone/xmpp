@@ -641,7 +641,8 @@ decode_mam_result_els(__TopXMLNS, __Opts,
 					__TopXMLNS),
 	  case xmpp_codec:get_mod(_name, __XMLNS) of
 	    undefined ->
-		decode_mam_result_els(__TopXMLNS, __Opts, _els, __Els);
+		decode_mam_result_els(__TopXMLNS, __Opts, _els,
+				      [_el | __Els]);
 	    Mod ->
 		decode_mam_result_els(__TopXMLNS, __Opts, _els,
 				      [Mod:do_decode(_name, __XMLNS, _el,

@@ -62,11 +62,11 @@ add_delay_info(Stz, From, Time, Desc) ->
 unwrap_carbon(#message{} = Msg) ->
     try
 	case xmpp:get_subtag(Msg, #carbons_sent{forwarded = #forwarded{}}) of
-	    #carbons_sent{forwarded = #forwarded{xml_els = [El]}} ->
+	    #carbons_sent{forwarded = #forwarded{sub_els = [El]}} ->
 		xmpp:decode(El, ?NS_CLIENT, [ignore_els]);
 	    _ ->
 		case xmpp:get_subtag(Msg, #carbons_received{forwarded = #forwarded{}}) of
-		    #carbons_received{forwarded = #forwarded{xml_els = [El]}} ->
+		    #carbons_received{forwarded = #forwarded{sub_els = [El]}} ->
 			xmpp:decode(El, ?NS_CLIENT, [ignore_els]);
 		    _ ->
 			Msg

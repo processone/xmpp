@@ -223,11 +223,14 @@ during lazy decoding only top-level element is decoded.
 #message{id = <<>>,type = normal,lang = <<>>,
          from = undefined,to = undefined,subject = [],body = [],
          thread = undefined,
-         sub_els = [#chatstate{type = composing}],
+         sub_els = [#chatstate{type = composing},
+                    #xmlel{name = <<"foo">>,
+                           attrs = [{<<"xmlns">>,<<"unknown:namespace">>}],
+                           children = []}],
          meta = #{}}
 ```
-Note that in this case `<foo/>` element is dropped from `#message.sub_els`
-because it doesn't correspond to any `xmpp_element()` record.
+Note that in this case all known sub-elements were decoded, and unknown
+sub-elements (`<foo/>` in our case) remain untouched.
 
 **Example 3**: no namespace is provided and `El` doesn't possess any
 ```erlang
@@ -243,7 +246,10 @@ It is safe to apply the function to `xmpp_element()`:
 #message{id = <<>>,type = normal,lang = <<>>,
          from = undefined,to = undefined,subject = [],body = [],
          thread = undefined,
-         sub_els = [#chatstate{type = composing}],
+         sub_els = [#chatstate{type = composing},
+                    #xmlel{name = <<"foo">>,
+                           attrs = [{<<"xmlns">>,<<"unknown:namespace">>}],
+                           children = []}],
          meta = #{}}
 ```
 

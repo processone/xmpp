@@ -2184,7 +2184,7 @@ decode_stream_features_els(__TopXMLNS, __Opts,
 	  case xmpp_codec:get_mod(_name, __XMLNS) of
 	    undefined ->
 		decode_stream_features_els(__TopXMLNS, __Opts, _els,
-					   __Els);
+					   [_el | __Els]);
 	    Mod ->
 		decode_stream_features_els(__TopXMLNS, __Opts, _els,
 					   [Mod:do_decode(_name, __XMLNS, _el,
@@ -3293,7 +3293,7 @@ decode_error_els(__TopXMLNS, __Opts,
 			   Reason, __Els);
       _ ->
 	  decode_error_els(__TopXMLNS, __Opts, _els, Text, Reason,
-			   __Els)
+			   [_el | __Els])
     end;
 decode_error_els(__TopXMLNS, __Opts,
 		 [{xmlel, <<"bad-request">>, _attrs, _} = _el | _els],
@@ -3308,7 +3308,7 @@ decode_error_els(__TopXMLNS, __Opts,
 			   __Els);
       _ ->
 	  decode_error_els(__TopXMLNS, __Opts, _els, Text, Reason,
-			   __Els)
+			   [_el | __Els])
     end;
 decode_error_els(__TopXMLNS, __Opts,
 		 [{xmlel, <<"conflict">>, _attrs, _} = _el | _els], Text,
@@ -3323,7 +3323,7 @@ decode_error_els(__TopXMLNS, __Opts,
 			   __Els);
       _ ->
 	  decode_error_els(__TopXMLNS, __Opts, _els, Text, Reason,
-			   __Els)
+			   [_el | __Els])
     end;
 decode_error_els(__TopXMLNS, __Opts,
 		 [{xmlel, <<"feature-not-implemented">>, _attrs, _} = _el
@@ -3339,7 +3339,7 @@ decode_error_els(__TopXMLNS, __Opts,
 			   __Els);
       _ ->
 	  decode_error_els(__TopXMLNS, __Opts, _els, Text, Reason,
-			   __Els)
+			   [_el | __Els])
     end;
 decode_error_els(__TopXMLNS, __Opts,
 		 [{xmlel, <<"forbidden">>, _attrs, _} = _el | _els],
@@ -3354,7 +3354,7 @@ decode_error_els(__TopXMLNS, __Opts,
 			   __Els);
       _ ->
 	  decode_error_els(__TopXMLNS, __Opts, _els, Text, Reason,
-			   __Els)
+			   [_el | __Els])
     end;
 decode_error_els(__TopXMLNS, __Opts,
 		 [{xmlel, <<"gone">>, _attrs, _} = _el | _els], Text,
@@ -3369,7 +3369,7 @@ decode_error_els(__TopXMLNS, __Opts,
 			   __Els);
       _ ->
 	  decode_error_els(__TopXMLNS, __Opts, _els, Text, Reason,
-			   __Els)
+			   [_el | __Els])
     end;
 decode_error_els(__TopXMLNS, __Opts,
 		 [{xmlel, <<"internal-server-error">>, _attrs, _} = _el
@@ -3385,7 +3385,7 @@ decode_error_els(__TopXMLNS, __Opts,
 			   __Els);
       _ ->
 	  decode_error_els(__TopXMLNS, __Opts, _els, Text, Reason,
-			   __Els)
+			   [_el | __Els])
     end;
 decode_error_els(__TopXMLNS, __Opts,
 		 [{xmlel, <<"item-not-found">>, _attrs, _} = _el | _els],
@@ -3400,7 +3400,7 @@ decode_error_els(__TopXMLNS, __Opts,
 			   __Els);
       _ ->
 	  decode_error_els(__TopXMLNS, __Opts, _els, Text, Reason,
-			   __Els)
+			   [_el | __Els])
     end;
 decode_error_els(__TopXMLNS, __Opts,
 		 [{xmlel, <<"jid-malformed">>, _attrs, _} = _el | _els],
@@ -3415,7 +3415,7 @@ decode_error_els(__TopXMLNS, __Opts,
 			   __Els);
       _ ->
 	  decode_error_els(__TopXMLNS, __Opts, _els, Text, Reason,
-			   __Els)
+			   [_el | __Els])
     end;
 decode_error_els(__TopXMLNS, __Opts,
 		 [{xmlel, <<"not-acceptable">>, _attrs, _} = _el | _els],
@@ -3430,7 +3430,7 @@ decode_error_els(__TopXMLNS, __Opts,
 			   __Els);
       _ ->
 	  decode_error_els(__TopXMLNS, __Opts, _els, Text, Reason,
-			   __Els)
+			   [_el | __Els])
     end;
 decode_error_els(__TopXMLNS, __Opts,
 		 [{xmlel, <<"not-allowed">>, _attrs, _} = _el | _els],
@@ -3445,7 +3445,7 @@ decode_error_els(__TopXMLNS, __Opts,
 			   __Els);
       _ ->
 	  decode_error_els(__TopXMLNS, __Opts, _els, Text, Reason,
-			   __Els)
+			   [_el | __Els])
     end;
 decode_error_els(__TopXMLNS, __Opts,
 		 [{xmlel, <<"not-authorized">>, _attrs, _} = _el | _els],
@@ -3460,7 +3460,7 @@ decode_error_els(__TopXMLNS, __Opts,
 			   __Els);
       _ ->
 	  decode_error_els(__TopXMLNS, __Opts, _els, Text, Reason,
-			   __Els)
+			   [_el | __Els])
     end;
 decode_error_els(__TopXMLNS, __Opts,
 		 [{xmlel, <<"payment-required">>, _attrs, _} = _el
@@ -3476,7 +3476,7 @@ decode_error_els(__TopXMLNS, __Opts,
 			   __Els);
       _ ->
 	  decode_error_els(__TopXMLNS, __Opts, _els, Text, Reason,
-			   __Els)
+			   [_el | __Els])
     end;
 decode_error_els(__TopXMLNS, __Opts,
 		 [{xmlel, <<"policy-violation">>, _attrs, _} = _el
@@ -3492,7 +3492,7 @@ decode_error_els(__TopXMLNS, __Opts,
 			   __Els);
       _ ->
 	  decode_error_els(__TopXMLNS, __Opts, _els, Text, Reason,
-			   __Els)
+			   [_el | __Els])
     end;
 decode_error_els(__TopXMLNS, __Opts,
 		 [{xmlel, <<"recipient-unavailable">>, _attrs, _} = _el
@@ -3508,7 +3508,7 @@ decode_error_els(__TopXMLNS, __Opts,
 			   __Els);
       _ ->
 	  decode_error_els(__TopXMLNS, __Opts, _els, Text, Reason,
-			   __Els)
+			   [_el | __Els])
     end;
 decode_error_els(__TopXMLNS, __Opts,
 		 [{xmlel, <<"redirect">>, _attrs, _} = _el | _els], Text,
@@ -3523,7 +3523,7 @@ decode_error_els(__TopXMLNS, __Opts,
 			   __Els);
       _ ->
 	  decode_error_els(__TopXMLNS, __Opts, _els, Text, Reason,
-			   __Els)
+			   [_el | __Els])
     end;
 decode_error_els(__TopXMLNS, __Opts,
 		 [{xmlel, <<"registration-required">>, _attrs, _} = _el
@@ -3539,7 +3539,7 @@ decode_error_els(__TopXMLNS, __Opts,
 			   __Els);
       _ ->
 	  decode_error_els(__TopXMLNS, __Opts, _els, Text, Reason,
-			   __Els)
+			   [_el | __Els])
     end;
 decode_error_els(__TopXMLNS, __Opts,
 		 [{xmlel, <<"remote-server-not-found">>, _attrs, _} = _el
@@ -3555,7 +3555,7 @@ decode_error_els(__TopXMLNS, __Opts,
 			   __Els);
       _ ->
 	  decode_error_els(__TopXMLNS, __Opts, _els, Text, Reason,
-			   __Els)
+			   [_el | __Els])
     end;
 decode_error_els(__TopXMLNS, __Opts,
 		 [{xmlel, <<"remote-server-timeout">>, _attrs, _} = _el
@@ -3571,7 +3571,7 @@ decode_error_els(__TopXMLNS, __Opts,
 			   __Els);
       _ ->
 	  decode_error_els(__TopXMLNS, __Opts, _els, Text, Reason,
-			   __Els)
+			   [_el | __Els])
     end;
 decode_error_els(__TopXMLNS, __Opts,
 		 [{xmlel, <<"resource-constraint">>, _attrs, _} = _el
@@ -3587,7 +3587,7 @@ decode_error_els(__TopXMLNS, __Opts,
 			   __Els);
       _ ->
 	  decode_error_els(__TopXMLNS, __Opts, _els, Text, Reason,
-			   __Els)
+			   [_el | __Els])
     end;
 decode_error_els(__TopXMLNS, __Opts,
 		 [{xmlel, <<"service-unavailable">>, _attrs, _} = _el
@@ -3603,7 +3603,7 @@ decode_error_els(__TopXMLNS, __Opts,
 			   __Els);
       _ ->
 	  decode_error_els(__TopXMLNS, __Opts, _els, Text, Reason,
-			   __Els)
+			   [_el | __Els])
     end;
 decode_error_els(__TopXMLNS, __Opts,
 		 [{xmlel, <<"subscription-required">>, _attrs, _} = _el
@@ -3619,7 +3619,7 @@ decode_error_els(__TopXMLNS, __Opts,
 			   __Els);
       _ ->
 	  decode_error_els(__TopXMLNS, __Opts, _els, Text, Reason,
-			   __Els)
+			   [_el | __Els])
     end;
 decode_error_els(__TopXMLNS, __Opts,
 		 [{xmlel, <<"undefined-condition">>, _attrs, _} = _el
@@ -3635,7 +3635,7 @@ decode_error_els(__TopXMLNS, __Opts,
 			   __Els);
       _ ->
 	  decode_error_els(__TopXMLNS, __Opts, _els, Text, Reason,
-			   __Els)
+			   [_el | __Els])
     end;
 decode_error_els(__TopXMLNS, __Opts,
 		 [{xmlel, <<"unexpected-request">>, _attrs, _} = _el
@@ -3651,7 +3651,7 @@ decode_error_els(__TopXMLNS, __Opts,
 			   __Els);
       _ ->
 	  decode_error_els(__TopXMLNS, __Opts, _els, Text, Reason,
-			   __Els)
+			   [_el | __Els])
     end;
 decode_error_els(__TopXMLNS, __Opts,
 		 [{xmlel, _name, _attrs, _} = _el | _els], Text, Reason,
@@ -3666,7 +3666,7 @@ decode_error_els(__TopXMLNS, __Opts,
 	  case xmpp_codec:get_mod(_name, __XMLNS) of
 	    undefined ->
 		decode_error_els(__TopXMLNS, __Opts, _els, Text, Reason,
-				 __Els);
+				 [_el | __Els]);
 	    Mod ->
 		decode_error_els(__TopXMLNS, __Opts, _els, Text, Reason,
 				 [Mod:do_decode(_name, __XMLNS, _el, __Opts)
@@ -4311,7 +4311,7 @@ decode_presence_els(__TopXMLNS, __Opts,
 			      Priority, __Els);
       _ ->
 	  decode_presence_els(__TopXMLNS, __Opts, _els, Status,
-			      Show, Priority, __Els)
+			      Show, Priority, [_el | __Els])
     end;
 decode_presence_els(__TopXMLNS, __Opts,
 		    [{xmlel, <<"status">>, _attrs, _} = _el | _els], Status,
@@ -4339,7 +4339,7 @@ decode_presence_els(__TopXMLNS, __Opts,
 			      Show, Priority, __Els);
       _ ->
 	  decode_presence_els(__TopXMLNS, __Opts, _els, Status,
-			      Show, Priority, __Els)
+			      Show, Priority, [_el | __Els])
     end;
 decode_presence_els(__TopXMLNS, __Opts,
 		    [{xmlel, <<"priority">>, _attrs, _} = _el | _els],
@@ -4367,7 +4367,7 @@ decode_presence_els(__TopXMLNS, __Opts,
 			      __Els);
       _ ->
 	  decode_presence_els(__TopXMLNS, __Opts, _els, Status,
-			      Show, Priority, __Els)
+			      Show, Priority, [_el | __Els])
     end;
 decode_presence_els(__TopXMLNS, __Opts,
 		    [{xmlel, _name, _attrs, _} = _el | _els], Status, Show,
@@ -4382,7 +4382,7 @@ decode_presence_els(__TopXMLNS, __Opts,
 	  case xmpp_codec:get_mod(_name, __XMLNS) of
 	    undefined ->
 		decode_presence_els(__TopXMLNS, __Opts, _els, Status,
-				    Show, Priority, __Els);
+				    Show, Priority, [_el | __Els]);
 	    Mod ->
 		decode_presence_els(__TopXMLNS, __Opts, _els, Status,
 				    Show, Priority,
@@ -4732,7 +4732,7 @@ decode_message_els(__TopXMLNS, __Opts,
 			     Body, __Els);
       _ ->
 	  decode_message_els(__TopXMLNS, __Opts, _els, Thread,
-			     Subject, Body, __Els)
+			     Subject, Body, [_el | __Els])
     end;
 decode_message_els(__TopXMLNS, __Opts,
 		   [{xmlel, <<"thread">>, _attrs, _} = _el | _els], Thread,
@@ -4757,7 +4757,7 @@ decode_message_els(__TopXMLNS, __Opts,
 			     Subject, Body, __Els);
       _ ->
 	  decode_message_els(__TopXMLNS, __Opts, _els, Thread,
-			     Subject, Body, __Els)
+			     Subject, Body, [_el | __Els])
     end;
 decode_message_els(__TopXMLNS, __Opts,
 		   [{xmlel, <<"body">>, _attrs, _} = _el | _els], Thread,
@@ -4788,7 +4788,7 @@ decode_message_els(__TopXMLNS, __Opts,
 			     __Els);
       _ ->
 	  decode_message_els(__TopXMLNS, __Opts, _els, Thread,
-			     Subject, Body, __Els)
+			     Subject, Body, [_el | __Els])
     end;
 decode_message_els(__TopXMLNS, __Opts,
 		   [{xmlel, _name, _attrs, _} = _el | _els], Thread,
@@ -4803,7 +4803,7 @@ decode_message_els(__TopXMLNS, __Opts,
 	  case xmpp_codec:get_mod(_name, __XMLNS) of
 	    undefined ->
 		decode_message_els(__TopXMLNS, __Opts, _els, Thread,
-				   Subject, Body, __Els);
+				   Subject, Body, [_el | __Els]);
 	    Mod ->
 		decode_message_els(__TopXMLNS, __Opts, _els, Thread,
 				   Subject, Body,
@@ -5133,7 +5133,7 @@ decode_iq_els(__TopXMLNS, __Opts,
 					__TopXMLNS),
 	  case xmpp_codec:get_mod(_name, __XMLNS) of
 	    undefined ->
-		decode_iq_els(__TopXMLNS, __Opts, _els, __Els);
+		decode_iq_els(__TopXMLNS, __Opts, _els, [_el | __Els]);
 	    Mod ->
 		decode_iq_els(__TopXMLNS, __Opts, _els,
 			      [Mod:do_decode(_name, __XMLNS, _el, __Opts)

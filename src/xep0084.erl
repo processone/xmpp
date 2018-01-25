@@ -59,11 +59,21 @@ do_get_ns({avatar_meta, _, _}) ->
 do_get_ns({avatar_pointer, _, _, _, _, _, _}) ->
     <<"urn:xmpp:avatar:metadata">>.
 
+get_els({avatar_pointer, _bytes, _id, _type, _height,
+	 _width, _sub_els}) ->
+    _sub_els.
+
+set_els({avatar_pointer, _bytes, _id, _type, _height,
+	 _width, _},
+	_sub_els) ->
+    {avatar_pointer, _bytes, _id, _type, _height, _width,
+     _sub_els}.
+
 pp(avatar_data, 1) -> [data];
 pp(avatar_info, 6) ->
     [bytes, id, type, height, width, url];
 pp(avatar_pointer, 6) ->
-    [bytes, id, type, height, width, xml_els];
+    [bytes, id, type, height, width, sub_els];
 pp(avatar_meta, 2) -> [info, pointer];
 pp(_, _) -> no.
 
@@ -155,26 +165,25 @@ encode_avatar_meta({avatar_meta, Info, Pointer},
 
 decode_avatar_pointer(__TopXMLNS, __Opts,
 		      {xmlel, <<"pointer">>, _attrs, _els}) ->
-    __Xmls = decode_avatar_pointer_els(__TopXMLNS, __Opts,
-				       _els, []),
+    __Els = decode_avatar_pointer_els(__TopXMLNS, __Opts,
+				      _els, []),
     {Bytes, Id, Type, Height, Width} =
 	decode_avatar_pointer_attrs(__TopXMLNS, _attrs,
 				    undefined, undefined, undefined, undefined,
 				    undefined),
-    {avatar_pointer, Bytes, Id, Type, Height, Width,
-     __Xmls}.
+    {avatar_pointer, Bytes, Id, Type, Height, Width, __Els}.
 
 decode_avatar_pointer_els(__TopXMLNS, __Opts, [],
-			  __Xmls) ->
-    lists:reverse(__Xmls);
+			  __Els) ->
+    lists:reverse(__Els);
 decode_avatar_pointer_els(__TopXMLNS, __Opts,
-			  [{xmlel, _name, _attrs, _} = _el | _els], __Xmls) ->
+			  [{xmlel, _name, _attrs, _} = _el | _els], __Els) ->
     decode_avatar_pointer_els(__TopXMLNS, __Opts, _els,
-			      [_el | __Xmls]);
+			      [_el | __Els]);
 decode_avatar_pointer_els(__TopXMLNS, __Opts,
-			  [_ | _els], __Xmls) ->
+			  [_ | _els], __Els) ->
     decode_avatar_pointer_els(__TopXMLNS, __Opts, _els,
-			      __Xmls).
+			      __Els).
 
 decode_avatar_pointer_attrs(__TopXMLNS,
 			    [{<<"bytes">>, _val} | _attrs], _Bytes, Id, Type,
@@ -214,12 +223,13 @@ decode_avatar_pointer_attrs(__TopXMLNS, [], Bytes, Id,
      decode_avatar_pointer_attr_width(__TopXMLNS, Width)}.
 
 encode_avatar_pointer({avatar_pointer, Bytes, Id, Type,
-		       Height, Width, __Xmls},
+		       Height, Width, __Els},
 		      __TopXMLNS) ->
     __NewTopXMLNS =
 	xmpp_codec:choose_top_xmlns(<<"urn:xmpp:avatar:metadata">>,
 				    [], __TopXMLNS),
-    _els = __Xmls,
+    _els = [xmpp_codec:encode(_el, __NewTopXMLNS)
+	    || _el <- __Els],
     _attrs = encode_avatar_pointer_attr_width(Width,
 					      encode_avatar_pointer_attr_height(Height,
 										encode_avatar_pointer_attr_type(Type,

@@ -273,7 +273,8 @@
      #elem{name = <<"query">>,
            xmlns = <<"jabber:iq:private">>,
 	   module = 'xep0049',
-           result = {private, '$_xmls'}}).
+	   ignore_els = true,
+           result = {private, '$_els'}}).
 
 -xml(conference_nick,
      #elem{name = <<"nick">>,
@@ -2040,7 +2041,8 @@
            xmlns = [<<"http://jabber.org/protocol/pubsub">>,
 		    <<"http://jabber.org/protocol/pubsub#event">>],
 	   module = 'xep0060',
-           result = {ps_item, '$xmlns', '$id', '$_xmls', '$node', '$publisher'},
+	   ignore_els = true,
+           result = {ps_item, '$xmlns', '$id', '$_els', '$node', '$publisher'},
            attrs = [#attr{name = <<"id">>},
 		    #attr{name = <<"xmlns">>},
                     #attr{name = <<"node">>},
@@ -3109,7 +3111,8 @@
      #elem{name = <<"forwarded">>,
            xmlns = <<"urn:xmpp:forward:0">>,
 	   module = 'xep0297',
-           result = {forwarded, '$delay', '$_xmls'},
+	   ignore_els = true,
+           result = {forwarded, '$delay', '$_els'},
            refs = [#ref{name = delay, min = 0,
                         max = 1, label = '$delay'}]}).
 
@@ -4100,8 +4103,9 @@
      #elem{name = <<"pointer">>,
 	   xmlns = <<"urn:xmpp:avatar:metadata">>,
 	   module = 'xep0084',
+	   ignore_els = true,
 	   result = {avatar_pointer, '$bytes', '$id', '$type',
-		     '$height', '$width', '$_xmls'},
+		     '$height', '$width', '$_els'},
 	   attrs = [#attr{name = <<"bytes">>,
 			  dec = {dec_int, [0, infinity]},
 			  enc = {enc_int, []}},
