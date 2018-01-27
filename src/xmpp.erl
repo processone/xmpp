@@ -574,7 +574,7 @@ err_gone() ->
 err_gone(Text, Lang) ->
     err(modify, 'gone', 302, Text, Lang).
 
-%% RFC 6120 sasy error type SHOULD be "cancel".
+%% RFC 6120 says error type SHOULD be "cancel".
 %% RFC 3920 and XEP-0082 says it SHOULD be "wait".
 -spec err_internal_server_error() -> stanza_error().
 err_internal_server_error() ->

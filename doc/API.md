@@ -691,7 +691,7 @@ false
 ```
 Inserts `Tag` into sub-elements of `Stanza`.
 If `Stanza` already contains an element with the same tag name
-and namespace as `Tag`, the first occurence of such element is replaced by `Tag`.
+and namespace as `Tag`, the first occurrence of such element is replaced by `Tag`.
 Otherwise `Tag` is appended to the end of the list of
 sub-elements. Note that even malformed element will be replaced if
 it is matched, because decoding is not applied during matching.
