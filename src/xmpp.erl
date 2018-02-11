@@ -497,14 +497,30 @@ get_text(Text, Lang) ->
 
 -spec mk_text(reason_text()) -> [text()].
 mk_text(Text) ->
-    mk_text(Text, <<"en">>).
+    mk_text(Text, <<"">>).
 
 -spec mk_text(reason_text(), lang()) -> [text()].
-mk_text(<<"">>, _) ->
+mk_text(<<"">>, _Lang) ->
     [];
-mk_text(Text, Lang) ->
-    [#text{lang = Lang,
-	   data = translate(Lang, Text)}].
+mk_text({Format, Args}, Lang) ->
+    InFormat = iolist_to_binary(Format),
+    OutFormat = xmpp_tr:tr(Lang, InFormat),
+    InTxt = iolist_to_binary(io_lib:format(InFormat, Args)),
+    if InFormat == OutFormat ->
+	    [#text{data = InTxt, lang = <<"en">>}];
+       true ->
+	    OutTxt = iolist_to_binary(io_lib:format(OutFormat, Args)),
+	    [#text{data = OutTxt, lang = Lang},
+	     #text{data = InTxt, lang = <<"en">>}]
+    end;
+mk_text(InTxt, Lang) ->
+    OutTxt = xmpp_tr:tr(Lang, InTxt),
+    if OutTxt == InTxt ->
+	    [#text{data = InTxt, lang = <<"en">>}];
+       true ->
+	    [#text{data = OutTxt, lang = Lang},
+	     #text{data = InTxt, lang = <<"en">>}]
+    end.
 
 -spec pp(any()) -> iodata().
 pp(Term) ->
@@ -976,13 +992,6 @@ match_tag(El, TagName, XMLNS, TopXMLNS) ->
 	_ ->
 	    false
     end.
-
--spec translate(lang(), reason_text()) -> binary().
-translate(Lang, {Format, Args}) ->
-    TranslatedFormat = xmpp_tr:tr(Lang, iolist_to_binary(Format)),
-    iolist_to_binary(io_lib:format(TranslatedFormat, Args));
-translate(Lang, Text) ->
-    xmpp_tr:tr(Lang, Text).
 
 -spec prep_lang(binary()) -> binary().
 prep_lang(L) ->

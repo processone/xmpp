@@ -1281,22 +1281,24 @@ By default, no translation callback is set and thus translation is not performed
 **Example 1**: installing the callback
 ```erlang
 > xmpp:mk_text(<<"hello">>, <<"ru">>).
-[#text{lang = <<"ru">>,data = <<"hello">>}]
+[#text{lang = <<"en">>,data = <<"hello">>}]
 > my_trans_mod:trans(<<"ru">>, <<"hello">>).
 <<"привет">>.
 > xmpp:set_tr_callback({my_trans_mod, trans}).
 ok
 > xmpp:mk_text(<<"hello">>, <<"ru">>).
-[#text{lang = <<"ru">>,data = <<"привет">>}]
+[#text{lang = <<"ru">>,data = <<"привет">>},
+ #text{lang = <<"en">>,data = <<"hello">>}]
 ```
 **Example 2**: uninstalling any callback
 ```erlang
 > xmpp:mk_text(<<"hello">>, <<"ru">>).
-[#text{lang = <<"ru">>,data = <<"привет">>}]
+[#text{lang = <<"ru">>,data = <<"привет">>},
+ #text{lang = <<"en">>,data = <<"hello">>}]
 > xmpp:set_tr_callback(undefined).
 ok
 > xmpp:mk_text(<<"hello">>, <<"ru">>).
-[#text{lang = <<"ru">>,data = <<"hello">>}]
+[#text{lang = <<"en">>,data = <<"hello">>}]
 ```
 
 ## get_text/1
