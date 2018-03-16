@@ -185,3 +185,4 @@
 -define(NS_MUCSUB_NODES_SUBSCRIBERS, <<"urn:xmpp:mucsub:nodes:subscribers">>).
 -define(NS_AVATAR_DATA, <<"urn:xmpp:avatar:data">>).
 -define(NS_AVATAR_METADATA, <<"urn:xmpp:avatar:metadata">>).
+-define(NS_PEP_VCARD_CONVERSION_0, <<"urn:xmpp:pep-vcard-conversion:0">>).
