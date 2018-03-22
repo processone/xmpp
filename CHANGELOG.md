@@ -1,5 +1,8 @@
 # Version 1.1.20
 
+* Updating fast_xml to version 1.1.29.
+* Updating p1_utils to version 1.0.11.
+* Updating stringprep to version 1.0.11.
 * Fix compilation with rebar3
 * Add new namespace from XEP-0398
 * Update for changes in fast\_xml
