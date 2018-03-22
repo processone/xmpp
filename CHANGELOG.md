@@ -1,3 +1,10 @@
+# Version 1.1.20
+
+* Fix compilation with rebar3
+* Add new namespace from XEP-0398
+* Update for changes in fast\_xml
+* Make mk\_text() append original text
+
 # Version 1.1.19
 
 * Updating fast_xml to version 1.1.28.
