@@ -3591,11 +3591,11 @@
 			  enc = {jid, encode, []},
 			  dec = {jid, decode, []}}]}).
 
--xml(client_id,
-     #elem{name = <<"client-id">>,
+-xml(origin_id,
+     #elem{name = <<"origin-id">>,
 	   xmlns = <<"urn:xmpp:sid:0">>,
 	   module = 'xep0359',
-	   result = {client_id, '$id'},
+	   result = {origin_id, '$id'},
 	   attrs = [#attr{name = <<"id">>, required = true}]}).
 
 -xml(adhoc_command_prev,
