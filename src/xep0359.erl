@@ -5,9 +5,9 @@
 
 -compile(export_all).
 
-do_decode(<<"client-id">>, <<"urn:xmpp:sid:0">>, El,
+do_decode(<<"origin-id">>, <<"urn:xmpp:sid:0">>, El,
 	  Opts) ->
-    decode_client_id(<<"urn:xmpp:sid:0">>, Opts, El);
+    decode_origin_id(<<"urn:xmpp:sid:0">>, Opts, El);
 do_decode(<<"stanza-id">>, <<"urn:xmpp:sid:0">>, El,
 	  Opts) ->
     decode_stanza_id(<<"urn:xmpp:sid:0">>, Opts, El);
@@ -17,56 +17,56 @@ do_decode(Name, XMLNS, _, _) ->
     erlang:error({xmpp_codec, {unknown_tag, Name, XMLNS}}).
 
 tags() ->
-    [{<<"client-id">>, <<"urn:xmpp:sid:0">>},
+    [{<<"origin-id">>, <<"urn:xmpp:sid:0">>},
      {<<"stanza-id">>, <<"urn:xmpp:sid:0">>}].
 
 do_encode({stanza_id, _, _} = Stanza_id, TopXMLNS) ->
     encode_stanza_id(Stanza_id, TopXMLNS);
-do_encode({client_id, _} = Client_id, TopXMLNS) ->
-    encode_client_id(Client_id, TopXMLNS).
+do_encode({origin_id, _} = Origin_id, TopXMLNS) ->
+    encode_origin_id(Origin_id, TopXMLNS).
 
-do_get_name({client_id, _}) -> <<"client-id">>;
+do_get_name({origin_id, _}) -> <<"origin-id">>;
 do_get_name({stanza_id, _, _}) -> <<"stanza-id">>.
 
-do_get_ns({client_id, _}) -> <<"urn:xmpp:sid:0">>;
+do_get_ns({origin_id, _}) -> <<"urn:xmpp:sid:0">>;
 do_get_ns({stanza_id, _, _}) -> <<"urn:xmpp:sid:0">>.
 
 pp(stanza_id, 2) -> [by, id];
-pp(client_id, 1) -> [id];
+pp(origin_id, 1) -> [id];
 pp(_, _) -> no.
 
-records() -> [{stanza_id, 2}, {client_id, 1}].
+records() -> [{stanza_id, 2}, {origin_id, 1}].
 
-decode_client_id(__TopXMLNS, __Opts,
-		 {xmlel, <<"client-id">>, _attrs, _els}) ->
-    Id = decode_client_id_attrs(__TopXMLNS, _attrs,
+decode_origin_id(__TopXMLNS, __Opts,
+		 {xmlel, <<"origin-id">>, _attrs, _els}) ->
+    Id = decode_origin_id_attrs(__TopXMLNS, _attrs,
 				undefined),
-    {client_id, Id}.
+    {origin_id, Id}.
 
-decode_client_id_attrs(__TopXMLNS,
+decode_origin_id_attrs(__TopXMLNS,
 		       [{<<"id">>, _val} | _attrs], _Id) ->
-    decode_client_id_attrs(__TopXMLNS, _attrs, _val);
-decode_client_id_attrs(__TopXMLNS, [_ | _attrs], Id) ->
-    decode_client_id_attrs(__TopXMLNS, _attrs, Id);
-decode_client_id_attrs(__TopXMLNS, [], Id) ->
-    decode_client_id_attr_id(__TopXMLNS, Id).
+    decode_origin_id_attrs(__TopXMLNS, _attrs, _val);
+decode_origin_id_attrs(__TopXMLNS, [_ | _attrs], Id) ->
+    decode_origin_id_attrs(__TopXMLNS, _attrs, Id);
+decode_origin_id_attrs(__TopXMLNS, [], Id) ->
+    decode_origin_id_attr_id(__TopXMLNS, Id).
 
-encode_client_id({client_id, Id}, __TopXMLNS) ->
+encode_origin_id({origin_id, Id}, __TopXMLNS) ->
     __NewTopXMLNS =
 	xmpp_codec:choose_top_xmlns(<<"urn:xmpp:sid:0">>, [],
 				    __TopXMLNS),
     _els = [],
-    _attrs = encode_client_id_attr_id(Id,
+    _attrs = encode_origin_id_attr_id(Id,
 				      xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
 								 __TopXMLNS)),
-    {xmlel, <<"client-id">>, _attrs, _els}.
+    {xmlel, <<"origin-id">>, _attrs, _els}.
 
-decode_client_id_attr_id(__TopXMLNS, undefined) ->
+decode_origin_id_attr_id(__TopXMLNS, undefined) ->
     erlang:error({xmpp_codec,
-		  {missing_attr, <<"id">>, <<"client-id">>, __TopXMLNS}});
-decode_client_id_attr_id(__TopXMLNS, _val) -> _val.
+		  {missing_attr, <<"id">>, <<"origin-id">>, __TopXMLNS}});
+decode_origin_id_attr_id(__TopXMLNS, _val) -> _val.
 
-encode_client_id_attr_id(_val, _acc) ->
+encode_origin_id_attr_id(_val, _acc) ->
     [{<<"id">>, _val} | _acc].
 
 decode_stanza_id(__TopXMLNS, __Opts,
