@@ -1233,6 +1233,8 @@ get_mod(<<"subscription">>,
 get_mod(<<"addresses">>,
 	<<"http://jabber.org/protocol/address">>) ->
     xep0033;
+get_mod(<<"origin-id">>, <<"urn:xmpp:sid:0">>) ->
+    xep0359;
 get_mod(<<"note">>,
 	<<"http://jabber.org/protocol/commands">>) ->
     xep0050;
@@ -1245,8 +1247,6 @@ get_mod(<<"password">>,
 	<<"http://jabber.org/protocol/muc">>) ->
     xep0045;
 get_mod(<<"r">>, <<"urn:xmpp:sm:2">>) -> xep0198;
-get_mod(<<"client-id">>, <<"urn:xmpp:sid:0">>) ->
-    xep0359;
 get_mod(<<"uri">>, <<"urn:xmpp:media-element">>) ->
     xep0221;
 get_mod(<<"connection-timeout">>,
@@ -1370,7 +1370,7 @@ get_mod({muc_destroy, _, _, _, _}) -> xep0045;
 get_mod({carbons_received, _}) -> xep0280;
 get_mod({carbons_sent, _}) -> xep0280;
 get_mod({hint, _}) -> xep0334;
-get_mod({client_id, _}) -> xep0359;
+get_mod({origin_id, _}) -> xep0359;
 get_mod({disco_items, _, _, _}) -> xep0030;
 get_mod({private, _}) -> xep0049;
 get_mod({sasl_challenge, _}) -> rfc6120;
