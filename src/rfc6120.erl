@@ -626,6 +626,8 @@ tags() ->
 
 do_encode({iq, _, _, _, _, _, _, _} = Iq, TopXMLNS) ->
     encode_iq(Iq, TopXMLNS);
+do_encode({message_thread, _, _} = Thread, TopXMLNS) ->
+    encode_message_thread(Thread, TopXMLNS);
 do_encode({message, _, _, _, _, _, _, _, _, _, _} =
 	      Message,
 	  TopXMLNS) ->
@@ -686,6 +688,7 @@ do_get_name({gone, _}) -> <<"gone">>;
 do_get_name({iq, _, _, _, _, _, _, _}) -> <<"iq">>;
 do_get_name({message, _, _, _, _, _, _, _, _, _, _}) ->
     <<"message">>;
+do_get_name({message_thread, _, _}) -> <<"thread">>;
 do_get_name({presence, _, _, _, _, _, _, _, _, _, _}) ->
     <<"presence">>;
 do_get_name({redirect, _}) -> <<"redirect">>;
@@ -717,6 +720,8 @@ do_get_ns({gone, _}) ->
 do_get_ns({iq, _, _, _, _, _, _, _}) ->
     <<"jabber:client">>;
 do_get_ns({message, _, _, _, _, _, _, _, _, _, _}) ->
+    <<"jabber:client">>;
+do_get_ns({message_thread, _, _}) ->
     <<"jabber:client">>;
 do_get_ns({presence, _, _, _, _, _, _, _, _, _, _}) ->
     <<"jabber:client">>;
@@ -787,6 +792,7 @@ set_els({stream_features, _}, _sub_els) ->
     {stream_features, _sub_els}.
 
 pp(iq, 7) -> [id, type, lang, from, to, sub_els, meta];
+pp(message_thread, 2) -> [parent, data];
 pp(message, 10) ->
     [id, type, lang, from, to, subject, body, thread,
      sub_els, meta];
@@ -818,9 +824,10 @@ pp(stream_start, 8) ->
 pp(_, _) -> no.
 
 records() ->
-    [{iq, 7}, {message, 10}, {presence, 10}, {gone, 1},
-     {redirect, 1}, {stanza_error, 6}, {bind, 2},
-     {sasl_auth, 2}, {sasl_abort, 0}, {sasl_challenge, 1},
+    [{iq, 7}, {message_thread, 2}, {message, 10},
+     {presence, 10}, {gone, 1}, {redirect, 1},
+     {stanza_error, 6}, {bind, 2}, {sasl_auth, 2},
+     {sasl_abort, 0}, {sasl_challenge, 1},
      {sasl_response, 1}, {sasl_success, 1},
      {sasl_failure, 2}, {sasl_mechanisms, 1}, {starttls, 1},
      {starttls_proceed, 0}, {starttls_failure, 0},
@@ -4960,32 +4967,55 @@ encode_message_attr_to(_val, _acc) ->
 
 decode_message_thread(__TopXMLNS, __Opts,
 		      {xmlel, <<"thread">>, _attrs, _els}) ->
-    Cdata = decode_message_thread_els(__TopXMLNS, __Opts,
-				      _els, <<>>),
-    Cdata.
+    Data = decode_message_thread_els(__TopXMLNS, __Opts,
+				     _els, <<>>),
+    Parent = decode_message_thread_attrs(__TopXMLNS, _attrs,
+					 undefined),
+    {message_thread, Parent, Data}.
 
 decode_message_thread_els(__TopXMLNS, __Opts, [],
-			  Cdata) ->
-    decode_message_thread_cdata(__TopXMLNS, Cdata);
+			  Data) ->
+    decode_message_thread_cdata(__TopXMLNS, Data);
 decode_message_thread_els(__TopXMLNS, __Opts,
-			  [{xmlcdata, _data} | _els], Cdata) ->
+			  [{xmlcdata, _data} | _els], Data) ->
     decode_message_thread_els(__TopXMLNS, __Opts, _els,
-			      <<Cdata/binary, _data/binary>>);
+			      <<Data/binary, _data/binary>>);
 decode_message_thread_els(__TopXMLNS, __Opts,
-			  [_ | _els], Cdata) ->
+			  [_ | _els], Data) ->
     decode_message_thread_els(__TopXMLNS, __Opts, _els,
-			      Cdata).
+			      Data).
 
-encode_message_thread(Cdata, __TopXMLNS) ->
+decode_message_thread_attrs(__TopXMLNS,
+			    [{<<"parent">>, _val} | _attrs], _Parent) ->
+    decode_message_thread_attrs(__TopXMLNS, _attrs, _val);
+decode_message_thread_attrs(__TopXMLNS, [_ | _attrs],
+			    Parent) ->
+    decode_message_thread_attrs(__TopXMLNS, _attrs, Parent);
+decode_message_thread_attrs(__TopXMLNS, [], Parent) ->
+    decode_message_thread_attr_parent(__TopXMLNS, Parent).
+
+encode_message_thread({message_thread, Parent, Data},
+		      __TopXMLNS) ->
     __NewTopXMLNS = xmpp_codec:choose_top_xmlns(<<>>,
 						[<<"jabber:client">>,
 						 <<"jabber:server">>,
 						 <<"jabber:component:accept">>],
 						__TopXMLNS),
-    _els = encode_message_thread_cdata(Cdata, []),
-    _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
-					__TopXMLNS),
+    _els = encode_message_thread_cdata(Data, []),
+    _attrs = encode_message_thread_attr_parent(Parent,
+					       xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
+									  __TopXMLNS)),
     {xmlel, <<"thread">>, _attrs, _els}.
+
+decode_message_thread_attr_parent(__TopXMLNS,
+				  undefined) ->
+    <<>>;
+decode_message_thread_attr_parent(__TopXMLNS, _val) ->
+    _val.
+
+encode_message_thread_attr_parent(<<>>, _acc) -> _acc;
+encode_message_thread_attr_parent(_val, _acc) ->
+    [{<<"parent">>, _val} | _acc].
 
 decode_message_thread_cdata(__TopXMLNS, <<>>) -> <<>>;
 decode_message_thread_cdata(__TopXMLNS, _val) -> _val.
