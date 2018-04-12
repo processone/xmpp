@@ -1,0 +1,23 @@
+<form_type>
+  <name>urn:xmpp:push:summary</name>
+  <doc>XEP-0357</doc>
+  <desc>Provides summarizing information about a user for use in push notifications.</desc>
+  <field var='message-count'
+	 type='text-single'
+	 label='The number of unread or undelivered messages'/>
+  <field var='pending-subscription-count'
+	 type='text-single'
+	 label='The number of pending incoming presence subscription requests'/>
+  <field var='last-message-sender'
+	 type='jid-single'
+	 label='The sender of the last received message'/>
+  <field var='last-message-body'
+	 type='text-single'
+	 label='The body text of the last received message'/>
+</form_type>
+
+<!--
+Local Variables:
+mode: xml
+End:
+-->
