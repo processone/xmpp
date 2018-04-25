@@ -295,6 +295,7 @@ XMPP elements from the following documents are supported:
 - [XEP-0359](https://xmpp.org/extensions/xep-0359.html):  Unique and Stable Stanza IDs
 - [XEP-0363](https://xmpp.org/extensions/xep-0363.html):  HTTP File Upload
 - [XEP-0369](https://xmpp.org/extensions/xep-0369.html):  Mediated Information eXchange (MIX)
+- [XEP-0377](https://xmpp.org/extensions/xep-0377.html):  Spam Reporting
 - [draft-cridland-xmpp-session-01](https://tools.ietf.org/html/draft-cridland-xmpp-session-01): XMPP Session Establishment
 
 As well as some proprietary extensions from [ProcessOne](https://www.process-one.net)
