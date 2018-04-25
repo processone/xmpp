@@ -28,6 +28,8 @@ tags() ->
      {<<"block">>, <<"urn:xmpp:blocking">>},
      {<<"item">>, <<"urn:xmpp:blocking">>}].
 
+do_encode({block_item, _, _} = Item, TopXMLNS) ->
+    encode_block_item(Item, TopXMLNS);
 do_encode({block, _} = Block, TopXMLNS) ->
     encode_block(Block, TopXMLNS);
 do_encode({unblock, _} = Unblock, TopXMLNS) ->
@@ -36,20 +38,25 @@ do_encode({block_list, _} = Blocklist, TopXMLNS) ->
     encode_block_list(Blocklist, TopXMLNS).
 
 do_get_name({block, _}) -> <<"block">>;
+do_get_name({block_item, _, _}) -> <<"item">>;
 do_get_name({block_list, _}) -> <<"blocklist">>;
 do_get_name({unblock, _}) -> <<"unblock">>.
 
 do_get_ns({block, _}) -> <<"urn:xmpp:blocking">>;
+do_get_ns({block_item, _, _}) ->
+    <<"urn:xmpp:blocking">>;
 do_get_ns({block_list, _}) -> <<"urn:xmpp:blocking">>;
 do_get_ns({unblock, _}) -> <<"urn:xmpp:blocking">>.
 
+pp(block_item, 2) -> [jid, spam_report];
 pp(block, 1) -> [items];
 pp(unblock, 1) -> [items];
 pp(block_list, 1) -> [items];
 pp(_, _) -> no.
 
 records() ->
-    [{block, 1}, {unblock, 1}, {block_list, 1}].
+    [{block_item, 2}, {block, 1}, {unblock, 1},
+     {block_list, 1}].
 
 decode_block_list(__TopXMLNS, __Opts,
 		  {xmlel, <<"blocklist">>, _attrs, _els}) ->
@@ -174,9 +181,33 @@ encode_block({block, Items}, __TopXMLNS) ->
 
 decode_block_item(__TopXMLNS, __Opts,
 		  {xmlel, <<"item">>, _attrs, _els}) ->
+    Spam_report = decode_block_item_els(__TopXMLNS, __Opts,
+					_els, undefined),
     Jid = decode_block_item_attrs(__TopXMLNS, _attrs,
 				  undefined),
-    Jid.
+    {block_item, Jid, Spam_report}.
+
+decode_block_item_els(__TopXMLNS, __Opts, [],
+		      Spam_report) ->
+    Spam_report;
+decode_block_item_els(__TopXMLNS, __Opts,
+		      [{xmlel, <<"report">>, _attrs, _} = _el | _els],
+		      Spam_report) ->
+    case xmpp_codec:get_attr(<<"xmlns">>, _attrs,
+			     __TopXMLNS)
+	of
+      <<"urn:xmpp:reporting:0">> ->
+	  decode_block_item_els(__TopXMLNS, __Opts, _els,
+				xep0377:decode_report(<<"urn:xmpp:reporting:0">>,
+						      __Opts, _el));
+      _ ->
+	  decode_block_item_els(__TopXMLNS, __Opts, _els,
+				Spam_report)
+    end;
+decode_block_item_els(__TopXMLNS, __Opts, [_ | _els],
+		      Spam_report) ->
+    decode_block_item_els(__TopXMLNS, __Opts, _els,
+			  Spam_report).
 
 decode_block_item_attrs(__TopXMLNS,
 			[{<<"jid">>, _val} | _attrs], _Jid) ->
@@ -187,15 +218,25 @@ decode_block_item_attrs(__TopXMLNS, [_ | _attrs],
 decode_block_item_attrs(__TopXMLNS, [], Jid) ->
     decode_block_item_attr_jid(__TopXMLNS, Jid).
 
-encode_block_item(Jid, __TopXMLNS) ->
+encode_block_item({block_item, Jid, Spam_report},
+		  __TopXMLNS) ->
     __NewTopXMLNS =
 	xmpp_codec:choose_top_xmlns(<<"urn:xmpp:blocking">>, [],
 				    __TopXMLNS),
-    _els = [],
+    _els =
+	lists:reverse('encode_block_item_$spam_report'(Spam_report,
+						       __NewTopXMLNS, [])),
     _attrs = encode_block_item_attr_jid(Jid,
 					xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
 								   __TopXMLNS)),
     {xmlel, <<"item">>, _attrs, _els}.
+
+'encode_block_item_$spam_report'(undefined, __TopXMLNS,
+				 _acc) ->
+    _acc;
+'encode_block_item_$spam_report'(Spam_report,
+				 __TopXMLNS, _acc) ->
+    [xep0377:encode_report(Spam_report, __TopXMLNS) | _acc].
 
 decode_block_item_attr_jid(__TopXMLNS, undefined) ->
     erlang:error({xmpp_codec,

@@ -183,11 +183,14 @@
      #elem{name = <<"item">>,
            xmlns = <<"urn:xmpp:blocking">>,
 	   module = 'xep0191',
-           result = '$jid',
+           result = {block_item, '$jid', '$spam_report'},
            attrs = [#attr{name = <<"jid">>,
                           required = true,
                           dec = {jid, decode, []},
-                          enc = {jid, encode, []}}]}).
+                          enc = {jid, encode, []}}],
+           refs = [#ref{name = report,
+                        label = '$spam_report',
+                        min = 0, max = 1}]}).
 
 -xml(block,
      #elem{name = <<"block">>,
@@ -212,6 +215,41 @@
            result = {block_list, '$items'},
 	   refs = [#ref{name = block_item,
                         label = '$items'}]}).
+
+-xml(report_reason_abuse,
+     #elem{name = <<"abuse">>,
+	   xmlns = <<"urn:xmpp:reporting:0">>,
+	   module = 'xep0377',
+	   result = 'abuse'}).
+
+-xml(report_reason_spam,
+     #elem{name = <<"spam">>,
+	   xmlns = <<"urn:xmpp:reporting:0">>,
+	   module = 'xep0377',
+	   result = 'spam'}).
+
+-xml(report_text,
+     #elem{name = <<"text">>,
+	   xmlns = <<"urn:xmpp:reporting:0">>,
+	   module = 'xep0377',
+	   result = {text, '$lang', '$data'},
+	   cdata = #cdata{label = '$data'},
+	   attrs = [#attr{name = <<"xml:lang">>,
+			  label = '$lang'}]}).
+
+-xml(report,
+     #elem{name = <<"report">>,
+	   xmlns = <<"urn:xmpp:reporting:0">>,
+	   module = 'xep0377',
+	   result = {report, '$reason', '$text'},
+	   refs = [#ref{name = report_reason_abuse,
+			label = '$reason',
+			min = 0, max = 1},
+		   #ref{name = report_reason_spam,
+			label = '$reason',
+			min = 0, max = 1},
+		   #ref{name = report_text,
+			label = '$text'}]}).
 
 -xml(disco_identity,
      #elem{name = <<"identity">>,
