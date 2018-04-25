@@ -1,3 +1,9 @@
+# Version 1.1.21
+
+* Support urn:xmpp:push:summary
+* Add parent attribute in \<thread/\>
+* Update supported XEP-0359 version to v0.3.0
+
 # Version 1.1.20
 
 * Updating fast_xml to version 1.1.29.
