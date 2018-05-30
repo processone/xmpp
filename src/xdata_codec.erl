@@ -75,7 +75,7 @@ compile(Path, Opts) ->
 
 compile_file(Path, Opts) ->
     try
-	ok = application:ensure_started(fast_xml),
+	{ok, _} = application:ensure_all_started(fast_xml),
 	DirName = filename:dirname(Path),
 	FileName = filename:basename(Path),
 	RootName = filename:rootname(FileName),
