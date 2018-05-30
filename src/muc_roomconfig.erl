@@ -692,7 +692,7 @@ decode([#xdata_field{var = <<"muc#roomconfig_lang">>,
 		     values = [Value]}
 	| Fs],
        Acc, Required) ->
-    try Value of
+    try xmpp_lang:check(Value) of
       Result -> decode(Fs, [{lang, Result} | Acc], Required)
     catch
       _:_ ->
@@ -1445,7 +1445,7 @@ encode_getmemberlist(Value, Options, Lang) ->
 
 encode_lang(Value, Lang) ->
     Values = case Value of
-	       <<>> -> [];
+	       undefined -> [];
 	       Value -> [Value]
 	     end,
     Opts = [],
