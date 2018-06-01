@@ -109,6 +109,9 @@ encode(List, Lang) when is_list(List) ->
 	    {subjectmod, _, _} -> erlang:error({badarg, Opt});
 	    {pubsub, Val} -> [encode_pubsub(Val, Lang)];
 	    {pubsub, _, _} -> erlang:error({badarg, Opt});
+	    {changesubject, Val} ->
+		[encode_changesubject(Val, Lang)];
+	    {changesubject, _, _} -> erlang:error({badarg, Opt});
 	    #xdata_field{} -> [Opt];
 	    _ -> []
 	  end
@@ -404,6 +407,38 @@ decode([#xdata_field{var = <<"muc#roominfo_pubsub">>}
     erlang:error({?MODULE,
 		  {too_many_values, <<"muc#roominfo_pubsub">>,
 		   <<"http://jabber.org/protocol/muc#roominfo">>}});
+decode([#xdata_field{var =
+			 <<"muc#roominfo_changesubject">>,
+		     values = [Value]}
+	| Fs],
+       Acc, Required) ->
+    try dec_bool(Value) of
+      Result ->
+	  decode(Fs, [{changesubject, Result} | Acc], Required)
+    catch
+      _:_ ->
+	  erlang:error({?MODULE,
+			{bad_var_value, <<"muc#roominfo_changesubject">>,
+			 <<"http://jabber.org/protocol/muc#roominfo">>}})
+    end;
+decode([#xdata_field{var =
+			 <<"muc#roominfo_changesubject">>,
+		     values = []} =
+	    F
+	| Fs],
+       Acc, Required) ->
+    decode([F#xdata_field{var =
+			      <<"muc#roominfo_changesubject">>,
+			  values = [<<>>]}
+	    | Fs],
+	   Acc, Required);
+decode([#xdata_field{var =
+			 <<"muc#roominfo_changesubject">>}
+	| _],
+       _, _) ->
+    erlang:error({?MODULE,
+		  {too_many_values, <<"muc#roominfo_changesubject">>,
+		   <<"http://jabber.org/protocol/muc#roominfo">>}});
 decode([#xdata_field{var = Var} | Fs], Acc, Required) ->
     if Var /= <<"FORM_TYPE">> ->
 	   erlang:error({?MODULE,
@@ -545,3 +580,16 @@ encode_pubsub(Value, Lang) ->
 		     xmpp_tr:tr(Lang,
 				<<"XMPP URI of Associated Publish-Subscribe "
 				  "Node">>)}.
+
+encode_changesubject(Value, Lang) ->
+    Values = case Value of
+	       undefined -> [];
+	       Value -> [enc_bool(Value)]
+	     end,
+    Opts = [],
+    #xdata_field{var = <<"muc#roominfo_changesubject">>,
+		 values = Values, required = false, type = boolean,
+		 options = Opts, desc = <<>>,
+		 label =
+		     xmpp_tr:tr(Lang,
+				<<"Occupants May Change the Subject">>)}.

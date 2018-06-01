@@ -13,7 +13,8 @@
                     {'occupants', non_neg_integer()} |
                     {'subject', binary()} |
                     {'subjectmod', boolean()} |
-                    {'pubsub', binary()}.
+                    {'pubsub', binary()} |
+                    {'changesubject', boolean()}.
 -type result() :: [property()].
 
 -type form() :: [property() | xdata_field()].
