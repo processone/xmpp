@@ -4016,6 +4016,15 @@
 			label = '$max_file_size',
 			min = 0, max = 1}]}).
 
+-xml(upload_retry,
+     #elem{name = <<"retry">>,
+	   xmlns = <<"urn:xmpp:http:upload:0">>,
+	   module = 'xep0363',
+	   result = {upload_retry, '$stamp'},
+	   attrs = [#attr{name = <<"stamp">>,
+			  dec = {dec_utc, []},
+			  enc = {enc_utc, []}}]}).
+
 -xml(push_enable,
      #elem{name = <<"enable">>,
 	   xmlns = <<"urn:xmpp:push:0">>,

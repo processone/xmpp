@@ -394,6 +394,9 @@
 -record(feature_csi, {xmlns = <<>> :: binary()}).
 -type feature_csi() :: #feature_csi{}.
 
+-record(upload_retry, {stamp :: undefined | erlang:timestamp()}).
+-type upload_retry() :: #upload_retry{}.
+
 -record(disco_item, {jid :: jid:jid(),
                      name = <<>> :: binary(),
                      node = <<>> :: binary()}).
@@ -1043,6 +1046,7 @@
                         muc_history() |
                         identity() |
                         feature_csi() |
+                        upload_retry() |
                         delay() |
                         thumbnail() |
                         vcard_tel() |

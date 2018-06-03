@@ -5,6 +5,10 @@
 
 -compile(export_all).
 
+do_decode(<<"retry">>, <<"urn:xmpp:http:upload:0">>, El,
+	  Opts) ->
+    decode_upload_retry(<<"urn:xmpp:http:upload:0">>, Opts,
+			El);
 do_decode(<<"file-too-large">>,
 	  <<"urn:xmpp:http:upload:0">>, El, Opts) ->
     decode_upload_file_too_large(<<"urn:xmpp:http:upload:0">>,
@@ -105,7 +109,8 @@ do_decode(Name, XMLNS, _, _) ->
     erlang:error({xmpp_codec, {unknown_tag, Name, XMLNS}}).
 
 tags() ->
-    [{<<"file-too-large">>, <<"urn:xmpp:http:upload:0">>},
+    [{<<"retry">>, <<"urn:xmpp:http:upload:0">>},
+     {<<"file-too-large">>, <<"urn:xmpp:http:upload:0">>},
      {<<"file-too-large">>, <<"urn:xmpp:http:upload">>},
      {<<"file-too-large">>,
       <<"eu:siacs:conversations:http:upload">>},
@@ -159,7 +164,9 @@ do_encode({upload_slot_0, _, _, <<>>} = Slot,
 do_encode({upload_file_too_large, _, _} =
 	      File_too_large,
 	  TopXMLNS) ->
-    encode_upload_file_too_large(File_too_large, TopXMLNS).
+    encode_upload_file_too_large(File_too_large, TopXMLNS);
+do_encode({upload_retry, _} = Retry, TopXMLNS) ->
+    encode_upload_retry(Retry, TopXMLNS).
 
 do_get_name({upload_file_too_large, _, _}) ->
     <<"file-too-large">>;
@@ -167,12 +174,15 @@ do_get_name({upload_request, _, _, _, _}) ->
     <<"request">>;
 do_get_name({upload_request_0, _, _, _, _}) ->
     <<"request">>;
+do_get_name({upload_retry, _}) -> <<"retry">>;
 do_get_name({upload_slot, _, _, _}) -> <<"slot">>;
 do_get_name({upload_slot_0, _, _, _}) -> <<"slot">>.
 
 do_get_ns({upload_file_too_large, _, Xmlns}) -> Xmlns;
 do_get_ns({upload_request, _, _, _, Xmlns}) -> Xmlns;
 do_get_ns({upload_request_0, _, _, _, Xmlns}) -> Xmlns;
+do_get_ns({upload_retry, _}) ->
+    <<"urn:xmpp:http:upload:0">>;
 do_get_ns({upload_slot, _, _, Xmlns}) -> Xmlns;
 do_get_ns({upload_slot_0, _, _, Xmlns}) -> Xmlns.
 
@@ -183,12 +193,13 @@ pp(upload_request_0, 4) ->
     [filename, size, 'content-type', xmlns];
 pp(upload_slot_0, 3) -> [get, put, xmlns];
 pp(upload_file_too_large, 2) -> [max_file_size, xmlns];
+pp(upload_retry, 1) -> [stamp];
 pp(_, _) -> no.
 
 records() ->
     [{upload_request, 4}, {upload_slot, 3},
      {upload_request_0, 4}, {upload_slot_0, 3},
-     {upload_file_too_large, 2}].
+     {upload_file_too_large, 2}, {upload_retry, 1}].
 
 dec_int(Val) -> dec_int(Val, infinity, infinity).
 
@@ -198,7 +209,52 @@ dec_int(Val, Min, Max) ->
       Int when Int =< Max, Int >= Min -> Int
     end.
 
+dec_utc(Val) -> xmpp_util:decode_timestamp(Val).
+
 enc_int(Int) -> erlang:integer_to_binary(Int).
+
+enc_utc(Val) -> xmpp_util:encode_timestamp(Val).
+
+decode_upload_retry(__TopXMLNS, __Opts,
+		    {xmlel, <<"retry">>, _attrs, _els}) ->
+    Stamp = decode_upload_retry_attrs(__TopXMLNS, _attrs,
+				      undefined),
+    {upload_retry, Stamp}.
+
+decode_upload_retry_attrs(__TopXMLNS,
+			  [{<<"stamp">>, _val} | _attrs], _Stamp) ->
+    decode_upload_retry_attrs(__TopXMLNS, _attrs, _val);
+decode_upload_retry_attrs(__TopXMLNS, [_ | _attrs],
+			  Stamp) ->
+    decode_upload_retry_attrs(__TopXMLNS, _attrs, Stamp);
+decode_upload_retry_attrs(__TopXMLNS, [], Stamp) ->
+    decode_upload_retry_attr_stamp(__TopXMLNS, Stamp).
+
+encode_upload_retry({upload_retry, Stamp},
+		    __TopXMLNS) ->
+    __NewTopXMLNS =
+	xmpp_codec:choose_top_xmlns(<<"urn:xmpp:http:upload:0">>,
+				    [], __TopXMLNS),
+    _els = [],
+    _attrs = encode_upload_retry_attr_stamp(Stamp,
+					    xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
+								       __TopXMLNS)),
+    {xmlel, <<"retry">>, _attrs, _els}.
+
+decode_upload_retry_attr_stamp(__TopXMLNS, undefined) ->
+    undefined;
+decode_upload_retry_attr_stamp(__TopXMLNS, _val) ->
+    case catch dec_utc(_val) of
+      {'EXIT', _} ->
+	  erlang:error({xmpp_codec,
+			{bad_attr_value, <<"stamp">>, <<"retry">>,
+			 __TopXMLNS}});
+      _res -> _res
+    end.
+
+encode_upload_retry_attr_stamp(undefined, _acc) -> _acc;
+encode_upload_retry_attr_stamp(_val, _acc) ->
+    [{<<"stamp">>, enc_utc(_val)} | _acc].
 
 decode_upload_file_too_large(__TopXMLNS, __Opts,
 			     {xmlel, <<"file-too-large">>, _attrs, _els}) ->
