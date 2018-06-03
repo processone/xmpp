@@ -5,6 +5,30 @@
 
 -compile(export_all).
 
+do_decode(<<"file-too-large">>,
+	  <<"urn:xmpp:http:upload:0">>, El, Opts) ->
+    decode_upload_file_too_large(<<"urn:xmpp:http:upload:0">>,
+				 Opts, El);
+do_decode(<<"file-too-large">>,
+	  <<"urn:xmpp:http:upload">>, El, Opts) ->
+    decode_upload_file_too_large(<<"urn:xmpp:http:upload">>,
+				 Opts, El);
+do_decode(<<"file-too-large">>,
+	  <<"eu:siacs:conversations:http:upload">>, El, Opts) ->
+    decode_upload_file_too_large(<<"eu:siacs:conversations:http:upload">>,
+				 Opts, El);
+do_decode(<<"max-file-size">>,
+	  <<"urn:xmpp:http:upload:0">>, El, Opts) ->
+    decode_upload_max_file_size(<<"urn:xmpp:http:upload:0">>,
+				Opts, El);
+do_decode(<<"max-file-size">>,
+	  <<"urn:xmpp:http:upload">>, El, Opts) ->
+    decode_upload_max_file_size(<<"urn:xmpp:http:upload">>,
+				Opts, El);
+do_decode(<<"max-file-size">>,
+	  <<"eu:siacs:conversations:http:upload">>, El, Opts) ->
+    decode_upload_max_file_size(<<"eu:siacs:conversations:http:upload">>,
+				Opts, El);
 do_decode(<<"slot">>, <<"urn:xmpp:http:upload:0">>, El,
 	  Opts) ->
     decode_upload_slot_0(<<"urn:xmpp:http:upload:0">>, Opts,
@@ -81,7 +105,15 @@ do_decode(Name, XMLNS, _, _) ->
     erlang:error({xmpp_codec, {unknown_tag, Name, XMLNS}}).
 
 tags() ->
-    [{<<"slot">>, <<"urn:xmpp:http:upload:0">>},
+    [{<<"file-too-large">>, <<"urn:xmpp:http:upload:0">>},
+     {<<"file-too-large">>, <<"urn:xmpp:http:upload">>},
+     {<<"file-too-large">>,
+      <<"eu:siacs:conversations:http:upload">>},
+     {<<"max-file-size">>, <<"urn:xmpp:http:upload:0">>},
+     {<<"max-file-size">>, <<"urn:xmpp:http:upload">>},
+     {<<"max-file-size">>,
+      <<"eu:siacs:conversations:http:upload">>},
+     {<<"slot">>, <<"urn:xmpp:http:upload:0">>},
      {<<"put">>, <<"urn:xmpp:http:upload:0">>},
      {<<"get">>, <<"urn:xmpp:http:upload:0">>},
      {<<"request">>, <<"urn:xmpp:http:upload:0">>},
@@ -123,8 +155,14 @@ do_encode({upload_slot_0, _, _,
     encode_upload_slot_0(Slot, TopXMLNS);
 do_encode({upload_slot_0, _, _, <<>>} = Slot,
 	  TopXMLNS = <<"urn:xmpp:http:upload:0">>) ->
-    encode_upload_slot_0(Slot, TopXMLNS).
+    encode_upload_slot_0(Slot, TopXMLNS);
+do_encode({upload_file_too_large, _, _} =
+	      File_too_large,
+	  TopXMLNS) ->
+    encode_upload_file_too_large(File_too_large, TopXMLNS).
 
+do_get_name({upload_file_too_large, _, _}) ->
+    <<"file-too-large">>;
 do_get_name({upload_request, _, _, _, _}) ->
     <<"request">>;
 do_get_name({upload_request_0, _, _, _, _}) ->
@@ -132,6 +170,7 @@ do_get_name({upload_request_0, _, _, _, _}) ->
 do_get_name({upload_slot, _, _, _}) -> <<"slot">>;
 do_get_name({upload_slot_0, _, _, _}) -> <<"slot">>.
 
+do_get_ns({upload_file_too_large, _, Xmlns}) -> Xmlns;
 do_get_ns({upload_request, _, _, _, Xmlns}) -> Xmlns;
 do_get_ns({upload_request_0, _, _, _, Xmlns}) -> Xmlns;
 do_get_ns({upload_slot, _, _, Xmlns}) -> Xmlns;
@@ -143,11 +182,15 @@ pp(upload_slot, 3) -> [get, put, xmlns];
 pp(upload_request_0, 4) ->
     [filename, size, 'content-type', xmlns];
 pp(upload_slot_0, 3) -> [get, put, xmlns];
+pp(upload_file_too_large, 2) -> [max_file_size, xmlns];
 pp(_, _) -> no.
 
 records() ->
     [{upload_request, 4}, {upload_slot, 3},
-     {upload_request_0, 4}, {upload_slot_0, 3}].
+     {upload_request_0, 4}, {upload_slot_0, 3},
+     {upload_file_too_large, 2}].
+
+dec_int(Val) -> dec_int(Val, infinity, infinity).
 
 dec_int(Val, Min, Max) ->
     case erlang:binary_to_integer(Val) of
@@ -156,6 +199,141 @@ dec_int(Val, Min, Max) ->
     end.
 
 enc_int(Int) -> erlang:integer_to_binary(Int).
+
+decode_upload_file_too_large(__TopXMLNS, __Opts,
+			     {xmlel, <<"file-too-large">>, _attrs, _els}) ->
+    Max_file_size =
+	decode_upload_file_too_large_els(__TopXMLNS, __Opts,
+					 _els, undefined),
+    Xmlns = decode_upload_file_too_large_attrs(__TopXMLNS,
+					       _attrs, undefined),
+    {upload_file_too_large, Max_file_size, Xmlns}.
+
+decode_upload_file_too_large_els(__TopXMLNS, __Opts, [],
+				 Max_file_size) ->
+    Max_file_size;
+decode_upload_file_too_large_els(__TopXMLNS, __Opts,
+				 [{xmlel, <<"max-file-size">>, _attrs, _} = _el
+				  | _els],
+				 Max_file_size) ->
+    case xmpp_codec:get_attr(<<"xmlns">>, _attrs,
+			     __TopXMLNS)
+	of
+      <<"urn:xmpp:http:upload:0">> ->
+	  decode_upload_file_too_large_els(__TopXMLNS, __Opts,
+					   _els,
+					   decode_upload_max_file_size(<<"urn:xmpp:http:upload:0">>,
+								       __Opts,
+								       _el));
+      <<"urn:xmpp:http:upload">> ->
+	  decode_upload_file_too_large_els(__TopXMLNS, __Opts,
+					   _els,
+					   decode_upload_max_file_size(<<"urn:xmpp:http:upload">>,
+								       __Opts,
+								       _el));
+      <<"eu:siacs:conversations:http:upload">> ->
+	  decode_upload_file_too_large_els(__TopXMLNS, __Opts,
+					   _els,
+					   decode_upload_max_file_size(<<"eu:siacs:conversations:http:upload">>,
+								       __Opts,
+								       _el));
+      _ ->
+	  decode_upload_file_too_large_els(__TopXMLNS, __Opts,
+					   _els, Max_file_size)
+    end;
+decode_upload_file_too_large_els(__TopXMLNS, __Opts,
+				 [_ | _els], Max_file_size) ->
+    decode_upload_file_too_large_els(__TopXMLNS, __Opts,
+				     _els, Max_file_size).
+
+decode_upload_file_too_large_attrs(__TopXMLNS,
+				   [{<<"xmlns">>, _val} | _attrs], _Xmlns) ->
+    decode_upload_file_too_large_attrs(__TopXMLNS, _attrs,
+				       _val);
+decode_upload_file_too_large_attrs(__TopXMLNS,
+				   [_ | _attrs], Xmlns) ->
+    decode_upload_file_too_large_attrs(__TopXMLNS, _attrs,
+				       Xmlns);
+decode_upload_file_too_large_attrs(__TopXMLNS, [],
+				   Xmlns) ->
+    decode_upload_file_too_large_attr_xmlns(__TopXMLNS,
+					    Xmlns).
+
+encode_upload_file_too_large({upload_file_too_large,
+			      Max_file_size, Xmlns},
+			     __TopXMLNS) ->
+    __NewTopXMLNS = xmpp_codec:choose_top_xmlns(Xmlns,
+						[<<"urn:xmpp:http:upload:0">>,
+						 <<"urn:xmpp:http:upload">>,
+						 <<"eu:siacs:conversations:http:upload">>],
+						__TopXMLNS),
+    _els =
+	lists:reverse('encode_upload_file_too_large_$max_file_size'(Max_file_size,
+								    __NewTopXMLNS,
+								    [])),
+    _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
+					__TopXMLNS),
+    {xmlel, <<"file-too-large">>, _attrs, _els}.
+
+'encode_upload_file_too_large_$max_file_size'(undefined,
+					      __TopXMLNS, _acc) ->
+    _acc;
+'encode_upload_file_too_large_$max_file_size'(Max_file_size,
+					      __TopXMLNS, _acc) ->
+    [encode_upload_max_file_size(Max_file_size, __TopXMLNS)
+     | _acc].
+
+decode_upload_file_too_large_attr_xmlns(__TopXMLNS,
+					undefined) ->
+    <<>>;
+decode_upload_file_too_large_attr_xmlns(__TopXMLNS,
+					_val) ->
+    _val.
+
+decode_upload_max_file_size(__TopXMLNS, __Opts,
+			    {xmlel, <<"max-file-size">>, _attrs, _els}) ->
+    Cdata = decode_upload_max_file_size_els(__TopXMLNS,
+					    __Opts, _els, <<>>),
+    Cdata.
+
+decode_upload_max_file_size_els(__TopXMLNS, __Opts, [],
+				Cdata) ->
+    decode_upload_max_file_size_cdata(__TopXMLNS, Cdata);
+decode_upload_max_file_size_els(__TopXMLNS, __Opts,
+				[{xmlcdata, _data} | _els], Cdata) ->
+    decode_upload_max_file_size_els(__TopXMLNS, __Opts,
+				    _els, <<Cdata/binary, _data/binary>>);
+decode_upload_max_file_size_els(__TopXMLNS, __Opts,
+				[_ | _els], Cdata) ->
+    decode_upload_max_file_size_els(__TopXMLNS, __Opts,
+				    _els, Cdata).
+
+encode_upload_max_file_size(Cdata, __TopXMLNS) ->
+    __NewTopXMLNS = xmpp_codec:choose_top_xmlns(<<>>,
+						[<<"urn:xmpp:http:upload:0">>,
+						 <<"urn:xmpp:http:upload">>,
+						 <<"eu:siacs:conversations:http:upload">>],
+						__TopXMLNS),
+    _els = encode_upload_max_file_size_cdata(Cdata, []),
+    _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
+					__TopXMLNS),
+    {xmlel, <<"max-file-size">>, _attrs, _els}.
+
+decode_upload_max_file_size_cdata(__TopXMLNS, <<>>) ->
+    erlang:error({xmpp_codec,
+		  {missing_cdata, <<>>, <<"max-file-size">>,
+		   __TopXMLNS}});
+decode_upload_max_file_size_cdata(__TopXMLNS, _val) ->
+    case catch dec_int(_val) of
+      {'EXIT', _} ->
+	  erlang:error({xmpp_codec,
+			{bad_cdata_value, <<>>, <<"max-file-size">>,
+			 __TopXMLNS}});
+      _res -> _res
+    end.
+
+encode_upload_max_file_size_cdata(_val, _acc) ->
+    [{xmlcdata, enc_int(_val)} | _acc].
 
 decode_upload_slot_0(__TopXMLNS, __Opts,
 		     {xmlel, <<"slot">>, _attrs, _els}) ->

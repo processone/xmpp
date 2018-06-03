@@ -370,6 +370,10 @@
 -record(muc_unique, {name = <<>> :: binary()}).
 -type muc_unique() :: #muc_unique{}.
 
+-record(upload_file_too_large, {max_file_size :: 'undefined' | integer(),
+                                xmlns = <<>> :: binary()}).
+-type upload_file_too_large() :: #upload_file_too_large{}.
+
 -record(sasl_response, {text = <<>> :: binary()}).
 -type sasl_response() :: #sasl_response{}.
 
@@ -1149,6 +1153,7 @@
                         privilege() |
                         push_enable() |
                         muc_unique() |
+                        upload_file_too_large() |
                         sasl_response() |
                         message() |
                         presence() |

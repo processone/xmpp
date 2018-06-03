@@ -3993,6 +3993,29 @@
 		   #ref{name = upload_put_0, label = '$put',
 			min = 1, max = 1}]}).
 
+-xml(upload_max_file_size,
+     #elem{name = <<"max-file-size">>,
+	   xmlns = [<<"urn:xmpp:http:upload:0">>,
+		    <<"urn:xmpp:http:upload">>,
+		    <<"eu:siacs:conversations:http:upload">>],
+	   module = 'xep0363',
+	   result = '$cdata',
+	   cdata = #cdata{required = true,
+			  enc = {enc_int, []},
+			  dec = {dec_int, []}}}).
+
+-xml(upload_file_too_large,
+     #elem{name = <<"file-too-large">>,
+	   xmlns = [<<"urn:xmpp:http:upload:0">>,
+		    <<"urn:xmpp:http:upload">>,
+		    <<"eu:siacs:conversations:http:upload">>],
+	   module = 'xep0363',
+	   result = {upload_file_too_large, '$max_file_size', '$xmlns'},
+	   attrs = [#attr{name = <<"xmlns">>}],
+	   refs = [#ref{name = upload_max_file_size,
+			label = '$max_file_size',
+			min = 0, max = 1}]}).
+
 -xml(push_enable,
      #elem{name = <<"enable">>,
 	   xmlns = <<"urn:xmpp:push:0">>,
