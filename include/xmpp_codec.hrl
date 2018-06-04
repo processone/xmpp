@@ -391,7 +391,7 @@
                     text = <<>> :: binary()}).
 -type sasl_auth() :: #sasl_auth{}.
 
--record(feature_csi, {xmlns = <<>> :: binary()}).
+-record(feature_csi, {}).
 -type feature_csi() :: #feature_csi{}.
 
 -record(upload_retry, {stamp :: undefined | erlang:timestamp()}).

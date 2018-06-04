@@ -3194,8 +3194,7 @@
      #elem{name = <<"csi">>,
 	   xmlns = <<"urn:xmpp:csi:0">>,
 	   module = 'xep0352',
-	   result = {feature_csi, '$xmlns'},
-	   attrs = [#attr{name = <<"xmlns">>}]}).
+	   result = {feature_csi}}).
 
 -record(csi, {type :: active | inactive}).
 -type csi() :: #csi{}.
