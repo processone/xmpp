@@ -370,7 +370,7 @@
 -record(muc_unique, {name = <<>> :: binary()}).
 -type muc_unique() :: #muc_unique{}.
 
--record(upload_file_too_large, {max_file_size :: 'undefined' | integer(),
+-record(upload_file_too_large, {'max-file-size' :: 'undefined' | integer(),
                                 xmlns = <<>> :: binary()}).
 -type upload_file_too_large() :: #upload_file_too_large{}.
 

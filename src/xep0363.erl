@@ -192,7 +192,8 @@ pp(upload_slot, 3) -> [get, put, xmlns];
 pp(upload_request_0, 4) ->
     [filename, size, 'content-type', xmlns];
 pp(upload_slot_0, 3) -> [get, put, xmlns];
-pp(upload_file_too_large, 2) -> [max_file_size, xmlns];
+pp(upload_file_too_large, 2) ->
+    ['max-file-size', xmlns];
 pp(upload_retry, 1) -> [stamp];
 pp(_, _) -> no.
 
@@ -324,17 +325,17 @@ encode_upload_file_too_large({upload_file_too_large,
 						 <<"eu:siacs:conversations:http:upload">>],
 						__TopXMLNS),
     _els =
-	lists:reverse('encode_upload_file_too_large_$max_file_size'(Max_file_size,
+	lists:reverse('encode_upload_file_too_large_$max-file-size'(Max_file_size,
 								    __NewTopXMLNS,
 								    [])),
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
 					__TopXMLNS),
     {xmlel, <<"file-too-large">>, _attrs, _els}.
 
-'encode_upload_file_too_large_$max_file_size'(undefined,
+'encode_upload_file_too_large_$max-file-size'(undefined,
 					      __TopXMLNS, _acc) ->
     _acc;
-'encode_upload_file_too_large_$max_file_size'(Max_file_size,
+'encode_upload_file_too_large_$max-file-size'(Max_file_size,
 					      __TopXMLNS, _acc) ->
     [encode_upload_max_file_size(Max_file_size, __TopXMLNS)
      | _acc].

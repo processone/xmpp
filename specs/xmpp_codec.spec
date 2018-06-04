@@ -4010,10 +4010,10 @@
 		    <<"urn:xmpp:http:upload">>,
 		    <<"eu:siacs:conversations:http:upload">>],
 	   module = 'xep0363',
-	   result = {upload_file_too_large, '$max_file_size', '$xmlns'},
+	   result = {upload_file_too_large, '$max-file-size', '$xmlns'},
 	   attrs = [#attr{name = <<"xmlns">>}],
 	   refs = [#ref{name = upload_max_file_size,
-			label = '$max_file_size',
+			label = '$max-file-size',
 			min = 0, max = 1}]}).
 
 -xml(upload_retry,
