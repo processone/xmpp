@@ -252,7 +252,9 @@ decode([#xdata_field{var = <<"muc#roomconfig_allowpm">>,
 		     values = [Value]}
 	| Fs],
        Acc, Required) ->
-    try Value of
+    try dec_enum(Value,
+		 [anyone, participants, moderators, none])
+    of
       Result ->
 	  decode(Fs, [{allowpm, Result} | Acc], Required)
     catch
@@ -1231,12 +1233,23 @@ encode_maxhistoryfetch(Value, Lang) ->
 
 encode_allowpm(Value, Options, Lang) ->
     Values = case Value of
-	       <<>> -> [];
-	       Value -> [Value]
+	       undefined -> [];
+	       Value -> [enc_enum(Value)]
 	     end,
-    Opts = if Options == default -> [];
+    Opts = if Options == default ->
+		  [#xdata_option{label = xmpp_tr:tr(Lang, <<"Anyone">>),
+				 value = <<"anyone">>},
+		   #xdata_option{label =
+				     xmpp_tr:tr(Lang, <<"Anyone with Voice">>),
+				 value = <<"participants">>},
+		   #xdata_option{label =
+				     xmpp_tr:tr(Lang, <<"Moderators Only">>),
+				 value = <<"moderators">>},
+		   #xdata_option{label = xmpp_tr:tr(Lang, <<"Nobody">>),
+				 value = <<"none">>}];
 	      true ->
-		  [#xdata_option{label = xmpp_tr:tr(Lang, L), value = V}
+		  [#xdata_option{label = xmpp_tr:tr(Lang, L),
+				 value = enc_enum(V)}
 		   || {L, V} <- Options]
 	   end,
     #xdata_field{var = <<"muc#roomconfig_allowpm">>,

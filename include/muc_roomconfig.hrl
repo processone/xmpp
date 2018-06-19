@@ -3,13 +3,14 @@
 %% Form type: http://jabber.org/protocol/muc#roomconfig
 %% Document: XEP-0045
 
+-type 'allowpm'() :: anyone | participants | moderators | none.
 -type 'allow_private_messages_from_visitors'() :: nobody | moderators | anyone.
 -type 'maxusers'() :: none | non_neg_integer().
 -type 'presencebroadcast'() :: moderator | participant | visitor.
 -type 'whois'() :: moderators | anyone.
 
 -type property() :: {'maxhistoryfetch', binary()} |
-                    {'allowpm', binary()} |
+                    {'allowpm', 'allowpm'()} |
                     {'allow_private_messages', boolean()} |
                     {'allow_private_messages_from_visitors', 'allow_private_messages_from_visitors'()} |
                     {'allow_visitor_status', boolean()} |
@@ -46,7 +47,7 @@
 
 -type options(T) :: [{binary(), T}].
 -type property_with_options() ::
-      {'allowpm', binary(), options(binary())} |
+      {'allowpm', 'allowpm'(), options('allowpm'())} |
       {'allow_private_messages_from_visitors', 'allow_private_messages_from_visitors'(), options('allow_private_messages_from_visitors'())} |
       {'getmemberlist', [binary()], options(binary())} |
       {'maxusers', 'maxusers'(), options('maxusers'())} |

@@ -14,6 +14,23 @@
       type='boolean'
       label='Occupants are allowed to invite others'/>
   <field
+      var='muc#roomconfig_allowpm'
+      type='list-single'
+      label='Roles that May Send Private Messages'>
+    <option label='Anyone'>
+      <value>anyone</value>
+    </option>
+    <option label='Anyone with Voice'>
+      <value>participants</value>
+    </option>
+    <option label='Moderators Only'>
+      <value>moderators</value>
+    </option>
+    <option label='Nobody'>
+      <value>none</value>
+    </option>
+  </field>
+  <field
       var='muc#roominfo_contactjid'
       type='jid-multi'
       label='Contact Addresses (normally, room owner or owners)'/>

@@ -22,6 +22,14 @@ dec_int(Val, Min, Max) ->
 
 enc_int(Int) -> integer_to_binary(Int).
 
+dec_enum(Val, Enums) ->
+    AtomVal = erlang:binary_to_existing_atom(Val, utf8),
+    case lists:member(AtomVal, Enums) of
+      true -> AtomVal
+    end.
+
+enc_enum(Atom) -> erlang:atom_to_binary(Atom, utf8).
+
 dec_bool(<<"1">>) -> true;
 dec_bool(<<"0">>) -> false;
 dec_bool(<<"true">>) -> true;
@@ -93,6 +101,9 @@ encode(List, Lang) when is_list(List) ->
 	    {maxhistoryfetch, _, _} -> erlang:error({badarg, Opt});
 	    {allowinvites, Val} -> [encode_allowinvites(Val, Lang)];
 	    {allowinvites, _, _} -> erlang:error({badarg, Opt});
+	    {allowpm, Val} -> [encode_allowpm(Val, default, Lang)];
+	    {allowpm, Val, Opts} ->
+		[encode_allowpm(Val, Opts, Lang)];
 	    {contactjid, Val} -> [encode_contactjid(Val, Lang)];
 	    {contactjid, _, _} -> erlang:error({badarg, Opt});
 	    {description, Val} -> [encode_description(Val, Lang)];
@@ -185,6 +196,37 @@ decode([#xdata_field{var =
        _, _) ->
     erlang:error({?MODULE,
 		  {too_many_values, <<"muc#roomconfig_allowinvites">>,
+		   <<"http://jabber.org/protocol/muc#roominfo">>}});
+decode([#xdata_field{var = <<"muc#roomconfig_allowpm">>,
+		     values = [Value]}
+	| Fs],
+       Acc, Required) ->
+    try dec_enum(Value,
+		 [anyone, participants, moderators, none])
+    of
+      Result ->
+	  decode(Fs, [{allowpm, Result} | Acc], Required)
+    catch
+      _:_ ->
+	  erlang:error({?MODULE,
+			{bad_var_value, <<"muc#roomconfig_allowpm">>,
+			 <<"http://jabber.org/protocol/muc#roominfo">>}})
+    end;
+decode([#xdata_field{var = <<"muc#roomconfig_allowpm">>,
+		     values = []} =
+	    F
+	| Fs],
+       Acc, Required) ->
+    decode([F#xdata_field{var =
+			      <<"muc#roomconfig_allowpm">>,
+			  values = [<<>>]}
+	    | Fs],
+	   Acc, Required);
+decode([#xdata_field{var = <<"muc#roomconfig_allowpm">>}
+	| _],
+       _, _) ->
+    erlang:error({?MODULE,
+		  {too_many_values, <<"muc#roomconfig_allowpm">>,
 		   <<"http://jabber.org/protocol/muc#roominfo">>}});
 decode([#xdata_field{var =
 			 <<"muc#roominfo_contactjid">>,
@@ -542,6 +584,34 @@ encode_allowinvites(Value, Lang) ->
 		 label =
 		     xmpp_tr:tr(Lang,
 				<<"Occupants are allowed to invite others">>)}.
+
+encode_allowpm(Value, Options, Lang) ->
+    Values = case Value of
+	       undefined -> [];
+	       Value -> [enc_enum(Value)]
+	     end,
+    Opts = if Options == default ->
+		  [#xdata_option{label = xmpp_tr:tr(Lang, <<"Anyone">>),
+				 value = <<"anyone">>},
+		   #xdata_option{label =
+				     xmpp_tr:tr(Lang, <<"Anyone with Voice">>),
+				 value = <<"participants">>},
+		   #xdata_option{label =
+				     xmpp_tr:tr(Lang, <<"Moderators Only">>),
+				 value = <<"moderators">>},
+		   #xdata_option{label = xmpp_tr:tr(Lang, <<"Nobody">>),
+				 value = <<"none">>}];
+	      true ->
+		  [#xdata_option{label = xmpp_tr:tr(Lang, L),
+				 value = enc_enum(V)}
+		   || {L, V} <- Options]
+	   end,
+    #xdata_field{var = <<"muc#roomconfig_allowpm">>,
+		 values = Values, required = false, type = 'list-single',
+		 options = Opts, desc = <<>>,
+		 label =
+		     xmpp_tr:tr(Lang,
+				<<"Roles that May Send Private Messages">>)}.
 
 encode_contactjid(Value, Lang) ->
     Values = case Value of

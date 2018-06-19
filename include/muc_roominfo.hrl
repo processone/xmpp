@@ -3,9 +3,11 @@
 %% Form type: http://jabber.org/protocol/muc#roominfo
 %% Document: XEP-0045
 
+-type 'allowpm'() :: anyone | participants | moderators | none.
 
 -type property() :: {'maxhistoryfetch', non_neg_integer()} |
                     {'allowinvites', boolean()} |
+                    {'allowpm', 'allowpm'()} |
                     {'contactjid', [jid:jid()]} |
                     {'description', binary()} |
                     {'lang', binary()} |
@@ -19,4 +21,7 @@
                     {'changesubject', boolean()}.
 -type result() :: [property()].
 
--type form() :: [property() | xdata_field()].
+-type options(T) :: [{binary(), T}].
+-type property_with_options() ::
+      {'allowpm', 'allowpm'(), options('allowpm'())}.
+-type form() :: [property() | property_with_options() | xdata_field()].
