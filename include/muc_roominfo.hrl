@@ -11,7 +11,7 @@
                     {'lang', binary()} |
                     {'ldapgroup', binary()} |
                     {'logs', binary()} |
-                    {'name', binary()} |
+                    {'roomname', binary()} |
                     {'occupants', non_neg_integer()} |
                     {'subject', binary()} |
                     {'subjectmod', boolean()} |

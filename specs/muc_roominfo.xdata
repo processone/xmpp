@@ -10,7 +10,7 @@
       type='text-single'
       label='Maximum Number of History Messages Returned by Room'/>
   <field
-      var='muc#roominfo_allowinvites'
+      var='muc#roomconfig_allowinvites'
       type='boolean'
       label='Occupants are allowed to invite others'/>
   <field
@@ -39,7 +39,7 @@
       type='text-single'
       label='URL for Archived Discussion Logs'/>
   <field
-      var='muc#roominfo_name'
+      var='muc#roomconfig_roomname'
       type='text-single'
       label='Natural-Language Room Name'/>
   <field
