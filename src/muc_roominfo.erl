@@ -91,6 +91,8 @@ encode(List, Lang) when is_list(List) ->
 	    {maxhistoryfetch, Val} ->
 		[encode_maxhistoryfetch(Val, Lang)];
 	    {maxhistoryfetch, _, _} -> erlang:error({badarg, Opt});
+	    {allowinvites, Val} -> [encode_allowinvites(Val, Lang)];
+	    {allowinvites, _, _} -> erlang:error({badarg, Opt});
 	    {contactjid, Val} -> [encode_contactjid(Val, Lang)];
 	    {contactjid, _, _} -> erlang:error({badarg, Opt});
 	    {description, Val} -> [encode_description(Val, Lang)];
@@ -101,6 +103,8 @@ encode(List, Lang) when is_list(List) ->
 	    {ldapgroup, _, _} -> erlang:error({badarg, Opt});
 	    {logs, Val} -> [encode_logs(Val, Lang)];
 	    {logs, _, _} -> erlang:error({badarg, Opt});
+	    {name, Val} -> [encode_name(Val, Lang)];
+	    {name, _, _} -> erlang:error({badarg, Opt});
 	    {occupants, Val} -> [encode_occupants(Val, Lang)];
 	    {occupants, _, _} -> erlang:error({badarg, Opt});
 	    {subject, Val} -> [encode_subject(Val, Lang)];
@@ -149,6 +153,38 @@ decode([#xdata_field{var = <<"muc#maxhistoryfetch">>}
        _, _) ->
     erlang:error({?MODULE,
 		  {too_many_values, <<"muc#maxhistoryfetch">>,
+		   <<"http://jabber.org/protocol/muc#roominfo">>}});
+decode([#xdata_field{var =
+			 <<"muc#roominfo_allowinvites">>,
+		     values = [Value]}
+	| Fs],
+       Acc, Required) ->
+    try dec_bool(Value) of
+      Result ->
+	  decode(Fs, [{allowinvites, Result} | Acc], Required)
+    catch
+      _:_ ->
+	  erlang:error({?MODULE,
+			{bad_var_value, <<"muc#roominfo_allowinvites">>,
+			 <<"http://jabber.org/protocol/muc#roominfo">>}})
+    end;
+decode([#xdata_field{var =
+			 <<"muc#roominfo_allowinvites">>,
+		     values = []} =
+	    F
+	| Fs],
+       Acc, Required) ->
+    decode([F#xdata_field{var =
+			      <<"muc#roominfo_allowinvites">>,
+			  values = [<<>>]}
+	    | Fs],
+	   Acc, Required);
+decode([#xdata_field{var =
+			 <<"muc#roominfo_allowinvites">>}
+	| _],
+       _, _) ->
+    erlang:error({?MODULE,
+		  {too_many_values, <<"muc#roominfo_allowinvites">>,
 		   <<"http://jabber.org/protocol/muc#roominfo">>}});
 decode([#xdata_field{var =
 			 <<"muc#roominfo_contactjid">>,
@@ -290,6 +326,33 @@ decode([#xdata_field{var = <<"muc#roominfo_logs">>}
        _, _) ->
     erlang:error({?MODULE,
 		  {too_many_values, <<"muc#roominfo_logs">>,
+		   <<"http://jabber.org/protocol/muc#roominfo">>}});
+decode([#xdata_field{var = <<"muc#roominfo_name">>,
+		     values = [Value]}
+	| Fs],
+       Acc, Required) ->
+    try Value of
+      Result -> decode(Fs, [{name, Result} | Acc], Required)
+    catch
+      _:_ ->
+	  erlang:error({?MODULE,
+			{bad_var_value, <<"muc#roominfo_name">>,
+			 <<"http://jabber.org/protocol/muc#roominfo">>}})
+    end;
+decode([#xdata_field{var = <<"muc#roominfo_name">>,
+		     values = []} =
+	    F
+	| Fs],
+       Acc, Required) ->
+    decode([F#xdata_field{var = <<"muc#roominfo_name">>,
+			  values = [<<>>]}
+	    | Fs],
+	   Acc, Required);
+decode([#xdata_field{var = <<"muc#roominfo_name">>}
+	| _],
+       _, _) ->
+    erlang:error({?MODULE,
+		  {too_many_values, <<"muc#roominfo_name">>,
 		   <<"http://jabber.org/protocol/muc#roominfo">>}});
 decode([#xdata_field{var = <<"muc#roominfo_occupants">>,
 		     values = [Value]}
@@ -462,6 +525,19 @@ encode_maxhistoryfetch(Value, Lang) ->
 				<<"Maximum Number of History Messages Returned "
 				  "by Room">>)}.
 
+encode_allowinvites(Value, Lang) ->
+    Values = case Value of
+	       undefined -> [];
+	       Value -> [enc_bool(Value)]
+	     end,
+    Opts = [],
+    #xdata_field{var = <<"muc#roominfo_allowinvites">>,
+		 values = Values, required = false, type = boolean,
+		 options = Opts, desc = <<>>,
+		 label =
+		     xmpp_tr:tr(Lang,
+				<<"Occupants are allowed to invite others">>)}.
+
 encode_contactjid(Value, Lang) ->
     Values = case Value of
 	       [] -> [];
@@ -529,6 +605,18 @@ encode_logs(Value, Lang) ->
 		 label =
 		     xmpp_tr:tr(Lang,
 				<<"URL for Archived Discussion Logs">>)}.
+
+encode_name(Value, Lang) ->
+    Values = case Value of
+	       <<>> -> [];
+	       Value -> [Value]
+	     end,
+    Opts = [],
+    #xdata_field{var = <<"muc#roominfo_name">>,
+		 values = Values, required = false, type = 'text-single',
+		 options = Opts, desc = <<>>,
+		 label =
+		     xmpp_tr:tr(Lang, <<"Natural-Language Room Name">>)}.
 
 encode_occupants(Value, Lang) ->
     Values = case Value of

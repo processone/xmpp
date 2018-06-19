@@ -5,11 +5,13 @@
 
 
 -type property() :: {'maxhistoryfetch', non_neg_integer()} |
+                    {'allowinvites', boolean()} |
                     {'contactjid', [jid:jid()]} |
                     {'description', binary()} |
                     {'lang', binary()} |
                     {'ldapgroup', binary()} |
                     {'logs', binary()} |
+                    {'name', binary()} |
                     {'occupants', non_neg_integer()} |
                     {'subject', binary()} |
                     {'subjectmod', boolean()} |

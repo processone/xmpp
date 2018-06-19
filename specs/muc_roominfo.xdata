@@ -10,6 +10,10 @@
       type='text-single'
       label='Maximum Number of History Messages Returned by Room'/>
   <field
+      var='muc#roominfo_allowinvites'
+      type='boolean'
+      label='Occupants are allowed to invite others'/>
+  <field
       var='muc#roominfo_contactjid'
       type='jid-multi'
       label='Contact Addresses (normally, room owner or owners)'/>
@@ -34,6 +38,10 @@
       var='muc#roominfo_logs'
       type='text-single'
       label='URL for Archived Discussion Logs'/>
+  <field
+      var='muc#roominfo_name'
+      type='text-single'
+      label='Natural-Language Room Name'/>
   <field
       var='muc#roominfo_occupants'
       type='text-single'
