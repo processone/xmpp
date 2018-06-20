@@ -1279,12 +1279,12 @@ encode_allow_private_messages_from_visitors(Value,
 	       Value -> [enc_enum(Value)]
 	     end,
     Opts = if Options == default ->
-		  [#xdata_option{label = xmpp_tr:tr(Lang, <<"nobody">>),
+		  [#xdata_option{label = xmpp_tr:tr(Lang, <<"Nobody">>),
 				 value = <<"nobody">>},
 		   #xdata_option{label =
-				     xmpp_tr:tr(Lang, <<"moderators only">>),
+				     xmpp_tr:tr(Lang, <<"Moderators only">>),
 				 value = <<"moderators">>},
-		   #xdata_option{label = xmpp_tr:tr(Lang, <<"anyone">>),
+		   #xdata_option{label = xmpp_tr:tr(Lang, <<"Anyone">>),
 				 value = <<"anyone">>}];
 	      true ->
 		  [#xdata_option{label = xmpp_tr:tr(Lang, L),

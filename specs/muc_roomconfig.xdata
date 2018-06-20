@@ -34,13 +34,13 @@
       var='allow_private_messages_from_visitors'
       type='list-single'
       label='Allow visitors to send private messages to'>
-    <option label='nobody'>
+    <option label='Nobody'>
       <value>nobody</value>
     </option>
-    <option label='moderators only'>
+    <option label='Moderators only'>
       <value>moderators</value>
     </option>
-    <option label='anyone'>
+    <option label='Anyone'>
       <value>anyone</value>
     </option>
   </field>
