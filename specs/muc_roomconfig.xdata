@@ -37,7 +37,7 @@
     <option label='Nobody'>
       <value>nobody</value>
     </option>
-    <option label='Moderators only'>
+    <option label='Moderators Only'>
       <value>moderators</value>
     </option>
     <option label='Anyone'>
@@ -185,10 +185,10 @@
       var='muc#roomconfig_whois'
       type='list-single'
       label='Present real Jabber IDs to'>
-    <option label='moderators only'>
+    <option label='Moderators Only'>
       <value>moderators</value>
     </option>
-    <option label='anyone'>
+    <option label='Anyone'>
       <value>anyone</value>
     </option>
   </field>

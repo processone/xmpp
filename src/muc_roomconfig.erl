@@ -1282,7 +1282,7 @@ encode_allow_private_messages_from_visitors(Value,
 		  [#xdata_option{label = xmpp_tr:tr(Lang, <<"Nobody">>),
 				 value = <<"nobody">>},
 		   #xdata_option{label =
-				     xmpp_tr:tr(Lang, <<"Moderators only">>),
+				     xmpp_tr:tr(Lang, <<"Moderators Only">>),
 				 value = <<"moderators">>},
 		   #xdata_option{label = xmpp_tr:tr(Lang, <<"Anyone">>),
 				 value = <<"anyone">>}];
@@ -1686,9 +1686,9 @@ encode_whois(Value, Options, Lang) ->
 	     end,
     Opts = if Options == default ->
 		  [#xdata_option{label =
-				     xmpp_tr:tr(Lang, <<"moderators only">>),
+				     xmpp_tr:tr(Lang, <<"Moderators Only">>),
 				 value = <<"moderators">>},
-		   #xdata_option{label = xmpp_tr:tr(Lang, <<"anyone">>),
+		   #xdata_option{label = xmpp_tr:tr(Lang, <<"Anyone">>),
 				 value = <<"anyone">>}];
 	      true ->
 		  [#xdata_option{label = xmpp_tr:tr(Lang, L),
