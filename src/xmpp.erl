@@ -41,7 +41,9 @@
 	 decode_els/1, decode_els/3, pp/1, get_name/1, get_text/1,
 	 get_text/2, mk_text/1, mk_text/2, is_known_tag/1, is_known_tag/2,
 	 append_subtags/2, prep_lang/1, register_codec/1, unregister_codec/1,
-	 set_tr_callback/1]).
+	 set_tr_callback/1, format_stanza_error/1, format_stanza_error/2,
+	 format_stream_error/1, format_stream_error/2, format_sasl_error/1,
+	 format_sasl_error/2]).
 
 %% XMPP errors
 -export([err_bad_request/0, err_bad_request/2,
@@ -377,6 +379,30 @@ format_error(Reason) ->
 -spec io_format_error(_) -> {binary(), [binary()]}.
 io_format_error(Reason) ->
     xmpp_codec:io_format_error(Reason).
+
+-spec format_stanza_error(stanza_error()) -> binary().
+format_stanza_error(Err) ->
+    format_stanza_error(Err, <<"en">>).
+
+-spec format_stanza_error(stanza_error(), binary()) -> binary().
+format_stanza_error(#stanza_error{reason = Reason, text = Text}, Lang) ->
+    format_s_error(Reason, Text, Lang).
+
+-spec format_stream_error(stream_error()) -> binary().
+format_stream_error(Err) ->
+    format_stream_error(Err, <<"en">>).
+
+-spec format_stream_error(stream_error(), binary()) -> binary().
+format_stream_error(#stream_error{reason = Reason, text = Text}, Lang) ->
+    format_s_error(Reason, Text, Lang).
+
+-spec format_sasl_error(sasl_failure()) -> binary().
+format_sasl_error(Err) ->
+    format_sasl_error(Err, <<"en">>).
+
+-spec format_sasl_error(sasl_failure(), binary()) -> binary().
+format_sasl_error(#sasl_failure{reason = Reason, text = Text}, Lang) ->
+    format_s_error(Reason, Text, Lang).
 
 -spec is_stanza(any()) -> boolean().
 is_stanza(#message{}) -> true;
@@ -1033,6 +1059,23 @@ get_tr_forms(Callback) ->
 	      {ok, Form} = erl_parse:parse_form(Tokens),
 	      Form
       end, [Module, Export, Tr]).
+
+-spec format_s_error(atom() | gone() | redirect() | 'see-other-host'(),
+		     [text()], binary()) -> binary().
+format_s_error(Reason, Text, Lang) ->
+    Slogan = if Reason == undefined ->
+		     <<"no reason">>;
+		is_atom(Reason) ->
+		     atom_to_binary(Reason, latin1);
+		is_tuple(Reason) ->
+		     atom_to_binary(element(1, Reason), latin1)
+	     end,
+    case xmpp:get_text(Text, Lang) of
+	<<"">> ->
+	    Slogan;
+	Data ->
+	    <<Data/binary, " (", Slogan/binary, ")">>
+    end.
 
 pp(jid, 6) ->
     record_info(fields, jid);

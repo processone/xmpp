@@ -52,6 +52,12 @@ The following functions are exported from `xmpp` module:
 - [get_error/1](#get_error1)
 - [format_error/1](#format_error1)
 - [io_format_error/1](#io_format_error1)
+- [format_stanza_error/1](#format_stanza_error1)
+- [format_stanza_error/2](#format_stanza_error2)
+- [format_stream_error/1](#format_stream_error1)
+- [format_stream_error/2](#format_stream_error2)
+- [format_sasl_error/1](#format_sasl_error1)
+- [format_sasl_error/2](#format_sasl_error2)
 - [pp/1](#pp1)
 - [set_tr_callback/1](#set_tr_callback1)
 - [get_text/1](#get_text1)
@@ -1244,6 +1250,80 @@ suitable for using in formatting functions from
  [<<"id">>,<<"iq">>,<<"jabber:client">>]}
 > io:format(Format, Args).
 Missing attribute 'id' in tag <iq/> qualified by namespace 'jabber:client'
+```
+
+## format_stanza_error/1
+```erlang
+-spec format_stanza_error(Err :: stanza_error()) -> binary().
+```
+Same as `format_stanza_error(Err, <<"en">>)`.
+
+
+## format_stanza_error/2
+```erlang
+-spec format_stanza_error(Err :: stanza_error(), Lang :: binary()) -> binary().
+```
+
+Creates diagnostic text from `stanza_error()` element.
+
+**Example**:
+```erlang
+> Err.
+#stanza_error{type = cancel,code = 501,by = <<>>,
+              reason = 'feature-not-implemented',
+              text = [#text{lang = <<"en">>,
+                            data = <<"Unsupported query">>}],
+              sub_els = []}
+> xmpp:format_stanza_error(Err, <<"en">>).
+<<"Unsupported query (feature-not-implemented)">>
+```
+
+## format_stream_error/1
+```erlang
+-spec format_stream_error(Err :: stream_error()) -> binary().
+```
+Same as `format_stream_error(Err, <<"en">>)`.
+
+
+## format_stream_error/2
+```erlang
+-spec format_stream_error(Err :: stream_error(), Lang :: binary()) -> binary().
+```
+
+Creates diagnostic text from `stream_error()` element.
+
+**Example**:
+```erlang
+> Err.
+#stream_error{reason = 'policy-violation',
+              text = [#text{lang = <<"en">>,
+                            data = <<"Too many connections">>}]}
+> xmpp:format_stream_error(Err, <<"en">>).
+<<"Too many connections (policy-violation)">>
+```
+
+## format_sasl_error/1
+```erlang
+-spec format_sasl_error(Err :: sasl_failure()) -> binary().
+```
+Same as `format_sasl_error(Err, <<"en">>)`.
+
+
+## format_sasl_error/2
+```erlang
+-spec format_sasl_error(Err :: sasl_failure(), Lang :: binary()) -> binary().
+```
+
+Creates diagnostic text from `sasl_failure()` element.
+
+**Example**:
+```erlang
+> Err.
+#sasl_failure{reason = 'not-authorized',
+              text = [#text{lang = <<"en">>,
+                            data = <<"Invalid username">>}]}
+> xmpp:format_sasl_error(Err, <<"en">>).
+<<"Invalid username (not-authorized)">>
 ```
 
 ## pp/1
