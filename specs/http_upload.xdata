@@ -1,0 +1,17 @@
+<form_type>
+  <name>urn:xmpp:http:upload:0</name>
+  <doc>XEP-0363</doc>
+  <desc>
+    Information about HTTP File Upload service
+  </desc>
+  <field
+      var='max-file-size'
+      type='text-single'
+      label='Maximum file size'/>
+</form_type>
+
+<!--
+Local Variables:
+mode: xml
+End:
+-->
