@@ -4270,8 +4270,10 @@ enc_ip(Addr) ->
 -spec base64:decode(_) -> binary().
 -spec base64:mime_decode(_) -> binary().
 
+-type xmpp_host() :: binary() | inet:ip_address() |
+		     {binary() | inet:ip_address(), inet:port_number()}.
 -spec dec_host_port(_) -> binary() | inet:ip_address() |
-			  {binary() | inet:ip_address(), non_neg_integer()}.
+			  {binary() | inet:ip_address(), inet:port_number()}.
 dec_host_port(<<$[, T/binary>>) ->
     [IP, <<$:, Port/binary>>] = binary:split(T, <<$]>>),
     {dec_ip(IP), dec_int(Port, 0, 65535)};
@@ -4285,14 +4287,16 @@ dec_host_port(S) ->
 
 enc_host_port(Host) when is_binary(Host) ->
     Host;
-enc_host_port({{_,_,_,_,_,_,_,_} = IPv6, Port}) ->
-    enc_host_port({<<$[, (enc_ip(IPv6))/binary, $]>>, Port});
-enc_host_port({{_,_,_,_} = IPv4, Port}) ->
-    enc_host_port({enc_ip(IPv4), Port});
+enc_host_port({Addr, Port}) when is_tuple(Addr) ->
+    enc_host_port({enc_host_port(Addr), Port});
 enc_host_port({Host, Port}) ->
     <<Host/binary, $:, (integer_to_binary(Port))/binary>>;
-enc_host_port(Addr) ->
-    enc_ip(Addr).
+enc_host_port({_,_,_,_} = IPv4) ->
+    enc_ip(IPv4);
+enc_host_port({0,0,0,0,0,16#ffff,_,_} = IP) ->
+    enc_ip(IP);
+enc_host_port({_,_,_,_,_,_,_,_} = IPv6) ->
+    <<$[, (enc_ip(IPv6))/binary, $]>>.
 
 -spec dec_version(_) -> {non_neg_integer(), non_neg_integer()}.
 dec_version(S) ->

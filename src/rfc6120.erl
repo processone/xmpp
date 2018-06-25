@@ -881,15 +881,15 @@ dec_version(S) ->
 enc_enum(Atom) -> erlang:atom_to_binary(Atom, utf8).
 
 enc_host_port(Host) when is_binary(Host) -> Host;
-enc_host_port({{_, _, _, _, _, _, _, _} = IPv6,
-	       Port}) ->
-    enc_host_port({<<$[, (enc_ip(IPv6))/binary, $]>>,
-		   Port});
-enc_host_port({{_, _, _, _} = IPv4, Port}) ->
-    enc_host_port({enc_ip(IPv4), Port});
+enc_host_port({Addr, Port}) when is_tuple(Addr) ->
+    enc_host_port({enc_host_port(Addr), Port});
 enc_host_port({Host, Port}) ->
     <<Host/binary, $:, (integer_to_binary(Port))/binary>>;
-enc_host_port(Addr) -> enc_ip(Addr).
+enc_host_port({_, _, _, _} = IPv4) -> enc_ip(IPv4);
+enc_host_port({0, 0, 0, 0, 0, 65535, _, _} = IP) ->
+    enc_ip(IP);
+enc_host_port({_, _, _, _, _, _, _, _} = IPv6) ->
+    <<$[, (enc_ip(IPv6))/binary, $]>>.
 
 enc_int(Int) -> erlang:integer_to_binary(Int).
 
