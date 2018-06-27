@@ -5,8 +5,10 @@
 
 -module(push_summary).
 
--export([decode/1, decode/2, encode/1, encode/2,
-	 format_error/1, io_format_error/1]).
+-export([encode/1, encode/2]).
+
+-export([decode/1, decode/2, format_error/1,
+	 io_format_error/1]).
 
 -include("xmpp_codec.hrl").
 
@@ -66,9 +68,11 @@ decode(Fs, Acc) ->
     case lists:keyfind(<<"FORM_TYPE">>, #xdata_field.var,
 		       Fs)
 	of
-      false -> decode(Fs, Acc, []);
-      #xdata_field{values = [<<"urn:xmpp:push:summary">>]} ->
-	  decode(Fs, Acc, []);
+      false ->
+	  decode(Fs, Acc, <<"urn:xmpp:push:summary">>, []);
+      #xdata_field{values = [XMLNS]}
+	  when XMLNS == <<"urn:xmpp:push:summary">> ->
+	  decode(Fs, Acc, XMLNS, []);
       _ ->
 	  erlang:error({?MODULE,
 			{form_type_mismatch, <<"urn:xmpp:push:summary">>}})
@@ -105,129 +109,124 @@ encode(List, Lang) when is_list(List) ->
 decode([#xdata_field{var = <<"message-count">>,
 		     values = [Value]}
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     try dec_int(Value, 0, infinity) of
       Result ->
-	  decode(Fs, [{'message-count', Result} | Acc], Required)
+	  decode(Fs, [{'message-count', Result} | Acc], XMLNS,
+		 Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
-			{bad_var_value, <<"message-count">>,
-			 <<"urn:xmpp:push:summary">>}})
+			{bad_var_value, <<"message-count">>, XMLNS}})
     end;
 decode([#xdata_field{var = <<"message-count">>,
 		     values = []} =
 	    F
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     decode([F#xdata_field{var = <<"message-count">>,
 			  values = [<<>>]}
 	    | Fs],
-	   Acc, Required);
+	   Acc, XMLNS, Required);
 decode([#xdata_field{var = <<"message-count">>} | _], _,
-       _) ->
+       XMLNS, _) ->
     erlang:error({?MODULE,
-		  {too_many_values, <<"message-count">>,
-		   <<"urn:xmpp:push:summary">>}});
+		  {too_many_values, <<"message-count">>, XMLNS}});
 decode([#xdata_field{var =
 			 <<"pending-subscription-count">>,
 		     values = [Value]}
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     try dec_int(Value, 0, infinity) of
       Result ->
 	  decode(Fs,
-		 [{'pending-subscription-count', Result} | Acc],
+		 [{'pending-subscription-count', Result} | Acc], XMLNS,
 		 Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
 			{bad_var_value, <<"pending-subscription-count">>,
-			 <<"urn:xmpp:push:summary">>}})
+			 XMLNS}})
     end;
 decode([#xdata_field{var =
 			 <<"pending-subscription-count">>,
 		     values = []} =
 	    F
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     decode([F#xdata_field{var =
 			      <<"pending-subscription-count">>,
 			  values = [<<>>]}
 	    | Fs],
-	   Acc, Required);
+	   Acc, XMLNS, Required);
 decode([#xdata_field{var =
 			 <<"pending-subscription-count">>}
 	| _],
-       _, _) ->
+       _, XMLNS, _) ->
     erlang:error({?MODULE,
 		  {too_many_values, <<"pending-subscription-count">>,
-		   <<"urn:xmpp:push:summary">>}});
+		   XMLNS}});
 decode([#xdata_field{var = <<"last-message-sender">>,
 		     values = [Value]}
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     try jid:decode(Value) of
       Result ->
 	  decode(Fs, [{'last-message-sender', Result} | Acc],
-		 Required)
+		 XMLNS, Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
-			{bad_var_value, <<"last-message-sender">>,
-			 <<"urn:xmpp:push:summary">>}})
+			{bad_var_value, <<"last-message-sender">>, XMLNS}})
     end;
 decode([#xdata_field{var = <<"last-message-sender">>,
 		     values = []} =
 	    F
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     decode([F#xdata_field{var = <<"last-message-sender">>,
 			  values = [<<>>]}
 	    | Fs],
-	   Acc, Required);
+	   Acc, XMLNS, Required);
 decode([#xdata_field{var = <<"last-message-sender">>}
 	| _],
-       _, _) ->
+       _, XMLNS, _) ->
     erlang:error({?MODULE,
-		  {too_many_values, <<"last-message-sender">>,
-		   <<"urn:xmpp:push:summary">>}});
+		  {too_many_values, <<"last-message-sender">>, XMLNS}});
 decode([#xdata_field{var = <<"last-message-body">>,
 		     values = [Value]}
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     try Value of
       Result ->
-	  decode(Fs, [{'last-message-body', Result} | Acc],
+	  decode(Fs, [{'last-message-body', Result} | Acc], XMLNS,
 		 Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
-			{bad_var_value, <<"last-message-body">>,
-			 <<"urn:xmpp:push:summary">>}})
+			{bad_var_value, <<"last-message-body">>, XMLNS}})
     end;
 decode([#xdata_field{var = <<"last-message-body">>,
 		     values = []} =
 	    F
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     decode([F#xdata_field{var = <<"last-message-body">>,
 			  values = [<<>>]}
 	    | Fs],
-	   Acc, Required);
+	   Acc, XMLNS, Required);
 decode([#xdata_field{var = <<"last-message-body">>}
 	| _],
-       _, _) ->
+       _, XMLNS, _) ->
     erlang:error({?MODULE,
-		  {too_many_values, <<"last-message-body">>,
-		   <<"urn:xmpp:push:summary">>}});
-decode([#xdata_field{var = Var} | Fs], Acc, Required) ->
+		  {too_many_values, <<"last-message-body">>, XMLNS}});
+decode([#xdata_field{var = Var} | Fs], Acc, XMLNS,
+       Required) ->
     if Var /= <<"FORM_TYPE">> ->
-	   erlang:error({?MODULE,
-			 {unknown_var, Var, <<"urn:xmpp:push:summary">>}});
-       true -> decode(Fs, Acc, Required)
+	   erlang:error({?MODULE, {unknown_var, Var, XMLNS}});
+       true -> decode(Fs, Acc, XMLNS, Required)
     end;
-decode([], Acc, []) -> Acc.
+decode([], Acc, _, []) -> Acc.
 
 'encode_message-count'(Value, Lang) ->
     Values = case Value of

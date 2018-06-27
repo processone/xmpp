@@ -5,8 +5,10 @@
 
 -module(pubsub_publish_options).
 
--export([decode/1, decode/2, encode/1, encode/2,
-	 format_error/1, io_format_error/1]).
+-export([encode/1, encode/2]).
+
+-export([decode/1, decode/2, format_error/1,
+	 io_format_error/1]).
 
 -include("xmpp_codec.hrl").
 
@@ -74,11 +76,16 @@ decode(Fs, Acc) ->
     case lists:keyfind(<<"FORM_TYPE">>, #xdata_field.var,
 		       Fs)
 	of
-      false -> decode(Fs, Acc, []);
-      #xdata_field{values =
-		       [<<"http://jabber.org/protocol/pubsub#publish-opt"
-			  "ions">>]} ->
-	  decode(Fs, Acc, []);
+      false ->
+	  decode(Fs, Acc,
+		 <<"http://jabber.org/protocol/pubsub#publish-opt"
+		   "ions">>,
+		 []);
+      #xdata_field{values = [XMLNS]}
+	  when XMLNS ==
+		 <<"http://jabber.org/protocol/pubsub#publish-opt"
+		   "ions">> ->
+	  decode(Fs, Acc, XMLNS, []);
       _ ->
 	  erlang:error({?MODULE,
 			{form_type_mismatch,
@@ -111,74 +118,66 @@ encode(List, Lang) when is_list(List) ->
 decode([#xdata_field{var = <<"pubsub#persist_items">>,
 		     values = [Value]}
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     try dec_bool(Value) of
       Result ->
-	  decode(Fs, [{persist_items, Result} | Acc], Required)
+	  decode(Fs, [{persist_items, Result} | Acc], XMLNS,
+		 Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
-			{bad_var_value, <<"pubsub#persist_items">>,
-			 <<"http://jabber.org/protocol/pubsub#publish-opt"
-			   "ions">>}})
+			{bad_var_value, <<"pubsub#persist_items">>, XMLNS}})
     end;
 decode([#xdata_field{var = <<"pubsub#persist_items">>,
 		     values = []} =
 	    F
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     decode([F#xdata_field{var = <<"pubsub#persist_items">>,
 			  values = [<<>>]}
 	    | Fs],
-	   Acc, Required);
+	   Acc, XMLNS, Required);
 decode([#xdata_field{var = <<"pubsub#persist_items">>}
 	| _],
-       _, _) ->
+       _, XMLNS, _) ->
     erlang:error({?MODULE,
-		  {too_many_values, <<"pubsub#persist_items">>,
-		   <<"http://jabber.org/protocol/pubsub#publish-opt"
-		     "ions">>}});
+		  {too_many_values, <<"pubsub#persist_items">>, XMLNS}});
 decode([#xdata_field{var = <<"pubsub#access_model">>,
 		     values = [Value]}
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     try dec_enum(Value,
 		 [authorize, open, presence, roster, whitelist])
     of
       Result ->
-	  decode(Fs, [{access_model, Result} | Acc], Required)
+	  decode(Fs, [{access_model, Result} | Acc], XMLNS,
+		 Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
-			{bad_var_value, <<"pubsub#access_model">>,
-			 <<"http://jabber.org/protocol/pubsub#publish-opt"
-			   "ions">>}})
+			{bad_var_value, <<"pubsub#access_model">>, XMLNS}})
     end;
 decode([#xdata_field{var = <<"pubsub#access_model">>,
 		     values = []} =
 	    F
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     decode([F#xdata_field{var = <<"pubsub#access_model">>,
 			  values = [<<>>]}
 	    | Fs],
-	   Acc, Required);
+	   Acc, XMLNS, Required);
 decode([#xdata_field{var = <<"pubsub#access_model">>}
 	| _],
-       _, _) ->
+       _, XMLNS, _) ->
     erlang:error({?MODULE,
-		  {too_many_values, <<"pubsub#access_model">>,
-		   <<"http://jabber.org/protocol/pubsub#publish-opt"
-		     "ions">>}});
-decode([#xdata_field{var = Var} | Fs], Acc, Required) ->
+		  {too_many_values, <<"pubsub#access_model">>, XMLNS}});
+decode([#xdata_field{var = Var} | Fs], Acc, XMLNS,
+       Required) ->
     if Var /= <<"FORM_TYPE">> ->
-	   erlang:error({?MODULE,
-			 {unknown_var, Var,
-			  <<"http://jabber.org/protocol/pubsub#publish-opt"
-			    "ions">>}});
-       true -> decode(Fs, Acc, Required)
+	   erlang:error({?MODULE, {unknown_var, Var, XMLNS}});
+       true -> decode(Fs, Acc, XMLNS, Required)
     end;
-decode([], Acc, []) -> Acc.
+decode([], Acc, _, []) -> Acc.
 
 encode_persist_items(Value, Lang) ->
     Values = case Value of

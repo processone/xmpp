@@ -1,12 +1,14 @@
 %% Created automatically by xdata generator (xdata_codec.erl)
 %% Source: http_upload.xdata
-%% Form type: urn:xmpp:http:upload:0
+%% Form type: urn:xmpp:http:upload:0, urn:xmpp:http:upload, eu:siacs:conversations:http:upload
 %% Document: XEP-0363
 
 -module(http_upload).
 
--export([decode/1, decode/2, encode/1, encode/2,
-	 format_error/1, io_format_error/1]).
+-export([encode/2, encode/3]).
+
+-export([decode/1, decode/2, format_error/1,
+	 io_format_error/1]).
 
 -include("xmpp_codec.hrl").
 
@@ -66,17 +68,21 @@ decode(Fs, Acc) ->
     case lists:keyfind(<<"FORM_TYPE">>, #xdata_field.var,
 		       Fs)
 	of
-      false -> decode(Fs, Acc, []);
-      #xdata_field{values = [<<"urn:xmpp:http:upload:0">>]} ->
-	  decode(Fs, Acc, []);
+      false ->
+	  decode(Fs, Acc, <<"urn:xmpp:http:upload:0">>, []);
+      #xdata_field{values = [XMLNS]}
+	  when XMLNS == <<"urn:xmpp:http:upload:0">>;
+	       XMLNS == <<"urn:xmpp:http:upload">>;
+	       XMLNS == <<"eu:siacs:conversations:http:upload">> ->
+	  decode(Fs, Acc, XMLNS, []);
       _ ->
 	  erlang:error({?MODULE,
 			{form_type_mismatch, <<"urn:xmpp:http:upload:0">>}})
     end.
 
-encode(Cfg) -> encode(Cfg, <<"en">>).
+encode(Cfg, XMLNS) -> encode(Cfg, XMLNS, <<"en">>).
 
-encode(List, Lang) when is_list(List) ->
+encode(List, XMLNS, Lang) when is_list(List) ->
     Fs = [case Opt of
 	    {'max-file-size', Val} ->
 		['encode_max-file-size'(Val, Lang)];
@@ -86,44 +92,42 @@ encode(List, Lang) when is_list(List) ->
 	  end
 	  || Opt <- List],
     FormType = #xdata_field{var = <<"FORM_TYPE">>,
-			    type = hidden,
-			    values = [<<"urn:xmpp:http:upload:0">>]},
+			    type = hidden, values = [XMLNS]},
     [FormType | lists:flatten(Fs)].
 
 decode([#xdata_field{var = <<"max-file-size">>,
 		     values = [Value]}
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     try dec_int(Value, 0, infinity) of
       Result ->
-	  decode(Fs, [{'max-file-size', Result} | Acc], Required)
+	  decode(Fs, [{'max-file-size', Result} | Acc], XMLNS,
+		 Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
-			{bad_var_value, <<"max-file-size">>,
-			 <<"urn:xmpp:http:upload:0">>}})
+			{bad_var_value, <<"max-file-size">>, XMLNS}})
     end;
 decode([#xdata_field{var = <<"max-file-size">>,
 		     values = []} =
 	    F
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     decode([F#xdata_field{var = <<"max-file-size">>,
 			  values = [<<>>]}
 	    | Fs],
-	   Acc, Required);
+	   Acc, XMLNS, Required);
 decode([#xdata_field{var = <<"max-file-size">>} | _], _,
-       _) ->
+       XMLNS, _) ->
     erlang:error({?MODULE,
-		  {too_many_values, <<"max-file-size">>,
-		   <<"urn:xmpp:http:upload:0">>}});
-decode([#xdata_field{var = Var} | Fs], Acc, Required) ->
+		  {too_many_values, <<"max-file-size">>, XMLNS}});
+decode([#xdata_field{var = Var} | Fs], Acc, XMLNS,
+       Required) ->
     if Var /= <<"FORM_TYPE">> ->
-	   erlang:error({?MODULE,
-			 {unknown_var, Var, <<"urn:xmpp:http:upload:0">>}});
-       true -> decode(Fs, Acc, Required)
+	   erlang:error({?MODULE, {unknown_var, Var, XMLNS}});
+       true -> decode(Fs, Acc, XMLNS, Required)
     end;
-decode([], Acc, []) -> Acc.
+decode([], Acc, _, []) -> Acc.
 
 'encode_max-file-size'(Value, Lang) ->
     Values = case Value of

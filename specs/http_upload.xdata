@@ -1,5 +1,7 @@
 <form_type>
   <name>urn:xmpp:http:upload:0</name>
+  <name>urn:xmpp:http:upload</name>
+  <name>eu:siacs:conversations:http:upload</name>
   <doc>XEP-0363</doc>
   <desc>
     Information about HTTP File Upload service

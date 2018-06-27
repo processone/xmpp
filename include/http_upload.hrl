@@ -1,6 +1,6 @@
 %% Created automatically by xdata generator (xdata_codec.erl)
 %% Source: http_upload.xdata
-%% Form type: urn:xmpp:http:upload:0
+%% Form type: urn:xmpp:http:upload:0, urn:xmpp:http:upload, eu:siacs:conversations:http:upload
 %% Document: XEP-0363
 
 

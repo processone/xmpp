@@ -5,8 +5,10 @@
 
 -module(muc_roominfo).
 
--export([decode/1, decode/2, encode/1, encode/2,
-	 format_error/1, io_format_error/1]).
+-export([encode/1, encode/2]).
+
+-export([decode/1, decode/2, format_error/1,
+	 io_format_error/1]).
 
 -include("xmpp_codec.hrl").
 
@@ -82,10 +84,13 @@ decode(Fs, Acc) ->
     case lists:keyfind(<<"FORM_TYPE">>, #xdata_field.var,
 		       Fs)
 	of
-      false -> decode(Fs, Acc, []);
-      #xdata_field{values =
-		       [<<"http://jabber.org/protocol/muc#roominfo">>]} ->
-	  decode(Fs, Acc, []);
+      false ->
+	  decode(Fs, Acc,
+		 <<"http://jabber.org/protocol/muc#roominfo">>, []);
+      #xdata_field{values = [XMLNS]}
+	  when XMLNS ==
+		 <<"http://jabber.org/protocol/muc#roominfo">> ->
+	  decode(Fs, Acc, XMLNS, []);
       _ ->
 	  erlang:error({?MODULE,
 			{form_type_mismatch,
@@ -140,423 +145,414 @@ encode(List, Lang) when is_list(List) ->
 decode([#xdata_field{var = <<"muc#maxhistoryfetch">>,
 		     values = [Value]}
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     try dec_int(Value, 0, infinity) of
       Result ->
-	  decode(Fs, [{maxhistoryfetch, Result} | Acc], Required)
+	  decode(Fs, [{maxhistoryfetch, Result} | Acc], XMLNS,
+		 Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
-			{bad_var_value, <<"muc#maxhistoryfetch">>,
-			 <<"http://jabber.org/protocol/muc#roominfo">>}})
+			{bad_var_value, <<"muc#maxhistoryfetch">>, XMLNS}})
     end;
 decode([#xdata_field{var = <<"muc#maxhistoryfetch">>,
 		     values = []} =
 	    F
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     decode([F#xdata_field{var = <<"muc#maxhistoryfetch">>,
 			  values = [<<>>]}
 	    | Fs],
-	   Acc, Required);
+	   Acc, XMLNS, Required);
 decode([#xdata_field{var = <<"muc#maxhistoryfetch">>}
 	| _],
-       _, _) ->
+       _, XMLNS, _) ->
     erlang:error({?MODULE,
-		  {too_many_values, <<"muc#maxhistoryfetch">>,
-		   <<"http://jabber.org/protocol/muc#roominfo">>}});
+		  {too_many_values, <<"muc#maxhistoryfetch">>, XMLNS}});
 decode([#xdata_field{var =
 			 <<"muc#roomconfig_allowinvites">>,
 		     values = [Value]}
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     try dec_bool(Value) of
       Result ->
-	  decode(Fs, [{allowinvites, Result} | Acc], Required)
+	  decode(Fs, [{allowinvites, Result} | Acc], XMLNS,
+		 Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
 			{bad_var_value, <<"muc#roomconfig_allowinvites">>,
-			 <<"http://jabber.org/protocol/muc#roominfo">>}})
+			 XMLNS}})
     end;
 decode([#xdata_field{var =
 			 <<"muc#roomconfig_allowinvites">>,
 		     values = []} =
 	    F
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     decode([F#xdata_field{var =
 			      <<"muc#roomconfig_allowinvites">>,
 			  values = [<<>>]}
 	    | Fs],
-	   Acc, Required);
+	   Acc, XMLNS, Required);
 decode([#xdata_field{var =
 			 <<"muc#roomconfig_allowinvites">>}
 	| _],
-       _, _) ->
+       _, XMLNS, _) ->
     erlang:error({?MODULE,
 		  {too_many_values, <<"muc#roomconfig_allowinvites">>,
-		   <<"http://jabber.org/protocol/muc#roominfo">>}});
+		   XMLNS}});
 decode([#xdata_field{var = <<"muc#roomconfig_allowpm">>,
 		     values = [Value]}
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     try dec_enum(Value,
 		 [anyone, participants, moderators, none])
     of
       Result ->
-	  decode(Fs, [{allowpm, Result} | Acc], Required)
+	  decode(Fs, [{allowpm, Result} | Acc], XMLNS, Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
-			{bad_var_value, <<"muc#roomconfig_allowpm">>,
-			 <<"http://jabber.org/protocol/muc#roominfo">>}})
+			{bad_var_value, <<"muc#roomconfig_allowpm">>, XMLNS}})
     end;
 decode([#xdata_field{var = <<"muc#roomconfig_allowpm">>,
 		     values = []} =
 	    F
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     decode([F#xdata_field{var =
 			      <<"muc#roomconfig_allowpm">>,
 			  values = [<<>>]}
 	    | Fs],
-	   Acc, Required);
+	   Acc, XMLNS, Required);
 decode([#xdata_field{var = <<"muc#roomconfig_allowpm">>}
 	| _],
-       _, _) ->
+       _, XMLNS, _) ->
     erlang:error({?MODULE,
 		  {too_many_values, <<"muc#roomconfig_allowpm">>,
-		   <<"http://jabber.org/protocol/muc#roominfo">>}});
+		   XMLNS}});
 decode([#xdata_field{var =
 			 <<"muc#roominfo_contactjid">>,
 		     values = [<<>>]} =
 	    F
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     %% Psi work-around
     decode([F#xdata_field{var =
 			      <<"muc#roominfo_contactjid">>,
 			  values = []}
 	    | Fs],
-	   Acc, Required);
+	   Acc, XMLNS, Required);
 decode([#xdata_field{var =
 			 <<"muc#roominfo_contactjid">>,
 		     values = Values}
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     try [jid:decode(Value) || Value <- Values] of
       Result ->
-	  decode(Fs, [{contactjid, Result} | Acc], Required)
+	  decode(Fs, [{contactjid, Result} | Acc], XMLNS,
+		 Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
-			{bad_var_value, <<"muc#roominfo_contactjid">>,
-			 <<"http://jabber.org/protocol/muc#roominfo">>}})
+			{bad_var_value, <<"muc#roominfo_contactjid">>, XMLNS}})
     end;
 decode([#xdata_field{var =
 			 <<"muc#roominfo_description">>,
 		     values = [Value]}
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     try Value of
       Result ->
-	  decode(Fs, [{description, Result} | Acc], Required)
+	  decode(Fs, [{description, Result} | Acc], XMLNS,
+		 Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
-			{bad_var_value, <<"muc#roominfo_description">>,
-			 <<"http://jabber.org/protocol/muc#roominfo">>}})
+			{bad_var_value, <<"muc#roominfo_description">>, XMLNS}})
     end;
 decode([#xdata_field{var =
 			 <<"muc#roominfo_description">>,
 		     values = []} =
 	    F
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     decode([F#xdata_field{var =
 			      <<"muc#roominfo_description">>,
 			  values = [<<>>]}
 	    | Fs],
-	   Acc, Required);
+	   Acc, XMLNS, Required);
 decode([#xdata_field{var =
 			 <<"muc#roominfo_description">>}
 	| _],
-       _, _) ->
+       _, XMLNS, _) ->
     erlang:error({?MODULE,
 		  {too_many_values, <<"muc#roominfo_description">>,
-		   <<"http://jabber.org/protocol/muc#roominfo">>}});
+		   XMLNS}});
 decode([#xdata_field{var = <<"muc#roominfo_lang">>,
 		     values = [Value]}
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     try xmpp_lang:check(Value) of
-      Result -> decode(Fs, [{lang, Result} | Acc], Required)
+      Result ->
+	  decode(Fs, [{lang, Result} | Acc], XMLNS, Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
-			{bad_var_value, <<"muc#roominfo_lang">>,
-			 <<"http://jabber.org/protocol/muc#roominfo">>}})
+			{bad_var_value, <<"muc#roominfo_lang">>, XMLNS}})
     end;
 decode([#xdata_field{var = <<"muc#roominfo_lang">>,
 		     values = []} =
 	    F
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     decode([F#xdata_field{var = <<"muc#roominfo_lang">>,
 			  values = [<<>>]}
 	    | Fs],
-	   Acc, Required);
+	   Acc, XMLNS, Required);
 decode([#xdata_field{var = <<"muc#roominfo_lang">>}
 	| _],
-       _, _) ->
+       _, XMLNS, _) ->
     erlang:error({?MODULE,
-		  {too_many_values, <<"muc#roominfo_lang">>,
-		   <<"http://jabber.org/protocol/muc#roominfo">>}});
+		  {too_many_values, <<"muc#roominfo_lang">>, XMLNS}});
 decode([#xdata_field{var = <<"muc#roominfo_ldapgroup">>,
 		     values = [Value]}
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     try Value of
       Result ->
-	  decode(Fs, [{ldapgroup, Result} | Acc], Required)
+	  decode(Fs, [{ldapgroup, Result} | Acc], XMLNS, Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
-			{bad_var_value, <<"muc#roominfo_ldapgroup">>,
-			 <<"http://jabber.org/protocol/muc#roominfo">>}})
+			{bad_var_value, <<"muc#roominfo_ldapgroup">>, XMLNS}})
     end;
 decode([#xdata_field{var = <<"muc#roominfo_ldapgroup">>,
 		     values = []} =
 	    F
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     decode([F#xdata_field{var =
 			      <<"muc#roominfo_ldapgroup">>,
 			  values = [<<>>]}
 	    | Fs],
-	   Acc, Required);
+	   Acc, XMLNS, Required);
 decode([#xdata_field{var = <<"muc#roominfo_ldapgroup">>}
 	| _],
-       _, _) ->
+       _, XMLNS, _) ->
     erlang:error({?MODULE,
 		  {too_many_values, <<"muc#roominfo_ldapgroup">>,
-		   <<"http://jabber.org/protocol/muc#roominfo">>}});
+		   XMLNS}});
 decode([#xdata_field{var = <<"muc#roominfo_logs">>,
 		     values = [Value]}
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     try Value of
-      Result -> decode(Fs, [{logs, Result} | Acc], Required)
+      Result ->
+	  decode(Fs, [{logs, Result} | Acc], XMLNS, Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
-			{bad_var_value, <<"muc#roominfo_logs">>,
-			 <<"http://jabber.org/protocol/muc#roominfo">>}})
+			{bad_var_value, <<"muc#roominfo_logs">>, XMLNS}})
     end;
 decode([#xdata_field{var = <<"muc#roominfo_logs">>,
 		     values = []} =
 	    F
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     decode([F#xdata_field{var = <<"muc#roominfo_logs">>,
 			  values = [<<>>]}
 	    | Fs],
-	   Acc, Required);
+	   Acc, XMLNS, Required);
 decode([#xdata_field{var = <<"muc#roominfo_logs">>}
 	| _],
-       _, _) ->
+       _, XMLNS, _) ->
     erlang:error({?MODULE,
-		  {too_many_values, <<"muc#roominfo_logs">>,
-		   <<"http://jabber.org/protocol/muc#roominfo">>}});
+		  {too_many_values, <<"muc#roominfo_logs">>, XMLNS}});
 decode([#xdata_field{var =
 			 <<"muc#roomconfig_roomname">>,
 		     values = [Value]}
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     try Value of
       Result ->
-	  decode(Fs, [{roomname, Result} | Acc], Required)
+	  decode(Fs, [{roomname, Result} | Acc], XMLNS, Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
-			{bad_var_value, <<"muc#roomconfig_roomname">>,
-			 <<"http://jabber.org/protocol/muc#roominfo">>}})
+			{bad_var_value, <<"muc#roomconfig_roomname">>, XMLNS}})
     end;
 decode([#xdata_field{var =
 			 <<"muc#roomconfig_roomname">>,
 		     values = []} =
 	    F
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     decode([F#xdata_field{var =
 			      <<"muc#roomconfig_roomname">>,
 			  values = [<<>>]}
 	    | Fs],
-	   Acc, Required);
+	   Acc, XMLNS, Required);
 decode([#xdata_field{var =
 			 <<"muc#roomconfig_roomname">>}
 	| _],
-       _, _) ->
+       _, XMLNS, _) ->
     erlang:error({?MODULE,
 		  {too_many_values, <<"muc#roomconfig_roomname">>,
-		   <<"http://jabber.org/protocol/muc#roominfo">>}});
+		   XMLNS}});
 decode([#xdata_field{var = <<"muc#roominfo_occupants">>,
 		     values = [Value]}
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     try dec_int(Value, 0, infinity) of
       Result ->
-	  decode(Fs, [{occupants, Result} | Acc], Required)
+	  decode(Fs, [{occupants, Result} | Acc], XMLNS, Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
-			{bad_var_value, <<"muc#roominfo_occupants">>,
-			 <<"http://jabber.org/protocol/muc#roominfo">>}})
+			{bad_var_value, <<"muc#roominfo_occupants">>, XMLNS}})
     end;
 decode([#xdata_field{var = <<"muc#roominfo_occupants">>,
 		     values = []} =
 	    F
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     decode([F#xdata_field{var =
 			      <<"muc#roominfo_occupants">>,
 			  values = [<<>>]}
 	    | Fs],
-	   Acc, Required);
+	   Acc, XMLNS, Required);
 decode([#xdata_field{var = <<"muc#roominfo_occupants">>}
 	| _],
-       _, _) ->
+       _, XMLNS, _) ->
     erlang:error({?MODULE,
 		  {too_many_values, <<"muc#roominfo_occupants">>,
-		   <<"http://jabber.org/protocol/muc#roominfo">>}});
+		   XMLNS}});
 decode([#xdata_field{var = <<"muc#roominfo_subject">>,
 		     values = [Value]}
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     try Value of
       Result ->
-	  decode(Fs, [{subject, Result} | Acc], Required)
+	  decode(Fs, [{subject, Result} | Acc], XMLNS, Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
-			{bad_var_value, <<"muc#roominfo_subject">>,
-			 <<"http://jabber.org/protocol/muc#roominfo">>}})
+			{bad_var_value, <<"muc#roominfo_subject">>, XMLNS}})
     end;
 decode([#xdata_field{var = <<"muc#roominfo_subject">>,
 		     values = []} =
 	    F
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     decode([F#xdata_field{var = <<"muc#roominfo_subject">>,
 			  values = [<<>>]}
 	    | Fs],
-	   Acc, Required);
+	   Acc, XMLNS, Required);
 decode([#xdata_field{var = <<"muc#roominfo_subject">>}
 	| _],
-       _, _) ->
+       _, XMLNS, _) ->
     erlang:error({?MODULE,
-		  {too_many_values, <<"muc#roominfo_subject">>,
-		   <<"http://jabber.org/protocol/muc#roominfo">>}});
+		  {too_many_values, <<"muc#roominfo_subject">>, XMLNS}});
 decode([#xdata_field{var =
 			 <<"muc#roominfo_subjectmod">>,
 		     values = [Value]}
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     try dec_bool(Value) of
       Result ->
-	  decode(Fs, [{subjectmod, Result} | Acc], Required)
+	  decode(Fs, [{subjectmod, Result} | Acc], XMLNS,
+		 Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
-			{bad_var_value, <<"muc#roominfo_subjectmod">>,
-			 <<"http://jabber.org/protocol/muc#roominfo">>}})
+			{bad_var_value, <<"muc#roominfo_subjectmod">>, XMLNS}})
     end;
 decode([#xdata_field{var =
 			 <<"muc#roominfo_subjectmod">>,
 		     values = []} =
 	    F
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     decode([F#xdata_field{var =
 			      <<"muc#roominfo_subjectmod">>,
 			  values = [<<>>]}
 	    | Fs],
-	   Acc, Required);
+	   Acc, XMLNS, Required);
 decode([#xdata_field{var =
 			 <<"muc#roominfo_subjectmod">>}
 	| _],
-       _, _) ->
+       _, XMLNS, _) ->
     erlang:error({?MODULE,
 		  {too_many_values, <<"muc#roominfo_subjectmod">>,
-		   <<"http://jabber.org/protocol/muc#roominfo">>}});
+		   XMLNS}});
 decode([#xdata_field{var = <<"muc#roominfo_pubsub">>,
 		     values = [Value]}
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     try xmpp_uri:check(Value) of
-      Result -> decode(Fs, [{pubsub, Result} | Acc], Required)
+      Result ->
+	  decode(Fs, [{pubsub, Result} | Acc], XMLNS, Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
-			{bad_var_value, <<"muc#roominfo_pubsub">>,
-			 <<"http://jabber.org/protocol/muc#roominfo">>}})
+			{bad_var_value, <<"muc#roominfo_pubsub">>, XMLNS}})
     end;
 decode([#xdata_field{var = <<"muc#roominfo_pubsub">>,
 		     values = []} =
 	    F
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     decode([F#xdata_field{var = <<"muc#roominfo_pubsub">>,
 			  values = [<<>>]}
 	    | Fs],
-	   Acc, Required);
+	   Acc, XMLNS, Required);
 decode([#xdata_field{var = <<"muc#roominfo_pubsub">>}
 	| _],
-       _, _) ->
+       _, XMLNS, _) ->
     erlang:error({?MODULE,
-		  {too_many_values, <<"muc#roominfo_pubsub">>,
-		   <<"http://jabber.org/protocol/muc#roominfo">>}});
+		  {too_many_values, <<"muc#roominfo_pubsub">>, XMLNS}});
 decode([#xdata_field{var =
 			 <<"muc#roominfo_changesubject">>,
 		     values = [Value]}
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     try dec_bool(Value) of
       Result ->
-	  decode(Fs, [{changesubject, Result} | Acc], Required)
+	  decode(Fs, [{changesubject, Result} | Acc], XMLNS,
+		 Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
 			{bad_var_value, <<"muc#roominfo_changesubject">>,
-			 <<"http://jabber.org/protocol/muc#roominfo">>}})
+			 XMLNS}})
     end;
 decode([#xdata_field{var =
 			 <<"muc#roominfo_changesubject">>,
 		     values = []} =
 	    F
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     decode([F#xdata_field{var =
 			      <<"muc#roominfo_changesubject">>,
 			  values = [<<>>]}
 	    | Fs],
-	   Acc, Required);
+	   Acc, XMLNS, Required);
 decode([#xdata_field{var =
 			 <<"muc#roominfo_changesubject">>}
 	| _],
-       _, _) ->
+       _, XMLNS, _) ->
     erlang:error({?MODULE,
 		  {too_many_values, <<"muc#roominfo_changesubject">>,
-		   <<"http://jabber.org/protocol/muc#roominfo">>}});
-decode([#xdata_field{var = Var} | Fs], Acc, Required) ->
+		   XMLNS}});
+decode([#xdata_field{var = Var} | Fs], Acc, XMLNS,
+       Required) ->
     if Var /= <<"FORM_TYPE">> ->
-	   erlang:error({?MODULE,
-			 {unknown_var, Var,
-			  <<"http://jabber.org/protocol/muc#roominfo">>}});
-       true -> decode(Fs, Acc, Required)
+	   erlang:error({?MODULE, {unknown_var, Var, XMLNS}});
+       true -> decode(Fs, Acc, XMLNS, Required)
     end;
-decode([], Acc, []) -> Acc.
+decode([], Acc, _, []) -> Acc.
 
 encode_maxhistoryfetch(Value, Lang) ->
     Values = case Value of

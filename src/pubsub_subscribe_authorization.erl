@@ -5,8 +5,10 @@
 
 -module(pubsub_subscribe_authorization).
 
--export([decode/1, decode/2, encode/1, encode/2,
-	 format_error/1, io_format_error/1]).
+-export([encode/1, encode/2]).
+
+-export([decode/1, decode/2, format_error/1,
+	 io_format_error/1]).
 
 -include("xmpp_codec.hrl").
 
@@ -68,12 +70,15 @@ decode(Fs, Acc) ->
 	of
       false ->
 	  decode(Fs, Acc,
+		 <<"http://jabber.org/protocol/pubsub#subscribe_a"
+		   "uthorization">>,
 		 [<<"pubsub#allow">>, <<"pubsub#node">>,
 		  <<"pubsub#subscriber_jid">>]);
-      #xdata_field{values =
-		       [<<"http://jabber.org/protocol/pubsub#subscribe_a"
-			  "uthorization">>]} ->
-	  decode(Fs, Acc,
+      #xdata_field{values = [XMLNS]}
+	  when XMLNS ==
+		 <<"http://jabber.org/protocol/pubsub#subscribe_a"
+		   "uthorization">> ->
+	  decode(Fs, Acc, XMLNS,
 		 [<<"pubsub#allow">>, <<"pubsub#node">>,
 		  <<"pubsub#subscriber_jid">>]);
       _ ->
@@ -110,136 +115,117 @@ encode(List, Lang) when is_list(List) ->
 decode([#xdata_field{var = <<"pubsub#allow">>,
 		     values = [Value]}
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     try dec_bool(Value) of
       Result ->
-	  decode(Fs, [{allow, Result} | Acc],
+	  decode(Fs, [{allow, Result} | Acc], XMLNS,
 		 lists:delete(<<"pubsub#allow">>, Required))
     catch
       _:_ ->
 	  erlang:error({?MODULE,
-			{bad_var_value, <<"pubsub#allow">>,
-			 <<"http://jabber.org/protocol/pubsub#subscribe_a"
-			   "uthorization">>}})
+			{bad_var_value, <<"pubsub#allow">>, XMLNS}})
     end;
 decode([#xdata_field{var = <<"pubsub#allow">>,
 		     values = []} =
 	    F
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     decode([F#xdata_field{var = <<"pubsub#allow">>,
 			  values = [<<>>]}
 	    | Fs],
-	   Acc, Required);
+	   Acc, XMLNS, Required);
 decode([#xdata_field{var = <<"pubsub#allow">>} | _], _,
-       _) ->
+       XMLNS, _) ->
     erlang:error({?MODULE,
-		  {too_many_values, <<"pubsub#allow">>,
-		   <<"http://jabber.org/protocol/pubsub#subscribe_a"
-		     "uthorization">>}});
+		  {too_many_values, <<"pubsub#allow">>, XMLNS}});
 decode([#xdata_field{var = <<"pubsub#node">>,
 		     values = [Value]}
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     try Value of
       Result ->
-	  decode(Fs, [{node, Result} | Acc],
+	  decode(Fs, [{node, Result} | Acc], XMLNS,
 		 lists:delete(<<"pubsub#node">>, Required))
     catch
       _:_ ->
 	  erlang:error({?MODULE,
-			{bad_var_value, <<"pubsub#node">>,
-			 <<"http://jabber.org/protocol/pubsub#subscribe_a"
-			   "uthorization">>}})
+			{bad_var_value, <<"pubsub#node">>, XMLNS}})
     end;
 decode([#xdata_field{var = <<"pubsub#node">>,
 		     values = []} =
 	    F
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     decode([F#xdata_field{var = <<"pubsub#node">>,
 			  values = [<<>>]}
 	    | Fs],
-	   Acc, Required);
+	   Acc, XMLNS, Required);
 decode([#xdata_field{var = <<"pubsub#node">>} | _], _,
-       _) ->
+       XMLNS, _) ->
     erlang:error({?MODULE,
-		  {too_many_values, <<"pubsub#node">>,
-		   <<"http://jabber.org/protocol/pubsub#subscribe_a"
-		     "uthorization">>}});
+		  {too_many_values, <<"pubsub#node">>, XMLNS}});
 decode([#xdata_field{var = <<"pubsub#subscriber_jid">>,
 		     values = [Value]}
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     try jid:decode(Value) of
       Result ->
-	  decode(Fs, [{subscriber_jid, Result} | Acc],
+	  decode(Fs, [{subscriber_jid, Result} | Acc], XMLNS,
 		 lists:delete(<<"pubsub#subscriber_jid">>, Required))
     catch
       _:_ ->
 	  erlang:error({?MODULE,
-			{bad_var_value, <<"pubsub#subscriber_jid">>,
-			 <<"http://jabber.org/protocol/pubsub#subscribe_a"
-			   "uthorization">>}})
+			{bad_var_value, <<"pubsub#subscriber_jid">>, XMLNS}})
     end;
 decode([#xdata_field{var = <<"pubsub#subscriber_jid">>,
 		     values = []} =
 	    F
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     decode([F#xdata_field{var = <<"pubsub#subscriber_jid">>,
 			  values = [<<>>]}
 	    | Fs],
-	   Acc, Required);
+	   Acc, XMLNS, Required);
 decode([#xdata_field{var = <<"pubsub#subscriber_jid">>}
 	| _],
-       _, _) ->
+       _, XMLNS, _) ->
     erlang:error({?MODULE,
-		  {too_many_values, <<"pubsub#subscriber_jid">>,
-		   <<"http://jabber.org/protocol/pubsub#subscribe_a"
-		     "uthorization">>}});
+		  {too_many_values, <<"pubsub#subscriber_jid">>, XMLNS}});
 decode([#xdata_field{var = <<"pubsub#subid">>,
 		     values = [Value]}
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     try Value of
-      Result -> decode(Fs, [{subid, Result} | Acc], Required)
+      Result ->
+	  decode(Fs, [{subid, Result} | Acc], XMLNS, Required)
     catch
       _:_ ->
 	  erlang:error({?MODULE,
-			{bad_var_value, <<"pubsub#subid">>,
-			 <<"http://jabber.org/protocol/pubsub#subscribe_a"
-			   "uthorization">>}})
+			{bad_var_value, <<"pubsub#subid">>, XMLNS}})
     end;
 decode([#xdata_field{var = <<"pubsub#subid">>,
 		     values = []} =
 	    F
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     decode([F#xdata_field{var = <<"pubsub#subid">>,
 			  values = [<<>>]}
 	    | Fs],
-	   Acc, Required);
+	   Acc, XMLNS, Required);
 decode([#xdata_field{var = <<"pubsub#subid">>} | _], _,
-       _) ->
+       XMLNS, _) ->
     erlang:error({?MODULE,
-		  {too_many_values, <<"pubsub#subid">>,
-		   <<"http://jabber.org/protocol/pubsub#subscribe_a"
-		     "uthorization">>}});
-decode([#xdata_field{var = Var} | Fs], Acc, Required) ->
+		  {too_many_values, <<"pubsub#subid">>, XMLNS}});
+decode([#xdata_field{var = Var} | Fs], Acc, XMLNS,
+       Required) ->
     if Var /= <<"FORM_TYPE">> ->
-	   erlang:error({?MODULE,
-			 {unknown_var, Var,
-			  <<"http://jabber.org/protocol/pubsub#subscribe_a"
-			    "uthorization">>}});
-       true -> decode(Fs, Acc, Required)
+	   erlang:error({?MODULE, {unknown_var, Var, XMLNS}});
+       true -> decode(Fs, Acc, XMLNS, Required)
     end;
-decode([], _, [Var | _]) ->
+decode([], _, XMLNS, [Var | _]) ->
     erlang:error({?MODULE,
-		  {missing_required_var, Var,
-		   <<"http://jabber.org/protocol/pubsub#subscribe_a"
-		     "uthorization">>}});
-decode([], Acc, []) -> Acc.
+		  {missing_required_var, Var, XMLNS}});
+decode([], Acc, _, []) -> Acc.
 
 encode_allow(Value, Lang) ->
     Values = case Value of

@@ -5,8 +5,10 @@
 
 -module(pubsub_get_pending).
 
--export([decode/1, decode/2, encode/1, encode/2,
-	 format_error/1, io_format_error/1]).
+-export([encode/1, encode/2]).
+
+-export([decode/1, decode/2, format_error/1,
+	 io_format_error/1]).
 
 -include("xmpp_codec.hrl").
 
@@ -58,11 +60,16 @@ decode(Fs, Acc) ->
     case lists:keyfind(<<"FORM_TYPE">>, #xdata_field.var,
 		       Fs)
 	of
-      false -> decode(Fs, Acc, [<<"pubsub#node">>]);
-      #xdata_field{values =
-		       [<<"http://jabber.org/protocol/pubsub#subscribe_a"
-			  "uthorization">>]} ->
-	  decode(Fs, Acc, [<<"pubsub#node">>]);
+      false ->
+	  decode(Fs, Acc,
+		 <<"http://jabber.org/protocol/pubsub#subscribe_a"
+		   "uthorization">>,
+		 [<<"pubsub#node">>]);
+      #xdata_field{values = [XMLNS]}
+	  when XMLNS ==
+		 <<"http://jabber.org/protocol/pubsub#subscribe_a"
+		   "uthorization">> ->
+	  decode(Fs, Acc, XMLNS, [<<"pubsub#node">>]);
       _ ->
 	  erlang:error({?MODULE,
 			{form_type_mismatch,
@@ -90,47 +97,39 @@ encode(List, Lang) when is_list(List) ->
 decode([#xdata_field{var = <<"pubsub#node">>,
 		     values = [Value]}
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     try Value of
       Result ->
-	  decode(Fs, [{node, Result} | Acc],
+	  decode(Fs, [{node, Result} | Acc], XMLNS,
 		 lists:delete(<<"pubsub#node">>, Required))
     catch
       _:_ ->
 	  erlang:error({?MODULE,
-			{bad_var_value, <<"pubsub#node">>,
-			 <<"http://jabber.org/protocol/pubsub#subscribe_a"
-			   "uthorization">>}})
+			{bad_var_value, <<"pubsub#node">>, XMLNS}})
     end;
 decode([#xdata_field{var = <<"pubsub#node">>,
 		     values = []} =
 	    F
 	| Fs],
-       Acc, Required) ->
+       Acc, XMLNS, Required) ->
     decode([F#xdata_field{var = <<"pubsub#node">>,
 			  values = [<<>>]}
 	    | Fs],
-	   Acc, Required);
+	   Acc, XMLNS, Required);
 decode([#xdata_field{var = <<"pubsub#node">>} | _], _,
-       _) ->
+       XMLNS, _) ->
     erlang:error({?MODULE,
-		  {too_many_values, <<"pubsub#node">>,
-		   <<"http://jabber.org/protocol/pubsub#subscribe_a"
-		     "uthorization">>}});
-decode([#xdata_field{var = Var} | Fs], Acc, Required) ->
+		  {too_many_values, <<"pubsub#node">>, XMLNS}});
+decode([#xdata_field{var = Var} | Fs], Acc, XMLNS,
+       Required) ->
     if Var /= <<"FORM_TYPE">> ->
-	   erlang:error({?MODULE,
-			 {unknown_var, Var,
-			  <<"http://jabber.org/protocol/pubsub#subscribe_a"
-			    "uthorization">>}});
-       true -> decode(Fs, Acc, Required)
+	   erlang:error({?MODULE, {unknown_var, Var, XMLNS}});
+       true -> decode(Fs, Acc, XMLNS, Required)
     end;
-decode([], _, [Var | _]) ->
+decode([], _, XMLNS, [Var | _]) ->
     erlang:error({?MODULE,
-		  {missing_required_var, Var,
-		   <<"http://jabber.org/protocol/pubsub#subscribe_a"
-		     "uthorization">>}});
-decode([], Acc, []) -> Acc.
+		  {missing_required_var, Var, XMLNS}});
+decode([], Acc, _, []) -> Acc.
 
 encode_node(Value, Options, Lang) ->
     Values = case Value of
