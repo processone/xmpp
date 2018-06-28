@@ -1,3 +1,15 @@
+# Version 1.2.0
+
+* Support XEP-0377: Spam Reporting
+* New xmpp_lang module to validate language tags
+* Improve muc#roominfo and muc#roomconfig data forms
+* XEP-0363: support <retry/> and <file-too-large/> tags
+* XEP-0363: data form support
+* Add more functions to format errors
+* Change arity of err_gone(), err_redirect() and serr_see_other_host()
+  THIS CHANGE INTRODUCES API INCOMPATIBILITY: use xref to check the code
+* Support multiple namespaces for the same data form
+
 # Version 1.1.21
 
 * Updating fast_xml to version 1.1.30.
