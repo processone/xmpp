@@ -1,3 +1,9 @@
+# Version 1.2.1
+
+* Updating p1_utils to version 1.0.12.
+* Updating fast_xml to version 1.1.31.
+* Updating stringprep to version 1.0.12.
+
 # Version 1.2.0
 
 * Support XEP-0377: Spam Reporting
