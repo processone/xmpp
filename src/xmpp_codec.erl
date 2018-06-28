@@ -22,6 +22,7 @@ decode({xmlel, Name, Attrs, _} = El, TopXMLNS, Opts) ->
 encode(El) -> encode(El, <<>>).
 
 encode({xmlel, _, _, _} = El, _) -> El;
+encode({xmlcdata, _} = CData, _) -> CData;
 encode(El, TopXMLNS) ->
     Mod = get_mod(El), Mod:do_encode(El, TopXMLNS).
 
