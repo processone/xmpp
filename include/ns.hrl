@@ -133,6 +133,8 @@
 -define(NS_FEATURE_COMPRESS,
 	<<"http://jabber.org/features/compress">>).
 -define(NS_FEATURE_MSGOFFLINE, <<"msgoffline">>).
+-define(NS_FEATURE_PRESENCE, <<"presence">>).
+-define(NS_FEATURE_IQ, <<"iq">>).
 -define(NS_FLEX_OFFLINE, <<"http://jabber.org/protocol/offline">>).
 -define(NS_COMPRESS,
 	<<"http://jabber.org/protocol/compress">>).
