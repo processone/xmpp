@@ -1,5 +1,6 @@
 # Version 1.2.2
 
+* Updating fast_xml to version 1.1.32.
 * Fix crash when trying to encode xmlcdata
 * Add missing files to hex package
 
