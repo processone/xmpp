@@ -1,3 +1,8 @@
+# Version 1.2.2
+
+* Fix crash when trying to encode xmlcdata
+* Add missing files to hex package
+
 # Version 1.2.1
 
 * Updating p1_utils to version 1.0.12.
