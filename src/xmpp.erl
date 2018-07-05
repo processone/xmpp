@@ -43,7 +43,7 @@
 	 append_subtags/2, prep_lang/1, register_codec/1, unregister_codec/1,
 	 set_tr_callback/1, format_stanza_error/1, format_stanza_error/2,
 	 format_stream_error/1, format_stream_error/2, format_sasl_error/1,
-	 format_sasl_error/2]).
+	 format_sasl_error/2, set_config/1, get_config/0]).
 
 %% XMPP errors
 -export([err_bad_request/0, err_bad_request/2,
@@ -102,6 +102,7 @@
 -type reason_text() :: binary() | {io:format(), list()}.
 -type lang() :: binary().
 -type decode_option() :: ignore_els.
+-type config_option() :: {debug, boolean()} | {fqdn, [binary()]}.
 
 %%%===================================================================
 %%% Application callbacks
@@ -110,9 +111,14 @@ start(_StartType, _StartArgs) ->
     try
 	{ok, _} = application:ensure_all_started(fast_xml),
 	{ok, _} = application:ensure_all_started(stringprep),
+	{ok, _} = application:ensure_all_started(fast_tls),
+	{ok, _} = application:ensure_all_started(ezlib),
 	ok = jid:start(),
 	ok = xmpp_uri:start(),
 	ok = xmpp_lang:start(),
+	p1_options:start_link(xmpp_config),
+	p1_options:insert(xmpp_config, debug, global, false),
+	p1_options:insert(xmpp_config, fqdn, global, []),
 	xmpp_sup:start_link()
     catch _:{badmatch, Err} ->
 	    Err
@@ -570,6 +576,29 @@ set_tr_callback(Callback) ->
 		 end,
     {module, xmpp_tr} = code:load_binary(xmpp_tr, "nofile", Code),
     ok.
+
+-spec set_config([config_option()]) -> ok.
+set_config(Options) ->
+    lists:foreach(
+      fun({debug, Bool}) when is_boolean(Bool) ->
+	      p1_options:insert(xmpp_config, debug, global, Bool);
+	 ({fqdn, Domains}) ->
+	      case lists:all(fun erlang:is_binary/1, Domains) of
+		  true ->
+		      p1_options:insert(xmpp_config, fqdn, global, Domains);
+		  false ->
+		      erlang:error(badarg)
+	      end;
+	 (_) ->
+	      erlang:error(badarg)
+      end, Options),
+    p1_options:compile(xmpp_config).
+
+-spec get_config() -> [config_option()].
+get_config() ->
+    {ok, Debug} = xmpp_config:debug(global),
+    {ok, Domains} = xmpp_config:fqdn(global),
+    [{debug, Debug}, {fqdn, Domains}].
 
 %%%===================================================================
 %%% Functions to construct general XMPP errors

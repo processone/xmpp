@@ -30,6 +30,7 @@
 	 set_xdata_field/2, has_xdata_var/2,
 	 make_adhoc_response/1, make_adhoc_response/2,
 	 decode_timestamp/1, encode_timestamp/1]).
+-export([hex/1]).
 
 -include("xmpp.hrl").
 
@@ -145,6 +146,10 @@ encode_timestamp({MegaSecs, Secs, MicroSecs}) ->
 				 [Year, Month, Day, Hour, Minute, Second,
 				  Fraction])).
 
+-spec hex(binary()) -> binary().
+hex(Bin) ->
+    << <<(to_xchar(N div 16)), (to_xchar(N rem 16))>> || <<N>> <= Bin >>.
+
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
@@ -183,3 +188,6 @@ to_integer(S, Min, Max) ->
 	I when I >= Min, I =< Max ->
 	    I
     end.
+
+to_xchar(D) when (D >= 0) and (D < 10) -> D + $0;
+to_xchar(D) -> D + $a - 10.
