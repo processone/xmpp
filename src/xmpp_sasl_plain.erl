@@ -38,44 +38,48 @@ mech_new(_Host, _GetPassword, CheckPassword, _CheckPasswordDigest) ->
 
 mech_step(State, ClientIn) ->
     case prepare(ClientIn) of
-      [AuthzId, User, Password] ->
-	  case (State#state.check_password)(User, AuthzId, Password) of
-	    {true, AuthModule} ->
-		{ok,
-		 [{username, User}, {authzid, AuthzId},
-		  {auth_module, AuthModule}]};
-	    _ -> {error, not_authorized, User}
-	  end;
-      _ -> {error, parser_failed}
+	{AuthzId, User, Password} ->
+	    case (State#state.check_password)(User, AuthzId, Password) of
+		{true, AuthModule} ->
+		    {ok, [{username, User},
+			  {authzid, AuthzId},
+			  {auth_module, AuthModule}]};
+		_ ->
+		    {error, not_authorized, User}
+	    end;
+	error ->
+	    {error, parser_failed}
     end.
 
+-spec prepare(binary()) -> {binary(), binary(), binary()} | error.
 prepare(ClientIn) ->
     case parse(ClientIn) of
-      [<<"">>, UserMaybeDomain, Password] ->
-	  case parse_domain(UserMaybeDomain) of
-	    %% <NUL>login@domain<NUL>pwd
-	    [User, _Domain] -> [User, User, Password];
-	    %% <NUL>login<NUL>pwd
-	    [User] -> [User, User, Password]
-	  end;
-      [AuthzId, User, Password] ->
-      case parse_domain(AuthzId) of
-      %% login@domain<NUL>login<NUL>pwd
-        [AuthzUser, _Domain] -> [AuthzUser, User, Password];
-        %% login<NUL>login<NUL>pwd
-        [AuthzUser] -> [AuthzUser, User, Password]
-      end;
-      _ -> error
+	[<<"">>, UserMaybeDomain, Password] ->
+	    case parse_authzid(UserMaybeDomain) of
+		{ok, User} ->
+		    {User, User, Password};
+		_ ->
+		    error
+	    end;
+	[AuthzId, User, Password] ->
+	    case parse_authzid(AuthzId) of
+		{ok, AuthzUser} ->
+		    {AuthzUser, User, Password};
+		_ ->
+		    error
+	    end;
+	_ ->
+	    error
     end.
 
+-spec parse(binary()) -> [binary()].
 parse(S) ->
     binary:split(S, <<0>>, [global]).
 
-parse_domain(S) -> parse_domain1(binary_to_list(S), "", []).
-
-parse_domain1([$@ | Cs], S, T) ->
-    parse_domain1(Cs, "", [list_to_binary(lists:reverse(S)) | T]);
-parse_domain1([C | Cs], S, T) ->
-    parse_domain1(Cs, [C | S], T);
-parse_domain1([], S, T) ->
-    lists:reverse([list_to_binary(lists:reverse(S)) | T]).
+-spec parse_authzid(binary()) -> {ok, binary()} | error.
+parse_authzid(S) ->
+    case binary:split(S, <<$@>>) of
+	[User] -> {ok, User};
+	[User, _Domain] -> {ok, User};
+	_ -> error
+    end.
