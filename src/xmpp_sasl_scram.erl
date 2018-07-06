@@ -31,8 +31,7 @@
          server_key = <<"">>   :: binary(),
          username = <<"">>     :: binary(),
 	 auth_module           :: module(),
-         get_password          :: fun((binary()) ->
-				  {false | ejabberd_auth:password(), module()}),
+         get_password          :: fun((binary()) -> {boolean(), module()}),
          auth_message = <<"">> :: binary(),
          client_nonce = <<"">> :: binary(),
 	 server_nonce = <<"">> :: binary()}).

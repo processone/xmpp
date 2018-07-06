@@ -153,7 +153,7 @@ parse4([C | Cs], Key, Val, Ts) ->
 parse4([], Key, Val, Ts) ->
 %% @doc Check if the digest-uri is valid.
 %% RFC-2831 allows to provide the IP address in Host,
-%% however ejabberd doesn't allow that.
+%% however this is not supported
 %% If the service (for example jabber.example.org)
 %% is provided by several hosts (being one of them server3.example.org),
 %% then acceptable digest-uris would be:

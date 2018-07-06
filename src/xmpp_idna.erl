@@ -61,7 +61,7 @@ domain_ucs2_to_ascii1(Domain) ->
 			       ASCIIParts),
 		 left, $.).
 
-%% Domain names are already nameprep'ed in ejabberd, so we skiping this step
+%% Assuming domain name is already nameprep'ed
 to_ascii(Name) ->
     false = lists:any(fun (C)
 			      when (0 =< C) and (C =< 44) or

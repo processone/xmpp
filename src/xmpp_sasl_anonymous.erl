@@ -32,4 +32,4 @@ mech_step(#state{}, _ClientIn) ->
                              integer_to_binary(p1_time_compat:unique_integer([positive]))]),
     {ok, [{username, User},
 	  {authzid, User},
-	  {auth_module, ejabberd_auth_anonymous}]}.
+	  {auth_module, anonymous}]}.
