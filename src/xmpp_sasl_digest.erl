@@ -23,8 +23,6 @@
 %% For tests
 -export([parse/1]).
 
--include_lib("kernel/include/inet.hrl").
-
 -type get_password_fun() :: fun((binary()) -> {false, any()} |
                                               {binary(), atom()}).
 -type check_password_fun() :: fun((binary(), binary(), binary(), binary(),
@@ -186,16 +184,8 @@ is_host_fqdn(Host, [Fqdn | FqdnTail]) when Host /= Fqdn ->
 get_local_fqdn(Host) ->
     {ok, FQDNs} = xmpp_config:fqdn(Host),
     case FQDNs of
-	[] ->
-	    {ok, Hostname} = inet:gethostname(),
-	    case inet:gethostbyname(Hostname) of
-		{ok, #hostent{h_name = FQDN}} ->
-		    [iolist_to_binary(FQDN)];
-		{error, _} ->
-		    [Host]
-	    end;
-	_ ->
-	    FQDNs
+	[] -> [Host];
+	_ -> FQDNs
     end.
 
 hex(S) ->
