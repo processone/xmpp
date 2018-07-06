@@ -925,7 +925,7 @@ get_sasl_mechanisms(#{stream_encrypted := Encrypted,
     catch _:{?MODULE, undef} -> Mechs1
     end.
 
--spec get_sasl_feature(state()) -> [xmpp_sasl:mechanism()].
+-spec get_sasl_feature(state()) -> [sasl_mechanisms()].
 get_sasl_feature(#{stream_authenticated := false,
 		   stream_encrypted := Encrypted} = State) ->
     TLSRequired = is_starttls_required(State),

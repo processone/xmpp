@@ -113,8 +113,6 @@ verify_cert(Socket) ->
 		    Reason = fast_tls:get_cert_verify_string(VerifyRes, Cert),
 		    {error, erlang:binary_to_atom(Reason, utf8)}
 	    end;
-	{error, _Reason} ->
-	    {error, get_cert_failed};
 	error ->
 	    {error, get_cert_failed}
     end.

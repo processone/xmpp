@@ -25,13 +25,16 @@
 
 -include("scram.hrl").
 
+-type password() :: binary() | #scram{}.
+-type get_password_fun() :: fun((binary()) -> {false | password(), module()}).
+
 -record(state,
 	{step = 2              :: 2 | 4,
          stored_key = <<"">>   :: binary(),
          server_key = <<"">>   :: binary(),
          username = <<"">>     :: binary(),
 	 auth_module           :: module(),
-         get_password          :: fun((binary()) -> {boolean(), module()}),
+         get_password          :: get_password_fun(),
          auth_message = <<"">> :: binary(),
          client_nonce = <<"">> :: binary(),
 	 server_nonce = <<"">> :: binary()}).

@@ -18,6 +18,7 @@
 -module(xmpp_sasl_digest).
 -behaviour(xmpp_sasl).
 -author('alexey@sevcom.net').
+-dialyzer({no_match, [get_local_fqdn/1]}).
 
 -export([mech_new/4, mech_step/2, format_error/1]).
 %% For tests

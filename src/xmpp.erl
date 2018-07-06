@@ -24,6 +24,7 @@
 
 -module(xmpp).
 -behaviour(application).
+-dialyzer({nowarn_function, get_els/1}).
 
 %% API
 %% Application callbacks

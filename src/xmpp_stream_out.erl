@@ -18,6 +18,7 @@
 -module(xmpp_stream_out).
 -define(GEN_SERVER, p1_server).
 -behaviour(?GEN_SERVER).
+-dialyzer({no_contracts, h_addr_list_to_host_ports/1}).
 
 -protocol({rfc, 6120}).
 -protocol({xep, 114, '1.6'}).
@@ -212,7 +213,7 @@ get_transport(#{socket := Socket, owner := Owner})
 get_transport(_) ->
     erlang:error(badarg).
 
--spec change_shaper(state(), shaper:shaper()) -> state().
+-spec change_shaper(state(), p1_shaper:state()) -> state().
 change_shaper(#{socket := Socket, owner := Owner} = State, Shaper)
   when Owner == self() ->
     Socket1 = xmpp_socket:change_shaper(Socket, Shaper),
@@ -1074,6 +1075,8 @@ srv_lookup(Host, State) ->
 	    end
     end.
 
+-spec srv_lookup(string(), state(), timeout(), integer()) ->
+			{ok, h_addr_list()} | network_error().
 srv_lookup(Host, #{xmlns := NS} = State, Timeout, Retries) ->
     SRVType = case NS of
 		  ?NS_SERVER -> "-server._tcp.";

@@ -16,8 +16,10 @@
 
 -export_type([property/0, result/0, form/0]).
 
+-dialyzer({nowarn_function, {dec_int, 3}}).
+
 dec_int(Val, Min, Max) ->
-    case list_to_integer(binary_to_list(Val)) of
+    case erlang:binary_to_integer(Val) of
       Int when Int =< Max, Min == infinity -> Int;
       Int when Int =< Max, Int >= Min -> Int
     end.

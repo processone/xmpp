@@ -17,6 +17,7 @@
 %%%-------------------------------------------------------------------
 -module(xmpp_socket).
 -author('alexey@process-one.net').
+-dialyzer({no_match, [send/2, parse/2]}).
 
 %% API
 -export([start/4,
@@ -46,15 +47,11 @@
 
 -include("xmpp.hrl").
 
--type sockmod() :: ejabberd_bosh |
-                   ejabberd_http_ws |
-                   gen_tcp | fast_tls | ezlib.
--type receiver() :: atom().
+-type sockmod() :: gen_tcp | fast_tls | ezlib | module().
+-type receiver() :: undefined | module() | pid().
 -type socket() :: pid() | inet:socket() |
                   fast_tls:tls_socket() |
-		  ezlib:zlib_socket() |
-		  ejabberd_bosh:bosh_socket() |
-		  ejabberd_http_ws:ws_socket().
+		  ezlib:zlib_socket() | any().
 
 -record(socket_state, {sockmod = gen_tcp :: sockmod(),
                        socket            :: socket(),

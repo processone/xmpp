@@ -121,7 +121,7 @@ dec_int(Val) ->
     dec_int(Val, infinity, infinity).
 
 dec_int(Val, Min, Max) ->
-    case list_to_integer(binary_to_list(Val)) of
+    case erlang:binary_to_integer(Val) of
         Int when Int =< Max, Min == infinity ->
             Int;
         Int when Int =< Max, Int >= Min ->
@@ -293,7 +293,16 @@ mk_header(#state{mod_name = Mod, hrl = Include, xmlns = NS} = State) ->
     emit("-export([decode/1, decode/2, format_error/1, io_format_error/1]).~n"),
     emit("-include(\"xmpp_codec.hrl\").~n"),
     emit("-include(\"~s\").~n", [Include]),
-    emit("-export_type([property/0, result/0, form/0]).~n").
+    emit("-export_type([property/0, result/0, form/0]).~n"),
+    case lists:any(
+	   fun({_, {dec_int, _}}) -> true;
+	      (_) -> false
+	   end, State#state.dec_mfas) of
+	true ->
+	    emit("-dialyzer({nowarn_function, dec_int/3}).~n");
+	false ->
+	    ok
+    end.
 
 mk_type_definitions(Fs, State) ->
     mk_comment_header(State),
