@@ -787,8 +787,7 @@ process_sasl_request(#sasl_auth{mechanism = Mech, text = ClientIn},
 	    GetPW = get_password_fun(Mech, State1),
 	    CheckPW = check_password_fun(Mech, State1),
 	    CheckPWDigest = check_password_digest_fun(Mech, State1),
-	    SASLState = xmpp_sasl:server_new(<<"jabber">>, LServer, <<"">>, [],
-					   GetPW, CheckPW, CheckPWDigest),
+	    SASLState = xmpp_sasl:server_new(LServer, GetPW, CheckPW, CheckPWDigest),
 	    Res = xmpp_sasl:server_start(SASLState, Mech, ClientIn),
 	    process_sasl_result(Res, State1#{sasl_state => SASLState});
 	false ->
