@@ -39,25 +39,21 @@ authenticate(State) ->
 authenticate(#{xmlns := ?NS_SERVER,
 	       socket := Socket} = State, Authzid) ->
     Peer = maps:get(remote_server, State, Authzid),
-    case verify_cert(Socket) of
-	{ok, Cert} ->
-	    case xmpp_idna:domain_utf8_to_ascii(Peer) of
-		false ->
-		    {error, idna_failed, Peer};
-		AsciiPeer ->
-		    case lists:any(
-			   fun(D) -> match_domain(AsciiPeer, D) end,
-			   get_cert_domains(Cert)) of
-			true ->
-			    {ok, Peer};
-			false ->
-			    {error, hostname_mismatch, Peer}
-		    end
-	    end;
+    case verify_server_cert(Peer, Socket) of
+	ok ->
+	    {ok, Peer};
 	{error, Reason} ->
 	    {error, Reason, Peer}
     end;
-authenticate(#{xmlns := ?NS_CLIENT,
+authenticate(#{xmlns := ?NS_CLIENT, stream_direction := out,
+	       socket := Socket, server := Server}, _) ->
+    case verify_server_cert(Server, Socket) of
+	ok ->
+	    {ok, Server};
+	{error, Reason} ->
+	    {error, Reason, Server}
+    end;
+authenticate(#{xmlns := ?NS_CLIENT, stream_direction := in,
 	       socket := Socket, server := Server}, Authzid) ->
     JID = try jid:decode(Authzid)
 	  catch _:{bad_jid, <<>>} -> jid:make(Server);
@@ -100,6 +96,27 @@ get_cert_domains(Cert) ->
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
+-spec verify_server_cert(binary(), xmpp_socket:socket()) -> ok | {error, atom()}.
+verify_server_cert(Server, Socket) ->
+    case verify_cert(Socket) of
+	{ok, Cert} ->
+	    case xmpp_idna:domain_utf8_to_ascii(Server) of
+		false ->
+		    {error, idna_failed};
+		AsciiServer ->
+		    case lists:any(
+			   fun(D) -> match_domain(AsciiServer, D) end,
+			   get_cert_domains(Cert)) of
+			true ->
+			    ok;
+			false ->
+			    {error, hostname_mismatch}
+		    end
+	    end;
+	{error, _} = Err ->
+	    Err
+    end.
+
 -spec verify_cert(xmpp_socket:socket()) -> {ok, cert()} | {error, atom()}.
 verify_cert(Socket) ->
     case xmpp_socket:get_peer_certificate(Socket, otp) of
