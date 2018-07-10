@@ -58,13 +58,13 @@ authenticate(#{xmlns := ?NS_SERVER,
 	    {error, Reason, Peer}
     end;
 authenticate(#{xmlns := ?NS_CLIENT,
-	       socket := Socket, lserver := LServer}, Authzid) ->
+	       socket := Socket, server := Server}, Authzid) ->
     JID = try jid:decode(Authzid)
-	  catch _:{bad_jid, <<>>} -> jid:make(LServer);
+	  catch _:{bad_jid, <<>>} -> jid:make(Server);
 		_:{bad_jid, _} -> {error, invalid_authzid, Authzid}
 	  end,
     case JID of
-	#jid{user = User} ->
+	#jid{user = User, lserver = LServer} ->
 	    case verify_cert(Socket) of
 		{ok, Cert} ->
 		    JIDs = get_xmpp_addrs(Cert),
