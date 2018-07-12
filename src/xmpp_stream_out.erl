@@ -40,6 +40,9 @@
 -endif.
 
 -define(TCP_SEND_TIMEOUT, 15000).
+-define(NEGOTIATION_TIMEOUT, 30000).
+-define(DNS_TIMEOUT, 10000).
+-define(CONNECT_TIMEOUT, 10000).
 
 -include("xmpp.hrl").
 -include_lib("kernel/include/inet.hrl").
@@ -201,8 +204,7 @@ set_timeout(#{owner := Owner} = State, Timeout) when Owner == self() ->
     case Timeout of
 	infinity -> State#{stream_timeout => infinity};
 	_ ->
-	    Time = p1_time_compat:monotonic_time(milli_seconds),
-	    State#{stream_timeout => {Timeout, Time}}
+	    State#{stream_timeout => current_time() + Timeout}
     end;
 set_timeout(_, _) ->
     erlang:error(badarg).
@@ -253,7 +255,6 @@ format_error(Err) ->
 %%%===================================================================
 -spec init(list()) -> {ok, state(), timeout()} | {stop, term()} | ignore.
 init([Mod, From, To, Opts]) ->
-    Time = p1_time_compat:monotonic_time(milli_seconds),
     State = #{owner => self(),
 	      mod => Mod,
 	      server => From,
@@ -265,7 +266,7 @@ init([Mod, From, To, Opts]) ->
 	      xmlns => ?NS_SERVER,
 	      codec_options => [ignore_els],
 	      stream_direction => out,
-	      stream_timeout => {timer:seconds(30), Time},
+	      stream_timeout => current_time() + ?NEGOTIATION_TIMEOUT,
 	      stream_id => xmpp_stream:new_id(),
 	      stream_encrypted => false,
 	      stream_verified => false,
@@ -452,12 +453,8 @@ code_change(OldVsn, State, Extra) ->
 %%% Internal functions
 %%%===================================================================
 -spec noreply(state()) -> noreply().
-noreply(#{stream_timeout := infinity} = State) ->
-    {noreply, State, infinity};
-noreply(#{stream_timeout := {MSecs, OldTime}} = State) ->
-    NewTime = p1_time_compat:monotonic_time(milli_seconds),
-    Timeout = max(0, MSecs - NewTime + OldTime),
-    {noreply, State, Timeout}.
+noreply(State) ->
+    {noreply, State, get_timeout(State)}.
 
 -spec is_disconnected(state()) -> boolean().
 is_disconnected(#{stream_state := StreamState}) ->
@@ -969,6 +966,17 @@ fix_from(Pkt, #{xmlns := ?NS_CLIENT} = State) ->
 fix_from(Pkt, _State) ->
     Pkt.
 
+-spec current_time() -> integer().
+current_time() ->
+    p1_time_compat:monotonic_time(milli_seconds).
+
+-spec get_timeout(state()) -> timeout().
+get_timeout(#{stream_timeout := ExpireTime}) ->
+    case ExpireTime of
+	infinity -> infinity;
+	_ -> max(0, ExpireTime - current_time())
+    end.
+
 %%%===================================================================
 %%% State resets
 %%%===================================================================
@@ -1064,9 +1072,7 @@ srv_lookup(Host, State) ->
 		{ok, _} ->
 		    {error, nxdomain};
 		{error, _} ->
-		    Timeout = get_dns_timeout(State),
-		    Retries = get_dns_retries(State),
-		    case srv_lookup(Host, State, Timeout, Retries) of
+		    case do_srv_lookup(Host, State) of
 			{ok, AddrList} ->
 			    h_addr_list_to_host_ports(AddrList);
 			{error, _} = Err ->
@@ -1075,17 +1081,18 @@ srv_lookup(Host, State) ->
 	    end
     end.
 
--spec srv_lookup(string(), state(), timeout(), integer()) ->
-			{ok, h_addr_list()} | network_error().
-srv_lookup(Host, #{xmlns := NS} = State, Timeout, Retries) ->
+-spec do_srv_lookup(string(), state()) ->
+			   {ok, h_addr_list()} | network_error().
+do_srv_lookup(Host, #{xmlns := NS} = State) ->
+    Retries = get_dns_retries(State),
     SRVType = case NS of
 		  ?NS_SERVER -> "-server._tcp.";
 		  ?NS_CLIENT -> "-client._tcp."
 	      end,
     TLSAddrs = case is_starttls_available(State) of
 		   true ->
-		       case srv_lookup("_xmpps" ++ SRVType ++ Host,
-				       Timeout, Retries) of
+		       case do_srv_lookup("_xmpps" ++ SRVType ++ Host,
+					  State, Retries) of
 			   {ok, HostEnt} ->
 			       [{A, true} || A <- HostEnt#hostent.h_addr_list];
 			   {error, _} ->
@@ -1094,7 +1101,7 @@ srv_lookup(Host, #{xmlns := NS} = State, Timeout, Retries) ->
 		   false ->
 		       []
 	       end,
-    case srv_lookup("_xmpp" ++ SRVType ++ Host, Timeout, Retries) of
+    case do_srv_lookup("_xmpp" ++ SRVType ++ Host, State, Retries) of
 	{ok, HostEntry} ->
 	    Addrs = [{A, false} || A <- HostEntry#hostent.h_addr_list],
 	    {ok, TLSAddrs ++ Addrs};
@@ -1104,16 +1111,17 @@ srv_lookup(Host, #{xmlns := NS} = State, Timeout, Retries) ->
 	    Err
     end.
 
--spec srv_lookup(string(), timeout(), integer()) ->
-			{ok, inet:hostent()} | network_error().
-srv_lookup(_SRVName, _Timeout, Retries) when Retries < 1 ->
+-spec do_srv_lookup(string(), state(), integer()) ->
+			   {ok, inet:hostent()} | network_error().
+do_srv_lookup(_SRVName, _State, Retries) when Retries < 1 ->
     {error, timeout};
-srv_lookup(SRVName, Timeout, Retries) ->
+do_srv_lookup(SRVName, State, Retries) ->
+    Timeout = get_dns_timeout(State),
     case inet_res:getbyname(SRVName, srv, Timeout) of
 	{ok, HostEntry} ->
 	    {ok, HostEntry};
 	{error, timeout} ->
-	    srv_lookup(SRVName, Timeout, Retries - 1);
+	    do_srv_lookup(SRVName, State, Retries - 1);
 	{error, _} = Err ->
 	    Err
     end.
@@ -1140,9 +1148,8 @@ a_lookup([{Addr, Port, TLS, Family}|HostPortFamilies], State, Acc, Err)
 	   end,
     a_lookup(HostPortFamilies, State, Acc1, Err);
 a_lookup([{Host, Port, TLS, Family}|HostPortFamilies], State, Acc, Err) ->
-    Timeout = get_dns_timeout(State),
     Retries = get_dns_retries(State),
-    case a_lookup(Host, Port, TLS, Family, Timeout, Retries) of
+    case a_lookup(Host, Port, TLS, Family, State, Retries) of
 	{error, Reason} ->
 	    a_lookup(HostPortFamilies, State, Acc, {error, Reason});
 	{ok, AddrPorts} ->
@@ -1154,21 +1161,22 @@ a_lookup([], _State, Acc, _) ->
     {ok, Acc}.
 
 -spec a_lookup(inet:hostname(), inet:port_number(), boolean(), inet:address_family(),
-	       timeout(), integer()) -> {ok, [ip_port()]} | network_error().
-a_lookup(_Host, _Port, _TLS, _Family, _Timeout, Retries) when Retries < 1 ->
+	       state(), integer()) -> {ok, [ip_port()]} | network_error().
+a_lookup(_Host, _Port, _TLS, _Family, _State, Retries) when Retries < 1 ->
     {error, timeout};
-a_lookup(Host, Port, TLS, Family, Timeout, Retries) ->
-    Start = p1_time_compat:monotonic_time(milli_seconds),
+a_lookup(Host, Port, TLS, Family, State, Retries) ->
+    Timeout = get_dns_timeout(State),
+    Start = current_time(),
     case inet:gethostbyname(Host, Family, Timeout) of
 	{error, nxdomain} = Err ->
 	    %% inet:gethostbyname/3 doesn't return {error, timeout},
 	    %% so we should check if 'nxdomain' is in fact a result
 	    %% of a timeout.
 	    %% We also cannot use inet_res:gethostbyname/3 because
-	    %% it ignores DNS configuration settings (/etc/hosts, etc)
-	    End = p1_time_compat:monotonic_time(milli_seconds),
+	    %% it ignores DNS configuration settings (e.g. /etc/hosts)
+	    End = current_time(),
 	    if (End - Start) >= Timeout ->
-		    a_lookup(Host, Port, TLS, Family, Timeout, Retries - 1);
+		    a_lookup(Host, Port, TLS, Family, State, Retries - 1);
 	       true ->
 		    Err
 	    end;
@@ -1218,8 +1226,7 @@ host_entry_to_addr_ports(#hostent{h_addr_list = AddrList}, Port, TLS) ->
 				       {error, {socket, socket_error_reason()}} |
 				       {error, {tls, tls_error_reason()}}.
 connect(AddrPorts, State) ->
-    Timeout = get_connect_timeout(State),
-    case connect(AddrPorts, Timeout, State, {error, nxdomain}) of
+    case connect(AddrPorts, State, {error, nxdomain}) of
 	{ok, Socket, {Addr, Port, TLS = true}} ->
 	    case starttls(Socket, State) of
 		{ok, TLSSocket} -> {ok, TLSSocket, {Addr, Port, TLS}};
@@ -1231,9 +1238,9 @@ connect(AddrPorts, State) ->
 	    {error, {socket, Why}}
     end.
 
--spec connect([ip_port()], timeout(), state(), network_error()) ->
+-spec connect([ip_port()], state(), network_error()) ->
 		     {ok, term(), ip_port()} | network_error().
-connect([{Addr, Port, TLS}|AddrPorts], Timeout, State, _) ->
+connect([{Addr, Port, TLS}|AddrPorts], State, _) ->
     Type = get_addr_type(Addr),
     Opts = [binary, {packet, 0},
 	    {send_timeout, ?TCP_SEND_TIMEOUT},
@@ -1242,15 +1249,16 @@ connect([{Addr, Port, TLS}|AddrPorts], Timeout, State, _) ->
     Opts1 = try callback(connect_options, Addr, Opts, State)
 	    catch _:{?MODULE, undef} -> Opts
 	    end,
+    Timeout = get_connect_timeout(State),
     try xmpp_socket:connect(Addr, Port, Opts1, Timeout) of
 	{ok, Socket} ->
 	    {ok, Socket, {Addr, Port, TLS}};
 	Err ->
-	    connect(AddrPorts, Timeout, State, Err)
+	    connect(AddrPorts, State, Err)
     catch _:badarg ->
-	    connect(AddrPorts, Timeout, State, {error, einval})
+	    connect(AddrPorts, State, {error, einval})
     end;
-connect([], _Timeout, _State, Err) ->
+connect([], _State, Err) ->
     Err.
 
 -spec get_addr_type(inet:ip_address()) -> inet:address_family().
@@ -1259,9 +1267,10 @@ get_addr_type({_, _, _, _, _, _, _, _}) -> inet6.
 
 -spec get_dns_timeout(state()) -> timeout().
 get_dns_timeout(State) ->
-    try callback(dns_timeout, State)
-    catch _:{?MODULE, undef} -> timer:seconds(10)
-    end.
+    Timeout = try callback(dns_timeout, State)
+	      catch _:{?MODULE, undef} -> ?DNS_TIMEOUT
+	      end,
+    min(Timeout, get_timeout(State)).
 
 -spec get_dns_retries(state()) -> non_neg_integer().
 get_dns_retries(State) ->
@@ -1284,9 +1293,10 @@ get_address_families(State) ->
 
 -spec get_connect_timeout(state()) -> timeout().
 get_connect_timeout(State) ->
-    try callback(connect_timeout, State)
-    catch _:{?MODULE, undef} -> timer:seconds(10)
-    end.
+    Timeout = try callback(connect_timeout, State)
+	      catch _:{?MODULE, undef} -> ?CONNECT_TIMEOUT
+	      end,
+    min(Timeout, get_timeout(State)).
 
 %%%===================================================================
 %%% Callbacks
