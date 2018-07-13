@@ -844,7 +844,7 @@
 -type pubsub_owner() :: #pubsub_owner{}.
 
 -record(ps_options, {node = <<>> :: binary(),
-                     jid :: jid:jid(),
+                     jid :: undefined | jid:jid(),
                      subid = <<>> :: binary(),
                      xdata :: 'undefined' | #xdata{}}).
 -type ps_options() :: #ps_options{}.

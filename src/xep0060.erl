@@ -2687,8 +2687,7 @@ encode_pubsub_options_attr_subid(_val, _acc) ->
     [{<<"subid">>, _val} | _acc].
 
 decode_pubsub_options_attr_jid(__TopXMLNS, undefined) ->
-    erlang:error({xmpp_codec,
-		  {missing_attr, <<"jid">>, <<"options">>, __TopXMLNS}});
+    undefined;
 decode_pubsub_options_attr_jid(__TopXMLNS, _val) ->
     case catch jid:decode(_val) of
       {'EXIT', _} ->
@@ -2698,6 +2697,7 @@ decode_pubsub_options_attr_jid(__TopXMLNS, _val) ->
       _res -> _res
     end.
 
+encode_pubsub_options_attr_jid(undefined, _acc) -> _acc;
 encode_pubsub_options_attr_jid(_val, _acc) ->
     [{<<"jid">>, jid:encode(_val)} | _acc].
 
