@@ -2190,7 +2190,6 @@
            attrs = [#attr{name = <<"node">>},
                     #attr{name = <<"subid">>},
                     #attr{name = <<"jid">>,
-                          required = true,
                           dec = {jid, decode, []},
                           enc = {jid, encode, []}}],
            refs = [#ref{name = xdata, min = 0, max = 1,
