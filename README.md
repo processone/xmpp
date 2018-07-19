@@ -271,6 +271,7 @@ XMPP elements from the following documents are supported:
 - [XEP-0138](https://xmpp.org/extensions/xep-0138.html):  Stream Compression
 - [XEP-0153](https://xmpp.org/extensions/xep-0153.html):  vCard-Based Avatars
 - [XEP-0158](https://xmpp.org/extensions/xep-0158.html):  CAPTCHA Forms
+- [XEP-0166](https://xmpp.org/extensions/xep-0166.html):  Jingle
 - [XEP-0172](https://xmpp.org/extensions/xep-0172.html):  User Nickname
 - [XEP-0184](https://xmpp.org/extensions/xep-0184.html):  Message Delivery Receipts
 - [XEP-0191](https://xmpp.org/extensions/xep-0191.html):  Blocking Command

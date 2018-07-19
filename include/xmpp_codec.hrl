@@ -97,6 +97,11 @@
 		       'no-permanent-store' | 'no-permanent-storage'}).
 -type hint() :: #hint{}.
 
+-record(jingle_error, {reason :: 'out-of-order' | 'tie-break' |
+				 'unknown-session' | 'unsupported-info' |
+				 'security-required'}).
+-type jingle_error() :: #jingle_error{}.
+
 -type xmpp_host() :: binary() | inet:ip_address() |
 		     {binary() | inet:ip_address(), inet:port_number()}.
 
@@ -208,6 +213,13 @@
 -record(sm_a, {h :: non_neg_integer(),
                xmlns = <<>> :: binary()}).
 -type sm_a() :: #sm_a{}.
+
+-record(jingle_content, {creator :: 'initiator' | 'responder',
+                         disposition = <<>> :: binary(),
+                         name = <<>> :: binary(),
+                         senders = both :: 'both' | 'initiator' | 'none' | 'responder',
+                         sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
+-type jingle_content() :: #jingle_content{}.
 
 -record(starttls_proceed, {}).
 -type starttls_proceed() :: #starttls_proceed{}.
@@ -327,6 +339,9 @@
                          sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
 -type avatar_pointer() :: #avatar_pointer{}.
 
+-record(sm_r, {xmlns = <<>> :: binary()}).
+-type sm_r() :: #sm_r{}.
+
 -record(muc_actor, {jid :: undefined | jid:jid(),
                     nick = <<>> :: binary()}).
 -type muc_actor() :: #muc_actor{}.
@@ -341,9 +356,6 @@
                error :: 'undefined' | #stat_error{}}).
 -type stat() :: #stat{}.
 
--record(sm_r, {xmlns = <<>> :: binary()}).
--type sm_r() :: #sm_r{}.
-
 -record(addresses, {list = [] :: [#address{}]}).
 -type addresses() :: #addresses{}.
 
@@ -354,6 +366,12 @@
                status = <<>> :: binary()}).
 -type last() :: #last{}.
 
+-record('see-other-host', {host :: binary() | inet:ip_address() | {binary() | inet:ip_address(),inet:port_number()}}).
+-type 'see-other-host'() :: #'see-other-host'{}.
+
+-record(compress, {methods = [] :: [binary()]}).
+-type compress() :: #compress{}.
+
 -record(redirect, {uri = <<>> :: binary()}).
 -type redirect() :: #redirect{}.
 
@@ -363,12 +381,6 @@
                      resume = false :: boolean(),
                      xmlns = <<>> :: binary()}).
 -type sm_enabled() :: #sm_enabled{}.
-
--record('see-other-host', {host :: binary() | inet:ip_address() | {binary() | inet:ip_address(),inet:port_number()}}).
--type 'see-other-host'() :: #'see-other-host'{}.
-
--record(compress, {methods = [] :: [binary()]}).
--type compress() :: #compress{}.
 
 -record(upload_file_too_large, {'max-file-size' :: 'undefined' | integer(),
                                 xmlns = <<>> :: binary()}).
@@ -929,6 +941,19 @@
 -record(push_notification, {xdata :: 'undefined' | #xdata{}}).
 -type push_notification() :: #push_notification{}.
 
+-record(jingle_reason, {reason :: atom(),
+                        text = [] :: [#text{}]}).
+-type jingle_reason() :: #jingle_reason{}.
+
+-record(jingle, {action :: atom(),
+                 sid = <<>> :: binary(),
+                 initiator :: undefined | jid:jid(),
+                 responder :: undefined | jid:jid(),
+                 content = [] :: [#jingle_content{}],
+                 reason :: 'undefined' | #jingle_reason{},
+                 sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
+-type jingle() :: #jingle{}.
+
 -record(mix_join, {jid :: undefined | jid:jid(),
                    subscribe = [] :: [binary()]}).
 -type mix_join() :: #mix_join{}.
@@ -1041,6 +1066,7 @@
                         upload_request_0() |
                         x_conference() |
                         bind() |
+                        jingle_content() |
                         starttls_proceed() |
                         vcard_tel() |
                         muc_item() |
@@ -1078,7 +1104,6 @@
                         muc_subscriptions() |
                         private() |
                         stream_features() |
-                        text() |
                         pubsub_owner() |
                         feature_sm() |
                         mam_prefs() |
@@ -1122,7 +1147,6 @@
                         nick() |
                         stats() |
                         push_disable() |
-                        search() |
                         search_item() |
                         ps_items() |
                         bookmark_conference() |
@@ -1131,6 +1155,7 @@
                         privacy_item() |
                         origin_id() |
                         receipt_request() |
+                        text() |
                         rsm_first() |
                         mam_result() |
                         carbons_enable() |
@@ -1144,9 +1169,11 @@
                         thumbnail() |
                         legacy_auth_feature() |
                         sasl_response() |
+                        jingle() |
                         rsm_set() |
                         compress() |
                         chatstate() |
+                        jingle_reason() |
                         upload_slot_0() |
                         privilege_perm() |
                         block_list() |
@@ -1162,9 +1189,11 @@
                         compressed() |
                         muc() |
                         iq() |
+                        search() |
                         ps_unsubscribe() |
                         sasl_abort() |
                         message() |
+                        jingle_error() |
                         muc_destroy() |
                         ps_affiliation() |
                         delegation_query() |
