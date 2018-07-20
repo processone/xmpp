@@ -197,6 +197,11 @@
                          type :: 'both' | 'get' | 'managed_entity' | 'none' | 'outgoing' | 'roster' | 'set'}).
 -type privilege_perm() :: #privilege_perm{}.
 
+-record(ibb_open, {sid = <<>> :: binary(),
+                   'block-size' :: non_neg_integer(),
+                   stanza = iq :: 'iq' | 'message'}).
+-type ibb_open() :: #ibb_open{}.
+
 -record(muc_decline, {reason = <<>> :: binary(),
                       from :: undefined | jid:jid(),
                       to :: undefined | jid:jid()}).
@@ -212,6 +217,11 @@
                            'content-type' = <<>> :: binary(),
                            xmlns = <<>> :: binary()}).
 -type upload_request_0() :: #upload_request_0{}.
+
+-record(ibb_data, {sid = <<>> :: binary(),
+                   seq :: non_neg_integer(),
+                   data = <<>> :: binary()}).
+-type ibb_data() :: #ibb_data{}.
 
 -record(sm_a, {h :: non_neg_integer(),
                xmlns = <<>> :: binary()}).
@@ -291,6 +301,9 @@
 
 -record(private, {sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
 -type private() :: #private{}.
+
+-record(ibb_close, {sid = <<>> :: binary()}).
+-type ibb_close() :: #ibb_close{}.
 
 -record(sm_enable, {max :: 'undefined' | non_neg_integer(),
                     resume = false :: boolean(),
@@ -1095,13 +1108,11 @@
                utc :: undefined | erlang:timestamp()}).
 -type time() :: #time{}.
 
--type xmpp_element() :: jingle_ibb_transport() |
-                        ps_options() |
+-type xmpp_element() :: ps_options() |
                         ps_publish() |
                         address() |
                         roster_item() |
                         bookmark_url() |
-                        jingle_ft_checksum() |
                         push_enable() |
                         delegation() |
                         disco_info() |
@@ -1109,31 +1120,31 @@
                         stanza_error() |
                         streamhost() |
                         pubsub() |
-                        jingle_s5b_transport() |
                         vcard_name() |
                         xmpp_session() |
                         sm_a() |
                         upload_file_too_large() |
+                        jingle_ft_checksum() |
                         vcard_geo() |
                         mam_query() |
                         delay() |
                         mam_archived() |
-                        jingle_reason() |
                         adhoc_actions() |
                         mix_join() |
                         legacy_auth() |
-                        jingle_ft_range() |
                         media() |
                         xdata_option() |
                         vcard_org() |
                         stanza_id() |
                         starttls() |
                         upload_request_0() |
+                        jingle_s5b_transport() |
                         x_conference() |
                         bind() |
                         starttls_proceed() |
                         vcard_tel() |
                         hash_used() |
+                        jingle() |
                         muc_item() |
                         forwarded() |
                         privacy_query() |
@@ -1146,7 +1157,7 @@
                         xcaptcha() |
                         push_notification() |
                         sm_resume() |
-                        jingle() |
+                        jingle_reason() |
                         muc_invite() |
                         sasl_auth() |
                         ps_error() |
@@ -1155,7 +1166,9 @@
                         time() |
                         db_feature() |
                         mix_leave() |
+                        jingle_ft_range() |
                         vcard_temp() |
+                        jingle_ibb_transport() |
                         sm_resumed() |
                         stream_error() |
                         identity() |
@@ -1165,24 +1178,23 @@
                         xevent() |
                         presence() |
                         sic() |
-                        jingle_ft_error() |
+                        jingle_ft_file() |
                         bob_data() |
                         register() |
                         muc_subscriptions() |
                         private() |
                         stream_features() |
-                        search() |
                         pubsub_owner() |
                         feature_sm() |
                         mam_prefs() |
                         expire() |
-                        jingle_ft_received() |
                         redirect() |
                         sm_r() |
                         xdata_field() |
                         upload_request() |
                         vcard_label() |
                         sasl_failure() |
+                        ibb_close() |
                         media_uri() |
                         sm_enabled() |
                         ps_event() |
@@ -1192,24 +1204,27 @@
                         block_item() |
                         carbons_received() |
                         muc_unsubscribe() |
-                        jingle_content() |
                         stat_error() |
                         feature_register() |
                         muc_admin() |
                         xdata() |
                         hash() |
                         sm_enable() |
+                        jingle_content() |
+                        text() |
                         compression() |
                         upload_slot() |
                         vcard_photo() |
                         sm_failed() |
                         ps_subscribe() |
+                        jingle_s5b_candidate() |
                         message_thread() |
                         adhoc_command() |
                         unblock() |
-                        jingle_s5b_candidate() |
+                        jingle_ft_error() |
                         bookmark_storage() |
                         privilege() |
+                        jingle_error() |
                         vcard_email() |
                         report() |
                         compress_failure() |
@@ -1224,7 +1239,6 @@
                         bookmark_conference() |
                         privacy_list() |
                         offline_item() |
-                        text() |
                         privacy_item() |
                         origin_id() |
                         receipt_request() |
@@ -1244,13 +1258,12 @@
                         rsm_set() |
                         compress() |
                         chatstate() |
+                        search() |
                         upload_slot_0() |
                         privilege_perm() |
-                        jingle_error() |
+                        ibb_open() |
                         block_list() |
                         caps() |
-                        jingle_ft_description() |
-                        jingle_ft_file() |
                         mam_fin() |
                         block() |
                         feature_csi() |
@@ -1261,6 +1274,7 @@
                         muc_decline() |
                         compressed() |
                         muc() |
+                        jingle_ft_description() |
                         iq() |
                         ps_unsubscribe() |
                         sasl_abort() |
@@ -1283,9 +1297,11 @@
                         avatar_pointer() |
                         muc_actor() |
                         avatar_info() |
+                        jingle_ft_received() |
                         receipt_response() |
                         muc_history() |
                         db_result() |
+                        ibb_data() |
                         db_verify() |
                         muc_unique() |
                         carbons_sent() |

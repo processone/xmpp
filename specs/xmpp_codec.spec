@@ -4216,6 +4216,40 @@
 	   attrs = [#attr{name = <<"algo">>,
 			  required = true}]}).
 
+-xml(ibb_open,
+     #elem{name = <<"open">>,
+	   xmlns = <<"http://jabber.org/protocol/ibb">>,
+	   module = 'xep0047',
+	   result = {ibb_open, '$sid', '$block-size', '$stanza'},
+	   attrs = [#attr{name = <<"sid">>, required = true},
+		    #attr{name = <<"block-size">>, required = true,
+			  enc = {enc_int, []},
+			  dec = {dec_int, [0, infinity]}},
+		    #attr{name = <<"stanza">>,
+			  default = iq,
+			  enc = {enc_enum, []},
+			  dec = {dec_enum, [[iq, message]]}}]}).
+
+-xml(ibb_data,
+     #elem{name = <<"data">>,
+	   xmlns = <<"http://jabber.org/protocol/ibb">>,
+	   module = 'xep0047',
+	   result = {ibb_data, '$sid', '$seq', '$data'},
+	   attrs = [#attr{name = <<"sid">>, required = true},
+		    #attr{name = <<"seq">>, required = true,
+			  enc = {enc_int, []},
+			  dec = {dec_int, [0, infinity]}}],
+	   cdata = #cdata{label = '$data',
+			  enc = {base64, encode, []},
+			  dec = {base64, decode, []}}}).
+
+-xml(ibb_close,
+     #elem{name = <<"close">>,
+	   xmlns = <<"http://jabber.org/protocol/ibb">>,
+	   module = 'xep0047',
+	   result = {ibb_close, '$sid'},
+	   attrs = [#attr{name = <<"sid">>, required = true}]}).
+
 -record(jingle_error, {reason :: 'out-of-order' | 'tie-break' |
 				 'unknown-session' | 'unsupported-info' |
 				 'security-required'}).

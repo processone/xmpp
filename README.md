@@ -251,6 +251,7 @@ XMPP elements from the following documents are supported:
 - [XEP-0033](https://xmpp.org/extensions/xep-0033.html):  Extended Stanza Addressing
 - [XEP-0039](https://xmpp.org/extensions/xep-0039.html):  Statistics Gathering
 - [XEP-0045](https://xmpp.org/extensions/xep-0045.html):  Multi-User Chat
+- [XEP-0047](https://xmpp.org/extensions/xep-0047.html):  In-Band Bytestreams
 - [XEP-0048](https://xmpp.org/extensions/xep-0048.html):  Bookmarks
 - [XEP-0049](https://xmpp.org/extensions/xep-0049.html):  Private XML Storage
 - [XEP-0050](https://xmpp.org/extensions/xep-0050.html):  Ad-Hoc Commands
