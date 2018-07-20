@@ -356,7 +356,7 @@ of an `xmlel()` element.
 > xmpp:get_id(#message{id = <<"abcd">>}).
 <<"abcd">>
 ```
-**Example 2**: obtaining `id` of `xmlele()`
+**Example 2**: obtaining `id` of `xmlel()`
 ```erlang
 > xmpp:get_id(#xmlel{attrs = [{<<"id">>, <<"abcd">>}]}).
 <<"abcd">>
