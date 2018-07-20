@@ -143,11 +143,6 @@
                      port = 1080 :: non_neg_integer()}).
 -type streamhost() :: #streamhost{}.
 
--record(sm_resume, {h :: non_neg_integer(),
-                    previd = <<>> :: binary(),
-                    xmlns = <<>> :: binary()}).
--type sm_resume() :: #sm_resume{}.
-
 -record(carbons_enable, {}).
 -type carbons_enable() :: #carbons_enable{}.
 
@@ -172,6 +167,11 @@
                          jid :: jid:jid(),
                          subid = <<>> :: binary()}).
 -type ps_unsubscribe() :: #ps_unsubscribe{}.
+
+-record(sm_resume, {h :: non_neg_integer(),
+                    previd = <<>> :: binary(),
+                    xmlns = <<>> :: binary()}).
+-type sm_resume() :: #sm_resume{}.
 
 -record(ping, {}).
 -type ping() :: #ping{}.
@@ -679,6 +679,23 @@
                        node = <<>> :: binary()}).
 -type push_disable() :: #push_disable{}.
 
+-record(jingle_s5b_candidate, {cid = <<>> :: binary(),
+                               host :: inet:ip_address(),
+                               port :: 'undefined' | non_neg_integer(),
+                               jid :: jid:jid(),
+                               type = direct :: 'assisted' | 'direct' | 'proxy' | 'tunnel',
+                               priority :: non_neg_integer()}).
+-type jingle_s5b_candidate() :: #jingle_s5b_candidate{}.
+
+-record(jingle_s5b_transport, {sid = <<>> :: binary(),
+                               dstaddr = <<>> :: binary(),
+                               mode = tcp :: 'tcp' | 'udp',
+                               candidates = [] :: [#jingle_s5b_candidate{}],
+                               'candidate-used' :: 'undefined' | binary(),
+                               activated :: 'undefined' | binary(),
+                               error :: 'candidate-error' | 'proxy-error' | 'undefined'}).
+-type jingle_s5b_transport() :: #jingle_s5b_transport{}.
+
 -record(delegated, {ns = <<>> :: binary(),
                     attrs = [] :: [binary()]}).
 -type delegated() :: #delegated{}.
@@ -1084,15 +1101,16 @@
                         disco_info() |
                         ps_retract() |
                         stanza_error() |
-                        search() |
                         streamhost() |
                         pubsub() |
+                        jingle_s5b_transport() |
                         vcard_name() |
                         xmpp_session() |
                         sm_a() |
                         upload_file_too_large() |
                         vcard_geo() |
                         mam_query() |
+                        text() |
                         delay() |
                         mam_archived() |
                         jingle_reason() |
@@ -1118,7 +1136,6 @@
                         sasl_challenge() |
                         vcard_xupdate() |
                         disco_item() |
-                        text() |
                         offline() |
                         carbons_private() |
                         xcaptcha() |
@@ -1129,6 +1146,7 @@
                         sasl_auth() |
                         ps_error() |
                         last() |
+                        search() |
                         avatar_meta() |
                         time() |
                         db_feature() |
@@ -1184,6 +1202,7 @@
                         message_thread() |
                         adhoc_command() |
                         unblock() |
+                        jingle_s5b_candidate() |
                         bookmark_storage() |
                         privilege() |
                         vcard_email() |

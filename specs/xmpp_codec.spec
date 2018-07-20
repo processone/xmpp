@@ -4554,6 +4554,78 @@
 	   module = 'xep0234',
 	   result = {jingle_ft_error, 'file-too-large'}}).
 
+-xml(jingle_s5b_candidate_used,
+     #elem{name = <<"candidate-used">>,
+	   xmlns = <<"urn:xmpp:jingle:transports:s5b:1">>,
+	   module = 'xep0260',
+	   result = '$cid',
+	   attrs = [#attr{name = <<"cid">>, required = true}]}).
+
+-xml(jingle_s5b_candidate,
+     #elem{name = <<"candidate">>,
+	   xmlns = <<"urn:xmpp:jingle:transports:s5b:1">>,
+	   module = 'xep0260',
+	   result = {jingle_s5b_candidate, '$cid', '$host', '$port',
+		     '$jid', '$type', '$priority'},
+	   attrs = [#attr{name = <<"cid">>, required = true},
+		    #attr{name = <<"host">>, required = true,
+			  enc = {enc_ip, []}, dec = {dec_ip, []}},
+		    #attr{name = <<"jid">>, required = true,
+			  enc = {jid, encode, []},
+			  dec = {jid, decode, []}},
+		    #attr{name = <<"port">>,
+			  enc = {enc_int, []},
+			  dec = {dec_int, [0, 65535]}},
+		    #attr{name = <<"priority">>,
+			  required = true,
+			  enc = {enc_int, []},
+			  dec = {dec_int, [0, infinity]}},
+		    #attr{name = <<"type">>,
+			  default = direct,
+			  enc = {enc_enum, []},
+			  dec = {dec_enum, [[assisted, direct, proxy, tunnel]]}}]}).
+
+-xml(jingle_s5b_activated,
+     #elem{name = <<"activated">>,
+	   xmlns = <<"urn:xmpp:jingle:transports:s5b:1">>,
+	   module = 'xep0260',
+	   result = '$cid',
+	   attrs = [#attr{name = <<"cid">>, required = true}]}).
+
+-xml(jingle_s5b_candidate_error,
+     #elem{name = <<"candidate-error">>,
+	   xmlns = <<"urn:xmpp:jingle:transports:s5b:1">>,
+	   module = 'xep0260',
+	   result = 'candidate-error'}).
+
+-xml(jingle_s5b_proxy_error,
+     #elem{name = <<"proxy-error">>,
+	   xmlns = <<"urn:xmpp:jingle:transports:s5b:1">>,
+	   module = 'xep0260',
+	   result = 'proxy-error'}).
+
+-xml(jingle_s5b_transport,
+     #elem{name = <<"transport">>,
+	   xmlns = <<"urn:xmpp:jingle:transports:s5b:1">>,
+	   module = 'xep0260',
+	   result = {jingle_s5b_transport, '$sid', '$dstaddr', '$mode',
+		     '$candidates', '$candidate-used', '$activated', '$error'},
+	   attrs = [#attr{name = <<"sid">>, required = true},
+		    #attr{name = <<"dstaddr">>},
+		    #attr{name = <<"mode">>,
+			  default = tcp,
+			  enc = {enc_enum, []},
+			  dec = {dec_enum, [[tcp, udp]]}}],
+	   refs = [#ref{name = jingle_s5b_candidate, label = '$candidates'},
+		   #ref{name = jingle_s5b_candidate_used,
+			label = '$candidate-used', max = 1},
+		   #ref{name = jingle_s5b_activated,
+			label = '$activated', max = 1},
+		   #ref{name = jingle_s5b_candidate_error,
+			label = '$error', max = 1},
+		   #ref{name = jingle_s5b_proxy_error,
+			label = '$error', max = 1}]}).
+
 -spec dec_tzo(_) -> {integer(), integer()}.
 dec_tzo(Val) ->
     [H1, M1] = binary:split(Val, <<":">>),
