@@ -1189,6 +1189,9 @@ get_mod(<<"reported">>, <<"jabber:x:data">>) -> xep0004;
 get_mod(<<"subject">>, <<"jabber:client">>) -> rfc6120;
 get_mod(<<"date">>, <<"jabber:iq:register">>) ->
     xep0077;
+get_mod(<<"transport">>,
+	<<"urn:xmpp:jingle:transports:ibb:1">>) ->
+    xep0261;
 get_mod(<<"auth">>,
 	<<"urn:ietf:params:xml:ns:xmpp-sasl">>) ->
     rfc6120;
@@ -1664,6 +1667,7 @@ get_mod({sm_resumed, _, _, _}) -> xep0198;
 get_mod({offline_item, _, _}) -> xep0013;
 get_mod({db_verify, _, _, _, _, _, _}) -> xep0220;
 get_mod({upload_slot, _, _, _}) -> xep0363;
+get_mod({jingle_ibb_transport, _, _, _}) -> xep0261;
 get_mod({muc_decline, _, _, _}) -> xep0045;
 get_mod({sm_enable, _, _, _}) -> xep0198;
 get_mod({offline, _, _, _}) -> xep0013;

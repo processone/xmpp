@@ -285,6 +285,7 @@ XMPP elements from the following documents are supported:
 - [XEP-0234](https://xmpp.org/extensions/xep-0234.html):  Jingle File Transfer
 - [XEP-0249](https://xmpp.org/extensions/xep-0249.html):  Direct MUC Invitations
 - [XEP-0260](https://xmpp.org/extensions/xep-0260.html):  Jingle SOCKS5 Bytestreams Transport Method
+- [XEP-0261](https://xmpp.org/extensions/xep-0261.html):  Jingle In-Band Bytestreams Transport Method
 - [XEP-0264](https://xmpp.org/extensions/xep-0264.html):  Jingle Content Thumbnails
 - [XEP-0279](https://xmpp.org/extensions/xep-0279.html):  Server IP Check
 - [XEP-0280](https://xmpp.org/extensions/xep-0280.html):  Message Carbons

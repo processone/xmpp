@@ -4626,6 +4626,20 @@
 		   #ref{name = jingle_s5b_proxy_error,
 			label = '$error', max = 1}]}).
 
+-xml(jingle_ibb_transport,
+     #elem{name = <<"transport">>,
+	   xmlns = <<"urn:xmpp:jingle:transports:ibb:1">>,
+	   module = 'xep0261',
+	   result = {jingle_ibb_transport, '$sid', '$block-size', '$stanza'},
+	   attrs = [#attr{name = <<"sid">>, required = true},
+		    #attr{name = <<"block-size">>, required = true,
+			  enc = {enc_int, []},
+			  dec = {dec_int, [0, infinity]}},
+		    #attr{name = <<"stanza">>,
+			  default = iq,
+			  enc = {enc_enum, []},
+			  dec = {dec_enum, [[iq, message]]}}]}).
+
 -spec dec_tzo(_) -> {integer(), integer()}.
 dec_tzo(Val) ->
     [H1, M1] = binary:split(Val, <<":">>),

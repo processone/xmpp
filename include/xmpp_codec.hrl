@@ -252,6 +252,11 @@
                         events = [] :: [binary()]}).
 -type muc_subscribe() :: #muc_subscribe{}.
 
+-record(jingle_ibb_transport, {sid = <<>> :: binary(),
+                               'block-size' :: non_neg_integer(),
+                               stanza = iq :: 'iq' | 'message'}).
+-type jingle_ibb_transport() :: #jingle_ibb_transport{}.
+
 -record(stanza_id, {by :: jid:jid(),
                     id = <<>> :: binary()}).
 -type stanza_id() :: #stanza_id{}.
@@ -1090,7 +1095,8 @@
                utc :: undefined | erlang:timestamp()}).
 -type time() :: #time{}.
 
--type xmpp_element() :: ps_options() |
+-type xmpp_element() :: jingle_ibb_transport() |
+                        ps_options() |
                         ps_publish() |
                         address() |
                         roster_item() |
@@ -1110,7 +1116,6 @@
                         upload_file_too_large() |
                         vcard_geo() |
                         mam_query() |
-                        text() |
                         delay() |
                         mam_archived() |
                         jingle_reason() |
@@ -1146,7 +1151,6 @@
                         sasl_auth() |
                         ps_error() |
                         last() |
-                        search() |
                         avatar_meta() |
                         time() |
                         db_feature() |
@@ -1167,6 +1171,7 @@
                         muc_subscriptions() |
                         private() |
                         stream_features() |
+                        search() |
                         pubsub_owner() |
                         feature_sm() |
                         mam_prefs() |
@@ -1219,6 +1224,7 @@
                         bookmark_conference() |
                         privacy_list() |
                         offline_item() |
+                        text() |
                         privacy_item() |
                         origin_id() |
                         receipt_request() |
