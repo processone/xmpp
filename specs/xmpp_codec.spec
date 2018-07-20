@@ -4197,6 +4197,25 @@
 		   #ref{name = avatar_pointer, label = '$pointer',
 			min = 0, max = 1}]}).
 
+-xml(hash,
+     #elem{name = <<"hash">>,
+	   xmlns = <<"urn:xmpp:hashes:2">>,
+	   module = 'xep0300',
+	   result = {hash, '$algo', '$data'},
+	   attrs = [#attr{name = <<"algo">>,
+			  required = true}],
+	   cdata = #cdata{label = '$data',
+			  enc = {base64, encode, []},
+			  dec = {base64, decode, []}}}).
+
+-xml(hash_used,
+     #elem{name = <<"hash-used">>,
+	   xmlns = <<"urn:xmpp:hashes:2">>,
+	   module = 'xep0300',
+	   result = {hash_used, '$algo'},
+	   attrs = [#attr{name = <<"algo">>,
+			  required = true}]}).
+
 -record(jingle_error, {reason :: 'out-of-order' | 'tie-break' |
 				 'unknown-session' | 'unsupported-info' |
 				 'security-required'}).
@@ -4327,7 +4346,7 @@
      #elem{name = <<"reason">>,
 	   xmlns = <<"urn:xmpp:jingle:1">>,
 	   module = 'xep0166',
-	   result = {jingle_reason, '$reason', '$text'},
+	   result = {jingle_reason, '$reason', '$text', '$_els'},
            refs = [#ref{name = jingle_reason_text, label = '$text'},
                    #ref{name = jingle_reason_alternative_session,
                         min = 0, max = 1, label = '$reason'},
@@ -4419,6 +4438,121 @@
 	   refs = [#ref{name = jingle_content, label = '$content'},
 		   #ref{name = jingle_reason, label = '$reason',
 			min = 0, max = 1}]}).
+
+-xml(jingle_ft_date,
+     #elem{name = <<"date">>,
+	   xmlns = <<"urn:xmpp:jingle:apps:file-transfer:5">>,
+	   module = 'xep0234',
+	   cdata = #cdata{required = true,
+			  enc = {enc_utc, []},
+			  dec = {dec_utc, []}},
+	   result = '$cdata'}).
+
+-xml(jingle_ft_desc,
+     #elem{name = <<"desc">>,
+	   xmlns = <<"urn:xmpp:jingle:apps:file-transfer:5">>,
+	   module = 'xep0234',
+	   result = {text, '$lang', '$data'},
+           cdata = #cdata{label = '$data'},
+           attrs = [#attr{name = <<"xml:lang">>,
+                          label = '$lang'}]}).
+
+-xml(jingle_ft_media_type,
+     #elem{name = <<"media-type">>,
+	   xmlns = <<"urn:xmpp:jingle:apps:file-transfer:5">>,
+	   module = 'xep0234',
+	   cdata = #cdata{required = true},
+	   result = '$cdata'}).
+
+-xml(jingle_ft_name,
+     #elem{name = <<"name">>,
+	   xmlns = <<"urn:xmpp:jingle:apps:file-transfer:5">>,
+	   module = 'xep0234',
+	   cdata = #cdata{required = true},
+	   result = '$cdata'}).
+
+-xml(jingle_ft_size,
+     #elem{name = <<"size">>,
+	   xmlns = <<"urn:xmpp:jingle:apps:file-transfer:5">>,
+	   module = 'xep0234',
+	   cdata = #cdata{required = true,
+			  dec = {dec_int, [0, infinity]},
+			  enc = {enc_int, []}},
+	   result = '$cdata'}).
+
+-xml(jingle_ft_range,
+     #elem{name = <<"range">>,
+	   xmlns = <<"urn:xmpp:jingle:apps:file-transfer:5">>,
+	   module = 'xep0234',
+	   result = {jingle_ft_range, '$offset', '$length', '$hash'},
+	   attrs = [#attr{name = <<"offset">>,
+			  default = 0,
+			  dec = {dec_int, [0, infinity]},
+			  enc = {enc_int, []}},
+		    #attr{name = <<"length">>,
+			  dec = {dec_int, [0, infinity]},
+			  enc = {enc_int, []}}],
+	   refs = [#ref{name = hash, label = '$hash'}]}).
+
+-xml(jingle_ft_file,
+     #elem{name = <<"file">>,
+	   xmlns = <<"urn:xmpp:jingle:apps:file-transfer:5">>,
+	   module = 'xep0234',
+	   result = {jingle_ft_file, '$date', '$desc', '$hash', '$hash-used',
+		     '$media-type', '$name', '$size', '$range'},
+	   refs = [#ref{name = jingle_ft_date, label = '$date', max = 1},
+		   #ref{name = jingle_ft_desc, label = '$desc'},
+		   #ref{name = hash, label = '$hash'},
+		   #ref{name = hash_used, label = '$hash-used', max = 1},
+		   #ref{name = jingle_ft_media_type, label = '$media-type', max = 1},
+		   #ref{name = jingle_ft_name, label = '$name', max = 1},
+		   #ref{name = jingle_ft_size, label = '$size', max = 1},
+		   #ref{name = jingle_ft_range, label = '$range', max = 1}]}).
+
+-xml(jingle_ft_description,
+     #elem{name = <<"description">>,
+	   xmlns = <<"urn:xmpp:jingle:apps:file-transfer:5">>,
+	   module = 'xep0234',
+	   result = {jingle_ft_description, '$file'},
+	   refs = [#ref{name = jingle_ft_file, label = '$file',
+			min = 0, max = 1}]}).
+
+-xml(jingle_ft_received,
+     #elem{name = <<"received">>,
+	   xmlns = <<"urn:xmpp:jingle:apps:file-transfer:5">>,
+	   module = 'xep0234',
+	   result = {jingle_ft_received, '$creator', '$name'},
+	   attrs = [#attr{name = <<"creator">>,
+			  enc = {enc_enum, []},
+			  dec = {dec_enum, [[initiator, responder]]}},
+		    #attr{name = <<"name">>}]}).
+
+-xml(jingle_ft_checksum,
+     #elem{name = <<"checksum">>,
+	   xmlns = <<"urn:xmpp:jingle:apps:file-transfer:5">>,
+	   module = 'xep0234',
+	   result = {jingle_ft_checksum, '$creator', '$name', '$file'},
+	   attrs = [#attr{name = <<"creator">>,
+			  enc = {enc_enum, []},
+			  dec = {dec_enum, [[initiator, responder]]}},
+		    #attr{name = <<"name">>}],
+	   refs = [#ref{name = jingle_ft_file, label = '$file',
+			min = 1, max = 1}]}).
+
+-record(jingle_ft_error, {reason :: 'file-not-available' | 'file-too-large'}).
+-type jingle_ft_error() :: #jingle_ft_error{}.
+
+-xml(jingle_ft_error_file_not_available,
+     #elem{name = <<"file-not-available">>,
+	   xmlns = <<"urn:xmpp:jingle:apps:file-transfer:errors:0">>,
+	   module = 'xep0234',
+	   result = {jingle_ft_error, 'file-not-available'}}).
+
+-xml(jingle_ft_error_file_too_large,
+     #elem{name = <<"file-too-large">>,
+	   xmlns = <<"urn:xmpp:jingle:apps:file-transfer:errors:0">>,
+	   module = 'xep0234',
+	   result = {jingle_ft_error, 'file-too-large'}}).
 
 -spec dec_tzo(_) -> {integer(), integer()}.
 dec_tzo(Val) ->

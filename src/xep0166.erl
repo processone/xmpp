@@ -168,7 +168,8 @@ do_encode({jingle_error, 'security-required'} =
 					  TopXMLNS);
 do_encode({text, _, _} = Text, TopXMLNS) ->
     encode_jingle_reason_text(Text, TopXMLNS);
-do_encode({jingle_reason, _, _} = Reason, TopXMLNS) ->
+do_encode({jingle_reason, _, _, _} = Reason,
+	  TopXMLNS) ->
     encode_jingle_reason(Reason, TopXMLNS);
 do_encode({jingle_content, _, _, _, _, _} = Content,
 	  TopXMLNS) ->
@@ -191,7 +192,7 @@ do_get_name({jingle_error, 'unknown-session'}) ->
     <<"unknown-session">>;
 do_get_name({jingle_error, 'unsupported-info'}) ->
     <<"unsupported-info">>;
-do_get_name({jingle_reason, _, _}) -> <<"reason">>;
+do_get_name({jingle_reason, _, _, _}) -> <<"reason">>;
 do_get_name({text, _, _}) -> <<"text">>.
 
 do_get_ns({jingle, _, _, _, _, _, _, _}) ->
@@ -208,10 +209,12 @@ do_get_ns({jingle_error, 'unknown-session'}) ->
     <<"urn:xmpp:jingle:errors:1">>;
 do_get_ns({jingle_error, 'unsupported-info'}) ->
     <<"urn:xmpp:jingle:errors:1">>;
-do_get_ns({jingle_reason, _, _}) ->
+do_get_ns({jingle_reason, _, _, _}) ->
     <<"urn:xmpp:jingle:1">>;
 do_get_ns({text, _, _}) -> <<"urn:xmpp:jingle:1">>.
 
+get_els({jingle_reason, _reason, _text, _sub_els}) ->
+    _sub_els;
 get_els({jingle_content, _creator, _disposition, _name,
 	 _senders, _sub_els}) ->
     _sub_els;
@@ -219,6 +222,8 @@ get_els({jingle, _action, _sid, _initiator, _responder,
 	 _content, _reason, _sub_els}) ->
     _sub_els.
 
+set_els({jingle_reason, _reason, _text, _}, _sub_els) ->
+    {jingle_reason, _reason, _text, _sub_els};
 set_els({jingle_content, _creator, _disposition, _name,
 	 _senders, _},
 	_sub_els) ->
@@ -232,7 +237,7 @@ set_els({jingle, _action, _sid, _initiator, _responder,
 
 pp(jingle_error, 1) -> [reason];
 pp(text, 2) -> [lang, data];
-pp(jingle_reason, 2) -> [reason, text];
+pp(jingle_reason, 3) -> [reason, text, sub_els];
 pp(jingle_content, 5) ->
     [creator, disposition, name, senders, sub_els];
 pp(jingle, 7) ->
@@ -241,7 +246,7 @@ pp(jingle, 7) ->
 pp(_, _) -> no.
 
 records() ->
-    [{jingle_error, 1}, {text, 2}, {jingle_reason, 2},
+    [{jingle_error, 1}, {text, 2}, {jingle_reason, 3},
      {jingle_content, 5}, {jingle, 7}].
 
 dec_enum(Val, Enums) ->
@@ -596,16 +601,17 @@ encode_jingle_content_attr_senders(_val, _acc) ->
 
 decode_jingle_reason(__TopXMLNS, __Opts,
 		     {xmlel, <<"reason">>, _attrs, _els}) ->
-    {Text, Reason} = decode_jingle_reason_els(__TopXMLNS,
-					      __Opts, _els, [], undefined),
-    {jingle_reason, Reason, Text}.
+    {Text, Reason, __Els} =
+	decode_jingle_reason_els(__TopXMLNS, __Opts, _els, [],
+				 undefined, []),
+    {jingle_reason, Reason, Text, __Els}.
 
 decode_jingle_reason_els(__TopXMLNS, __Opts, [], Text,
-			 Reason) ->
-    {lists:reverse(Text), Reason};
+			 Reason, __Els) ->
+    {lists:reverse(Text), Reason, lists:reverse(__Els)};
 decode_jingle_reason_els(__TopXMLNS, __Opts,
 			 [{xmlel, <<"text">>, _attrs, _} = _el | _els], Text,
-			 Reason) ->
+			 Reason, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>, _attrs,
 			     __TopXMLNS)
 	of
@@ -614,15 +620,15 @@ decode_jingle_reason_els(__TopXMLNS, __Opts,
 				   [decode_jingle_reason_text(<<"urn:xmpp:jingle:1">>,
 							      __Opts, _el)
 				    | Text],
-				   Reason);
+				   Reason, __Els);
       _ ->
 	  decode_jingle_reason_els(__TopXMLNS, __Opts, _els, Text,
-				   Reason)
+				   Reason, [_el | __Els])
     end;
 decode_jingle_reason_els(__TopXMLNS, __Opts,
 			 [{xmlel, <<"alternative-session">>, _attrs, _} = _el
 			  | _els],
-			 Text, Reason) ->
+			 Text, Reason, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>, _attrs,
 			     __TopXMLNS)
 	of
@@ -630,43 +636,46 @@ decode_jingle_reason_els(__TopXMLNS, __Opts,
 	  decode_jingle_reason_els(__TopXMLNS, __Opts, _els, Text,
 				   decode_jingle_reason_alternative_session(<<"urn:xmpp:jingle:1">>,
 									    __Opts,
-									    _el));
+									    _el),
+				   __Els);
       _ ->
 	  decode_jingle_reason_els(__TopXMLNS, __Opts, _els, Text,
-				   Reason)
+				   Reason, [_el | __Els])
     end;
 decode_jingle_reason_els(__TopXMLNS, __Opts,
 			 [{xmlel, <<"busy">>, _attrs, _} = _el | _els], Text,
-			 Reason) ->
+			 Reason, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>, _attrs,
 			     __TopXMLNS)
 	of
       <<"urn:xmpp:jingle:1">> ->
 	  decode_jingle_reason_els(__TopXMLNS, __Opts, _els, Text,
 				   decode_jingle_reason_busy(<<"urn:xmpp:jingle:1">>,
-							     __Opts, _el));
+							     __Opts, _el),
+				   __Els);
       _ ->
 	  decode_jingle_reason_els(__TopXMLNS, __Opts, _els, Text,
-				   Reason)
+				   Reason, [_el | __Els])
     end;
 decode_jingle_reason_els(__TopXMLNS, __Opts,
 			 [{xmlel, <<"cancel">>, _attrs, _} = _el | _els], Text,
-			 Reason) ->
+			 Reason, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>, _attrs,
 			     __TopXMLNS)
 	of
       <<"urn:xmpp:jingle:1">> ->
 	  decode_jingle_reason_els(__TopXMLNS, __Opts, _els, Text,
 				   decode_jingle_reason_cancel(<<"urn:xmpp:jingle:1">>,
-							       __Opts, _el));
+							       __Opts, _el),
+				   __Els);
       _ ->
 	  decode_jingle_reason_els(__TopXMLNS, __Opts, _els, Text,
-				   Reason)
+				   Reason, [_el | __Els])
     end;
 decode_jingle_reason_els(__TopXMLNS, __Opts,
 			 [{xmlel, <<"connectivity-error">>, _attrs, _} = _el
 			  | _els],
-			 Text, Reason) ->
+			 Text, Reason, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>, _attrs,
 			     __TopXMLNS)
 	of
@@ -674,43 +683,46 @@ decode_jingle_reason_els(__TopXMLNS, __Opts,
 	  decode_jingle_reason_els(__TopXMLNS, __Opts, _els, Text,
 				   decode_jingle_reason_connectivity_error(<<"urn:xmpp:jingle:1">>,
 									   __Opts,
-									   _el));
+									   _el),
+				   __Els);
       _ ->
 	  decode_jingle_reason_els(__TopXMLNS, __Opts, _els, Text,
-				   Reason)
+				   Reason, [_el | __Els])
     end;
 decode_jingle_reason_els(__TopXMLNS, __Opts,
 			 [{xmlel, <<"decline">>, _attrs, _} = _el | _els], Text,
-			 Reason) ->
+			 Reason, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>, _attrs,
 			     __TopXMLNS)
 	of
       <<"urn:xmpp:jingle:1">> ->
 	  decode_jingle_reason_els(__TopXMLNS, __Opts, _els, Text,
 				   decode_jingle_reason_decline(<<"urn:xmpp:jingle:1">>,
-								__Opts, _el));
+								__Opts, _el),
+				   __Els);
       _ ->
 	  decode_jingle_reason_els(__TopXMLNS, __Opts, _els, Text,
-				   Reason)
+				   Reason, [_el | __Els])
     end;
 decode_jingle_reason_els(__TopXMLNS, __Opts,
 			 [{xmlel, <<"expired">>, _attrs, _} = _el | _els], Text,
-			 Reason) ->
+			 Reason, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>, _attrs,
 			     __TopXMLNS)
 	of
       <<"urn:xmpp:jingle:1">> ->
 	  decode_jingle_reason_els(__TopXMLNS, __Opts, _els, Text,
 				   decode_jingle_reason_expired(<<"urn:xmpp:jingle:1">>,
-								__Opts, _el));
+								__Opts, _el),
+				   __Els);
       _ ->
 	  decode_jingle_reason_els(__TopXMLNS, __Opts, _els, Text,
-				   Reason)
+				   Reason, [_el | __Els])
     end;
 decode_jingle_reason_els(__TopXMLNS, __Opts,
 			 [{xmlel, <<"failed-application">>, _attrs, _} = _el
 			  | _els],
-			 Text, Reason) ->
+			 Text, Reason, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>, _attrs,
 			     __TopXMLNS)
 	of
@@ -718,15 +730,16 @@ decode_jingle_reason_els(__TopXMLNS, __Opts,
 	  decode_jingle_reason_els(__TopXMLNS, __Opts, _els, Text,
 				   decode_jingle_reason_failed_application(<<"urn:xmpp:jingle:1">>,
 									   __Opts,
-									   _el));
+									   _el),
+				   __Els);
       _ ->
 	  decode_jingle_reason_els(__TopXMLNS, __Opts, _els, Text,
-				   Reason)
+				   Reason, [_el | __Els])
     end;
 decode_jingle_reason_els(__TopXMLNS, __Opts,
 			 [{xmlel, <<"failed-transport">>, _attrs, _} = _el
 			  | _els],
-			 Text, Reason) ->
+			 Text, Reason, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>, _attrs,
 			     __TopXMLNS)
 	of
@@ -734,14 +747,15 @@ decode_jingle_reason_els(__TopXMLNS, __Opts,
 	  decode_jingle_reason_els(__TopXMLNS, __Opts, _els, Text,
 				   decode_jingle_reason_failed_transport(<<"urn:xmpp:jingle:1">>,
 									 __Opts,
-									 _el));
+									 _el),
+				   __Els);
       _ ->
 	  decode_jingle_reason_els(__TopXMLNS, __Opts, _els, Text,
-				   Reason)
+				   Reason, [_el | __Els])
     end;
 decode_jingle_reason_els(__TopXMLNS, __Opts,
 			 [{xmlel, <<"general-error">>, _attrs, _} = _el | _els],
-			 Text, Reason) ->
+			 Text, Reason, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>, _attrs,
 			     __TopXMLNS)
 	of
@@ -749,30 +763,32 @@ decode_jingle_reason_els(__TopXMLNS, __Opts,
 	  decode_jingle_reason_els(__TopXMLNS, __Opts, _els, Text,
 				   decode_jingle_reason_general_error(<<"urn:xmpp:jingle:1">>,
 								      __Opts,
-								      _el));
+								      _el),
+				   __Els);
       _ ->
 	  decode_jingle_reason_els(__TopXMLNS, __Opts, _els, Text,
-				   Reason)
+				   Reason, [_el | __Els])
     end;
 decode_jingle_reason_els(__TopXMLNS, __Opts,
 			 [{xmlel, <<"gone">>, _attrs, _} = _el | _els], Text,
-			 Reason) ->
+			 Reason, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>, _attrs,
 			     __TopXMLNS)
 	of
       <<"urn:xmpp:jingle:1">> ->
 	  decode_jingle_reason_els(__TopXMLNS, __Opts, _els, Text,
 				   decode_jingle_reason_gone(<<"urn:xmpp:jingle:1">>,
-							     __Opts, _el));
+							     __Opts, _el),
+				   __Els);
       _ ->
 	  decode_jingle_reason_els(__TopXMLNS, __Opts, _els, Text,
-				   Reason)
+				   Reason, [_el | __Els])
     end;
 decode_jingle_reason_els(__TopXMLNS, __Opts,
 			 [{xmlel, <<"incompatible-parameters">>, _attrs, _} =
 			      _el
 			  | _els],
-			 Text, Reason) ->
+			 Text, Reason, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>, _attrs,
 			     __TopXMLNS)
 	of
@@ -780,14 +796,15 @@ decode_jingle_reason_els(__TopXMLNS, __Opts,
 	  decode_jingle_reason_els(__TopXMLNS, __Opts, _els, Text,
 				   decode_jingle_reason_incompatible_parameters(<<"urn:xmpp:jingle:1">>,
 										__Opts,
-										_el));
+										_el),
+				   __Els);
       _ ->
 	  decode_jingle_reason_els(__TopXMLNS, __Opts, _els, Text,
-				   Reason)
+				   Reason, [_el | __Els])
     end;
 decode_jingle_reason_els(__TopXMLNS, __Opts,
 			 [{xmlel, <<"media-error">>, _attrs, _} = _el | _els],
-			 Text, Reason) ->
+			 Text, Reason, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>, _attrs,
 			     __TopXMLNS)
 	of
@@ -795,15 +812,16 @@ decode_jingle_reason_els(__TopXMLNS, __Opts,
 	  decode_jingle_reason_els(__TopXMLNS, __Opts, _els, Text,
 				   decode_jingle_reason_media_error(<<"urn:xmpp:jingle:1">>,
 								    __Opts,
-								    _el));
+								    _el),
+				   __Els);
       _ ->
 	  decode_jingle_reason_els(__TopXMLNS, __Opts, _els, Text,
-				   Reason)
+				   Reason, [_el | __Els])
     end;
 decode_jingle_reason_els(__TopXMLNS, __Opts,
 			 [{xmlel, <<"security-error">>, _attrs, _} = _el
 			  | _els],
-			 Text, Reason) ->
+			 Text, Reason, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>, _attrs,
 			     __TopXMLNS)
 	of
@@ -811,44 +829,47 @@ decode_jingle_reason_els(__TopXMLNS, __Opts,
 	  decode_jingle_reason_els(__TopXMLNS, __Opts, _els, Text,
 				   decode_jingle_reason_security_error(<<"urn:xmpp:jingle:1">>,
 								       __Opts,
-								       _el));
+								       _el),
+				   __Els);
       _ ->
 	  decode_jingle_reason_els(__TopXMLNS, __Opts, _els, Text,
-				   Reason)
+				   Reason, [_el | __Els])
     end;
 decode_jingle_reason_els(__TopXMLNS, __Opts,
 			 [{xmlel, <<"success">>, _attrs, _} = _el | _els], Text,
-			 Reason) ->
+			 Reason, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>, _attrs,
 			     __TopXMLNS)
 	of
       <<"urn:xmpp:jingle:1">> ->
 	  decode_jingle_reason_els(__TopXMLNS, __Opts, _els, Text,
 				   decode_jingle_reason_success(<<"urn:xmpp:jingle:1">>,
-								__Opts, _el));
+								__Opts, _el),
+				   __Els);
       _ ->
 	  decode_jingle_reason_els(__TopXMLNS, __Opts, _els, Text,
-				   Reason)
+				   Reason, [_el | __Els])
     end;
 decode_jingle_reason_els(__TopXMLNS, __Opts,
 			 [{xmlel, <<"timeout">>, _attrs, _} = _el | _els], Text,
-			 Reason) ->
+			 Reason, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>, _attrs,
 			     __TopXMLNS)
 	of
       <<"urn:xmpp:jingle:1">> ->
 	  decode_jingle_reason_els(__TopXMLNS, __Opts, _els, Text,
 				   decode_jingle_reason_timeout(<<"urn:xmpp:jingle:1">>,
-								__Opts, _el));
+								__Opts, _el),
+				   __Els);
       _ ->
 	  decode_jingle_reason_els(__TopXMLNS, __Opts, _els, Text,
-				   Reason)
+				   Reason, [_el | __Els])
     end;
 decode_jingle_reason_els(__TopXMLNS, __Opts,
 			 [{xmlel, <<"unsupported-applications">>, _attrs, _} =
 			      _el
 			  | _els],
-			 Text, Reason) ->
+			 Text, Reason, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>, _attrs,
 			     __TopXMLNS)
 	of
@@ -856,15 +877,16 @@ decode_jingle_reason_els(__TopXMLNS, __Opts,
 	  decode_jingle_reason_els(__TopXMLNS, __Opts, _els, Text,
 				   decode_jingle_reason_unsupported_applications(<<"urn:xmpp:jingle:1">>,
 										 __Opts,
-										 _el));
+										 _el),
+				   __Els);
       _ ->
 	  decode_jingle_reason_els(__TopXMLNS, __Opts, _els, Text,
-				   Reason)
+				   Reason, [_el | __Els])
     end;
 decode_jingle_reason_els(__TopXMLNS, __Opts,
 			 [{xmlel, <<"unsupported-transports">>, _attrs, _} = _el
 			  | _els],
-			 Text, Reason) ->
+			 Text, Reason, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>, _attrs,
 			     __TopXMLNS)
 	of
@@ -872,26 +894,53 @@ decode_jingle_reason_els(__TopXMLNS, __Opts,
 	  decode_jingle_reason_els(__TopXMLNS, __Opts, _els, Text,
 				   decode_jingle_reason_unsupported_transports(<<"urn:xmpp:jingle:1">>,
 									       __Opts,
-									       _el));
+									       _el),
+				   __Els);
       _ ->
 	  decode_jingle_reason_els(__TopXMLNS, __Opts, _els, Text,
-				   Reason)
+				   Reason, [_el | __Els])
+    end;
+decode_jingle_reason_els(__TopXMLNS, __Opts,
+			 [{xmlel, _name, _attrs, _} = _el | _els], Text, Reason,
+			 __Els) ->
+    case proplists:get_bool(ignore_els, __Opts) of
+      true ->
+	  decode_jingle_reason_els(__TopXMLNS, __Opts, _els, Text,
+				   Reason, [_el | __Els]);
+      false ->
+	  __XMLNS = xmpp_codec:get_attr(<<"xmlns">>, _attrs,
+					__TopXMLNS),
+	  case xmpp_codec:get_mod(_name, __XMLNS) of
+	    undefined ->
+		decode_jingle_reason_els(__TopXMLNS, __Opts, _els, Text,
+					 Reason, [_el | __Els]);
+	    Mod ->
+		decode_jingle_reason_els(__TopXMLNS, __Opts, _els, Text,
+					 Reason,
+					 [Mod:do_decode(_name, __XMLNS, _el,
+							__Opts)
+					  | __Els])
+	  end
     end;
 decode_jingle_reason_els(__TopXMLNS, __Opts, [_ | _els],
-			 Text, Reason) ->
+			 Text, Reason, __Els) ->
     decode_jingle_reason_els(__TopXMLNS, __Opts, _els, Text,
-			     Reason).
+			     Reason, __Els).
 
-encode_jingle_reason({jingle_reason, Reason, Text},
+encode_jingle_reason({jingle_reason, Reason, Text,
+		      __Els},
 		     __TopXMLNS) ->
     __NewTopXMLNS =
 	xmpp_codec:choose_top_xmlns(<<"urn:xmpp:jingle:1">>, [],
 				    __TopXMLNS),
-    _els = lists:reverse('encode_jingle_reason_$text'(Text,
-						      __NewTopXMLNS,
-						      'encode_jingle_reason_$reason'(Reason,
-										     __NewTopXMLNS,
-										     []))),
+    _els = [xmpp_codec:encode(_el, __NewTopXMLNS)
+	    || _el <- __Els]
+	     ++
+	     lists:reverse('encode_jingle_reason_$text'(Text,
+							__NewTopXMLNS,
+							'encode_jingle_reason_$reason'(Reason,
+										       __NewTopXMLNS,
+										       []))),
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
 					__TopXMLNS),
     {xmlel, <<"reason">>, _attrs, _els}.

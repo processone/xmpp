@@ -282,11 +282,13 @@ XMPP elements from the following documents are supported:
 - [XEP-0220](https://xmpp.org/extensions/xep-0220.html):  Server Dialback
 - [XEP-0221](https://xmpp.org/extensions/xep-0221.html):  Data Forms Media Element
 - [XEP-0231](https://xmpp.org/extensions/xep-0231.html):  Bits of Binary
+- [XEP-0234](https://xmpp.org/extensions/xep-0234.html):  Jingle File Transfer
 - [XEP-0249](https://xmpp.org/extensions/xep-0249.html):  Direct MUC Invitations
 - [XEP-0264](https://xmpp.org/extensions/xep-0264.html):  Jingle Content Thumbnails
 - [XEP-0279](https://xmpp.org/extensions/xep-0279.html):  Server IP Check
 - [XEP-0280](https://xmpp.org/extensions/xep-0280.html):  Message Carbons
 - [XEP-0297](https://xmpp.org/extensions/xep-0297.html):  Stanza Forwarding
+- [XEP-0300](https://xmpp.org/extensions/xep-0300.html):  Use of Cryptographic Hash Functions in XMPP
 - [XEP-0313](https://xmpp.org/extensions/xep-0313.html):  Message Archive Management
 - [XEP-0334](https://xmpp.org/extensions/xep-0334.html):  Message Processing Hints
 - [XEP-0352](https://xmpp.org/extensions/xep-0352.html):  Client State Indication
