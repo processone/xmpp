@@ -430,6 +430,9 @@
                        jid :: jid:jid()}).
 -type ps_subscribe() :: #ps_subscribe{}.
 
+-record(idle, {since :: erlang:timestamp()}).
+-type idle() :: #idle{}.
+
 -record(muc_unique, {name = <<>> :: binary()}).
 -type muc_unique() :: #muc_unique{}.
 
@@ -1109,10 +1112,12 @@
 -type time() :: #time{}.
 
 -type xmpp_element() :: ps_options() |
+                        jingle_reason() |
                         ps_publish() |
                         address() |
                         roster_item() |
                         bookmark_url() |
+                        jingle_ft_range() |
                         push_enable() |
                         delegation() |
                         disco_info() |
@@ -1124,7 +1129,6 @@
                         xmpp_session() |
                         sm_a() |
                         upload_file_too_large() |
-                        jingle_ft_checksum() |
                         vcard_geo() |
                         mam_query() |
                         delay() |
@@ -1138,26 +1142,25 @@
                         stanza_id() |
                         starttls() |
                         upload_request_0() |
-                        jingle_s5b_transport() |
                         x_conference() |
                         bind() |
                         starttls_proceed() |
                         vcard_tel() |
+                        jingle_ft_error() |
                         hash_used() |
-                        jingle() |
                         muc_item() |
                         forwarded() |
                         privacy_query() |
                         addresses() |
                         sasl_challenge() |
                         vcard_xupdate() |
+                        jingle_content() |
                         disco_item() |
                         offline() |
                         carbons_private() |
                         xcaptcha() |
                         push_notification() |
                         sm_resume() |
-                        jingle_reason() |
                         muc_invite() |
                         sasl_auth() |
                         ps_error() |
@@ -1166,9 +1169,7 @@
                         time() |
                         db_feature() |
                         mix_leave() |
-                        jingle_ft_range() |
                         vcard_temp() |
-                        jingle_ibb_transport() |
                         sm_resumed() |
                         stream_error() |
                         identity() |
@@ -1177,8 +1178,8 @@
                         roster_query() |
                         xevent() |
                         presence() |
+                        jingle_error() |
                         sic() |
-                        jingle_ft_file() |
                         bob_data() |
                         register() |
                         muc_subscriptions() |
@@ -1206,25 +1207,25 @@
                         muc_unsubscribe() |
                         stat_error() |
                         feature_register() |
+                        jingle_ft_checksum() |
                         muc_admin() |
+                        jingle_ft_file() |
                         xdata() |
                         hash() |
                         sm_enable() |
-                        jingle_content() |
-                        text() |
                         compression() |
                         upload_slot() |
+                        text() |
                         vcard_photo() |
                         sm_failed() |
                         ps_subscribe() |
-                        jingle_s5b_candidate() |
                         message_thread() |
                         adhoc_command() |
                         unblock() |
-                        jingle_ft_error() |
+                        jingle_ft_received() |
                         bookmark_storage() |
                         privilege() |
-                        jingle_error() |
+                        idle() |
                         vcard_email() |
                         report() |
                         compress_failure() |
@@ -1242,6 +1243,7 @@
                         privacy_item() |
                         origin_id() |
                         receipt_request() |
+                        jingle_s5b_transport() |
                         rsm_first() |
                         mam_result() |
                         carbons_enable() |
@@ -1253,28 +1255,29 @@
                         hint() |
                         gone() |
                         thumbnail() |
+                        search() |
                         legacy_auth_feature() |
                         sasl_response() |
                         rsm_set() |
                         compress() |
                         chatstate() |
-                        search() |
                         upload_slot_0() |
                         privilege_perm() |
                         ibb_open() |
                         block_list() |
                         caps() |
+                        jingle_s5b_candidate() |
                         mam_fin() |
                         block() |
                         feature_csi() |
                         avatar_data() |
                         oob_x() |
                         adhoc_note() |
+                        jingle_ibb_transport() |
                         carbons_disable() |
                         muc_decline() |
                         compressed() |
                         muc() |
-                        jingle_ft_description() |
                         iq() |
                         ps_unsubscribe() |
                         sasl_abort() |
@@ -1296,8 +1299,9 @@
                         bytestreams() |
                         avatar_pointer() |
                         muc_actor() |
+                        jingle() |
                         avatar_info() |
-                        jingle_ft_received() |
+                        jingle_ft_description() |
                         receipt_response() |
                         muc_history() |
                         db_result() |

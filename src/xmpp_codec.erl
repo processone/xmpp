@@ -445,6 +445,7 @@ get_mod(<<"compressed">>,
 get_mod(<<"instructions">>, <<"jabber:x:data">>) ->
     xep0004;
 get_mod(<<"join">>, <<"urn:xmpp:mix:0">>) -> xep0369;
+get_mod(<<"idle">>, <<"urn:xmpp:idle:1">>) -> xep0319;
 get_mod(<<"retract">>,
 	<<"http://jabber.org/protocol/pubsub#event">>) ->
     xep0060;
@@ -1671,6 +1672,7 @@ get_mod({chatstate, _}) -> xep0085;
 get_mod({muc_unique, _}) -> xep0045;
 get_mod({receipt_response, _}) -> xep0184;
 get_mod({sic, _, _, _}) -> xep0279;
+get_mod({idle, _}) -> xep0319;
 get_mod({sm_resumed, _, _, _}) -> xep0198;
 get_mod({offline_item, _, _}) -> xep0013;
 get_mod({db_verify, _, _, _, _, _, _}) -> xep0220;

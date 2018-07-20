@@ -293,6 +293,7 @@ XMPP elements from the following documents are supported:
 - [XEP-0297](https://xmpp.org/extensions/xep-0297.html):  Stanza Forwarding
 - [XEP-0300](https://xmpp.org/extensions/xep-0300.html):  Use of Cryptographic Hash Functions in XMPP
 - [XEP-0313](https://xmpp.org/extensions/xep-0313.html):  Message Archive Management
+- [XEP-0319](https://xmpp.org/extensions/xep-0319.html):  Last User Interaction in Presence
 - [XEP-0334](https://xmpp.org/extensions/xep-0334.html):  Message Processing Hints
 - [XEP-0352](https://xmpp.org/extensions/xep-0352.html):  Client State Indication
 - [XEP-0355](https://xmpp.org/extensions/xep-0355.html):  Namespace Delegation

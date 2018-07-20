@@ -4250,6 +4250,14 @@
 	   result = {ibb_close, '$sid'},
 	   attrs = [#attr{name = <<"sid">>, required = true}]}).
 
+-xml(idle,
+     #elem{name = <<"idle">>,
+	   xmlns = <<"urn:xmpp:idle:1">>,
+	   module = 'xep0319',
+	   result = {idle, '$since'},
+	   attrs = [#attr{name = <<"since">>, required = true,
+			  enc = {enc_utc, []}, dec = {dec_utc, []}}]}).
+
 -record(jingle_error, {reason :: 'out-of-order' | 'tie-break' |
 				 'unknown-session' | 'unsupported-info' |
 				 'security-required'}).
