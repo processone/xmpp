@@ -1087,8 +1087,12 @@ send_pkt(State, Pkt) ->
 	    process_stream_end({stream, {out, Pkt}}, State1);
 	ok ->
 	    State1;
-	{error, Why} ->
-	    process_stream_end({socket, Why}, State1)
+	{error, _Why} ->
+	    % Queue process_stream_end instead of calling it directly,
+	    % so we have opurtunity to process incoming queued messages before
+	    % terminating session.
+	    self() ! {'$gen_event', {socket, closed}},
+	    State1
     end.
 
 -spec send_error(state(), xmpp_element() | xmlel(), stanza_error()) -> state().
