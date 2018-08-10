@@ -2913,11 +2913,12 @@
      #elem{name = <<"subscription">>,
 	   xmlns = <<"urn:xmpp:mucsub:0">>,
 	   module = p1_mucsub,
-	   result = '$jid',
-           attrs = [#attr{name = <<"jid">>,
+	   result = {muc_subscription, '$jid', '$events'},
+	   attrs = [#attr{name = <<"jid">>,
                           required = true,
                           dec = {jid, decode, []},
-                          enc = {jid, encode, []}}]}).
+                          enc = {jid, encode, []}}],
+	   refs = [#ref{name = muc_subscribe_event, label = '$events'}]}).
 
 -xml(muc_subscriptions,
      #elem{name = <<"subscriptions">>,

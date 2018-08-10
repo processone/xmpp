@@ -36,6 +36,9 @@ tags() ->
      {<<"subscriptions">>, <<"urn:xmpp:mucsub:0">>},
      {<<"subscription">>, <<"urn:xmpp:mucsub:0">>}].
 
+do_encode({muc_subscription, _, _} = Subscription,
+	  TopXMLNS) ->
+    encode_muc_subscription(Subscription, TopXMLNS);
 do_encode({muc_subscriptions, _} = Subscriptions,
 	  TopXMLNS) ->
     encode_muc_subscriptions(Subscriptions, TopXMLNS);
@@ -48,6 +51,8 @@ do_encode({muc_unsubscribe, _, _} = Unsubscribe,
 
 do_get_name({muc_subscribe, _, _, _, _}) ->
     <<"subscribe">>;
+do_get_name({muc_subscription, _, _}) ->
+    <<"subscription">>;
 do_get_name({muc_subscriptions, _}) ->
     <<"subscriptions">>;
 do_get_name({muc_unsubscribe, _, _}) ->
@@ -55,19 +60,22 @@ do_get_name({muc_unsubscribe, _, _}) ->
 
 do_get_ns({muc_subscribe, _, _, _, _}) ->
     <<"urn:xmpp:mucsub:0">>;
+do_get_ns({muc_subscription, _, _}) ->
+    <<"urn:xmpp:mucsub:0">>;
 do_get_ns({muc_subscriptions, _}) ->
     <<"urn:xmpp:mucsub:0">>;
 do_get_ns({muc_unsubscribe, _, _}) ->
     <<"urn:xmpp:mucsub:0">>.
 
+pp(muc_subscription, 2) -> [jid, events];
 pp(muc_subscriptions, 1) -> [list];
 pp(muc_subscribe, 4) -> [nick, password, jid, events];
 pp(muc_unsubscribe, 2) -> [nick, jid];
 pp(_, _) -> no.
 
 records() ->
-    [{muc_subscriptions, 1}, {muc_subscribe, 4},
-     {muc_unsubscribe, 2}].
+    [{muc_subscription, 2}, {muc_subscriptions, 1},
+     {muc_subscribe, 4}, {muc_unsubscribe, 2}].
 
 decode_muc_unsubscribe(__TopXMLNS, __Opts,
 		       {xmlel, <<"unsubscribe">>, _attrs, _els}) ->
@@ -341,9 +349,34 @@ encode_muc_subscriptions({muc_subscriptions, List},
 
 decode_muc_subscription(__TopXMLNS, __Opts,
 			{xmlel, <<"subscription">>, _attrs, _els}) ->
+    Events = decode_muc_subscription_els(__TopXMLNS, __Opts,
+					 _els, []),
     Jid = decode_muc_subscription_attrs(__TopXMLNS, _attrs,
 					undefined),
-    Jid.
+    {muc_subscription, Jid, Events}.
+
+decode_muc_subscription_els(__TopXMLNS, __Opts, [],
+			    Events) ->
+    lists:reverse(Events);
+decode_muc_subscription_els(__TopXMLNS, __Opts,
+			    [{xmlel, <<"event">>, _attrs, _} = _el | _els],
+			    Events) ->
+    case xmpp_codec:get_attr(<<"xmlns">>, _attrs,
+			     __TopXMLNS)
+	of
+      <<"urn:xmpp:mucsub:0">> ->
+	  decode_muc_subscription_els(__TopXMLNS, __Opts, _els,
+				      [decode_muc_subscribe_event(<<"urn:xmpp:mucsub:0">>,
+								  __Opts, _el)
+				       | Events]);
+      _ ->
+	  decode_muc_subscription_els(__TopXMLNS, __Opts, _els,
+				      Events)
+    end;
+decode_muc_subscription_els(__TopXMLNS, __Opts,
+			    [_ | _els], Events) ->
+    decode_muc_subscription_els(__TopXMLNS, __Opts, _els,
+				Events).
 
 decode_muc_subscription_attrs(__TopXMLNS,
 			      [{<<"jid">>, _val} | _attrs], _Jid) ->
@@ -354,15 +387,28 @@ decode_muc_subscription_attrs(__TopXMLNS, [_ | _attrs],
 decode_muc_subscription_attrs(__TopXMLNS, [], Jid) ->
     decode_muc_subscription_attr_jid(__TopXMLNS, Jid).
 
-encode_muc_subscription(Jid, __TopXMLNS) ->
+encode_muc_subscription({muc_subscription, Jid, Events},
+			__TopXMLNS) ->
     __NewTopXMLNS =
 	xmpp_codec:choose_top_xmlns(<<"urn:xmpp:mucsub:0">>, [],
 				    __TopXMLNS),
-    _els = [],
+    _els =
+	lists:reverse('encode_muc_subscription_$events'(Events,
+							__NewTopXMLNS, [])),
     _attrs = encode_muc_subscription_attr_jid(Jid,
 					      xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
 									 __TopXMLNS)),
     {xmlel, <<"subscription">>, _attrs, _els}.
+
+'encode_muc_subscription_$events'([], __TopXMLNS,
+				  _acc) ->
+    _acc;
+'encode_muc_subscription_$events'([Events | _els],
+				  __TopXMLNS, _acc) ->
+    'encode_muc_subscription_$events'(_els, __TopXMLNS,
+				      [encode_muc_subscribe_event(Events,
+								  __TopXMLNS)
+				       | _acc]).
 
 decode_muc_subscription_attr_jid(__TopXMLNS,
 				 undefined) ->

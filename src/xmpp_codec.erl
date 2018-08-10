@@ -1551,6 +1551,7 @@ get_mod({vcard_adr, _, _, _, _, _, _, _, _, _, _, _, _,
     xep0054;
 get_mod({xdata_option, _, _}) -> xep0004;
 get_mod({ps_unsubscribe, _, _, _}) -> xep0060;
+get_mod({muc_subscription, _, _}) -> p1_mucsub;
 get_mod({sm_resume, _, _, _}) -> xep0198;
 get_mod({push_enable, _, _, _}) -> xep0357;
 get_mod({jingle_ft_range, _, _, _}) -> xep0234;
