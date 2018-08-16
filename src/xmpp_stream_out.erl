@@ -853,7 +853,7 @@ send_pkt(State, Pkt) ->
 	    % Queue process_stream_end instead of calling it directly,
 	    % so we have opurtunity to process incoming queued messages before
 	    % terminating session.
-	    self() ! {'$gen_event', {socket, closed}},
+	    self() ! {'$gen_event', closed},
 	    State1
     end.
 
