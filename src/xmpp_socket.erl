@@ -107,6 +107,14 @@ start(Module, SockMod, Socket, Opts) ->
 	    raw ->
 		{ok, Pid} = Module:start({SockMod, Socket}, Opts),
 		ok = SockMod:controlling_process(Socket, Pid),
+                %% This is becoming ridiculous
+                %% We should rewrite this stuff completely
+                case erlang:function_exported(Module, become_controller, 2) of
+                    true ->
+                        Module:become_controller(Pid, {SockMod, Socket});
+                    false ->
+                        ok
+                end,
 		{ok, Pid}
 	end
     catch
