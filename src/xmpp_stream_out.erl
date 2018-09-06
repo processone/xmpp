@@ -533,6 +533,8 @@ process_element(Pkt, #{stream_state := StateName} = State) ->
 	    State;
 	_ when StateName == wait_for_bind_response ->
 	    process_bind_response(Pkt, State);
+	_ when StateName == wait_for_session_response ->
+	    process_session_response(Pkt, State);
 	_ ->
 	    process_packet(Pkt, State)
     end.
@@ -739,7 +741,17 @@ process_bind(StreamFeatures, #{lang := Lang, xmlns := ?NS_CLIENT,
 		      sub_els = [#bind{resource = R}]},
 	    State1 = State#{stream_state => wait_for_bind_response,
 			    bind_id => ID},
-	    send_pkt(State1, Pkt);
+	    try xmpp:try_subtag(StreamFeatures, #xmpp_session{}) of
+		#xmpp_session{optional = false} ->
+		    SID = xmpp_stream:new_id(),
+		    State2 = State1#{session_response_id => SID},
+		    send_pkt(State2, Pkt);
+		_ ->
+		    send_pkt(State1, Pkt)
+	    catch _:{xmpp_codec, Why} ->
+		    Txt = xmpp:io_format_error(Why),
+		    send_pkt(State, xmpp:serr_invalid_xml(Txt, Lang))
+	    end;
 	false ->
 	    Txt = <<"Missing resource binding feature">>,
 	    send_pkt(State, xmpp:serr_invalid_xml(Txt, Lang))
@@ -754,10 +766,18 @@ process_bind_response(#iq{type = result, id = ID} = IQ,
     try xmpp:try_subtag(IQ, #bind{}) of
 	#bind{jid = #jid{user = U, server = S, resource = R}} ->
 	    State2 = State1#{user => U, server => S, resource => R},
-	    State3 = try callback(handle_bind_success, State2)
-		     catch _:{?MODULE, undef} -> State2
-		     end,
-	    process_stream_established(State3);
+	    case maps:get(session_response_id, State2, undefined) of
+		undefined ->
+		    State3 = try callback(handle_bind_success, State2)
+			     catch _:{?MODULE, undef} -> State2
+			     end,
+		    process_stream_established(State3);
+		SID ->
+		    Pkt = #iq{id = SID, type = set, to = jid:make(S),
+			      sub_els = [#xmpp_session{}]},
+		    State3 = State2#{stream_state => wait_for_session_response},
+		    send_pkt(State3, Pkt)
+	    end;
 	#bind{} ->
 	    Txt = <<"Missing <jid/> element in resource binding response">>,
 	    send_pkt(State1, xmpp:serr_invalid_xml(Txt, Lang));
@@ -772,10 +792,29 @@ process_bind_response(#iq{type = error, id = ID} = IQ,
 		      #{bind_id := ID} = State) ->
     Err = xmpp:get_error(IQ),
     State1 = reset_bind_state(State),
+    State2 = reset_session_state(State1),
+    try callback(handle_bind_failure, Err, State2)
+    catch _:{?MODULE, undef} -> process_stream_end({bind, Err}, State2)
+    end;
+process_bind_response(Pkt, State) ->
+    process_packet(Pkt, State).
+
+-spec process_session_response(xmpp_element(), state()) -> state().
+process_session_response(#iq{type = result, id = ID},
+			 #{session_response_id := ID} = State) ->
+    State1 = reset_session_state(State),
+    State2 = try callback(handle_bind_success, State1)
+	     catch _:{?MODULE, undef} -> State1
+	     end,
+    process_stream_established(State2);
+process_session_response(#iq{type = error, id = ID} = IQ,
+			 #{session_response_id := ID} = State) ->
+    State1 = reset_session_state(State),
+    Err = xmpp:get_error(IQ),
     try callback(handle_bind_failure, Err, State1)
     catch _:{?MODULE, undef} -> process_stream_end({bind, Err}, State1)
     end;
-process_bind_response(Pkt, State) ->
+process_session_response(Pkt, State) ->
     process_packet(Pkt, State).
 
 -spec process_packet(xmpp_element(), state()) -> state().
@@ -1011,12 +1050,17 @@ reset_stream_state(State) ->
 reset_bind_state(State) ->
     maps:remove(bind_id, State).
 
+-spec reset_session_state(state()) -> state().
+reset_session_state(State) ->
+    maps:remove(session_response_id, State).
+
 -spec reset_state(state()) -> state().
 reset_state(State) ->
     State1 = reset_bind_state(State),
     State2 = reset_sasl_state(State1),
     State3 = reset_connection_state(State2),
-    reset_stream_state(State3).
+    State4 = reset_session_state(State3),
+    reset_stream_state(State4).
 
 %%%===================================================================
 %%% Connection stuff
