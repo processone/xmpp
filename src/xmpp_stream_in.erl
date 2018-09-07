@@ -195,7 +195,7 @@ format_error({stream, reset}) ->
 format_error({stream, {in, #stream_error{} = Err}}) ->
     format("Stream closed by peer: ~s", [xmpp:format_stream_error(Err)]);
 format_error({stream, {out, #stream_error{} = Err}}) ->
-    format("Stream closed by us: ~s", [xmpp:format_stream_error(Err)]);
+    format("Stream closed by local host: ~s", [xmpp:format_stream_error(Err)]);
 format_error({tls, Reason}) ->
     format("TLS failed: ~s", [format_tls_error(Reason)]);
 format_error(internal_failure) ->

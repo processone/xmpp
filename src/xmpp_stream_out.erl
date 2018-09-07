@@ -61,7 +61,7 @@
 		       {tls, tls_error_reason()} |
 		       {pkix, binary()} |
 		       {auth, atom() | binary() | string()} |
-		       {bind, stanza_error()} |
+		       {bind, stanza_error() | undefined} |
 		       {socket, socket_error_reason()} |
 		       internal_failure.
 -export_type([state/0, stop_reason/0]).
@@ -84,7 +84,7 @@
 -callback handle_auth_success(xmpp_sasl:mechanism(), state()) -> state().
 -callback handle_auth_failure(xmpp_sasl:mechanism(), binary(), state()) -> state().
 -callback handle_bind_success(state()) -> state().
--callback handle_bind_failure(stanza_error(), state()) -> state().
+-callback handle_bind_failure(stanza_error() | undefined, state()) -> state().
 -callback handle_packet(xmpp_element(), state()) -> state().
 -callback tls_options(state()) -> [proplists:property()].
 -callback tls_required(state()) -> boolean().
@@ -238,7 +238,9 @@ format_error({stream, reset}) ->
 format_error({stream, {in, #stream_error{} = Err}}) ->
     format("Stream closed by peer: ~s", [xmpp:format_stream_error(Err)]);
 format_error({stream, {out, #stream_error{} = Err}}) ->
-    format("Stream closed by us: ~s", [xmpp:format_stream_error(Err)]);
+    format("Stream closed by local host: ~s", [xmpp:format_stream_error(Err)]);
+format_error({bind, undefined}) ->
+    <<"Resource binding failure: peer reported no reason">>;
 format_error({bind, #stanza_error{} = Err}) ->
     format("Resource binding failure: ~s", [xmpp:format_stanza_error(Err)]);
 format_error({tls, Reason}) ->
@@ -560,7 +562,7 @@ process_features(StreamFeatures,
 		    Txt = <<"Use of STARTTLS required">>,
 		    send_pkt(State1, xmpp:serr_policy_violation(Txt, Lang));
 		#starttls{required = true} when not TLSAvailable and not Encrypted ->
-		    Txt = <<"Use of STARTTLS forbidden">>,
+		    Txt = <<"STARTTLS is disabled in local configuration">>,
 		    send_pkt(State1, xmpp:serr_unsupported_feature(Txt, Lang));
 		#starttls{} when TLSAvailable and not Encrypted ->
 		    State2 = State1#{stream_state => wait_for_starttls_response},
