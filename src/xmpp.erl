@@ -105,6 +105,8 @@
 -type decode_option() :: ignore_els.
 -type config_option() :: {debug, boolean()} | {fqdn, [binary()]}.
 
+-export_type([decode_option/0, config_option/0]).
+
 %%%===================================================================
 %%% Application callbacks
 %%%===================================================================
