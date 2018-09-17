@@ -24,7 +24,7 @@
 
 %% API
 -export([start/3, start_link/3, call/3, cast/2, reply/2, stop/1,
-	 send/2, close/1, close/2, send_error/3, establish/1,
+	 accept/1, send/2, close/1, close/2, send_error/3, establish/1,
 	 get_transport/1, change_shaper/2, set_timeout/2, format_error/1]).
 
 %% gen_server callbacks
@@ -136,6 +136,10 @@ stop(#{owner := Owner} = State) when Owner == self() ->
 stop(_) ->
     erlang:error(badarg).
 
+-spec accept(pid()) -> ok.
+accept(Pid) ->
+    cast(Pid, accept).
+
 -spec send(pid(), xmpp_element()) -> ok;
 	  (state(), xmpp_element()) -> state().
 send(Pid, Pkt) when is_pid(Pid) ->
@@ -206,61 +210,38 @@ format_error(Err) ->
 %%%===================================================================
 %%% gen_server callbacks
 %%%===================================================================
-init([Mod, {_SockMod, Socket}, Opts]) ->
-    Encrypted = proplists:get_bool(tls, Opts),
-    SocketMonitor = xmpp_socket:monitor(Socket),
-    case xmpp_socket:peername(Socket) of
-	{ok, IP} ->
-	    Time = p1_time_compat:monotonic_time(milli_seconds),
-	    State = #{owner => self(),
-		      mod => Mod,
-		      socket => Socket,
-		      socket_monitor => SocketMonitor,
-		      stream_timeout => {timer:seconds(30), Time},
-		      stream_direction => in,
-		      stream_id => xmpp_stream:new_id(),
-		      stream_state => wait_for_stream,
-		      stream_header_sent => false,
-		      stream_restarted => false,
-		      stream_compressed => false,
-		      stream_encrypted => Encrypted,
-		      stream_version => {1,0},
-		      stream_authenticated => false,
-		      codec_options => [ignore_els],
-		      xmlns => ?NS_CLIENT,
-		      lang => <<"">>,
-		      user => <<"">>,
-		      server => <<"">>,
-		      resource => <<"">>,
-		      lserver => <<"">>,
-		      ip => IP},
-	    case try Mod:init([State, Opts])
-		 catch _:undef -> {ok, State}
-		 end of
-		{ok, State1} when not Encrypted ->
-		    {_, State2, Timeout} = noreply(State1),
-		    {ok, State2, Timeout};
-		{ok, State1} when Encrypted ->
-		    TLSOpts = try callback(tls_options, State1)
-			      catch _:{?MODULE, undef} -> []
-			      end,
-		    case xmpp_socket:starttls(Socket, TLSOpts) of
-			{ok, TLSSocket} ->
-			    State2 = State1#{socket => TLSSocket},
-			    {_, State3, Timeout} = noreply(State2),
-			    {ok, State3, Timeout};
-			{error, Reason} ->
-			    {stop, Reason}
-		    end;
-		{error, Reason} ->
-		    {stop, Reason};
-		ignore ->
-		    ignore
-	    end;
-	{error, _Reason} ->
-	    ignore
-    end.
+init([Mod, {SockMod, Socket}, Opts]) ->
+    Time = p1_time_compat:monotonic_time(milli_seconds),
+    Timeout = timer:seconds(30),
+    State = #{owner => self(),
+	      mod => Mod,
+	      socket => Socket,
+	      socket_mod => SockMod,
+	      socket_opts => Opts,
+	      stream_timeout => {Timeout, Time},
+	      stream_state => accepting},
+    {ok, State, Timeout}.
 
+handle_cast(accept, #{socket := Socket,
+		      socket_mod := SockMod,
+		      socket_opts := Opts} = State) ->
+    XMPPSocket = xmpp_socket:new(SockMod, Socket, Opts),
+    SocketMonitor = xmpp_socket:monitor(XMPPSocket),
+    case xmpp_socket:peername(XMPPSocket) of
+	{ok, IP} ->
+	    State1 = maps:remove(socket_mod, State),
+	    State2 = maps:remove(socket_opts, State1),
+	    State3 = State2#{socket => XMPPSocket,
+			     socket_monitor => SocketMonitor,
+			     ip => IP},
+	    State4 = init_state(State3, Opts),
+	    case is_disconnected(State4) of
+		true -> noreply(State4);
+		false -> handle_info({tcp, Socket, <<>>}, State4)
+	    end;
+	{error, _} ->
+	    stop(State)
+    end;
 handle_cast({send, Pkt}, State) ->
     noreply(send_pkt(State, Pkt));
 handle_cast(stop, State) ->
@@ -282,6 +263,8 @@ handle_call(Call, From, State) ->
 	    catch _:{?MODULE, undef} -> State
 	    end).
 
+handle_info(_, #{stream_state := accepting} = State) ->
+    stop(State);
 handle_info({'$gen_event', {xmlstreamstart, Name, Attrs}},
 	    #{stream_state := wait_for_stream,
 	      xmlns := XMLNS, lang := MyLang} = State) ->
@@ -396,6 +379,8 @@ handle_info(Info, State) ->
 	    catch _:{?MODULE, undef} -> State
 	    end).
 
+terminate(_, #{stream_state := accepting} = State) ->
+    State;
 terminate(Reason, State) ->
     case get(already_terminated) of
 	true ->
@@ -414,6 +399,46 @@ code_change(OldVsn, State, Extra) ->
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
+-spec init_state(state(), [proplists:property()]) -> state().
+init_state(#{socket := Socket, mod := Mod} = State, Opts) ->
+    Encrypted = proplists:get_bool(tls, Opts),
+    State1 = State#{stream_direction => in,
+		    stream_id => xmpp_stream:new_id(),
+		    stream_state => wait_for_stream,
+		    stream_header_sent => false,
+		    stream_restarted => false,
+		    stream_compressed => false,
+		    stream_encrypted => Encrypted,
+		    stream_version => {1,0},
+		    stream_authenticated => false,
+		    codec_options => [ignore_els],
+		    xmlns => ?NS_CLIENT,
+		    lang => <<"">>,
+		    user => <<"">>,
+		    server => <<"">>,
+		    resource => <<"">>,
+		    lserver => <<"">>},
+    case try Mod:init([State1, Opts])
+	 catch _:undef -> {ok, State1}
+	 end of
+	{ok, State2} when not Encrypted ->
+	    State2;
+	{ok, State2} when Encrypted ->
+	    TLSOpts = try callback(tls_options, State2)
+		      catch _:{?MODULE, undef} -> []
+		      end,
+	    case xmpp_socket:starttls(Socket, TLSOpts) of
+		{ok, TLSSocket} ->
+		    State2#{socket => TLSSocket};
+		{error, Reason} ->
+		    process_stream_end({tls, Reason}, State2)
+	    end;
+	{error, Reason} ->
+	    process_stream_end(Reason, State1);
+	ignore ->
+	    stop(State)
+    end.
+
 -spec noreply(state()) -> {noreply, state(), non_neg_integer() | infinity}.
 noreply(#{stream_timeout := infinity} = State) ->
     {noreply, State, infinity};

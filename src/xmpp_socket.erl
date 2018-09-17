@@ -20,7 +20,7 @@
 -dialyzer({no_match, [send/2, parse/2]}).
 
 %% API
--export([start/4,
+-export([new/3,
 	 connect/3,
 	 connect/4,
 	 connect/5,
@@ -47,32 +47,36 @@
 
 -include("xmpp.hrl").
 
--type sockmod() :: gen_tcp | fast_tls | ezlib | module().
--type receiver() :: undefined | module() | pid().
--type socket() :: pid() | inet:socket() |
-                  fast_tls:tls_socket() |
-		  ezlib:zlib_socket() | any().
+-type sockmod() :: gen_tcp | fast_tls | ezlib | ext_mod().
+-type socket() :: inet:socket() | fast_tls:tls_socket() |
+		  ezlib:zlib_socket() | ext_socket().
+-type ext_mod() :: module().
+-type ext_socket() :: any().
+-type endpoint() :: {inet:ip_address(), inet:port_number()}.
+-type stream_element() :: {xmlstreamelement, fxml:xmlel()} |
+			  {xmlstreamstart, binary(), [{binary(), binary()}]} |
+			  {xmlstreamend, binary()} |
+			  {xmlstreamraw, iodata()}.
 
--record(socket_state, {sockmod = gen_tcp :: sockmod(),
+-record(socket_state, {sockmod           :: sockmod(),
                        socket            :: socket(),
-		       max_stanza_size = infinity :: timeout(),
+		       max_stanza_size   :: timeout(),
 		       xml_stream :: undefined | fxml_stream:xml_stream_state(),
-		       shaper = none :: none | p1_shaper:state(),
-                       receiver :: receiver()}).
+		       shaper = none :: none | p1_shaper:state()}).
 
 -type socket_state() :: #socket_state{}.
 
 -export_type([socket/0, socket_state/0, sockmod/0]).
 
--callback start({module(), socket_state()},
-		[proplists:property()]) -> {ok, pid()} | {error, term()} | ignore.
--callback start_link({module(), socket_state()},
-		     [proplists:property()]) -> {ok, pid()} | {error, term()} | ignore.
--callback socket_type() -> xml_stream | independent | raw.
-
--define(is_http_socket(S),
-	(S#socket_state.sockmod == ejabberd_bosh orelse
-	 S#socket_state.sockmod == ejabberd_http_ws)).
+-callback send_xml(ext_socket(), stream_element()) -> ok | {error, inet:posix()}.
+-callback get_owner(ext_socket()) -> pid().
+-callback get_transport(ext_socket()) -> atom().
+-callback change_shaper(ext_socket(), none | p1_shaper:state()) -> ok.
+-callback controlling_process(ext_socket(), pid()) -> ok | {error, inet:posix()}.
+-callback close(ext_socket()) -> ok | {error, inet:posix()}.
+-callback sockname(ext_socket()) -> {ok, endpoint()} | {error, inet:posix()}.
+-callback peername(ext_socket()) -> {ok, endpoint()} | {error, inet:posix()}.
+-callback setopts(ext_socket(), [{active, once}]) -> ok | {error, inet:posix()}.
 
 -define(dbg(Fmt, Args),
 	case xmpp_config:debug(global) of
@@ -83,48 +87,19 @@
 %%====================================================================
 %% API
 %%====================================================================
--spec start(atom(), sockmod(), socket(), [proplists:property()])
-      -> {ok, pid() | independent} | {error, inet:posix() | any()} | ignore.
-start(Module, SockMod, Socket, Opts) ->
-    try
-	case Module:socket_type() of
-	    independent ->
-		{ok, independent};
-	    xml_stream ->
-		MaxStanzaSize = proplists:get_value(max_stanza_size, Opts, infinity),
-		Receiver = proplists:get_value(receiver, Opts),
-		SocketData = #socket_state{sockmod = SockMod,
-					   socket = Socket,
-					   receiver = Receiver,
-					   max_stanza_size = MaxStanzaSize},
-		{ok, Pid} = Module:start({?MODULE, SocketData}, Opts),
-		Receiver1 = if is_pid(Receiver) -> Receiver;
-			       true -> Pid
-			    end,
-		ok = controlling_process(SocketData, Receiver1),
-		ok = become_controller(SocketData, Pid),
-		{ok, Receiver1};
-	    raw ->
-		{ok, Pid} = Module:start({SockMod, Socket}, Opts),
-		ok = SockMod:controlling_process(Socket, Pid),
-                %% This is becoming ridiculous
-                %% We should rewrite this stuff completely
-                case erlang:function_exported(Module, become_controller, 2) of
-                    true ->
-                        Module:become_controller(Pid, {SockMod, Socket});
-                    false ->
-                        ok
-                end,
-		{ok, Pid}
-	end
-    catch
-	_:{badmatch, {error, _} = Err} ->
-	    SockMod:close(Socket),
-	    Err;
-	_:{badmatch, ignore} ->
-	    SockMod:close(Socket),
-	    ignore
-    end.
+-spec new(sockmod(), socket(), [proplists:property()]) -> socket_state().
+new(SockMod, Socket, Opts) ->
+    MaxStanzaSize = proplists:get_value(max_stanza_size, Opts, infinity),
+    XMLStream = case get_owner(SockMod, Socket) of
+		    Pid when Pid == self() ->
+			fxml_stream:new(self(), MaxStanzaSize);
+		    _ ->
+			undefined
+		end,
+    #socket_state{sockmod = SockMod,
+		  socket = Socket,
+		  xml_stream = XMLStream,
+		  max_stanza_size = MaxStanzaSize}.
 
 connect(Addr, Port, Opts) ->
     connect(Addr, Port, Opts, infinity, self()).
@@ -135,7 +110,7 @@ connect(Addr, Port, Opts, Timeout) ->
 connect(Addr, Port, Opts, Timeout, Owner) ->
     case gen_tcp:connect(Addr, Port, Opts, Timeout) of
 	{ok, Socket} ->
-	    SocketData = #socket_state{sockmod = gen_tcp, socket = Socket},
+	    SocketData = new(gen_tcp, Socket, []),
 	    case controlling_process(SocketData, Owner) of
 		ok ->
 		    activate_after(Socket, Owner, 0),
@@ -148,8 +123,8 @@ connect(Addr, Port, Opts, Timeout, Owner) ->
 	    Error
     end.
 
-starttls(#socket_state{socket = Socket,
-		       receiver = undefined} = SocketData, TLSOpts) ->
+starttls(#socket_state{sockmod = gen_tcp,
+		       socket = Socket} = SocketData, TLSOpts) ->
     case fast_tls:tcp_to_tls(Socket, TLSOpts) of
 	{ok, TLSSocket} ->
 	    SocketData1 = SocketData#socket_state{socket = TLSSocket,
@@ -163,13 +138,15 @@ starttls(#socket_state{socket = Socket,
 	    end;
 	{error, _} = Err ->
 	    Err
-    end.
+    end;
+starttls(_, _) ->
+    erlang:error(badarg).
 
 compress(SocketData) -> compress(SocketData, undefined).
 
-compress(#socket_state{receiver = undefined,
-		       sockmod = SockMod,
-		       socket = Socket} = SocketData, Data) ->
+compress(#socket_state{sockmod = SockMod,
+		       socket = Socket} = SocketData, Data)
+  when SockMod == gen_tcp orelse SockMod == fast_tls ->
     {ok, ZlibSocket} = ezlib:enable_zlib(SockMod, Socket),
     case Data of
 	undefined -> ok;
@@ -183,39 +160,39 @@ compress(#socket_state{receiver = undefined,
 	    parse(SocketData2, ZlibData);
 	{error, _} = Err ->
 	    Err
-    end.
+    end;
+compress(_, _) ->
+    erlang:error(badarg).
 
 reset_stream(#socket_state{xml_stream = XMLStream,
-			   receiver = Receiver,
 			   sockmod = SockMod, socket = Socket,
 			   max_stanza_size = MaxStanzaSize} = SocketData) ->
-    XMLStream1 = try fxml_stream:reset(XMLStream)
-		 catch error:_ ->
-			 close_stream(XMLStream),
-			 fxml_stream:new(self(), MaxStanzaSize)
-		 end,
-    case Receiver of
-	undefined ->
+    if XMLStream /= undefined ->
+	    XMLStream1 = try fxml_stream:reset(XMLStream)
+			 catch error:_ ->
+				 fxml_stream:close(XMLStream),
+				 fxml_stream:new(self(), MaxStanzaSize)
+			 end,
 	    SocketData#socket_state{xml_stream = XMLStream1};
-	_ ->
+       true ->
 	    Socket1 = SockMod:reset_stream(Socket),
-	    SocketData#socket_state{xml_stream = XMLStream1, socket = Socket1}
+	    SocketData#socket_state{socket = Socket1}
     end.
 
 -spec send_element(socket_state(), fxml:xmlel()) -> ok | {error, inet:posix()}.
-send_element(SocketData, El) when ?is_http_socket(SocketData) ->
+send_element(#socket_state{xml_stream = undefined} = SocketData, El) ->
     send_xml(SocketData, {xmlstreamelement, El});
 send_element(SocketData, El) ->
     send(SocketData, fxml:element_to_binary(El)).
 
 -spec send_header(socket_state(), fxml:xmlel()) -> ok | {error, inet:posix()}.
-send_header(SocketData, El) when ?is_http_socket(SocketData) ->
+send_header(#socket_state{xml_stream = undefined} = SocketData, El) ->
     send_xml(SocketData, {xmlstreamstart, El#xmlel.name, El#xmlel.attrs});
 send_header(SocketData, El) ->
     send(SocketData, fxml:element_to_header(El)).
 
 -spec send_trailer(socket_state()) -> ok | {error, inet:posix()}.
-send_trailer(SocketData) when ?is_http_socket(SocketData) ->
+send_trailer(#socket_state{xml_stream = undefined} = SocketData) ->
     send_xml(SocketData, {xmlstreamend, <<"stream:stream">>});
 send_trailer(SocketData) ->
     send(SocketData, <<"</stream:stream>">>).
@@ -232,17 +209,10 @@ send(#socket_state{sockmod = SockMod, socket = Socket} = SocketData, Data) ->
 	    {error, closed}
     end.
 
--spec send_xml(socket_state(),
-	       {xmlstreamelement, fxml:xmlel()} |
-	       {xmlstreamstart, binary(), [{binary(), binary()}]} |
-	       {xmlstreamend, binary()} |
-	       {xmlstreamraw, iodata()}) -> term().
-send_xml(SocketData, El) ->
-    (SocketData#socket_state.sockmod):send_xml(SocketData#socket_state.socket, El).
+-spec send_xml(socket_state(), stream_element()) -> ok | {error, any()}.
+send_xml(#socket_state{sockmod = SockMod, socket = Socket}, El) ->
+    SockMod:send_xml(Socket, El).
 
-recv(#socket_state{xml_stream = undefined} = SocketData, Data) ->
-    XMLStream = fxml_stream:new(self(), SocketData#socket_state.max_stanza_size),
-    recv(SocketData#socket_state{xml_stream = XMLStream}, Data);
 recv(#socket_state{sockmod = SockMod, socket = Socket} = SocketData, Data) ->
     case SockMod of
 	fast_tls ->
@@ -264,30 +234,25 @@ recv(#socket_state{sockmod = SockMod, socket = Socket} = SocketData, Data) ->
     end.
 
 -spec change_shaper(socket_state(), none | p1_shaper:state()) -> socket_state().
-change_shaper(#socket_state{receiver = undefined} = SocketData, Shaper) ->
-    SocketData#socket_state{shaper = Shaper};
-change_shaper(#socket_state{sockmod = SockMod,
+change_shaper(#socket_state{xml_stream = XMLStream,
+			    sockmod = SockMod,
 			    socket = Socket} = SocketData, Shaper) ->
-    SockMod:change_shaper(Socket, Shaper),
-    SocketData.
+    if XMLStream /= undefined ->
+	    SocketData#socket_state{shaper = Shaper};
+       true ->
+	    SockMod:change_shaper(Socket, Shaper),
+	    SocketData
+    end.
 
-monitor(#socket_state{receiver = undefined}) ->
-    make_ref();
-monitor(#socket_state{sockmod = SockMod, socket = Socket}) ->
-    SockMod:monitor(Socket).
+monitor(#socket_state{xml_stream = undefined,
+		      sockmod = SockMod, socket = Socket}) ->
+    erlang:monitor(process, SockMod:get_owner(Socket));
+monitor(_) ->
+    make_ref().
 
 controlling_process(#socket_state{sockmod = SockMod,
 				  socket = Socket}, Pid) ->
     SockMod:controlling_process(Socket, Pid).
-
-become_controller(#socket_state{receiver = Receiver,
-				sockmod = SockMod,
-				socket = Socket}, Pid) ->
-    if is_pid(Receiver) ->
-	    SockMod:become_controller(Receiver, Pid);
-       true ->
-	    activate_after(Socket, Pid, 0)
-    end.
 
 get_sockmod(SocketData) ->
     SocketData#socket_state.sockmod.
@@ -302,9 +267,15 @@ get_transport(#socket_state{sockmod = SockMod,
 		gen_tcp -> tcp_zlib;
 		fast_tls -> tls_zlib
 	    end;
-	ejabberd_bosh -> http_bind;
-	ejabberd_http_ws -> websocket
+	_ -> SockMod:get_transport(Socket)
     end.
+
+get_owner(SockMod, _) when SockMod == gen_tcp orelse
+			   SockMod == fast_tls orelse
+			   SockMod == ezlib ->
+    self();
+get_owner(SockMod, Socket) ->
+    SockMod:get_owner(Socket).
 
 get_peer_certificate(SocketData, Type) ->
     fast_tls:get_peer_certificate(SocketData#socket_state.socket, Type).
@@ -315,6 +286,7 @@ get_verify_result(SocketData) ->
 close(#socket_state{sockmod = SockMod, socket = Socket}) ->
     SockMod:close(Socket).
 
+-spec sockname(socket_state()) -> {ok, endpoint()} | {error, inet:posix()}.
 sockname(#socket_state{sockmod = SockMod,
 		       socket = Socket}) ->
     case SockMod of
@@ -322,6 +294,7 @@ sockname(#socket_state{sockmod = SockMod,
       _ -> SockMod:sockname(Socket)
     end.
 
+-spec peername(socket_state()) -> {ok, endpoint()} | {error, inet:posix()}.
 peername(#socket_state{sockmod = SockMod,
 		       socket = Socket}) ->
     case SockMod of
@@ -343,13 +316,10 @@ activate_after(Socket, Pid, Pause) ->
     end,
     ok.
 
-pp(#socket_state{receiver = Receiver} = State) ->
+pp(#socket_state{sockmod = SockMod, socket = Socket} = State) ->
     Transport = get_transport(State),
-    Receiver1 = case Receiver of
-		    undefined -> self();
-		    _ -> Receiver
-		end,
-    io_lib:format("~s|~w", [Transport, Receiver1]).
+    Receiver = get_owner(SockMod, Socket),
+    io_lib:format("~s|~w", [Transport, Receiver]).
 
 parse(SocketData, Data) when Data == <<>>; Data == [] ->
     case activate(SocketData) of
@@ -387,11 +357,6 @@ parse(#socket_state{xml_stream = XMLStream,
 	{error, _} = Err ->
 	    Err
     end.
-
-close_stream(undefined) ->
-    ok;
-close_stream(XMLStream) ->
-    fxml_stream:close(XMLStream).
 
 shaper_update(none, _) ->
     {none, 0};
