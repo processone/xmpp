@@ -1,3 +1,8 @@
+# Version 1.2.3
+
+* Added handling for xeps: 319, 047, 261, 260, 234, 300, 166
+* Refactor of xmpp\_socket
+
 # Version 1.2.2
 
 * Updating fast_xml to version 1.1.32.
