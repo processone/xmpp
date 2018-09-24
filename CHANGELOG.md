@@ -1,5 +1,9 @@
 # Version 1.2.3
 
+* Updating fast_tls to version f36ea5b74526c2c1c9c38f8d473168d95804f59d.
+* Updating fast_xml to version 1.1.33.
+* Updating p1_utils to version 1.0.13.
+* Updating stringprep to version 1.0.13.
 * Added handling for xeps: 319, 047, 261, 260, 234, 300, 166
 * Refactor of xmpp\_socket
 
