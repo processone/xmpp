@@ -1,3 +1,10 @@
+# Version 1.2.4
+
+* Updating fast_xml to version 1.1.34.
+* Updating stringprep to version 1.0.14.
+* Updating p1_utils to version 1.0.13.
+* Updating fast_tls to version 1.0.25.
+
 # Version 1.2.3
 
 * Updating fast_tls to version f36ea5b74526c2c1c9c38f8d473168d95804f59d.
