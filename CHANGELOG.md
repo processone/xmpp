@@ -1,3 +1,7 @@
+# Version 1.2.5
+
+* Update packaging for hex
+
 # Version 1.2.4
 
 * Updating fast_xml to version 1.1.34.
