@@ -210,8 +210,22 @@ send(#socket_state{sockmod = SockMod, socket = Socket} = SocketData, Data) ->
     end.
 
 -spec send_xml(socket_state(), stream_element()) -> ok | {error, any()}.
-send_xml(#socket_state{sockmod = SockMod, socket = Socket}, El) ->
+send_xml(#socket_state{sockmod = SockMod, socket = Socket} = SocketData, El) ->
+    ?dbg("(~s) Send XML on stream = ~p", [pp(SocketData),
+					  stringify_stream_element(El)]),
     SockMod:send_xml(Socket, El).
+
+stringify_stream_element({xmlstreamstart, Name, Attrs}) ->
+    fxml:element_to_header(#xmlel{name = Name, attrs = Attrs});
+stringify_stream_element({xmlstreamend, Name}) ->
+    <<"</",Name/binary,">">>;
+stringify_stream_element({xmlstreamelement, El}) ->
+    fxml:element_to_binary(El);
+stringify_stream_element({xmlstreamerror, Data}) ->
+    Err = iolist_to_binary(io_lib:format("~p", [Data])),
+    <<"!StreamError: ", Err/binary>>;
+stringify_stream_element({xmlstreamraw, Data}) ->
+    Data.
 
 recv(#socket_state{sockmod = SockMod, socket = Socket} = SocketData, Data) ->
     case SockMod of
@@ -329,6 +343,8 @@ parse(SocketData, Data) when Data == <<>>; Data == [] ->
 	    Err
     end;
 parse(SocketData, [El | Els]) when is_record(El, xmlel) ->
+    ?dbg("(~s) Received XML on stream = ~p", [pp(SocketData),
+					      fxml:element_to_binary(El)]),
     self() ! {'$gen_event', {xmlstreamelement, El}},
     parse(SocketData, Els);
 parse(SocketData, [El | Els]) when
@@ -336,6 +352,8 @@ parse(SocketData, [El | Els]) when
       element(1, El) == xmlstreamelement;
       element(1, El) == xmlstreamend;
       element(1, El) == xmlstreamerror ->
+    ?dbg("(~s) Received XML on stream = ~p", [pp(SocketData),
+					      stringify_stream_element(El)]),
     self() ! {'$gen_event', El},
     parse(SocketData, Els);
 parse(#socket_state{xml_stream = XMLStream,
