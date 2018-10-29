@@ -43,7 +43,9 @@
 	 get_verify_result/1,
 	 close/1,
 	 pp/1,
-	 sockname/1, peername/1]).
+	 sockname/1,
+	 peername/1,
+	 send_ws_ping/1]).
 
 -include("xmpp.hrl").
 
@@ -196,6 +198,13 @@ send_trailer(#socket_state{xml_stream = undefined} = SocketData) ->
     send_xml(SocketData, {xmlstreamend, <<"stream:stream">>});
 send_trailer(SocketData) ->
     send(SocketData, <<"</stream:stream>">>).
+
+-spec send_ws_ping(socket_state()) -> ok | {error, inet:posix()}.
+send_ws_ping(#socket_state{xml_stream = undefined}) ->
+    % we don't send cdata on xmlsockets
+    ok;
+send_ws_ping(SocketData) ->
+    send(SocketData, <<"\r\n\r\n">>).
 
 -spec send(socket_state(), iodata()) -> ok | {error, closed | inet:posix()}.
 send(#socket_state{sockmod = SockMod, socket = Socket} = SocketData, Data) ->

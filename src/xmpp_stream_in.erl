@@ -25,7 +25,8 @@
 %% API
 -export([start/3, start_link/3, call/3, cast/2, reply/2, stop/1,
 	 accept/1, send/2, close/1, close/2, send_error/3, establish/1,
-	 get_transport/1, change_shaper/2, set_timeout/2, format_error/1]).
+	 get_transport/1, change_shaper/2, set_timeout/2, format_error/1,
+	 send_ws_ping/1]).
 
 %% gen_server callbacks
 -export([init/1, handle_cast/2, handle_call/3, handle_info/2,
@@ -149,6 +150,22 @@ send(#{owner := Owner} = State, Pkt) when Owner == self() ->
 send(_, _) ->
     erlang:error(badarg).
 
+-spec send_ws_ping(pid()) -> ok;
+		  (state()) -> state().
+send_ws_ping(Pid) when is_pid(Pid) ->
+    cast(Pid, send_ws_ping);
+send_ws_ping(#{owner := Owner, socket := Sock,
+	       stream_header_send := true} = State)
+    when Owner == self() ->
+    case xmpp_socket:send_ws_ping(Sock) of
+	ok ->
+	    State;
+	{error, Why} ->
+	    process_stream_end({socket, Why}, State)
+    end;
+send_ws_ping(State) ->
+    State.
+
 -spec close(pid()) -> ok;
 	   (state()) -> state().
 close(Pid) when is_pid(Pid) ->
@@ -244,6 +261,8 @@ handle_cast(accept, #{socket := Socket,
     end;
 handle_cast({send, Pkt}, State) ->
     noreply(send_pkt(State, Pkt));
+handle_cast(send_ws_ping, State) ->
+    noreply(send_ws_ping(State));
 handle_cast(stop, State) ->
     {stop, normal, State};
 handle_cast({close, Reason}, State) ->
@@ -1114,7 +1133,7 @@ send_pkt(State, Pkt) ->
 	    State1;
 	{error, _Why} ->
 	    % Queue process_stream_end instead of calling it directly,
-	    % so we have opurtunity to process incoming queued messages before
+	    % so we have opportunity to process incoming queued messages before
 	    % terminating session.
 	    self() ! {'$gen_event', closed},
 	    State1
