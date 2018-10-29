@@ -155,7 +155,7 @@ send(_, _) ->
 send_ws_ping(Pid) when is_pid(Pid) ->
     cast(Pid, send_ws_ping);
 send_ws_ping(#{owner := Owner, socket := Sock,
-	       stream_header_send := true} = State)
+	       stream_header_sent := true} = State)
     when Owner == self() ->
     case xmpp_socket:send_ws_ping(Sock) of
 	ok ->
