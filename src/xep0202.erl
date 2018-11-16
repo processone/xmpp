@@ -46,7 +46,7 @@ enc_tzo({H, M}) ->
 	      true -> <<"-">>
 	   end,
     list_to_binary([Sign,
-		    io_lib:format("~2..0w:~2..0w", [H, M])]).
+		    io_lib:format("~2..0w:~2..0w", [abs(H), M])]).
 
 enc_utc(Val) -> xmpp_util:encode_timestamp(Val).
 
