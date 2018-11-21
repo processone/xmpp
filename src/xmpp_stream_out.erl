@@ -71,6 +71,7 @@
 -callback handle_info(term(), state()) -> state().
 -callback terminate(term(), state()) -> any().
 -callback code_change(term(), state(), term()) -> {ok, state()} | {error, term()}.
+-callback handle_connect(state()) -> state().
 -callback handle_stream_start(stream_start(), state()) -> state().
 -callback handle_stream_established(state()) -> state().
 -callback handle_stream_downgraded(stream_start(), state()) -> state().
@@ -105,6 +106,7 @@
 		     handle_info/2,
 		     terminate/2,
 		     code_change/3,
+		     handle_connect/1,
 		     handle_stream_start/2,
 		     handle_stream_established/1,
 		     handle_stream_downgraded/2,
@@ -311,7 +313,13 @@ handle_cast(connect, #{remote_server := RemoteServer,
 					      stream_encrypted => Encrypted,
 					      socket_monitor => SocketMonitor},
 			      State2 = State1#{stream_state => wait_for_stream},
-			      send_header(State2);
+			      State3 = try callback(handle_connect, State2)
+				       catch _:{?MODULE, undef} -> State2
+				       end,
+			      case is_disconnected(State3) of
+				  true -> State3;
+				  false -> send_header(State3)
+			      end;
 			  {error, {Class, Why}} ->
 			      process_stream_end({Class, Why}, State)
 		      end;
