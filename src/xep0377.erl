@@ -175,7 +175,13 @@ encode_report_text({text, Lang, Data}, __TopXMLNS) ->
 				   undefined) ->
     <<>>;
 'decode_report_text_attr_xml:lang'(__TopXMLNS, _val) ->
-    _val.
+    case catch xmpp_lang:check(_val) of
+      {'EXIT', _} ->
+	  erlang:error({xmpp_codec,
+			{bad_attr_value, <<"xml:lang">>, <<"text">>,
+			 __TopXMLNS}});
+      _res -> _res
+    end.
 
 'encode_report_text_attr_xml:lang'(<<>>, _acc) -> _acc;
 'encode_report_text_attr_xml:lang'(_val, _acc) ->

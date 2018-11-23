@@ -235,6 +235,7 @@
 	   result = {text, '$lang', '$data'},
 	   cdata = #cdata{label = '$data'},
 	   attrs = [#attr{name = <<"xml:lang">>,
+			  dec = {xmpp_lang, check, []},
 			  label = '$lang'}]}).
 
 -xml(report,
@@ -261,6 +262,7 @@
                     #attr{name = <<"type">>,
                           required = true},
                     #attr{name = <<"xml:lang">>,
+			  dec = {xmpp_lang, check, []},
                           label = '$lang'},
                     #attr{name = <<"name">>}]}).
 
@@ -434,6 +436,7 @@
                           dec = {jid, decode, []},
                           enc = {jid, encode, []}},
                     #attr{name = <<"xml:lang">>,
+			  dec = {xmpp_lang, check, []},
                           label = '$lang'}]}).
 
 -xml(message_subject,
@@ -443,7 +446,9 @@
 	   module = rfc6120,
            result = {text, '$lang', '$data'},
            cdata = #cdata{label = '$data'},
-           attrs = [#attr{name = <<"xml:lang">>, label = '$lang'}]}).
+           attrs = [#attr{name = <<"xml:lang">>,
+			  dec = {xmpp_lang, check, []},
+			  label = '$lang'}]}).
 
 -xml(message_body,
      #elem{name = <<"body">>,
@@ -452,7 +457,9 @@
 	   module = rfc6120,
            result = {text, '$lang', '$data'},
            cdata = #cdata{label = '$data'},
-           attrs = [#attr{name = <<"xml:lang">>, label = '$lang'}]}).
+           attrs = [#attr{name = <<"xml:lang">>,
+			  dec = {xmpp_lang, check, []},
+			  label = '$lang'}]}).
 
 -xml(message_thread,
      #elem{name = <<"thread">>,
@@ -494,6 +501,7 @@
                           dec = {jid, decode, []},
                           enc = {jid, encode, []}},
                     #attr{name = <<"xml:lang">>,
+			  dec = {xmpp_lang, check, []},
                           label = '$lang'}],
            refs = [#ref{name = message_subject, label = '$subject'},
                    #ref{name = message_thread, min = 0, max = 1, label = '$thread'},
@@ -516,6 +524,7 @@
            result = {text, '$lang', '$data'},
            cdata = #cdata{label = '$data'},
            attrs = [#attr{name = <<"xml:lang">>,
+			  dec = {xmpp_lang, check, []},
                           label = '$lang'}]}).
 
 -xml(presence_priority,
@@ -560,6 +569,7 @@
                           dec = {jid, decode, []},
                           enc = {jid, encode, []}},
                     #attr{name = <<"xml:lang">>,
+			  dec = {xmpp_lang, check, []},
                           label = '$lang'}],
            refs = [#ref{name = presence_show, min = 0, max = 1, label = '$show'},
                    #ref{name = presence_status, label = '$status'},
@@ -691,6 +701,7 @@
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-stanzas">>,
 	   module = rfc6120,
            attrs = [#attr{name = <<"xml:lang">>,
+			  dec = {xmpp_lang, check, []},
                           label = '$lang'}]}).
 
 -xml(error,
@@ -879,6 +890,7 @@
            result = {text, '$lang', '$data'},
            cdata = #cdata{label = '$data'},
            attrs = [#attr{name = <<"xml:lang">>,
+			  dec = {xmpp_lang, check, []},
                           label = '$lang'}]}).
 
 -xml(sasl_failure_aborted,
@@ -1313,6 +1325,7 @@
            xmlns = <<"urn:ietf:params:xml:ns:xmpp-streams">>,
 	   module = rfc6120,
            attrs = [#attr{name = <<"xml:lang">>,
+			  dec = {xmpp_lang, check, []},
                           label = '$lang'}]}).
 
 -xml(stream_error_bad_format,
@@ -3685,7 +3698,8 @@
 	   result = {adhoc_command, '$node', '$action', '$sid',
 		     '$status', '$lang', '$actions', '$notes', '$xdata'},
 	   attrs = [#attr{name = <<"node">>, required = true},
-		    #attr{name = <<"xml:lang">>, label = '$lang'},
+		    #attr{name = <<"xml:lang">>,
+			  dec = {xmpp_lang, check, []}, label = '$lang'},
 		    #attr{name = <<"sessionid">>, label = '$sid'},
 		    #attr{name = <<"status">>,
 			  dec = {dec_enum, [[canceled, completed, executing]]},
@@ -3770,7 +3784,9 @@
 		    #attr{name = <<"xmlns:db">>,
 			  label = '$db_xmlns',
 			  default = <<"">>},
-		    #attr{name = <<"xml:lang">>, label = '$lang',
+		    #attr{name = <<"xml:lang">>,
+			  dec = {xmpp_lang, check, []},
+			  label = '$lang',
 			  default = <<"">>},
 		    #attr{name = <<"version">>,
 			  dec = {dec_version, []},
@@ -4383,6 +4399,7 @@
 	   result = {text, '$lang', '$data'},
            cdata = #cdata{label = '$data'},
            attrs = [#attr{name = <<"xml:lang">>,
+			  dec = {xmpp_lang, check, []},
                           label = '$lang'}]}).
 
 -xml(jingle_reason,
@@ -4498,6 +4515,7 @@
 	   result = {text, '$lang', '$data'},
            cdata = #cdata{label = '$data'},
            attrs = [#attr{name = <<"xml:lang">>,
+			  dec = {xmpp_lang, check, []},
                           label = '$lang'}]}).
 
 -xml(jingle_ft_media_type,
@@ -4754,6 +4772,7 @@ enc_ip(Addr) ->
 -spec re:split(_, _) -> [binary()].
 -spec base64:decode(_) -> binary().
 -spec base64:mime_decode(_) -> binary().
+-spec xmpp_lang:check(_) -> binary().
 
 -type xmpp_host() :: binary() | inet:ip_address() |
 		     {binary() | inet:ip_address(), inet:port_number()}.
