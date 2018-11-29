@@ -1,5 +1,6 @@
 # Version 1.2.6
 
+* Updating fast_tls to version 1.0.26.
 * Add support for XEP-0048 and XEP-0411
 * Add logging of data transmited over xml sockets
 * Add functions for processing white space pings
