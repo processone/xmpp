@@ -1,3 +1,11 @@
+# Version 1.2.6
+
+* Add support for XEP-0048 and XEP-0411
+* Add logging of data transmited over xml sockets
+* Add functions for processing white space pings
+* Validate xml:lang values
+* Fix encoding of timestamp with negative TZ offsets
+
 # Version 1.2.5
 
 * Update packaging for hex
