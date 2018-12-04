@@ -1,3 +1,7 @@
+# Version 1.2.7
+
+* Add code required for proxy protocol support
+
 # Version 1.2.6
 
 * Updating fast_tls to version 1.0.26.
