@@ -64,7 +64,8 @@
                        socket            :: socket(),
 		       max_stanza_size   :: timeout(),
 		       xml_stream :: undefined | fxml_stream:xml_stream_state(),
-		       shaper = none :: none | p1_shaper:state()}).
+		       shaper = none :: none | p1_shaper:state(),
+		       sock_peer_name = none :: none | {endpoint(), endpoint()}}).
 
 -type socket_state() :: #socket_state{}.
 
@@ -92,6 +93,7 @@
 -spec new(sockmod(), socket(), [proplists:property()]) -> socket_state().
 new(SockMod, Socket, Opts) ->
     MaxStanzaSize = proplists:get_value(max_stanza_size, Opts, infinity),
+    SockPeer =  proplists:get_value(sock_peer_name, Opts, none),
     XMLStream = case get_owner(SockMod, Socket) of
 		    Pid when Pid == self() ->
 			fxml_stream:new(self(), MaxStanzaSize);
@@ -101,7 +103,8 @@ new(SockMod, Socket, Opts) ->
     #socket_state{sockmod = SockMod,
 		  socket = Socket,
 		  xml_stream = XMLStream,
-		  max_stanza_size = MaxStanzaSize}.
+		  max_stanza_size = MaxStanzaSize,
+		  sock_peer_name = SockPeer}.
 
 connect(Addr, Port, Opts) ->
     connect(Addr, Port, Opts, infinity, self()).
@@ -311,18 +314,30 @@ close(#socket_state{sockmod = SockMod, socket = Socket}) ->
 
 -spec sockname(socket_state()) -> {ok, endpoint()} | {error, inet:posix()}.
 sockname(#socket_state{sockmod = SockMod,
-		       socket = Socket}) ->
-    case SockMod of
-      gen_tcp -> inet:sockname(Socket);
-      _ -> SockMod:sockname(Socket)
+		       socket = Socket,
+		       sock_peer_name = SockPeer}) ->
+    case SockPeer of
+	none ->
+	    case SockMod of
+		gen_tcp -> inet:sockname(Socket);
+		_ -> SockMod:sockname(Socket)
+	    end;
+	{SN, _} ->
+	    {ok, SN}
     end.
 
 -spec peername(socket_state()) -> {ok, endpoint()} | {error, inet:posix()}.
 peername(#socket_state{sockmod = SockMod,
-		       socket = Socket}) ->
-    case SockMod of
-      gen_tcp -> inet:peername(Socket);
-      _ -> SockMod:peername(Socket)
+		       socket = Socket,
+		       sock_peer_name = SockPeer}) ->
+    case SockPeer of
+	none ->
+	    case SockMod of
+		gen_tcp -> inet:peername(Socket);
+		_ -> SockMod:peername(Socket)
+	    end;
+	{_, PN} ->
+	    {ok, PN}
     end.
 
 activate(#socket_state{sockmod = SockMod, socket = Socket}) ->
