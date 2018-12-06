@@ -146,7 +146,7 @@
 -record(carbons_enable, {}).
 -type carbons_enable() :: #carbons_enable{}.
 
--record(mix_create, {channel :: any()}).
+-record(mix_create, {channel = <<>> :: binary()}).
 -type mix_create() :: #mix_create{}.
 
 -record(carbons_private, {}).
@@ -1184,6 +1184,7 @@
                         receipt_request() |
                         hash_used() |
                         message_thread() |
+                        text() |
                         stats() |
                         ps_event() |
                         roster_query() |
@@ -1233,6 +1234,7 @@
                         adhoc_command() |
                         jingle_s5b_transport() |
                         sm_r() |
+                        search() |
                         ps_retract() |
                         search_item() |
                         iq() |
@@ -1284,7 +1286,6 @@
                         xmpp_session() |
                         feature_register() |
                         vcard_logo() |
-                        search() |
                         compress() |
                         carbons_disable() |
                         jingle_ft_range() |
@@ -1292,7 +1293,6 @@
                         xcaptcha() |
                         upload_request() |
                         sasl_abort() |
-                        text() |
                         db_feature() |
                         vcard_tel() |
                         ibb_close() |

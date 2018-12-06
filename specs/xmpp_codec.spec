@@ -3494,7 +3494,8 @@
 	   module = 'xep0369',
 	   result = {mix_create, '$channel'},
 	   attrs = [#attr{name = <<"channel">>,
-			  dec = {jid, nodeprep, []}}]}).
+			  default = <<"">>,
+			  dec = {nodeprep, []}}]}).
 
 -xml(mix_destroy,
      #elem{name = <<"destroy">>,
@@ -4823,6 +4824,15 @@ check_resource(R) ->
 -spec nameprep(_) -> binary().
 nameprep(S) ->
     case jid:nameprep(S) of
+	error ->
+	    erlang:error(badarg);
+	S1 ->
+	    S1
+    end.
+
+-spec nodeprep(_) -> binary().
+nodeprep(S) ->
+    case jid:nodeprep(S) of
 	error ->
 	    erlang:error(badarg);
 	S1 ->

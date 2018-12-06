@@ -110,6 +110,12 @@ records() ->
      {mix_participant, 2}, {mix_create, 1}, {mix_destroy, 1},
      {mix, 3}].
 
+nodeprep(S) ->
+    case jid:nodeprep(S) of
+      error -> erlang:error(badarg);
+      S1 -> S1
+    end.
+
 decode_mix(__TopXMLNS, __Opts,
 	   {xmlel, <<"mix">>, _attrs, _els}) ->
     {Jid, Submission_id, Nick} = decode_mix_els(__TopXMLNS,
@@ -275,9 +281,9 @@ encode_mix_create({mix_create, Channel}, __TopXMLNS) ->
     {xmlel, <<"create">>, _attrs, _els}.
 
 decode_mix_create_attr_channel(__TopXMLNS, undefined) ->
-    undefined;
+    <<>>;
 decode_mix_create_attr_channel(__TopXMLNS, _val) ->
-    case catch jid:nodeprep(_val) of
+    case catch nodeprep(_val) of
       {'EXIT', _} ->
 	  erlang:error({xmpp_codec,
 			{bad_attr_value, <<"channel">>, <<"create">>,
@@ -285,7 +291,7 @@ decode_mix_create_attr_channel(__TopXMLNS, _val) ->
       _res -> _res
     end.
 
-encode_mix_create_attr_channel(undefined, _acc) -> _acc;
+encode_mix_create_attr_channel(<<>>, _acc) -> _acc;
 encode_mix_create_attr_channel(_val, _acc) ->
     [{<<"channel">>, _val} | _acc].
 
