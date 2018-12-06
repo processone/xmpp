@@ -105,6 +105,30 @@ GlobalDepsFilter = fun(Deps) ->
 					 end, DepNames)
 		   end,
 
+ResolveDepPath = case IsRebar3 of
+		     true ->
+			 fun("deps/" ++ Rest) ->
+				 Slash = string:str(Rest, "/"),
+				 "_build/default/lib/" ++
+				     string:sub_string(Rest, 1, Slash - 1) ++
+				     string:sub_string(Rest, Slash);
+			    (Path) ->
+				 Path
+			 end;
+		     _ ->
+			 fun(P) ->
+				 P
+			 end
+		 end,
+
+ProcessErlOpt = fun(Vals) ->
+			lists:map(
+			  fun({i, Path}) ->
+				  {i, ResolveDepPath(Path)};
+			     (ErlOpt) ->
+				  ErlOpt
+			  end, Vals)
+		end,
 Rules = [
 	 {[port_env, "CFLAGS"], SysVersion >= [7, 3],
 	  AppendStr("-DHAS_ERTS_EXIT"), "$CFLAGS"},
@@ -122,11 +146,13 @@ Rules = [
 	 {[deps], IsRebar3,
 	  Rebar3DepsFilter, []},
 	 {[plugins], IsRebar3,
-	  AppendList([rebar3_hex, pc]), []},
+	  AppendList([rebar3_hex, pc, provider_asn1]), []},
 	 {[provider_hooks], IsRebar3,
 	  AppendList([{pre, [
 			     {compile, {pc, compile}},
-			     {clean, {pc, clean}}
+			     {clean, {pc, clean}},
+			     {compile, {asn, compile}},
+			     {clean, {asn, clean}}
 			    ]}]), []},
 	 {[deps], os:getenv("TRAVIS") == "true",
 	  AppendList([{coveralls, ".*", {git, "https://github.com/markusn/coveralls-erl.git", "master"}}]), []},
@@ -134,7 +160,9 @@ Rules = [
 	  AppendList([{eunit, "echo '\n%%! -pa .eunit/ deps/coveralls/ebin\nmain(_)->{ok,F}=file:open(\"erlang.json\",[write]),io:fwrite(F,\"~s\",[coveralls:convert_file(\".eunit/cover.coverdata\", \""++JobId++"\", \"travis-ci\",\"\")]).' > getcover.erl"},
 		      {eunit, "escript ./getcover.erl"}]), []},
 	 {[deps], os:getenv("USE_GLOBAL_DEPS") /= false,
-	  GlobalDepsFilter, []}
+	  GlobalDepsFilter, []},
+	 {[erl_opts], true,
+	  ProcessErlOpt, []}
 	],
 
 
