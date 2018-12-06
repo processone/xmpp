@@ -1,3 +1,7 @@
+# Version 1.2.8
+
+* Improve building with rebar3 and hex packaging
+
 # Version 1.2.7
 
 * Add code required for proxy protocol support
