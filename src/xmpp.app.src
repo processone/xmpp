@@ -33,6 +33,7 @@
 
   %% hex.pm packaging:
   {files, ["src/", "specs/", "asn1/", "include/", "c_src/jid.c", "c_src/xmpp_uri.c", "c_src/xmpp_lang.c", "rebar.config", "rebar.config.script", "README.md", "LICENSE.txt"]},
+  {exclude_files, ["src/XmppAddr.erl", "src/XmppAddr.asn1db", "include/XmppAddr.hrl"]},
   {licenses, ["Apache 2.0"]},
   {maintainers, ["ProcessOne"]},
   {links, [{"Github", "https://github.com/processone/xmpp"}]}]}.
