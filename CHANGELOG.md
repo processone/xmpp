@@ -1,3 +1,7 @@
+# Version NEXT
+
+* Add support for latest MIX version and MIX-PERP (XEP-0405)
+
 # Version 1.2.7
 
 * Add code required for proxy protocol support
