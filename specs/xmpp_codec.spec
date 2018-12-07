@@ -3511,8 +3511,8 @@
 	   xmlns = <<"urn:xmpp:mix:core:0">>,
 	   module = 'xep0369',
 	   result = {mix, '$submission_id', '$jid', '$nick'},
-	   refs = [#ref{name = mix_submission_id,
-			min = 1, max = 1, label = '$submission_id'},
+	   refs = [#ref{name = mix_submission_id, default = <<"">>,
+			min = 0, max = 1, label = '$submission_id'},
 		   #ref{name = mix_jid,	min = 0, max = 1, label = '$jid'},
 		   #ref{name = mix_nick, min = 0, max = 1,
 			label = '$nick', default = <<"">>}]}).

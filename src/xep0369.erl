@@ -119,20 +119,13 @@ nodeprep(S) ->
 decode_mix(__TopXMLNS, __Opts,
 	   {xmlel, <<"mix">>, _attrs, _els}) ->
     {Jid, Submission_id, Nick} = decode_mix_els(__TopXMLNS,
-						__Opts, _els, undefined, error,
+						__Opts, _els, undefined, <<>>,
 						<<>>),
     {mix, Submission_id, Jid, Nick}.
 
 decode_mix_els(__TopXMLNS, __Opts, [], Jid,
 	       Submission_id, Nick) ->
-    {Jid,
-     case Submission_id of
-       error ->
-	   erlang:error({xmpp_codec,
-			 {missing_tag, <<"submission-id">>, __TopXMLNS}});
-       {value, Submission_id1} -> Submission_id1
-     end,
-     Nick};
+    {Jid, Submission_id, Nick};
 decode_mix_els(__TopXMLNS, __Opts,
 	       [{xmlel, <<"submission-id">>, _attrs, _} = _el | _els],
 	       Jid, Submission_id, Nick) ->
@@ -141,9 +134,8 @@ decode_mix_els(__TopXMLNS, __Opts,
 	of
       <<"urn:xmpp:mix:core:0">> ->
 	  decode_mix_els(__TopXMLNS, __Opts, _els, Jid,
-			 {value,
-			  decode_mix_submission_id(<<"urn:xmpp:mix:core:0">>,
-						   __Opts, _el)},
+			 decode_mix_submission_id(<<"urn:xmpp:mix:core:0">>,
+						  __Opts, _el),
 			 Nick);
       _ ->
 	  decode_mix_els(__TopXMLNS, __Opts, _els, Jid,
@@ -203,6 +195,8 @@ encode_mix({mix, Submission_id, Jid, Nick},
 'encode_mix_$jid'(Jid, __TopXMLNS, _acc) ->
     [encode_mix_jid(Jid, __TopXMLNS) | _acc].
 
+'encode_mix_$submission_id'(<<>>, __TopXMLNS, _acc) ->
+    _acc;
 'encode_mix_$submission_id'(Submission_id, __TopXMLNS,
 			    _acc) ->
     [encode_mix_submission_id(Submission_id, __TopXMLNS)

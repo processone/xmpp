@@ -610,7 +610,7 @@
                  id :: 'undefined' | binary()}).
 -type xevent() :: #xevent{}.
 
--record(mix, {submission_id :: binary(),
+-record(mix, {submission_id = <<>> :: binary(),
               jid :: undefined | jid:jid(),
               nick = <<>> :: binary()}).
 -type mix() :: #mix{}.
@@ -1154,6 +1154,7 @@
                         media() |
                         adhoc_note() |
                         jingle_ft_checksum() |
+                        search() |
                         rosterver_feature() |
                         stat_error() |
                         ps_items() |
@@ -1184,7 +1185,6 @@
                         receipt_request() |
                         hash_used() |
                         message_thread() |
-                        text() |
                         stats() |
                         ps_event() |
                         roster_query() |
@@ -1234,11 +1234,11 @@
                         adhoc_command() |
                         jingle_s5b_transport() |
                         sm_r() |
-                        search() |
                         ps_retract() |
                         search_item() |
                         iq() |
                         mix_client_leave() |
+                        text() |
                         delegation_query() |
                         idle() |
                         delay() |
