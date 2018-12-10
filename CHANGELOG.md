@@ -1,6 +1,6 @@
 # Version NEXT
 
-* Add support for latest MIX version and MIX-PERP (XEP-0405)
+* Add support for latest MIX version and MIX-PAM (XEP-0405)
 
 # Version 1.2.7
 
