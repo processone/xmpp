@@ -8,6 +8,7 @@ langtag       = language
                  *("-" variant)
                  *("-" extension)
                  ["-" privateuse]
+		 ["." encoding]
 
 language      = 2*3ALPHA            ; shortest ISO 639 code
                  ["-" extlang]       ; sometimes followed by
@@ -37,6 +38,8 @@ singleton     = DIGIT               ; 0 - 9
                / %x79-7A             ; y - z
 
 privateuse    = "x" 1*("-" (1*8alphanum))
+
+encoding      = "UTF-8"             ; work-around for Cisco Jabber
 
 grandfathered = irregular           ; non-redundant tags registered
                / regular             ; during the RFC 3066 era
