@@ -44,6 +44,7 @@
 		dec_mfas = [] :: [{binary(), mfargs()}],
 		enc_mfas = [] :: [{binary(), mfargs()}],
 		specs = [] :: [{binary(), string()}],
+		ignore_unknown = false :: boolean(),
 		required = [] :: [{binary(), boolean()} | binary()],
 		defaults = [] :: [{binary(), any()}]}).
 
@@ -97,6 +98,7 @@ compile_file(Path, Opts) ->
 		       dec_mfas = proplists:get_value(decode, Config, []),
 		       enc_mfas = proplists:get_value(encode, Config, []),
 		       specs = proplists:get_value(specs, Config, []),
+		       ignore_unknown = proplists:get_bool(ignore_unknown, Config),
 		       required = proplists:get_value(required, Config, []),
 		       defaults = proplists:get_value(defaults, Config, [])},
 	#xmlel{} = El = fxml_stream:parse_element(Data),
@@ -453,12 +455,17 @@ mk_decoder([#xdata_field{var = Var, type = Type} = F|Fs], State) ->
     end,
     mk_decoder(Fs, State);
 mk_decoder([], State) ->
-    emit("decode([#xdata_field{var = Var}|Fs], Acc, XMLNS, Required) ->"
-	 "  if Var /= <<\"FORM_TYPE\">> ->"
-	 "    erlang:error({?MODULE, {unknown_var, Var, XMLNS}});"
-	 "  true ->"
-	 "    decode(Fs, Acc, XMLNS, Required)"
-	 "  end;"),
+    if State#state.ignore_unknown ->
+	    emit("decode([_|Fs], Acc, XMLNS, Required) ->"
+		 "  decode(Fs, Acc, XMLNS, Required);");
+       true ->
+	    emit("decode([#xdata_field{var = Var}|Fs], Acc, XMLNS, Required) ->"
+		 "  if Var /= <<\"FORM_TYPE\">> ->"
+		 "    erlang:error({?MODULE, {unknown_var, Var, XMLNS}});"
+		 "  true ->"
+		 "    decode(Fs, Acc, XMLNS, Required)"
+		 "  end;")
+    end,
     if State#state.required /= [] ->
 	    emit("decode([], _, XMLNS, [Var|_]) ->"
 		 "  erlang:error({?MODULE, {missing_required_var, Var, XMLNS}});~n");
