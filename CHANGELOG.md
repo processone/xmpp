@@ -1,3 +1,5 @@
+# Version NEXT
+
 # Version 1.3.0
 
 * Introduce 'ignore_unknown' xdata codec option
