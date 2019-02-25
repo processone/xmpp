@@ -3870,12 +3870,19 @@ encode_error_attr_code(undefined, _acc) -> _acc;
 encode_error_attr_code(_val, _acc) ->
     [{<<"code">>, enc_int(_val)} | _acc].
 
-decode_error_attr_by(__TopXMLNS, undefined) -> <<>>;
-decode_error_attr_by(__TopXMLNS, _val) -> _val.
+decode_error_attr_by(__TopXMLNS, undefined) ->
+    undefined;
+decode_error_attr_by(__TopXMLNS, _val) ->
+    case catch jid:decode(_val) of
+      {'EXIT', _} ->
+	  erlang:error({xmpp_codec,
+			{bad_attr_value, <<"by">>, <<"error">>, __TopXMLNS}});
+      _res -> _res
+    end.
 
-encode_error_attr_by(<<>>, _acc) -> _acc;
+encode_error_attr_by(undefined, _acc) -> _acc;
 encode_error_attr_by(_val, _acc) ->
-    [{<<"by">>, _val} | _acc].
+    [{<<"by">>, jid:encode(_val)} | _acc].
 
 decode_error_text(__TopXMLNS, __Opts,
 		  {xmlel, <<"text">>, _attrs, _els}) ->

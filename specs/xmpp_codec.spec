@@ -720,7 +720,10 @@
 			  label = '$code',
 			  enc = {enc_int, []},
                           dec = {dec_int, [0, infinity]}},
-                    #attr{name = <<"by">>}],
+                    #attr{name = <<"by">>,
+			  label = '$by',
+			  enc = {jid, encode, []},
+			  dec = {jid, decode, []}}],
            refs = [#ref{name = error_text, label = '$text'},
                    #ref{name = error_bad_request,
                         min = 0, max = 1, label = '$reason'},
@@ -1332,7 +1335,7 @@
      #elem{name = <<"bad-format">>,
            result = 'bad-format',
 	   module = rfc6120,
-           xmlns = <<"urn:ietf:params:xml:ns:xmpp-streams">>}).       
+           xmlns = <<"urn:ietf:params:xml:ns:xmpp-streams">>}).
 -xml(stream_error_bad_namespace_prefix,
      #elem{name = <<"bad-namespace-prefix">>,
            result = 'bad-namespace-prefix',
