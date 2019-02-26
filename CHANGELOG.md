@@ -1,3 +1,7 @@
+# Version 1.3.2
+
+* Release from correct branch
+
 # Version 1.3.1
 
 * Updating ezlib to version 1.0.5.
