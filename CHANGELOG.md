@@ -1,5 +1,10 @@
 # Version 1.3.1
 
+* Updating ezlib to version 1.0.5.
+* Updating fast_tls to version 1.1.0.
+* Updating fast_xml to version 1.1.35.
+* Updating p1_utils to version 1.0.14.
+* Updating stringprep to version 1.0.15.
 * Add contribution guide
 * Encode by attribute in stanza\_error
 
