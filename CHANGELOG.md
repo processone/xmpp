@@ -1,4 +1,7 @@
-# Version NEXT
+# Version 1.3.1
+
+* Add contribution guide
+* Encode by attribute in stanza\_error
 
 # Version 1.3.0
 
