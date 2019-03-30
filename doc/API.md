@@ -29,7 +29,9 @@ The following functions are exported from `xmpp` module:
 - [get_els/1](#get_els1)
 - [set_els/2](#set_els2)
 - [get_subtag/2](#get_subtag2)
+- [get_subtags/2](#get_subtags2)
 - [try_subtag/2](#try_subtag2)
+- [try_subtags/2](#try_subtags2)
 - [set_subtag/2](#set_subtag2)
 - [remove_subtag/2](#remove_subtag2)
 - [has_subtag/2](#has_subtag2)
@@ -225,7 +227,7 @@ during lazy decoding only top-level element is decoded.
 
 **Example 2**: full decoding
 ```erlang
-> xmpp:decode(El, <<"jabber:client">>, []).          
+> xmpp:decode(El, <<"jabber:client">>, []).
 #message{id = <<>>,type = normal,lang = <<>>,
          from = undefined,to = undefined,subject = [],body = [],
          thread = undefined,
@@ -240,7 +242,7 @@ sub-elements (`<foo/>` in our case) remain untouched.
 
 **Example 3**: no namespace is provided and `El` doesn't possess any
 ```erlang
-> xmpp:decode(El, <<>>, []).                                   
+> xmpp:decode(El, <<>>, []).
 ** exception error: {xmpp_codec,{missing_tag_xmlns,<<"message">>}}
      in function  xmpp_codec:decode/3 (src/xmpp_codec.erl, line 16)
 ```
@@ -248,7 +250,7 @@ It is safe to apply the function to `xmpp_element()`:
 
 **Example 4**: double decoding
 ```erlang
-> xmpp:decode(xmpp:decode(El, <<"jabber:client">>, [])).                                         
+> xmpp:decode(xmpp:decode(El, <<"jabber:client">>, [])).
 #message{id = <<>>,type = normal,lang = <<>>,
          from = undefined,to = undefined,subject = [],body = [],
          thread = undefined,
@@ -389,7 +391,7 @@ of an `xmlel()` element.
 
 **Example 1**: obtaining `type` of `presence()`
 ```erlang
-> xmpp:get_type(#presence{}).                
+> xmpp:get_type(#presence{}).
 available
 ```
 **Example 2**: obtaining `type` of `xmlel()`
@@ -408,7 +410,7 @@ Sets `type` field of a `stanza()`.
 
 **Example 1**: setting `type` field of `message()`
 ```erlang
-> xmpp:set_type(#message{}, chat).                         
+> xmpp:set_type(#message{}, chat).
 #message{id = <<>>,type = chat,lang = <<>>,from = undefined,
          to = undefined,subject = [],body = [],thread = undefined,
          sub_els = [],meta = #{}}
@@ -456,7 +458,7 @@ Returns a value of `from` field of a `stanza()`.
 
 **Example 1**: obtaining `from` of `message()`
 ```erlang
-> xmpp:get_from(#message{from = jid:decode(<<"user@server/resource">>)}).    
+> xmpp:get_from(#message{from = jid:decode(<<"user@server/resource">>)}).
 #jid{user = <<"user">>,server = <<"server">>,
      resource = <<"resource">>,luser = <<"user">>,
      lserver = <<"server">>,lresource = <<"resource">>}
@@ -500,7 +502,7 @@ Returns a value of `to` field of a `stanza()`.
 
 **Example 1**: obtaining `to` of `message()`
 ```erlang
-> xmpp:get_to(#message{to = jid:decode(<<"user@server/resource">>)}).    
+> xmpp:get_to(#message{to = jid:decode(<<"user@server/resource">>)}).
 #jid{user = <<"user">>,server = <<"server">>,
      resource = <<"resource">>,luser = <<"user">>,
      lserver = <<"server">>,lresource = <<"resource">>}
@@ -532,7 +534,7 @@ Sets `to` field of a `stanza()`.
 ```
 **Example 2**: removing `to` value from `iq()`
 ```erlang
-> xmpp:set_to(#iq{to = jid:decode(<<"user@server/resource">>)}, undefined).  
+> xmpp:set_to(#iq{to = jid:decode(<<"user@server/resource">>)}, undefined).
 #iq{id = <<>>,type = undefined,lang = <<>>,from = undefined,
     to = undefined,sub_els = [],meta = #{}}
 ```
@@ -668,6 +670,12 @@ as show in the following example.
 #ping{}
 ```
 
+## get_subtags/2
+```erlang
+-spec get_subtags(Stanza :: stanza(), Tag :: xmpp_element()) -> [xmpp_element()].
+```
+Same as `get_subtag/2`, but returns all elements matching `Tag`, preserving their original order.
+
 ## try_subtag/2
 ```erlang
 -spec try_subtag(Stanza :: stanza(), Tag :: xmpp_element()) -> xmpp_element() | false.
@@ -688,6 +696,12 @@ false
 > xmpp:try_subtag(Msg, #iq{}).
 ** exception error: {xmpp_codec,{missing_attr,<<"id">>,<<"iq">>, <<"jabber:client">>}}
 ```
+
+## try_subtags/2
+```erlang
+-spec try_subtags(Stanza :: stanza(), Tag :: xmpp_element()) -> [xmpp_element()].
+```
+Same as `try_subtag/2`, but returns all elements matching `Tag`, preserving their original order.
 
 ## set_subtag/2
 ```erlang
@@ -963,7 +977,7 @@ metadata of `Stanza`.
 
 **Example 1**: sets new key in metadata
 ```erlang
-> xmpp:put_meta(#presence{}, foo, bar).                    
+> xmpp:put_meta(#presence{}, foo, bar).
 #presence{id = <<>>,type = available,lang = <<>>,
           from = undefined,to = undefined,show = undefined,
           status = [],priority = undefined,sub_els = [],
@@ -995,7 +1009,7 @@ Fails with `{badkey,Key}` exception if no value is associated with `Key`.
 ```
 **Example 2**: updating non-existing key
 ```erlang
-> xmpp:update_meta(#presence{}, foo, bar).                    
+> xmpp:update_meta(#presence{}, foo, bar).
 ** exception error: {badkey,foo}
      ...
 ```
@@ -1009,7 +1023,7 @@ metadata of `Stanza`.
 
 **Example 1**: removing value by key
 ```erlang
-> xmpp:del_meta(#presence{meta = #{foo => bar}}, foo).        
+> xmpp:del_meta(#presence{meta = #{foo => bar}}, foo).
 #presence{id = <<>>,type = available,lang = <<>>,
           from = undefined,to = undefined,show = undefined,
           status = [],priority = undefined,sub_els = [],meta = #{}}
@@ -1061,12 +1075,12 @@ true
 ```
 **Example 2**: the tag is unknown
 ```erlang
-> xmpp:is_known_tag(#xmlel{name = <<"foo">>, attrs = [{<<"xmlns">>,<<"bar">>}]}).                         
+> xmpp:is_known_tag(#xmlel{name = <<"foo">>, attrs = [{<<"xmlns">>,<<"bar">>}]}).
 false
 ```
 **Example 3**: the element lacks namespace, so it's always unknown
 ```erlang
-> xmpp:is_known_tag(#xmlel{name = <<"x">>}).                                                              
+> xmpp:is_known_tag(#xmlel{name = <<"x">>}).
 false
 ```
 **Example 4**: the element lacks namespace, but we assume it's within 'jabber:server' namespace
@@ -1083,7 +1097,7 @@ Returns namespace of `xmpp_element()` or `xmlel()` element.
 
 **Example 1**: obtaining namespace of `xmpp_element()`
 ```erlang
-> xmpp:get_ns(#disco_info{}).                 
+> xmpp:get_ns(#disco_info{}).
 <<"http://jabber.org/protocol/disco#info">>
 ```
 **Example 2**: obtaining namespace of `xmlel()` element
@@ -1129,7 +1143,7 @@ Creates from `IQ` an `iq()` of type `result` with empty sub-elements.
 **Example 2**: trying to create a result of a result
 ```erlang
 > xmpp:make_iq_result(#iq{type = result, id = <<"1">>}).
-** exception error: no function clause matching 
+** exception error: no function clause matching
 ```
 
 ## make_iq_result/2
@@ -1154,7 +1168,7 @@ Creates from `IQ` an `iq()` of type `result` with sub-elements set to `[El]`.
 **Example 2**: trying to create a result of a result
 ```erlang
 > xmpp:make_iq_result(#iq{type = result, id = <<"1">>}, #disco_items{}).
-** exception error: no function clause matching 
+** exception error: no function clause matching
 ```
 
 ## make_error/2
@@ -1180,7 +1194,7 @@ Constructs `stanza()` of type `error` from `Stanza`.
 **Example 2**: trying to create an error from an error
 ```erlang
 > xmpp:make_error(#presence{type = error}, xmpp:err_bad_request()).
-** exception error: no function clause matching 
+** exception error: no function clause matching
 ```
 
 ## get_error/1
@@ -1205,7 +1219,7 @@ if not found of if decoding has failed.
 ```
 **Example 2**: no `stanza_error()` element found
 ```erlang
-> xmpp:get_error(#message{}).                                  
+> xmpp:get_error(#message{}).
 undefined
 ```
 
@@ -1220,7 +1234,7 @@ or [decode/3](#decode3).
 ```erlang
 > try xmpp:decode(#xmlel{name = <<"foo">>})
   catch _:{xmpp_codec, Reason} -> xmpp:format_error(Reason)
-  end. 
+  end.
 <<"Unknown tag <foo/> qualified by namespace 'jabber:client'">>
 > try xmpp:decode(#xmlel{name = <<"iq">>})
   catch _:{xmpp_codec, Reason} -> xmpp:format_error(Reason)
@@ -1334,7 +1348,7 @@ Pretty printer for XMPP elements.
 
 **Example**:
 ```erlang
-> S = xmpp:pp(#sm_a{h = 10, xmlns = <<"urn:xmpp:sm:3">>}).  
+> S = xmpp:pp(#sm_a{h = 10, xmlns = <<"urn:xmpp:sm:3">>}).
 ["#sm_a",123,
  [["h"," = ",49,48],
   44,
@@ -2166,7 +2180,7 @@ a valid timestamp.
 ```
 **Example 3**: decoding failure - not even remotely a timestamp
 ```erlang
-> xmpp_util:decode_timestamp(<<"sd324klsjdpsdf">>).      
+> xmpp_util:decode_timestamp(<<"sd324klsjdpsdf">>).
 ** exception error: {bad_timestamp,<<"sd324klsjdpsdf">>}
      ...
 ```
@@ -2421,7 +2435,7 @@ Returns `error` if stringprep has failed.
 ```
 **Example 3**: stringprep failure
 ```erlang
-> jid:tolower({<<"@">>, <<"Server">>, <<"Resource">>}).   
+> jid:tolower({<<"@">>, <<"Server">>, <<"Resource">>}).
 error
 ```
 

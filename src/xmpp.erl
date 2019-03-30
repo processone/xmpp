@@ -44,7 +44,8 @@
 	 append_subtags/2, prep_lang/1, register_codec/1, unregister_codec/1,
 	 set_tr_callback/1, format_stanza_error/1, format_stanza_error/2,
 	 format_stream_error/1, format_stream_error/2, format_sasl_error/1,
-	 format_sasl_error/2, set_config/1, get_config/0, get_all_subtags/2]).
+	 format_sasl_error/2, set_config/1, get_config/0, get_subtags/2,
+	 try_subtags/2]).
 
 %% XMPP errors
 -export([err_bad_request/0, err_bad_request/2,
@@ -462,27 +463,27 @@ get_subtag([El|Els], TagName, XMLNS, TopXMLNS) ->
 get_subtag([], _, _, _) ->
     false.
 
--spec get_all_subtags(xmpp_element(), xmpp_element()) -> [xmpp_element()].
-get_all_subtags(Pkt, Tag) ->
+-spec get_subtags(xmpp_element(), xmpp_element()) -> [xmpp_element()].
+get_subtags(Pkt, Tag) ->
     Els = get_els(Pkt),
     TopXMLNS = xmpp_codec:get_ns(Pkt),
     TagName = xmpp_codec:get_name(Tag),
     XMLNS = xmpp_codec:get_ns(Tag),
-    get_all_subtags(Els, TagName, XMLNS, TopXMLNS, []).
+    get_subtags(Els, TagName, XMLNS, TopXMLNS, []).
 
-get_all_subtags([El|Els], TagName, XMLNS, TopXMLNS, Acc) ->
+get_subtags([El|Els], TagName, XMLNS, TopXMLNS, Acc) ->
     case match_tag(El, TagName, XMLNS, TopXMLNS) of
 	true ->
 	    try
-		get_all_subtags(Els, TagName, XMLNS, TopXMLNS, [decode(El) | Acc])
+		get_subtags(Els, TagName, XMLNS, TopXMLNS, [decode(El) | Acc])
 	    catch _:{xmpp_codec, _Why} ->
-		get_all_subtags(Els, TagName, XMLNS, TopXMLNS, Acc)
+		get_subtags(Els, TagName, XMLNS, TopXMLNS, Acc)
 	    end;
 	false ->
-	    get_all_subtags(Els, TagName, XMLNS, TopXMLNS, Acc)
+	    get_subtags(Els, TagName, XMLNS, TopXMLNS, Acc)
     end;
-get_all_subtags([], _, _, _, Acc) ->
-    Acc.
+get_subtags([], _, _, _, Acc) ->
+    lists:reverse(Acc).
 
 -spec try_subtag(xmpp_element(), xmpp_element()) -> xmpp_element() | false.
 try_subtag(Pkt, Tag) ->
@@ -501,6 +502,24 @@ try_subtag([El|Els], TagName, XMLNS, TopXMLNS) ->
     end;
 try_subtag([], _, _, _) ->
     false.
+
+-spec try_subtags(xmpp_element(), xmpp_element()) -> [xmpp_element()].
+try_subtags(Pkt, Tag) ->
+    Els = get_els(Pkt),
+    TopXMLNS = xmpp_codec:get_ns(Pkt),
+    TagName = xmpp_codec:get_name(Tag),
+    XMLNS = xmpp_codec:get_ns(Tag),
+    try_subtags(Els, TagName, XMLNS, TopXMLNS, []).
+
+try_subtags([El|Els], TagName, XMLNS, TopXMLNS, Acc) ->
+    case match_tag(El, TagName, XMLNS, TopXMLNS) of
+	true ->
+	    try_subtags(Els, TagName, XMLNS, TopXMLNS, [decode(El) | Acc]);
+	false ->
+	    try_subtags(Els, TagName, XMLNS, TopXMLNS, Acc)
+    end;
+try_subtags([], _, _, _, Acc) ->
+    lists:reverse(Acc).
 
 -spec remove_subtag(xmpp_element(), xmpp_element()) -> xmpp_element().
 remove_subtag(Pkt, Tag) ->
