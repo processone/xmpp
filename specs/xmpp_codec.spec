@@ -4789,6 +4789,95 @@
 			  enc = {enc_enum, []},
 			  dec = {dec_enum, [[iq, message]]}}]}).
 
+-xml(x509_cert,
+     #elem{name = <<"x509-cert">>,
+	   xmlns = <<"urn:xmpp:x509:0">>,
+	   module = 'xep0417',
+	   result = '$cdata',
+	   cdata = #cdata{required = true,
+			  enc = {base64, encode, []},
+			  dec = {base64, decode, []}}}).
+
+-xml(x509_csr,
+     #elem{name = <<"x509-csr">>,
+	   xmlns = <<"urn:xmpp:x509:0">>,
+	   module = 'xep0417',
+	   result = {x509_csr, '$name', '$der'},
+	   attrs = [#attr{name = <<"name">>}],
+	   cdata = #cdata{required = true,
+			  label = '$der',
+			  enc = {base64, encode, []},
+			  dec = {base64, decode, []}}}).
+
+-xml(x509_cert_chain,
+     #elem{name = <<"x509-cert-chain">>,
+	   xmlns = <<"urn:xmpp:x509:0">>,
+	   module = 'xep0417',
+	   result = {x509_cert_chain, '$name', '$certs'},
+	   attrs = [#attr{name = <<"name">>}],
+	   refs = [#ref{name = x509_cert,
+			label = '$certs'}]}).
+
+-xml(x509_ca_list,
+     #elem{name = <<"x509-ca-list">>,
+	   xmlns = <<"urn:xmpp:x509:0">>,
+	   module = 'xep0417',
+	   result = {x509_ca_list, '$certs'},
+	   refs = [#ref{name = x509_cert,
+			label = '$certs'}]}).
+
+-xml(x509_signature,
+     #elem{name = <<"x509-signature">>,
+	   xmlns = <<"urn:xmpp:x509:0">>,
+	   module = 'xep0417',
+	   result = '$cdata',
+	   cdata = #cdata{required = true,
+			  enc = {base64, encode, []},
+			  dec = {base64, decode, []}}}).
+
+-xml(x509_request,
+     #elem{name = <<"x509-request">>,
+	   xmlns = <<"urn:xmpp:x509:0">>,
+	   module = 'xep0417',
+	   result = {x509_request, '$transaction', '$csr', '$cert', '$signature'},
+	   attrs = [#attr{name = <<"transaction">>, required = true}],
+	   refs = [#ref{name = x509_csr, label = '$csr', min = 1, max = 1},
+		   #ref{name = x509_cert, label = '$cert', max = 1},
+		   #ref{name = x509_signature, label = '$signature', max = 1}]}).
+
+-xml(x509_revoke,
+     #elem{name = <<"x509-revoke">>,
+	   xmlns = <<"urn:xmpp:x509:0">>,
+	   module = 'xep0417',
+	   result = {x509_revoke, '$cert', '$signature'},
+	   refs = [#ref{name = x509_cert, label = '$cert',
+			min = 1, max = 1},
+		   #ref{name = x509_signature, label = '$signature',
+			min = 1, max = 1}]}).
+
+-xml(x509_challenge,
+     #elem{name = <<"x509-challenge">>,
+	   xmlns = <<"urn:xmpp:x509:0">>,
+	   module = 'xep0417',
+	   result = {x509_challenge, '$transaction', '$uri', '$signature'},
+	   attrs = [#attr{name = <<"transaction">>, required = true},
+		    #attr{name = <<"uri">>, required = true}],
+	   refs = [#ref{name = x509_signature,
+			label = '$signature',
+			min = 1, max = 1}]}).
+
+-xml(x509_challenge_failed,
+     #elem{name = <<"x509-challenge-failed">>,
+	   xmlns = <<"urn:xmpp:x509:0">>,
+	   module = 'xep0417',
+	   result = {x509_challenge_failed}}).
+
+-xml(x509_register,
+     #elem{name = <<"x509-register">>,
+	   xmlns = <<"urn:xmpp:x509:0">>,
+	   module = 'xep0417',
+	   result = {x509_register}}).
+
 -spec dec_tzo(_) -> {integer(), integer()}.
 dec_tzo(Val) ->
     [H1, M1] = binary:split(Val, <<":">>),

@@ -143,6 +143,9 @@
                      port = 1080 :: non_neg_integer()}).
 -type streamhost() :: #streamhost{}.
 
+-record(x509_challenge_failed, {}).
+-type x509_challenge_failed() :: #x509_challenge_failed{}.
+
 -record(carbons_enable, {}).
 -type carbons_enable() :: #carbons_enable{}.
 
@@ -230,16 +233,13 @@
                xmlns = <<>> :: binary()}).
 -type sm_a() :: #sm_a{}.
 
+-record(x509_csr, {name = <<>> :: binary(),
+                   der = <<>> :: binary()}).
+-type x509_csr() :: #x509_csr{}.
+
 -record(jingle_ft_received, {creator :: 'initiator' | 'responder' | 'undefined',
                              name = <<>> :: binary()}).
 -type jingle_ft_received() :: #jingle_ft_received{}.
-
--record(jingle_content, {creator :: 'initiator' | 'responder',
-                         disposition = <<>> :: binary(),
-                         name = <<>> :: binary(),
-                         senders = both :: 'both' | 'initiator' | 'none' | 'responder',
-                         sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
--type jingle_content() :: #jingle_content{}.
 
 -record(starttls_proceed, {}).
 -type starttls_proceed() :: #starttls_proceed{}.
@@ -248,6 +248,12 @@
                      previd = <<>> :: binary(),
                      xmlns = <<>> :: binary()}).
 -type sm_resumed() :: #sm_resumed{}.
+
+-record(x509_request, {transaction = <<>> :: binary(),
+                       csr :: #x509_csr{},
+                       cert :: 'undefined' | binary(),
+                       signature :: 'undefined' | binary()}).
+-type x509_request() :: #x509_request{}.
 
 -record(stream_start, {from :: undefined | jid:jid(),
                        to :: undefined | jid:jid(),
@@ -285,6 +291,13 @@
 -record(message_thread, {parent = <<>> :: binary(),
                          data = <<>> :: binary()}).
 -type message_thread() :: #message_thread{}.
+
+-record(jingle_content, {creator :: 'initiator' | 'responder',
+                         disposition = <<>> :: binary(),
+                         name = <<>> :: binary(),
+                         senders = both :: 'both' | 'initiator' | 'none' | 'responder',
+                         sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
+-type jingle_content() :: #jingle_content{}.
 
 -record(sasl_challenge, {text = <<>> :: binary()}).
 -type sasl_challenge() :: #sasl_challenge{}.
@@ -442,6 +455,10 @@
 -record(sasl_response, {text = <<>> :: binary()}).
 -type sasl_response() :: #sasl_response{}.
 
+-record(x509_revoke, {cert :: binary(),
+                      signature :: binary()}).
+-type x509_revoke() :: #x509_revoke{}.
+
 -record(sasl_auth, {mechanism = <<>> :: binary(),
                     text = <<>> :: binary()}).
 -type sasl_auth() :: #sasl_auth{}.
@@ -481,6 +498,10 @@
 -record(muc_subscriptions, {list = [] :: [#muc_subscription{}]}).
 -type muc_subscriptions() :: #muc_subscriptions{}.
 
+-record(x509_cert_chain, {name = <<>> :: binary(),
+                          certs = [] :: [binary()]}).
+-type x509_cert_chain() :: #x509_cert_chain{}.
+
 -record(ps_subscription, {xmlns = <<>> :: binary(),
                           jid :: jid:jid(),
                           type :: 'none' | 'pending' | 'subscribed' | 'unconfigured' | 'undefined',
@@ -506,6 +527,9 @@
                    type = <<>> :: binary(),
                    data = <<>> :: binary()}).
 -type bob_data() :: #bob_data{}.
+
+-record(x509_register, {}).
+-type x509_register() :: #x509_register{}.
 
 -record(muc_item, {actor :: 'undefined' | #muc_actor{},
                    continue :: 'undefined' | binary(),
@@ -628,6 +652,9 @@
 -record(origin_id, {id = <<>> :: binary()}).
 -type origin_id() :: #origin_id{}.
 
+-record(x509_ca_list, {certs = [] :: [binary()]}).
+-type x509_ca_list() :: #x509_ca_list{}.
+
 -record(mix_participant, {jid :: jid:jid(),
                           nick = <<>> :: binary()}).
 -type mix_participant() :: #mix_participant{}.
@@ -674,6 +701,11 @@
 
 -record(rosterver_feature, {}).
 -type rosterver_feature() :: #rosterver_feature{}.
+
+-record(x509_challenge, {transaction = <<>> :: binary(),
+                         uri = <<>> :: binary(),
+                         signature :: binary()}).
+-type x509_challenge() :: #x509_challenge{}.
 
 -record(muc_invite, {reason = <<>> :: binary(),
                      from :: undefined | jid:jid(),
@@ -1141,10 +1173,10 @@
 
 -type xmpp_element() :: vcard_photo() |
                         jingle_content() |
-                        text() |
                         adhoc_actions() |
                         jingle_error() |
                         stream_features() |
+                        x509_ca_list() |
                         carbons_enable() |
                         carbons_received() |
                         version() |
@@ -1185,7 +1217,6 @@
                         nick() |
                         sm_failed() |
                         last() |
-                        search() |
                         mix_join() |
                         report() |
                         push_disable() |
@@ -1202,6 +1233,7 @@
                         muc_subscribe() |
                         mam_query() |
                         vcard_label() |
+                        x509_cert_chain() |
                         ps_items() |
                         hash_used() |
                         sasl_challenge() |
@@ -1214,6 +1246,7 @@
                         jingle_ft_checksum() |
                         xdata() |
                         xcaptcha() |
+                        x509_revoke() |
                         handshake() |
                         muc_unsubscribe() |
                         jingle_ft_range() |
@@ -1227,6 +1260,7 @@
                         private() |
                         starttls_proceed() |
                         vcard_name() |
+                        x509_register() |
                         receipt_request() |
                         search_item() |
                         muc_subscriptions() |
@@ -1257,6 +1291,7 @@
                         avatar_info() |
                         message() |
                         legacy_auth() |
+                        search() |
                         stream_start() |
                         stats() |
                         xevent() |
@@ -1296,6 +1331,7 @@
                         compress() |
                         stat_error() |
                         vcard_temp() |
+                        x509_challenge_failed() |
                         offline_item() |
                         carbons_private() |
                         vcard_org() |
@@ -1318,6 +1354,7 @@
                         mam_result() |
                         xdata_option() |
                         upload_retry() |
+                        x509_csr() |
                         bookmark_conference() |
                         ps_unsubscribe() |
                         vcard_xupdate() |
@@ -1328,12 +1365,15 @@
                         muc_item() |
                         sasl_response() |
                         carbons_disable() |
+                        x509_request() |
+                        text() |
                         hint() |
                         identity() |
                         feature_sm() |
                         bob_data() |
                         starttls() |
                         sic() |
+                        x509_challenge() |
                         expire() |
                         gone() |
                         mix_create() |

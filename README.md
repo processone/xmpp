@@ -305,6 +305,7 @@ XMPP elements from the following documents are supported:
 - [XEP-0369](https://xmpp.org/extensions/xep-0369.html):  Mediated Information eXchange (MIX)
 - [XEP-0377](https://xmpp.org/extensions/xep-0377.html):  Spam Reporting
 - [XEP-0405](https://xmpp.org/extensions/xep-0405.html):  MIX: Participant Server Requirements
+- [XEP-0417](https://xmpp.org/extensions/xep-0417.html):  E2E Authentication in XMPP: Certificate Issuance and Revocation
 - [draft-cridland-xmpp-session-01](https://tools.ietf.org/html/draft-cridland-xmpp-session-01): XMPP Session Establishment
 
 As well as some proprietary extensions from [ProcessOne](https://www.process-one.net)
