@@ -1,3 +1,9 @@
+# Version 1.3.3
+
+* Allow muc_subscriber element to have jid or nick attribute
+* Add support for XEP-0417 
+* Add get_subtags/2 and try_subtags/2
+
 # Version 1.3.2
 
 * Release from correct branch
