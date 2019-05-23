@@ -1,3 +1,11 @@
+# Version 1.3.4
+
+* Updating ezlib to version 1.0.6.
+* Updating fast_tls to version 1.1.1.
+* Updating fast_xml to version 1.1.36.
+* Updating p1_utils to version 1.0.15.
+* Updating stringprep to version 1.0.16.
+
 # Version 1.3.3
 
 * Allow muc_subscriber element to have jid or nick attribute
