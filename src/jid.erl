@@ -206,8 +206,8 @@ resourceprep(S) when byte_size(S) < 1024 ->
     end;
 resourceprep(_) -> error.
 
--spec tolower(jid() | ljid()) -> error | ljid().
-
+-spec tolower(jid()) -> ljid();
+	     (ljid()) -> error | ljid().
 tolower(#jid{luser = U, lserver = S,
 	     lresource = R}) ->
     {U, S, R};
