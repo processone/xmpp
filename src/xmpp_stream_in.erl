@@ -40,11 +40,44 @@
 -endif.
 
 -include("xmpp.hrl").
--type state() :: map().
+-type state() :: #{owner := pid(),
+		   mod := module(),
+		   socket := xmpp_socket:socket(),
+		   socket_mod => xmpp_socket:sockmod(),
+		   socket_opts => [proplists:property()],
+		   socket_monitor => reference(),
+		   stream_timeout := {integer(), integer()} | infinity,
+		   stream_state := stream_state(),
+		   stream_direction => in | out,
+		   stream_id => binary(),
+		   stream_header_sent => boolean(),
+		   stream_restarted => boolean(),
+		   stream_compressed => boolean(),
+		   stream_encrypted => boolean(),
+		   stream_version => {non_neg_integer(), non_neg_integer()},
+		   stream_authenticated => boolean(),
+		   ip => {inet:ip_address(), inet:port_number()},
+		   codec_options => [xmpp:decode_option()],
+		   xmlns => binary(),
+		   lang => binary(),
+		   user => binary(),
+		   server => binary(),
+		   resource => binary(),
+		   lserver => binary(),
+		   remote_server => binary(),
+		   sasl_mech => binary(),
+		   sasl_state => xmpp_sasl:sasl_state(),
+		   _ => _}.
+-type stream_state() :: accepting | wait_for_stream | wait_for_handshake |
+			wait_for_starttls | wait_for_sasl_request |
+			wait_for_sasl_response | wait_for_bind |
+			established | disconnected.
 -type stop_reason() :: {stream, reset | {in | out, stream_error()}} |
 		       {tls, inet:posix() | atom() | binary()} |
 		       {socket, inet:posix() | atom()} |
 		       internal_failure.
+-type noreply() :: {noreply, state(), timeout()}.
+-type next_state() :: noreply() | {stop, term(), state()}.
 -export_type([state/0, stop_reason/0]).
 -callback init(list()) -> {ok, state()} | {error, term()} | ignore.
 -callback handle_cast(term(), state()) -> state().
@@ -194,6 +227,7 @@ set_timeout(#{owner := Owner} = State, Timeout) when Owner == self() ->
 set_timeout(_, _) ->
     erlang:error(badarg).
 
+-spec get_transport(state()) -> atom().
 get_transport(#{socket := Socket, owner := Owner})
   when Owner == self() ->
     xmpp_socket:get_transport(Socket);
@@ -239,6 +273,7 @@ init([Mod, {SockMod, Socket}, Opts]) ->
 	      stream_state => accepting},
     {ok, State, Timeout}.
 
+-spec handle_cast(term(), state()) -> next_state().
 handle_cast(accept, #{socket := Socket,
 		      socket_mod := SockMod,
 		      socket_opts := Opts} = State) ->
@@ -277,11 +312,13 @@ handle_cast(Cast, State) ->
 	      catch _:{?MODULE, undef} -> State
 	      end).
 
+-spec handle_call(term(), term(), state()) -> next_state().
 handle_call(Call, From, State) ->
     noreply(try callback(handle_call, Call, From, State)
 	    catch _:{?MODULE, undef} -> State
 	    end).
 
+-spec handle_info(term(), state()) -> next_state().
 handle_info(_, #{stream_state := accepting} = State) ->
     stop(State);
 handle_info({'$gen_event', {xmlstreamstart, Name, Attrs}},
@@ -398,6 +435,7 @@ handle_info(Info, State) ->
 	    catch _:{?MODULE, undef} -> State
 	    end).
 
+-spec terminate(term(), state()) -> state().
 terminate(_, #{stream_state := accepting} = State) ->
     State;
 terminate(Reason, State) ->
@@ -412,6 +450,7 @@ terminate(Reason, State) ->
 	    send_trailer(State)
     end.
 
+-spec code_change(term(), state(), term()) -> {ok, state()} | {error, term()}.
 code_change(OldVsn, State, Extra) ->
     callback(code_change, OldVsn, State, Extra).
 
@@ -458,7 +497,7 @@ init_state(#{socket := Socket, mod := Mod} = State, Opts) ->
 	    stop(State)
     end.
 
--spec noreply(state()) -> {noreply, state(), non_neg_integer() | infinity}.
+-spec noreply(state()) -> noreply().
 noreply(#{stream_timeout := infinity} = State) ->
     {noreply, State, infinity};
 noreply(#{stream_timeout := {MSecs, StartTime}} = State) ->

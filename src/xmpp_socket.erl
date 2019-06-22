@@ -128,6 +128,9 @@ connect(Addr, Port, Opts, Timeout, Owner) ->
 	    Error
     end.
 
+-spec starttls(socket_state(), [proplists:property()]) ->
+		      {ok, socket_state()} |
+		      {error, inet:posix() | atom() | binary()}.
 starttls(#socket_state{sockmod = gen_tcp,
 		       socket = Socket} = SocketData, TLSOpts) ->
     case fast_tls:tcp_to_tls(Socket, TLSOpts) of

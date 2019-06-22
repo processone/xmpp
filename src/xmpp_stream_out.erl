@@ -18,7 +18,6 @@
 -module(xmpp_stream_out).
 -define(GEN_SERVER, p1_server).
 -behaviour(?GEN_SERVER).
--dialyzer({no_contracts, h_addr_list_to_host_ports/1}).
 
 -protocol({rfc, 6120}).
 -protocol({xep, 114, '1.6'}).
@@ -47,16 +46,49 @@
 -include("xmpp.hrl").
 -include_lib("kernel/include/inet.hrl").
 
--type state() :: map().
+-type state() :: #{owner := pid(),
+		   mod := module(),
+		   server := binary(),
+		   user := binary(),
+		   resource := binary(),
+		   password := binary(),
+		   lang := binary(),
+		   remote_server := binary(),
+		   xmlns := binary(),
+		   codec_options := [xmpp:decode_option()],
+		   stream_direction := in | out,
+		   stream_timeout := integer() | infinity,
+		   stream_id := binary(),
+		   stream_encrypted := boolean(),
+		   stream_verified := boolean(),
+		   stream_authenticated := boolean(),
+		   stream_restarted := boolean(),
+		   stream_state := stream_state(),
+		   stream_remote_id => binary(),
+		   ip => {inet:ip_address(), inet:port_number()},
+		   socket => xmpp_socket:socket(),
+		   socket_monitor => reference(),
+		   sasl_mech => binary(),
+		   sasl_mechs_available => [binary()],
+		   sasl_mechs_provided => [binary()],
+		   sasl_failure => sasl_failure() | binary(),
+		   bind_id => binary(),
+		   session_response_id => binary(),
+		   _ => _}.
+-type stream_state() :: connecting | wait_for_stream | wait_for_features |
+			wait_for_starttls_response | wait_for_sasl_response |
+			wait_for_bind_response | wait_for_session_response |
+			downgraded | established | disconnected.
 -type noreply() :: {noreply, state(), timeout()}.
+-type next_state() :: noreply() | {stop, term(), state()}.
 -type host_port() :: {inet:hostname(), inet:port_number(), boolean()} | ip_port().
 -type ip_port() :: {inet:ip_address(), inet:port_number(), boolean()}.
--type h_addr_list() :: {{integer(), integer(), inet:port_number(), string()}, boolean()}.
--type network_error() :: {error, inet:posix() | inet_res:res_error()}.
+-type h_addr_list() :: [{{integer(), integer(), inet:port_number(), string()}, boolean()}].
+-type network_error() :: {error, inet:posix() | atom()}.
 -type tls_error_reason() :: inet:posix() | atom() | binary().
 -type socket_error_reason() :: inet:posix() | atom().
 -type stop_reason() :: {idna, bad_string} |
-		       {dns, inet:posix() | inet_res:res_error()} |
+		       {dns, inet:posix() | atom()} |
 		       {stream, reset | {in | out, stream_error()}} |
 		       {tls, tls_error_reason()} |
 		       {pkix, binary()} |
@@ -289,13 +321,13 @@ init([Mod, From, To, Opts]) ->
 	    ignore
     end.
 
--spec handle_call(term(), term(), state()) -> noreply().
+-spec handle_call(term(), term(), state()) -> next_state().
 handle_call(Call, From, State) ->
     noreply(try callback(handle_call, Call, From, State)
 	    catch _:{?MODULE, undef} -> State
 	    end).
 
--spec handle_cast(term(), state()) -> noreply().
+-spec handle_cast(term(), state()) -> next_state().
 handle_cast(connect, #{remote_server := RemoteServer,
 		       stream_state := connecting} = State) ->
     noreply(
@@ -349,7 +381,7 @@ handle_cast(Cast, State) ->
 	    catch _:{?MODULE, undef} -> State
 	    end).
 
--spec handle_info(term(), state()) -> noreply().
+-spec handle_info(term(), state()) -> next_state().
 handle_info({'$gen_event', {xmlstreamstart, Name, Attrs}},
 	    #{stream_state := wait_for_stream,
 	      xmlns := XMLNS, lang := MyLang} = State) ->
@@ -456,6 +488,7 @@ terminate(Reason, State) ->
 	    send_trailer(State)
     end.
 
+-spec code_change(term(), state(), term()) -> {ok, state()} | {error, term()}.
 code_change(OldVsn, State, Extra) ->
     callback(code_change, OldVsn, State, Extra).
 
@@ -614,6 +647,7 @@ process_sasl_mechanisms(StreamFeatures, State) ->
 	    send_pkt(State, xmpp:serr_invalid_xml(Txt, Lang))
     end.
 
+-spec process_sasl_auth(state()) -> state().
 process_sasl_auth(#{stream_encrypted := false, xmlns := ?NS_SERVER} = State) ->
     State1 = State#{sasl_mechs_available => []},
     Txt = case is_starttls_available(State) of
@@ -631,7 +665,7 @@ process_sasl_auth(#{sasl_mechs_provided := [],
     Txt = <<"Peer provided no SASL mechanisms", Hint/binary>>,
     process_sasl_failure(Txt, State1);
 process_sasl_auth(#{sasl_mechs_available := []} = State) ->
-    Err = maps:get(sasl_error, State,
+    Err = maps:get(sasl_failure, State,
 		   <<"No mutually supported SASL mechanisms found">>),
     process_sasl_failure(Err, State);
 process_sasl_auth(#{sasl_mechs_available := [Mech|AvailMechs],
@@ -1244,7 +1278,7 @@ a_lookup(Host, Port, TLS, Family, State, Retries) ->
 	    host_entry_to_addr_ports(HostEntry, Port, TLS)
     end.
 
--spec h_addr_list_to_host_ports(h_addr_list()) -> {ok, [host_port()]} |
+-spec h_addr_list_to_host_ports(h_addr_list()) -> {ok, [host_port(),...]} |
 						  {error, nxdomain}.
 h_addr_list_to_host_ports(AddrList) ->
     PrioHostPorts = lists:flatmap(
