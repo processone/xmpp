@@ -164,7 +164,7 @@ recompile_resolver(Mods, ResolverMod) ->
 							   M])
 				    end,
 				    Records)
-			    ++ ["lookup(_) -> undefined."],
+			    ++ ["lookup(_) -> erlang:error(badarg)."],
 			  ";" ++ io_lib:nl()),
     Lookup2 = string:join(lists:map(fun ({Name, XMLNS,
 					  M}) ->
@@ -198,11 +198,12 @@ recompile_resolver(Mods, ResolverMod) ->
 
 pp(xmlel, 3) -> [name, attrs, children];
 pp(Name, Arity) ->
-    case get_mod(erlang:make_tuple(Arity + 1, undefined,
-				   [{1, Name}]))
-	of
-      undefined -> no;
+    try get_mod(erlang:make_tuple(Arity + 1, undefined,
+				  [{1, Name}]))
+    of
       Mod -> Mod:pp(Name, Arity)
+    catch
+      error:badarg -> no
     end.
 
 records() -> [].

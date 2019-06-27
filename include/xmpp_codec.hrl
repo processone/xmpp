@@ -1206,7 +1206,6 @@
                         upload_request_0() |
                         sm_resumed() |
                         avatar_meta() |
-                        search() |
                         rsm_first() |
                         jingle_ft_received() |
                         vcard_sound() |
@@ -1223,6 +1222,7 @@
                         report() |
                         push_disable() |
                         bind() |
+                        text() |
                         x_conference() |
                         roster_item() |
                         idle() |
@@ -1276,6 +1276,7 @@
                         disco_info() |
                         mix_leave() |
                         privacy_list() |
+                        search() |
                         ps_error() |
                         avatar_data() |
                         starttls_failure() |
@@ -1339,7 +1340,6 @@
                         stat() |
                         sasl_failure() |
                         ps_publish() |
-                        text() |
                         streamhost() |
                         sasl_auth() |
                         vcard_geo() |
