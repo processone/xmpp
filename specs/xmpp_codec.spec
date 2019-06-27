@@ -2378,7 +2378,7 @@
 		      'retrieve-default' | 'retrieve-items' |
 		      'retrieve-subscriptions' | 'subscribe' |
 		      'subscription-options' | 'subscription-notifications' |
-		      'multi-items'.
+		      'multi-items' | undefined.
 -record(ps_error, {type :: ps_error_type(), feature :: ps_feature()}).
 -type ps_error() :: #ps_error{}.
 
