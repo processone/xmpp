@@ -199,7 +199,9 @@ stop(Pid) when is_pid(Pid) ->
     cast(Pid, stop);
 stop(#{owner := Owner} = State) when Owner == self() ->
     terminate(normal, State),
-    exit(normal);
+    try erlang:nif_error(normal)
+    catch _:_ -> exit(normal)
+    end;
 stop(_) ->
     erlang:error(badarg).
 
