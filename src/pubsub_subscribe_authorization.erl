@@ -12,6 +12,8 @@
 	   {dec_bool, 1}, {enc_bool, 1}, {dec_ip, 1},
 	   {enc_ip, 1}]}).
 
+-compile(nowarn_unused_vars).
+
 -dialyzer({nowarn_function, {dec_int, 3}}).
 
 -export([encode/1, encode/2, encode/3]).

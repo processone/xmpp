@@ -293,6 +293,7 @@ mk_header(#state{mod_name = Mod, hrl = Include, xmlns = NS} = State) ->
     mk_comment_header(State),
     emit("~n-module(~s).~n", [Mod]),
     emit("-compile({nowarn_unused_function, ~p}).~n", [codec_funs()]),
+    emit("-compile(nowarn_unused_vars).~n"),
     emit("-dialyzer({nowarn_function, dec_int/3}).~n"),
     case NS of
 	[_] -> emit("-export([encode/1, encode/2, encode/3]).~n");
@@ -498,12 +499,8 @@ mk_decoder([], State) ->
 		 "    do_decode(Fs, XMLNS, Required, Acc)"
 		 "  end;")
     end,
-    if State#state.required /= [] ->
-	    emit("do_decode([], XMLNS, [Var|_], _) ->"
-		 "  erlang:error({?MODULE, {missing_required_var, Var, XMLNS}});~n");
-       true ->
-	    ok
-    end,
+    emit("do_decode([], XMLNS, [Var|_], _) ->"
+	 "  erlang:error({?MODULE, {missing_required_var, Var, XMLNS}});~n"),
     emit("do_decode([], _, [], Acc) -> Acc.~n").
 
 mk_encoders(Fs, State) ->
