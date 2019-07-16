@@ -8,6 +8,14 @@
 -type result() :: [property()].
 
 -type options(T) :: [{binary(), T}].
--type property_with_options() ::
+-type form_property() ::
+      {'node', binary()} |
       {'node', binary(), options(binary())}.
--type form() :: [property() | property_with_options() | xdata_field()].
+-type form() :: [form_property() | xdata_field()].
+
+-type error_reason() :: {form_type_mismatch, binary()} |
+                        {bad_var_value, binary(), binary()} |
+                        {missing_required_var, binary(), binary()} |
+                        {missing_value, binary(), binary()} |
+                        {too_many_values, binary(), binary()} |
+                        {unknown_var, binary(), binary()}.

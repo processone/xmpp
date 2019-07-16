@@ -18,8 +18,23 @@
 -type result() :: [property()].
 
 -type options(T) :: [{binary(), T}].
--type property_with_options() ::
+-type form_property() ::
+      {'deliver', boolean() | undefined} |
+      {'digest', boolean() | undefined} |
+      {'digest_frequency', binary()} |
+      {'expire', binary()} |
+      {'include_body', boolean() | undefined} |
+      {'show-values', ['show-values'()]} |
       {'show-values', ['show-values'()], options('show-values'())} |
-      {'subscription_type', 'subscription_type'(), options('subscription_type'())} |
-      {'subscription_depth', 'subscription_depth'(), options('subscription_depth'())}.
--type form() :: [property() | property_with_options() | xdata_field()].
+      {'subscription_type', 'subscription_type'() | undefined} |
+      {'subscription_type', 'subscription_type'() | undefined, options('subscription_type'())} |
+      {'subscription_depth', 'subscription_depth'() | undefined} |
+      {'subscription_depth', 'subscription_depth'() | undefined, options('subscription_depth'())}.
+-type form() :: [form_property() | xdata_field()].
+
+-type error_reason() :: {form_type_mismatch, binary()} |
+                        {bad_var_value, binary(), binary()} |
+                        {missing_required_var, binary(), binary()} |
+                        {missing_value, binary(), binary()} |
+                        {too_many_values, binary(), binary()} |
+                        {unknown_var, binary(), binary()}.

@@ -10,6 +10,15 @@
 -type result() :: [property()].
 
 -type options(T) :: [{binary(), T}].
--type property_with_options() ::
-      {'access_model', 'access_model'(), options('access_model'())}.
--type form() :: [property() | property_with_options() | xdata_field()].
+-type form_property() ::
+      {'persist_items', boolean() | undefined} |
+      {'access_model', 'access_model'() | undefined} |
+      {'access_model', 'access_model'() | undefined, options('access_model'())}.
+-type form() :: [form_property() | xdata_field()].
+
+-type error_reason() :: {form_type_mismatch, binary()} |
+                        {bad_var_value, binary(), binary()} |
+                        {missing_required_var, binary(), binary()} |
+                        {missing_value, binary(), binary()} |
+                        {too_many_values, binary(), binary()} |
+                        {unknown_var, binary(), binary()}.

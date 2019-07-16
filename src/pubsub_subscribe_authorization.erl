@@ -5,16 +5,84 @@
 
 -module(pubsub_subscribe_authorization).
 
--export([encode/1, encode/2]).
+-compile({nowarn_unused_function,
+	  [{dec_int, 3}, {dec_int, 1}, {dec_enum, 2},
+	   {dec_enum_int, 2}, {dec_enum_int, 4}, {enc_int, 1},
+	   {enc_enum, 1}, {enc_enum_int, 1}, {not_empty, 1},
+	   {dec_bool, 1}, {enc_bool, 1}, {dec_ip, 1},
+	   {enc_ip, 1}]}).
 
--export([decode/1, decode/2, format_error/1,
+-dialyzer({nowarn_function, {dec_int, 3}}).
+
+-export([encode/1, encode/2, encode/3]).
+
+-export([decode/1, decode/2, decode/3, format_error/1,
 	 io_format_error/1]).
 
 -include("xmpp_codec.hrl").
 
 -include("pubsub_subscribe_authorization.hrl").
 
--export_type([property/0, result/0, form/0]).
+-export_type([property/0, result/0, form/0,
+	      error_reason/0]).
+
+-define(T(S), <<S>>).
+
+-spec format_error(error_reason()) -> binary().
+
+-spec io_format_error(error_reason()) -> {binary(),
+					  [binary()]}.
+
+-spec decode([xdata_field()]) -> result().
+
+-spec decode([xdata_field()],
+	     [binary(), ...]) -> result().
+
+-spec decode([xdata_field()], [binary(), ...],
+	     [binary()]) -> result().
+
+-spec decode([xdata_field()], [binary(), ...],
+	     [binary()], result()) -> result().
+
+-spec do_decode([xdata_field()], binary(), [binary()],
+		result()) -> result().
+
+-spec encode(form()) -> [xdata_field()].
+
+-spec encode(form(), binary()) -> [xdata_field()].
+
+-spec encode(form(), binary(),
+	     [allow | node | subscriber_jid |
+	      subid]) -> [xdata_field()].
+
+dec_int(Val) -> dec_int(Val, infinity, infinity).
+
+dec_int(Val, Min, Max) ->
+    case erlang:binary_to_integer(Val) of
+      Int when Int =< Max, Min == infinity -> Int;
+      Int when Int =< Max, Int >= Min -> Int
+    end.
+
+enc_int(Int) -> integer_to_binary(Int).
+
+dec_enum(Val, Enums) ->
+    AtomVal = erlang:binary_to_existing_atom(Val, utf8),
+    case lists:member(AtomVal, Enums) of
+      true -> AtomVal
+    end.
+
+enc_enum(Atom) -> erlang:atom_to_binary(Atom, utf8).
+
+dec_enum_int(Val, Enums) ->
+    try dec_int(Val) catch _:_ -> dec_enum(Val, Enums) end.
+
+dec_enum_int(Val, Enums, Min, Max) ->
+    try dec_int(Val, Min, Max) catch
+      _:_ -> dec_enum(Val, Enums)
+    end.
+
+enc_enum_int(Int) when is_integer(Int) -> enc_int(Int);
+enc_enum_int(Atom) -> enc_enum(Atom).
 
 dec_bool(<<"1">>) -> true;
 dec_bool(<<"0">>) -> false;
@@ -23,6 +91,17 @@ dec_bool(<<"false">>) -> false.
 
 enc_bool(true) -> <<"1">>;
 enc_bool(false) -> <<"0">>.
+
+not_empty(<<_, _/binary>> = Val) -> Val.
+
+dec_ip(Val) ->
+    {ok, Addr} = inet_parse:address(binary_to_list(Val)),
+    Addr.
+
+enc_ip({0, 0, 0, 0, 0, 65535, A, B}) ->
+    enc_ip({(A bsr 8) band 255, A band 255,
+	    (B bsr 8) band 255, B band 255});
+enc_ip(Addr) -> list_to_binary(inet_parse:ntoa(Addr)).
 
 format_error({form_type_mismatch, Type}) ->
     <<"FORM_TYPE doesn't match '", Type/binary, "'">>;
@@ -62,47 +141,56 @@ io_format_error({missing_required_var, Var, Type}) ->
        "'~s'">>,
      [Var, Type]}.
 
-decode(Fs) -> decode(Fs, []).
+decode(Fs) ->
+    decode(Fs,
+	   [<<"http://jabber.org/protocol/pubsub#subscribe_a"
+	      "uthorization">>],
+	   [<<"pubsub#allow">>, <<"pubsub#node">>,
+	    <<"pubsub#subscriber_jid">>],
+	   []).
 
-decode(Fs, Acc) ->
+decode(Fs, XMLNSList) ->
+    decode(Fs, XMLNSList,
+	   [<<"pubsub#allow">>, <<"pubsub#node">>,
+	    <<"pubsub#subscriber_jid">>],
+	   []).
+
+decode(Fs, XMLNSList, Required) ->
+    decode(Fs, XMLNSList, Required, []).
+
+decode(Fs, [_ | _] = XMLNSList, Required, Acc) ->
     case lists:keyfind(<<"FORM_TYPE">>, #xdata_field.var,
 		       Fs)
 	of
-      false ->
-	  decode(Fs, Acc,
-		 <<"http://jabber.org/protocol/pubsub#subscribe_a"
-		   "uthorization">>,
-		 [<<"pubsub#allow">>, <<"pubsub#node">>,
-		  <<"pubsub#subscriber_jid">>]);
-      #xdata_field{values = [XMLNS]}
-	  when XMLNS ==
-		 <<"http://jabber.org/protocol/pubsub#subscribe_a"
-		   "uthorization">> ->
-	  decode(Fs, Acc, XMLNS,
-		 [<<"pubsub#allow">>, <<"pubsub#node">>,
-		  <<"pubsub#subscriber_jid">>]);
-      _ ->
-	  erlang:error({?MODULE,
-			{form_type_mismatch,
-			 <<"http://jabber.org/protocol/pubsub#subscribe_a"
-			   "uthorization">>}})
+      false -> do_decode(Fs, hd(XMLNSList), Required, Acc);
+      #xdata_field{values = [XMLNS]} ->
+	  case lists:member(XMLNS, XMLNSList) of
+	    true -> do_decode(Fs, XMLNS, Required, Acc);
+	    false ->
+		erlang:error({?MODULE, {form_type_mismatch, XMLNS}})
+	  end
     end.
 
-encode(Cfg) -> encode(Cfg, <<"en">>).
+encode(Cfg) ->
+    encode(Cfg, <<"en">>, [allow, node, subscriber_jid]).
 
-encode(List, Lang) when is_list(List) ->
+encode(Cfg, Lang) ->
+    encode(Cfg, Lang, [allow, node, subscriber_jid]).
+
+encode(List, Lang, Required) ->
     Fs = [case Opt of
-	    {allow, Val} -> [encode_allow(Val, Lang)];
-	    {allow, _, _} -> erlang:error({badarg, Opt});
-	    {node, Val} -> [encode_node(Val, Lang)];
-	    {node, _, _} -> erlang:error({badarg, Opt});
+	    {allow, Val} ->
+		[encode_allow(Val, Lang,
+			      lists:member(allow, Required))];
+	    {node, Val} ->
+		[encode_node(Val, Lang, lists:member(node, Required))];
 	    {subscriber_jid, Val} ->
-		[encode_subscriber_jid(Val, Lang)];
-	    {subscriber_jid, _, _} -> erlang:error({badarg, Opt});
-	    {subid, Val} -> [encode_subid(Val, Lang)];
-	    {subid, _, _} -> erlang:error({badarg, Opt});
-	    #xdata_field{} -> [Opt];
-	    _ -> []
+		[encode_subscriber_jid(Val, Lang,
+				       lists:member(subscriber_jid, Required))];
+	    {subid, Val} ->
+		[encode_subid(Val, Lang,
+			      lists:member(subid, Required))];
+	    #xdata_field{} -> [Opt]
 	  end
 	  || Opt <- List],
     FormType = #xdata_field{var = <<"FORM_TYPE">>,
@@ -112,166 +200,188 @@ encode(List, Lang) when is_list(List) ->
 				   "uthorization">>]},
     [FormType | lists:flatten(Fs)].
 
-decode([#xdata_field{var = <<"pubsub#allow">>,
-		     values = [Value]}
-	| Fs],
-       Acc, XMLNS, Required) ->
+do_decode([#xdata_field{var = <<"pubsub#allow">>,
+			values = [Value]}
+	   | Fs],
+	  XMLNS, Required, Acc) ->
     try dec_bool(Value) of
       Result ->
-	  decode(Fs, [{allow, Result} | Acc], XMLNS,
-		 lists:delete(<<"pubsub#allow">>, Required))
+	  do_decode(Fs, XMLNS,
+		    lists:delete(<<"pubsub#allow">>, Required),
+		    [{allow, Result} | Acc])
     catch
       _:_ ->
 	  erlang:error({?MODULE,
 			{bad_var_value, <<"pubsub#allow">>, XMLNS}})
     end;
-decode([#xdata_field{var = <<"pubsub#allow">>,
-		     values = []} =
-	    F
-	| Fs],
-       Acc, XMLNS, Required) ->
-    decode([F#xdata_field{var = <<"pubsub#allow">>,
-			  values = [<<>>]}
-	    | Fs],
-	   Acc, XMLNS, Required);
-decode([#xdata_field{var = <<"pubsub#allow">>} | _], _,
-       XMLNS, _) ->
+do_decode([#xdata_field{var = <<"pubsub#allow">>,
+			values = []} =
+	       F
+	   | Fs],
+	  XMLNS, Required, Acc) ->
+    do_decode([F#xdata_field{var = <<"pubsub#allow">>,
+			     values = [<<>>]}
+	       | Fs],
+	      XMLNS, Required, Acc);
+do_decode([#xdata_field{var = <<"pubsub#allow">>} | _],
+	  XMLNS, _, _) ->
     erlang:error({?MODULE,
 		  {too_many_values, <<"pubsub#allow">>, XMLNS}});
-decode([#xdata_field{var = <<"pubsub#node">>,
-		     values = [Value]}
-	| Fs],
-       Acc, XMLNS, Required) ->
+do_decode([#xdata_field{var = <<"pubsub#node">>,
+			values = [Value]}
+	   | Fs],
+	  XMLNS, Required, Acc) ->
     try Value of
       Result ->
-	  decode(Fs, [{node, Result} | Acc], XMLNS,
-		 lists:delete(<<"pubsub#node">>, Required))
+	  do_decode(Fs, XMLNS,
+		    lists:delete(<<"pubsub#node">>, Required),
+		    [{node, Result} | Acc])
     catch
       _:_ ->
 	  erlang:error({?MODULE,
 			{bad_var_value, <<"pubsub#node">>, XMLNS}})
     end;
-decode([#xdata_field{var = <<"pubsub#node">>,
-		     values = []} =
-	    F
-	| Fs],
-       Acc, XMLNS, Required) ->
-    decode([F#xdata_field{var = <<"pubsub#node">>,
-			  values = [<<>>]}
-	    | Fs],
-	   Acc, XMLNS, Required);
-decode([#xdata_field{var = <<"pubsub#node">>} | _], _,
-       XMLNS, _) ->
+do_decode([#xdata_field{var = <<"pubsub#node">>,
+			values = []} =
+	       F
+	   | Fs],
+	  XMLNS, Required, Acc) ->
+    do_decode([F#xdata_field{var = <<"pubsub#node">>,
+			     values = [<<>>]}
+	       | Fs],
+	      XMLNS, Required, Acc);
+do_decode([#xdata_field{var = <<"pubsub#node">>} | _],
+	  XMLNS, _, _) ->
     erlang:error({?MODULE,
 		  {too_many_values, <<"pubsub#node">>, XMLNS}});
-decode([#xdata_field{var = <<"pubsub#subscriber_jid">>,
-		     values = [Value]}
-	| Fs],
-       Acc, XMLNS, Required) ->
+do_decode([#xdata_field{var =
+			    <<"pubsub#subscriber_jid">>,
+			values = [Value]}
+	   | Fs],
+	  XMLNS, Required, Acc) ->
     try jid:decode(Value) of
       Result ->
-	  decode(Fs, [{subscriber_jid, Result} | Acc], XMLNS,
-		 lists:delete(<<"pubsub#subscriber_jid">>, Required))
+	  do_decode(Fs, XMLNS,
+		    lists:delete(<<"pubsub#subscriber_jid">>, Required),
+		    [{subscriber_jid, Result} | Acc])
     catch
       _:_ ->
 	  erlang:error({?MODULE,
 			{bad_var_value, <<"pubsub#subscriber_jid">>, XMLNS}})
     end;
-decode([#xdata_field{var = <<"pubsub#subscriber_jid">>,
-		     values = []} =
-	    F
-	| Fs],
-       Acc, XMLNS, Required) ->
-    decode([F#xdata_field{var = <<"pubsub#subscriber_jid">>,
-			  values = [<<>>]}
-	    | Fs],
-	   Acc, XMLNS, Required);
-decode([#xdata_field{var = <<"pubsub#subscriber_jid">>}
-	| _],
-       _, XMLNS, _) ->
+do_decode([#xdata_field{var =
+			    <<"pubsub#subscriber_jid">>,
+			values = []} =
+	       F
+	   | Fs],
+	  XMLNS, Required, Acc) ->
+    do_decode([F#xdata_field{var =
+				 <<"pubsub#subscriber_jid">>,
+			     values = [<<>>]}
+	       | Fs],
+	      XMLNS, Required, Acc);
+do_decode([#xdata_field{var =
+			    <<"pubsub#subscriber_jid">>}
+	   | _],
+	  XMLNS, _, _) ->
     erlang:error({?MODULE,
 		  {too_many_values, <<"pubsub#subscriber_jid">>, XMLNS}});
-decode([#xdata_field{var = <<"pubsub#subid">>,
-		     values = [Value]}
-	| Fs],
-       Acc, XMLNS, Required) ->
+do_decode([#xdata_field{var = <<"pubsub#subid">>,
+			values = [Value]}
+	   | Fs],
+	  XMLNS, Required, Acc) ->
     try Value of
       Result ->
-	  decode(Fs, [{subid, Result} | Acc], XMLNS, Required)
+	  do_decode(Fs, XMLNS,
+		    lists:delete(<<"pubsub#subid">>, Required),
+		    [{subid, Result} | Acc])
     catch
       _:_ ->
 	  erlang:error({?MODULE,
 			{bad_var_value, <<"pubsub#subid">>, XMLNS}})
     end;
-decode([#xdata_field{var = <<"pubsub#subid">>,
-		     values = []} =
-	    F
-	| Fs],
-       Acc, XMLNS, Required) ->
-    decode([F#xdata_field{var = <<"pubsub#subid">>,
-			  values = [<<>>]}
-	    | Fs],
-	   Acc, XMLNS, Required);
-decode([#xdata_field{var = <<"pubsub#subid">>} | _], _,
-       XMLNS, _) ->
+do_decode([#xdata_field{var = <<"pubsub#subid">>,
+			values = []} =
+	       F
+	   | Fs],
+	  XMLNS, Required, Acc) ->
+    do_decode([F#xdata_field{var = <<"pubsub#subid">>,
+			     values = [<<>>]}
+	       | Fs],
+	      XMLNS, Required, Acc);
+do_decode([#xdata_field{var = <<"pubsub#subid">>} | _],
+	  XMLNS, _, _) ->
     erlang:error({?MODULE,
 		  {too_many_values, <<"pubsub#subid">>, XMLNS}});
-decode([#xdata_field{var = Var} | Fs], Acc, XMLNS,
-       Required) ->
+do_decode([#xdata_field{var = Var} | Fs], XMLNS,
+	  Required, Acc) ->
     if Var /= <<"FORM_TYPE">> ->
 	   erlang:error({?MODULE, {unknown_var, Var, XMLNS}});
-       true -> decode(Fs, Acc, XMLNS, Required)
+       true -> do_decode(Fs, XMLNS, Required, Acc)
     end;
-decode([], _, XMLNS, [Var | _]) ->
+do_decode([], XMLNS, [Var | _], _) ->
     erlang:error({?MODULE,
 		  {missing_required_var, Var, XMLNS}});
-decode([], Acc, _, []) -> Acc.
+do_decode([], _, [], Acc) -> Acc.
 
-encode_allow(Value, Lang) ->
+-spec encode_allow(boolean() | undefined, binary(),
+		   boolean()) -> xdata_field().
+
+encode_allow(Value, Lang, IsRequired) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [enc_bool(Value)]
 	     end,
     Opts = [],
     #xdata_field{var = <<"pubsub#allow">>, values = Values,
-		 required = false, type = boolean, options = Opts,
+		 required = IsRequired, type = boolean, options = Opts,
 		 desc = <<>>,
 		 label =
 		     xmpp_tr:tr(Lang,
-				<<"Allow this Jabber ID to subscribe to "
-				  "this pubsub node?">>)}.
+				?T("Allow this Jabber ID to subscribe to "
+				   "this pubsub node?"))}.
 
-encode_node(Value, Lang) ->
+-spec encode_node(binary(), binary(),
+		  boolean()) -> xdata_field().
+
+encode_node(Value, Lang, IsRequired) ->
     Values = case Value of
 	       <<>> -> [];
 	       Value -> [Value]
 	     end,
     Opts = [],
     #xdata_field{var = <<"pubsub#node">>, values = Values,
-		 required = false, type = 'text-single', options = Opts,
-		 desc = <<>>, label = xmpp_tr:tr(Lang, <<"Node ID">>)}.
+		 required = IsRequired, type = 'text-single',
+		 options = Opts, desc = <<>>,
+		 label = xmpp_tr:tr(Lang, ?T("Node ID"))}.
 
-encode_subscriber_jid(Value, Lang) ->
+-spec encode_subscriber_jid(jid:jid() | undefined,
+			    binary(), boolean()) -> xdata_field().
+
+encode_subscriber_jid(Value, Lang, IsRequired) ->
     Values = case Value of
 	       undefined -> [];
 	       Value -> [jid:encode(Value)]
 	     end,
     Opts = [],
     #xdata_field{var = <<"pubsub#subscriber_jid">>,
-		 values = Values, required = false, type = 'jid-single',
-		 options = Opts, desc = <<>>,
-		 label = xmpp_tr:tr(Lang, <<"Subscriber Address">>)}.
+		 values = Values, required = IsRequired,
+		 type = 'jid-single', options = Opts, desc = <<>>,
+		 label = xmpp_tr:tr(Lang, ?T("Subscriber Address"))}.
 
-encode_subid(Value, Lang) ->
+-spec encode_subid(binary(), binary(),
+		   boolean()) -> xdata_field().
+
+encode_subid(Value, Lang, IsRequired) ->
     Values = case Value of
 	       <<>> -> [];
 	       Value -> [Value]
 	     end,
     Opts = [],
     #xdata_field{var = <<"pubsub#subid">>, values = Values,
-		 required = false, type = 'text-single', options = Opts,
-		 desc = <<>>,
+		 required = IsRequired, type = 'text-single',
+		 options = Opts, desc = <<>>,
 		 label =
 		     xmpp_tr:tr(Lang,
-				<<"The subscription identifier associated "
-				  "with the subscription request">>)}.
+				?T("The subscription identifier associated "
+				   "with the subscription request"))}.

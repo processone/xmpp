@@ -10,4 +10,16 @@
                     {'withtext', binary()}.
 -type result() :: [property()].
 
--type form() :: [property() | xdata_field()].
+-type form_property() ::
+      {'with', jid:jid() | undefined} |
+      {'start', erlang:timestamp() | undefined} |
+      {'end', erlang:timestamp() | undefined} |
+      {'withtext', binary()}.
+-type form() :: [form_property() | xdata_field()].
+
+-type error_reason() :: {form_type_mismatch, binary()} |
+                        {bad_var_value, binary(), binary()} |
+                        {missing_required_var, binary(), binary()} |
+                        {missing_value, binary(), binary()} |
+                        {too_many_values, binary(), binary()} |
+                        {unknown_var, binary(), binary()}.
