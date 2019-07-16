@@ -1,0 +1,74 @@
+<form_type>
+  <name>urn:xmpp:captcha</name>
+  <doc>XEP-0158</doc>
+  <desc>Forms enabling the use of CAPTCHAs.</desc>
+  <field
+      var='answers'
+      type='hidden'
+      label='Number of answers required'/>
+  <field
+      var='audio_recog'
+      type='text-single'
+      label='Text associated with a sound'/>
+  <field
+      var='challenge'
+      type='hidden'
+      label='Challenge ID'/>
+  <field
+      var='from'
+      type='hidden'
+      label='Attribute &apos;to&apos; of stanza that triggered challenge'/>
+  <field
+      var='ocr'
+      type='text-single'
+      label='Enter the text you see'/>
+  <field
+      var='picture_q'
+      type='text-single'
+      label='Answer associated with a picture'/>
+  <field
+      var='picture_recog'
+      type='text-single'
+      label='Text associated with a picture'/>
+  <field
+      var='qa'
+      type='text-single'
+      label='Answer to a question'/>
+  <field
+      var='SHA-256'
+      type='text-single'
+      label='Least significant bits of SHA-256 hash of text should equal hexadecimal label'/>
+  <field
+      var='sid'
+      type='hidden'
+      label='Stanza ID'/>
+  <field
+      var='speech_q'
+      type='text-single'
+      label='Answer associated with speech'/>
+  <field
+      var='speech_recog'
+      type='text-single'
+      label='Text associated with speech'/>
+  <field
+      var='video_q'
+      type='text-single'
+      label='Answer associated with a video'/>
+  <field
+      var='video_recog'
+      type='text-single'
+      label='Text associated with a video'/>
+  <field
+      var='captcha-fallback-text'
+      type='fixed'/>
+  <field
+      var='captcha-fallback-url'
+      type='text-single'
+      label='CAPTCHA web page'/>
+</form_type>
+
+<!--
+Local Variables:
+mode: xml
+End:
+-->
