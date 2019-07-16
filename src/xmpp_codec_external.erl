@@ -9,4 +9,4 @@ modules() -> [].
 
 lookup(_, _) -> undefined.
 
-lookup(_) -> erlang:error(badarg).
+lookup(Term) -> erlang:error(badarg, [Term]).

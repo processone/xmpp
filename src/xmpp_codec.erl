@@ -164,7 +164,9 @@ recompile_resolver(Mods, ResolverMod) ->
 							   M])
 				    end,
 				    Records)
-			    ++ ["lookup(_) -> erlang:error(badarg)."],
+			    ++
+			    ["lookup(Term) -> erlang:error(badarg, "
+			     "[Term])."],
 			  ";" ++ io_lib:nl()),
     Lookup2 = string:join(lists:map(fun ({Name, XMLNS,
 					  M}) ->
