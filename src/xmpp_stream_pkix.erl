@@ -238,7 +238,7 @@ get_username(#jid{user = <<>>}, [#jid{user = U, lserver = LS}], LServer)
 get_username(#jid{user = User}, [], _) when User /= <<>> ->
     %% The user provided username, but the certificate contains no JIDs
     %% We accept this since the certificate is verified
-    {ok, U};
+    {ok, User};
 get_username(#jid{user = User, luser = LUser}, JIDs, LServer) when User /= <<>> ->
     %% The user provided username
     lists:foldl(
