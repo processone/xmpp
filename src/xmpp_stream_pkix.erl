@@ -235,13 +235,17 @@ get_username(#jid{user = <<>>}, [#jid{user = U, lserver = LS}], LServer)
     %% The user didn't provide JID or username, and there is only
     %% one 'non-global' JID matching current domain
     {ok, U};
+get_username(#jid{user = User}, [], _) when User /= <<>> ->
+    %% The user provided username, but the certificate contains no JIDs
+    %% We accept this since the certificate is verified
+    {ok, U};
 get_username(#jid{user = User, luser = LUser}, JIDs, LServer) when User /= <<>> ->
     %% The user provided username
     lists:foldl(
       fun(_, {ok, _} = OK) ->
 	      OK;
 	 (#jid{user = <<>>, lserver = LS}, _) when LS == LServer ->
-	      %% Found "global" JID in the certficate
+	      %% Found "global" JID in the certificate
 	      %% (i.e. in the form of 'domain.com')
 	      %% within current domain, so we force matching
 	      {ok, User};
