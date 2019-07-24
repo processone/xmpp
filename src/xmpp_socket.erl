@@ -48,6 +48,7 @@
 	 send_ws_ping/1]).
 
 -include("xmpp.hrl").
+-include_lib("public_key/include/public_key.hrl").
 
 -type sockmod() :: gen_tcp | fast_tls | ezlib | ext_mod().
 -type socket() :: inet:socket() | fast_tls:tls_socket() |
@@ -59,6 +60,7 @@
 			  {xmlstreamstart, binary(), [{binary(), binary()}]} |
 			  {xmlstreamend, binary()} |
 			  {xmlstreamraw, iodata()}.
+-type cert() :: #'Certificate'{} | #'OTPCertificate'{}.
 
 -record(socket_state, {sockmod           :: sockmod(),
                        socket            :: socket(),
@@ -80,6 +82,9 @@
 -callback sockname(ext_socket()) -> {ok, endpoint()} | {error, inet:posix()}.
 -callback peername(ext_socket()) -> {ok, endpoint()} | {error, inet:posix()}.
 -callback setopts(ext_socket(), [{active, once}]) -> ok | {error, inet:posix()}.
+-callback get_peer_certificate(ext_socket(), plain|otp|der) -> {ok, cert() | binary()} | error.
+
+-optional_callbacks([get_peer_certificate/2]).
 
 -define(dbg(Fmt, Args),
 	case xmpp_config:debug(global) of
@@ -306,8 +311,14 @@ get_owner(SockMod, _) when SockMod == gen_tcp orelse
 get_owner(SockMod, Socket) ->
     SockMod:get_owner(Socket).
 
-get_peer_certificate(SocketData, Type) ->
-    fast_tls:get_peer_certificate(SocketData#socket_state.socket, Type).
+-spec get_peer_certificate(socket_state(), plain|otp) -> {ok, cert()} | error;
+			  (socket_state(), der) -> {ok, binary()} | error.
+get_peer_certificate(#socket_state{sockmod = SockMod,
+				   socket = Socket}, Type) ->
+    case erlang:function_exported(SockMod, get_peer_certificate, 2) of
+	true -> SockMod:get_peer_certificate(Socket, Type);
+	false -> error
+    end.
 
 get_verify_result(SocketData) ->
     fast_tls:get_verify_result(SocketData#socket_state.socket).
