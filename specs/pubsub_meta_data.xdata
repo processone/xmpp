@@ -35,6 +35,38 @@
   <field var='pubsub#max_items'
          type='text-single'
          label='Maximum number of items to persist'/>
+  <field var='pubsub#access_model'
+         type='list-single'
+         label='Access model'>
+    <option label='Subscription requests must be approved and only subscribers may retrieve items'>
+      <value>authorize</value>
+    </option>
+    <option label='Anyone may subscribe and retrieve items'>
+      <value>open</value>
+    </option>
+    <option label='Anyone with a presence subscription of both or from may subscribe and retrieve items'>
+      <value>presence</value>
+    </option>
+    <option label='Anyone in the specified roster group(s) may subscribe and retrieve items'>
+      <value>roster</value>
+    </option>
+    <option label='Only those on a whitelist may subscribe and retrieve items'>
+      <value>whitelist</value>
+    </option>
+  </field>
+  <field var='pubsub#publish_model'
+         type='list-single'
+         label='Publish model'>
+    <option label='Only publishers may publish'>
+      <value>publishers</value>
+    </option>
+    <option label='Subscribers may publish'>
+      <value>subscribers</value>
+    </option>
+    <option label='Anyone may publish'>
+      <value>open</value>
+    </option>
+  </field>
 </form_type>
 
 <!--

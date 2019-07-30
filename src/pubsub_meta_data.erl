@@ -56,7 +56,8 @@
 -spec encode(form(), binary(),
 	     [contact | creation_date | creator | description |
 	      language | num_subscribers | owner | publisher | title |
-	      type | max_items]) -> [xdata_field()].
+	      type | max_items | access_model |
+	      publish_model]) -> [xdata_field()].
 
 dec_int(Val) -> dec_int(Val, infinity, infinity).
 
@@ -209,6 +210,18 @@ encode(List, Lang, Required) ->
 	    {max_items, Val} ->
 		[encode_max_items(Val, Lang,
 				  lists:member(max_items, Required))];
+	    {access_model, Val} ->
+		[encode_access_model(Val, default, Lang,
+				     lists:member(access_model, Required))];
+	    {access_model, Val, Opts} ->
+		[encode_access_model(Val, Opts, Lang,
+				     lists:member(access_model, Required))];
+	    {publish_model, Val} ->
+		[encode_publish_model(Val, default, Lang,
+				      lists:member(publish_model, Required))];
+	    {publish_model, Val, Opts} ->
+		[encode_publish_model(Val, Opts, Lang,
+				      lists:member(publish_model, Required))];
 	    #xdata_field{} -> [Opt]
 	  end
 	  || Opt <- List],
@@ -521,6 +534,69 @@ do_decode([#xdata_field{var = <<"pubsub#max_items">>}
 	  XMLNS, _, _) ->
     erlang:error({?MODULE,
 		  {too_many_values, <<"pubsub#max_items">>, XMLNS}});
+do_decode([#xdata_field{var = <<"pubsub#access_model">>,
+			values = [Value]}
+	   | Fs],
+	  XMLNS, Required, Acc) ->
+    try dec_enum(Value,
+		 [authorize, open, presence, roster, whitelist])
+    of
+      Result ->
+	  do_decode(Fs, XMLNS,
+		    lists:delete(<<"pubsub#access_model">>, Required),
+		    [{access_model, Result} | Acc])
+    catch
+      _:_ ->
+	  erlang:error({?MODULE,
+			{bad_var_value, <<"pubsub#access_model">>, XMLNS}})
+    end;
+do_decode([#xdata_field{var = <<"pubsub#access_model">>,
+			values = []} =
+	       F
+	   | Fs],
+	  XMLNS, Required, Acc) ->
+    do_decode([F#xdata_field{var =
+				 <<"pubsub#access_model">>,
+			     values = [<<>>]}
+	       | Fs],
+	      XMLNS, Required, Acc);
+do_decode([#xdata_field{var = <<"pubsub#access_model">>}
+	   | _],
+	  XMLNS, _, _) ->
+    erlang:error({?MODULE,
+		  {too_many_values, <<"pubsub#access_model">>, XMLNS}});
+do_decode([#xdata_field{var =
+			    <<"pubsub#publish_model">>,
+			values = [Value]}
+	   | Fs],
+	  XMLNS, Required, Acc) ->
+    try dec_enum(Value, [publishers, subscribers, open]) of
+      Result ->
+	  do_decode(Fs, XMLNS,
+		    lists:delete(<<"pubsub#publish_model">>, Required),
+		    [{publish_model, Result} | Acc])
+    catch
+      _:_ ->
+	  erlang:error({?MODULE,
+			{bad_var_value, <<"pubsub#publish_model">>, XMLNS}})
+    end;
+do_decode([#xdata_field{var =
+			    <<"pubsub#publish_model">>,
+			values = []} =
+	       F
+	   | Fs],
+	  XMLNS, Required, Acc) ->
+    do_decode([F#xdata_field{var =
+				 <<"pubsub#publish_model">>,
+			     values = [<<>>]}
+	       | Fs],
+	      XMLNS, Required, Acc);
+do_decode([#xdata_field{var =
+			    <<"pubsub#publish_model">>}
+	   | _],
+	  XMLNS, _, _) ->
+    erlang:error({?MODULE,
+		  {too_many_values, <<"pubsub#publish_model">>, XMLNS}});
 do_decode([#xdata_field{var = Var} | Fs], XMLNS,
 	  Required, Acc) ->
     if Var /= <<"FORM_TYPE">> ->
@@ -710,3 +786,80 @@ encode_max_items(Value, Lang, IsRequired) ->
 		 label =
 		     xmpp_tr:tr(Lang,
 				?T("Maximum number of items to persist"))}.
+
+-spec encode_access_model(access_model() | undefined,
+			  default | options(access_model()), binary(),
+			  boolean()) -> xdata_field().
+
+encode_access_model(Value, Options, Lang, IsRequired) ->
+    Values = case Value of
+	       undefined -> [];
+	       Value -> [enc_enum(Value)]
+	     end,
+    Opts = if Options == default ->
+		  [#xdata_option{label =
+				     xmpp_tr:tr(Lang,
+						?T("Subscription requests must be approved "
+						   "and only subscribers may retrieve items")),
+				 value = <<"authorize">>},
+		   #xdata_option{label =
+				     xmpp_tr:tr(Lang,
+						?T("Anyone may subscribe and retrieve items")),
+				 value = <<"open">>},
+		   #xdata_option{label =
+				     xmpp_tr:tr(Lang,
+						?T("Anyone with a presence subscription "
+						   "of both or from may subscribe and retrieve "
+						   "items")),
+				 value = <<"presence">>},
+		   #xdata_option{label =
+				     xmpp_tr:tr(Lang,
+						?T("Anyone in the specified roster group(s) "
+						   "may subscribe and retrieve items")),
+				 value = <<"roster">>},
+		   #xdata_option{label =
+				     xmpp_tr:tr(Lang,
+						?T("Only those on a whitelist may subscribe "
+						   "and retrieve items")),
+				 value = <<"whitelist">>}];
+	      true ->
+		  [#xdata_option{label = xmpp_tr:tr(Lang, L),
+				 value = enc_enum(V)}
+		   || {L, V} <- Options]
+	   end,
+    #xdata_field{var = <<"pubsub#access_model">>,
+		 values = Values, required = IsRequired,
+		 type = 'list-single', options = Opts, desc = <<>>,
+		 label = xmpp_tr:tr(Lang, ?T("Access model"))}.
+
+-spec encode_publish_model(publish_model() | undefined,
+			   default | options(publish_model()), binary(),
+			   boolean()) -> xdata_field().
+
+encode_publish_model(Value, Options, Lang,
+		     IsRequired) ->
+    Values = case Value of
+	       undefined -> [];
+	       Value -> [enc_enum(Value)]
+	     end,
+    Opts = if Options == default ->
+		  [#xdata_option{label =
+				     xmpp_tr:tr(Lang,
+						?T("Only publishers may publish")),
+				 value = <<"publishers">>},
+		   #xdata_option{label =
+				     xmpp_tr:tr(Lang,
+						?T("Subscribers may publish")),
+				 value = <<"subscribers">>},
+		   #xdata_option{label =
+				     xmpp_tr:tr(Lang, ?T("Anyone may publish")),
+				 value = <<"open">>}];
+	      true ->
+		  [#xdata_option{label = xmpp_tr:tr(Lang, L),
+				 value = enc_enum(V)}
+		   || {L, V} <- Options]
+	   end,
+    #xdata_field{var = <<"pubsub#publish_model">>,
+		 values = Values, required = IsRequired,
+		 type = 'list-single', options = Opts, desc = <<>>,
+		 label = xmpp_tr:tr(Lang, ?T("Publish model"))}.
