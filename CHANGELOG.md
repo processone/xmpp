@@ -1,3 +1,12 @@
+# Version 1.4.0
+
+* Update type specs
+* Improve xdata compiler
+* Add support for CAPTCHA data forms (XEP-0158)
+* Accept certificates without XmppAddr fields
+* Improve xmpp\_socket:get\_peer\_certificate/2
+* Update pubsub#metadata form
+
 # Version 1.3.4
 
 * Updating ezlib to version 1.0.6.
