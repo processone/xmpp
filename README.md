@@ -47,6 +47,10 @@ The library is considered as production ready and has been used in
 However, the API is quite unstable so far and incompatibilities may be introduced
 from release to release. The stable API will be denoted by `2.x` tag in the future.
 
+# Dependency
+
+You need at least Erlang OTP 20.
+
 # Compiling
 
 As usual, the following commands are used to obtain and compile the library:
