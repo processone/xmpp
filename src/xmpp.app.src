@@ -27,7 +27,7 @@
   {vsn,          "1.4.0"},
   {modules,      []},
   {registered,   []},
-  {applications, [kernel, stdlib]},
+  {applications, [kernel, stdlib, fast_xml]},
   {mod,          {xmpp, []}},
   {env,          []},
 
