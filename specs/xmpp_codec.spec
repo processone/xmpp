@@ -3,6 +3,16 @@
                data = <<>> :: binary()}).
 -type text() :: #text{}.
 
+-xml(jidprep,
+     #elem{name = <<"jid">>,
+	   xmlns = <<"urn:xmpp:jidprep:0">>,
+	   module = 'xep0328',
+	   result = {jidprep, '$jid'},
+	   cdata = #cdata{label = '$jid',
+			  required = true,
+			  dec = {jid, decode, []},
+			  enc = {jid, encode, []}}}).
+
 -xml(last,
      #elem{name = <<"query">>,
            xmlns = <<"jabber:iq:last">>,
