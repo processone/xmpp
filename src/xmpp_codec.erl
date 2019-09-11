@@ -766,6 +766,7 @@ get_mod(<<"metadata">>,
     xep0084;
 get_mod(<<"x509-cert">>, <<"urn:xmpp:x509:0">>) ->
     xep0417;
+get_mod(<<"jid">>, <<"urn:xmpp:jidprep:0">>) -> xep0328;
 get_mod(<<"password">>,
 	<<"http://jabber.org/protocol/muc#owner">>) ->
     xep0045;
@@ -1557,6 +1558,7 @@ get_mod({upload_file_too_large, _, _}) -> xep0363;
 get_mod({jingle_ft_description, _}) -> xep0234;
 get_mod({x509_revoke, _, _}) -> xep0417;
 get_mod({muc_user, _, _, _, _, _, _}) -> xep0045;
+get_mod({jidprep, _}) -> xep0328;
 get_mod({bytestreams, _, _, _, _, _, _}) -> xep0065;
 get_mod({sasl_auth, _, _}) -> rfc6120;
 get_mod({vcard_logo, _, _, _}) -> xep0054;
