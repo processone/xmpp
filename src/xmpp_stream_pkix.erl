@@ -100,9 +100,7 @@ get_cert_domains(Cert) ->
 verify_server_cert(Server, Socket) ->
     case verify_cert(Socket) of
 	{ok, Cert} ->
-	    case xmpp_idna:domain_utf8_to_ascii(Server) of
-		false ->
-		    {error, idna_failed};
+	    try iolist_to_binary(idna:to_ascii(Server)) of
 		AsciiServer ->
 		    case lists:any(
 			   fun(D) -> match_domain(AsciiServer, D) end,
@@ -112,6 +110,8 @@ verify_server_cert(Server, Socket) ->
 			false ->
 			    {error, hostname_mismatch}
 		    end
+	    catch _:_ ->
+		    {error, idna_failed}
 	    end;
 	{error, _} = Err ->
 	    Err
@@ -166,11 +166,9 @@ get_domains_from_san(Extensions) when is_list(Extensions) ->
 			  {ok, #jid{luser = <<"">>,
 				    lresource = <<"">>,
 				    lserver = Domain}} ->
-			      case xmpp_idna:domain_utf8_to_ascii(Domain) of
-				  false ->
-				      [];
-				  ASCIIDomain ->
-				      [ASCIIDomain]
+			      try iolist_to_binary(
+				    idna:to_ascii(binary_to_list(Domain)))
+			      catch _:_ -> []
 			      end;
 			  _ ->
 			      []

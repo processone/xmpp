@@ -337,7 +337,7 @@ handle_cast(connect, #{remote_server := RemoteServer,
 	  false ->
 	      process_stream_end({idna, bad_string}, State);
 	  ASCIIName ->
-	      case resolve(binary_to_list(ASCIIName), State) of
+	      case resolve(ASCIIName, State) of
 		  {ok, AddrPorts} ->
 		      case connect(AddrPorts, State) of
 			  {ok, Socket, {Addr, Port, Encrypted}} ->
@@ -1111,14 +1111,14 @@ reset_state(State) ->
 %%%===================================================================
 %%% Connection stuff
 %%%===================================================================
--spec idna_to_ascii(binary()) -> binary() | false.
+-spec idna_to_ascii(binary()) -> string() | false.
 idna_to_ascii(<<$[, _/binary>> = Host) ->
     %% This is an IPv6 address in 'IP-literal' format (as per RFC7622)
     %% We remove brackets here
     case binary:last(Host) of
 	$] ->
-	    IPv6 = binary:part(Host, {1, size(Host)-2}),
-	    case inet:parse_ipv6strict_address(binary_to_list(IPv6)) of
+	    IPv6 = binary_to_list(binary:part(Host, {1, size(Host)-2})),
+	    case inet:parse_ipv6strict_address(IPv6) of
 		{ok, _} -> IPv6;
 		{error, _} -> false
 	    end;
@@ -1126,9 +1126,13 @@ idna_to_ascii(<<$[, _/binary>> = Host) ->
 	    false
     end;
 idna_to_ascii(Host) ->
-    case inet:parse_address(binary_to_list(Host)) of
+    SHost = binary_to_list(Host),
+    case inet:parse_address(SHost) of
 	{ok, _} -> Host;
-	{error, _} -> xmpp_idna:domain_utf8_to_ascii(Host)
+	{error, _} ->
+	    try idna:to_ascii(SHost)
+	    catch _:_ -> false
+	    end
     end.
 
 -spec resolve(string(), state()) -> {ok, [ip_port()]} | network_error().
