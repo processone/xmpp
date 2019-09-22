@@ -100,7 +100,7 @@ get_cert_domains(Cert) ->
 verify_server_cert(Server, Socket) ->
     case verify_cert(Socket) of
 	{ok, Cert} ->
-	    try iolist_to_binary(idna:to_ascii(Server)) of
+	    try list_to_binary(idna:utf8_to_ascii(Server)) of
 		AsciiServer ->
 		    case lists:any(
 			   fun(D) -> match_domain(AsciiServer, D) end,
@@ -166,8 +166,7 @@ get_domains_from_san(Extensions) when is_list(Extensions) ->
 			  {ok, #jid{luser = <<"">>,
 				    lresource = <<"">>,
 				    lserver = Domain}} ->
-			      try iolist_to_binary(
-				    idna:to_ascii(binary_to_list(Domain)))
+			      try list_to_binary(idna:utf8_to_ascii(Domain))
 			      catch _:_ -> []
 			      end;
 			  _ ->

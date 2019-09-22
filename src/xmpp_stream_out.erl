@@ -1126,11 +1126,10 @@ idna_to_ascii(<<$[, _/binary>> = Host) ->
 	    false
     end;
 idna_to_ascii(Host) ->
-    SHost = binary_to_list(Host),
-    case inet:parse_address(SHost) of
+    case inet:parse_address(binary_to_list(Host)) of
 	{ok, _} -> Host;
 	{error, _} ->
-	    try idna:to_ascii(SHost)
+	    try idna:utf8_to_ascii(Host)
 	    catch _:_ -> false
 	    end
     end.
