@@ -1,3 +1,8 @@
+# Version 1.4.1
+
+* Add support for jid-prep
+* Improve handling of IDNA
+
 # Version 1.4.0
 
 * Updating fast_tls to version 1.1.2.
