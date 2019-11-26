@@ -1,3 +1,12 @@
+# Version 1.4.2
+
+* Fix incorrect return type
+
+# Version 1.4.1
+
+* Add support for jid-prep
+* Improve handling of IDNA
+
 # Version 1.4.0
 
 * Updating fast_tls to version 1.1.2.
@@ -22,7 +31,7 @@
 # Version 1.3.3
 
 * Allow muc_subscriber element to have jid or nick attribute
-* Add support for XEP-0417 
+* Add support for XEP-0417
 * Add get_subtags/2 and try_subtags/2
 
 # Version 1.3.2
