@@ -3,6 +3,37 @@
                data = <<>> :: binary()}).
 -type text() :: #text{}.
 
+-xml(raw,
+     #elem{name = <<"raw">>,
+           xmlns = <<"ns:phonenumber:normalization">>,
+           module = phone_number_normalization,
+           result = '$cdata',
+           cdata = #cdata{required = true, label = '$cdata'}}).
+
+-xml(normalized,
+     #elem{name = <<"normalized">>,
+           xmlns = <<"ns:phonenumber:normalization">>,
+           module = phone_number_normalization,
+           result = '$cdata',
+           cdata = #cdata{required = true, label = '$cdata'}}).
+
+-xml(contact,
+     #elem{name = <<"contact">>,
+           xmlns = <<"ns:phonenumber:normalization">>,
+           module = phone_number_normalization,
+           result = {'$raw_numbers', '$normalized_numbers'},
+           refs = [#ref{name = raw, label = '$raw_numbers'},
+                   #ref{name = normalized, label = '$normalized_numbers'}]}).
+
+-xml(contact_list,
+     #elem{name = <<"contact_list">>,
+           xmlns = <<"ns:phonenumber:normalization">>,
+           module = phone_number_normalization,
+           result = {contact_list, '$id', '$xmlns', '$contacts'},
+           attrs = [#attr{name = <<"id">>},
+                    #attr{name = <<"xmlns">>}],
+           refs = [#ref{name = contact, label = '$contacts'}]}).
+
 -xml(jidprep,
      #elem{name = <<"jid">>,
 	   xmlns = <<"urn:xmpp:jidprep:0">>,

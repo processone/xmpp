@@ -619,6 +619,9 @@ get_mod(<<"description">>,
 get_mod(<<"checksum">>,
 	<<"urn:xmpp:jingle:apps:file-transfer:5">>) ->
     xep0234;
+get_mod(<<"contact_list">>,
+	<<"ns:phonenumber:normalization">>) ->
+    phone_number_normalization;
 get_mod(<<"host-gone">>,
 	<<"urn:ietf:params:xml:ns:xmpp-streams">>) ->
     rfc6120;
@@ -895,15 +898,7 @@ get_mod(<<"error">>,
     xep0039;
 get_mod(<<"name">>, <<"jabber:iq:register">>) ->
     xep0077;
-get_mod(<<"not-authorized">>,
-	<<"urn:ietf:params:xml:ns:xmpp-streams">>) ->
-    rfc6120;
 get_mod(<<"PCS">>, <<"vcard-temp">>) -> xep0054;
-get_mod(<<"unsubscribe">>, <<"urn:xmpp:mucsub:0">>) ->
-    p1_mucsub;
-get_mod(<<"failed">>, <<"urn:xmpp:sm:2">>) -> xep0198;
-get_mod(<<"db:verify">>, <<"jabber:server">>) ->
-    xep0220;
 get_mod(<<"url">>, <<"jabber:x:oob">>) -> xep0066;
 get_mod(<<"disable">>, <<"urn:xmpp:push:0">>) ->
     xep0357;
@@ -911,9 +906,6 @@ get_mod(<<"delegated">>, <<"urn:xmpp:delegation:1">>) ->
     xep0355;
 get_mod(<<"hash-used">>, <<"urn:xmpp:hashes:2">>) ->
     xep0300;
-get_mod(<<"security-error">>,
-	<<"urn:xmpp:jingle:1">>) ->
-    xep0166;
 get_mod(<<"presence">>,
 	<<"jabber:component:accept">>) ->
     rfc6120;
@@ -978,6 +970,9 @@ get_mod(<<"index">>,
 get_mod(<<"csi">>, <<"urn:xmpp:csi:0">>) -> xep0352;
 get_mod(<<"instructions">>, <<"jabber:iq:search">>) ->
     xep0055;
+get_mod(<<"raw">>,
+	<<"ns:phonenumber:normalization">>) ->
+    phone_number_normalization;
 get_mod(<<"invalid-authzid">>,
 	<<"urn:ietf:params:xml:ns:xmpp-sasl">>) ->
     rfc6120;
@@ -1110,6 +1105,9 @@ get_mod(<<"after">>,
 get_mod(<<"query">>, <<"urn:xmpp:mam:tmp">>) -> xep0313;
 get_mod(<<"x509-revoke">>, <<"urn:xmpp:x509:0">>) ->
     xep0417;
+get_mod(<<"normalized">>,
+	<<"ns:phonenumber:normalization">>) ->
+    phone_number_normalization;
 get_mod(<<"account-disabled">>,
 	<<"urn:ietf:params:xml:ns:xmpp-sasl">>) ->
     rfc6120;
@@ -1127,6 +1125,9 @@ get_mod(<<"invalid-subid">>,
 get_mod(<<"not-in-roster-group">>,
 	<<"http://jabber.org/protocol/pubsub#errors">>) ->
     xep0060;
+get_mod(<<"contact">>,
+	<<"ns:phonenumber:normalization">>) ->
+    phone_number_normalization;
 get_mod(<<"unsupported-encoding">>,
 	<<"urn:ietf:params:xml:ns:xmpp-streams">>) ->
     rfc6120;
@@ -1545,6 +1546,17 @@ get_mod(<<"max-file-size">>,
     xep0363;
 get_mod(<<"cancel">>, <<"urn:xmpp:jingle:1">>) ->
     xep0166;
+get_mod(<<"not-authorized">>,
+	<<"urn:ietf:params:xml:ns:xmpp-streams">>) ->
+    rfc6120;
+get_mod(<<"unsubscribe">>, <<"urn:xmpp:mucsub:0">>) ->
+    p1_mucsub;
+get_mod(<<"failed">>, <<"urn:xmpp:sm:2">>) -> xep0198;
+get_mod(<<"db:verify">>, <<"jabber:server">>) ->
+    xep0220;
+get_mod(<<"security-error">>,
+	<<"urn:xmpp:jingle:1">>) ->
+    xep0166;
 get_mod(Name, XMLNS) ->
     xmpp_codec_external:lookup(Name, XMLNS).
 
@@ -1583,14 +1595,7 @@ get_mod({presence, _, _, _, _, _, _, _, _, _, _}) ->
     rfc6120;
 get_mod({streamhost, _, _, _}) -> xep0065;
 get_mod({iq, _, _, _, _, _, _, _}) -> rfc6120;
-get_mod({vcard_adr, _, _, _, _, _, _, _, _, _, _, _, _,
-	 _, _}) ->
-    xep0054;
 get_mod({xdata_option, _, _}) -> xep0004;
-get_mod({ps_unsubscribe, _, _, _}) -> xep0060;
-get_mod({sm_resume, _, _, _}) -> xep0198;
-get_mod({push_enable, _, _, _}) -> xep0357;
-get_mod({jingle_ft_range, _, _, _}) -> xep0234;
 get_mod({x509_cert_chain, _, _}) -> xep0417;
 get_mod({vcard_geo, _, _}) -> xep0054;
 get_mod({mam_query, _, _, _, _, _, _, _, _}) -> xep0313;
@@ -1721,6 +1726,8 @@ get_mod({mix_create, _}) -> xep0369;
 get_mod({receipt_response, _}) -> xep0184;
 get_mod({sic, _, _, _}) -> xep0279;
 get_mod({idle, _}) -> xep0319;
+get_mod({contact_list, _, _, _}) ->
+    phone_number_normalization;
 get_mod({sm_resumed, _, _, _}) -> xep0198;
 get_mod({offline_item, _, _}) -> xep0013;
 get_mod({db_verify, _, _, _, _, _, _}) -> xep0220;
@@ -1784,4 +1791,11 @@ get_mod({ibb_close, _}) -> xep0047;
 get_mod({vcard_sound, _, _, _}) -> xep0054;
 get_mod({ps_retract, _, _, _}) -> xep0060;
 get_mod({privilege_perm, _, _}) -> xep0356;
+get_mod({vcard_adr, _, _, _, _, _, _, _, _, _, _, _, _,
+	 _, _}) ->
+    xep0054;
+get_mod({ps_unsubscribe, _, _, _}) -> xep0060;
+get_mod({sm_resume, _, _, _}) -> xep0198;
+get_mod({push_enable, _, _, _}) -> xep0357;
+get_mod({jingle_ft_range, _, _, _}) -> xep0234;
 get_mod(Record) -> xmpp_codec_external:lookup(Record).
