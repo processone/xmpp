@@ -1,3 +1,10 @@
+# Version 1.4.3
+
+* Updating fast_tls to version 1.1.3.
+* Updating stringprep to version 1.0.18.
+* Updating fast_xml to version 1.1.38.
+* Updating p1_utils to version 1.0.17.
+
 # Version 1.4.2
 
 * Fix incorrect return type
