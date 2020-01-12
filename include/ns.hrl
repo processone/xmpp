@@ -155,6 +155,7 @@
 -define(NS_PUSH_0, <<"urn:xmpp:push:0">>).
 -define(NS_CARBONS_2, <<"urn:xmpp:carbons:2">>).
 -define(NS_CARBONS_1, <<"urn:xmpp:carbons:1">>).
+-define(NS_CARBONS_RULES_0, <<"urn:xmpp:carbons:rules:0">>).
 -define(NS_FORWARD, <<"urn:xmpp:forward:0">>).
 -define(NS_CLIENT_STATE,  <<"urn:xmpp:csi:0">>).
 -define(NS_STREAM_MGMT_2,  <<"urn:xmpp:sm:2">>).
