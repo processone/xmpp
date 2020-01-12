@@ -3929,7 +3929,7 @@
 			  dec = {dec_int, [0, infinity]},
 			  enc = {enc_int, []}},
 		    #attr{name = <<"width">>,
-			  dec = {dec_int, [0, inifinity]},
+			  dec = {dec_int, [0, infinity]},
 			  enc = {enc_int, []}}],
 	   refs = [#ref{name = media_uri, label = '$uri'}]}).
 
@@ -4074,7 +4074,7 @@
 		    #attr{name = <<"filename">>,
 			  required = true},
 		    #attr{name = <<"size">>,
-			  dec = {dec_int, [1, inifinity]},
+			  dec = {dec_int, [1, infinity]},
 			  enc = {enc_int, []},
 			  required = true},
 		    #attr{name = <<"content-type">>}]}).
