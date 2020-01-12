@@ -120,7 +120,7 @@ encode_media_attr_height(_val, _acc) ->
 decode_media_attr_width(__TopXMLNS, undefined) ->
     undefined;
 decode_media_attr_width(__TopXMLNS, _val) ->
-    case catch dec_int(_val, 0, inifinity) of
+    case catch dec_int(_val, 0, infinity) of
       {'EXIT', _} ->
 	  erlang:error({xmpp_codec,
 			{bad_attr_value, <<"width">>, <<"media">>,

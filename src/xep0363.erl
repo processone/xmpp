@@ -630,7 +630,7 @@ decode_upload_request_0_attr_size(__TopXMLNS,
     erlang:error({xmpp_codec,
 		  {missing_attr, <<"size">>, <<"request">>, __TopXMLNS}});
 decode_upload_request_0_attr_size(__TopXMLNS, _val) ->
-    case catch dec_int(_val, 1, inifinity) of
+    case catch dec_int(_val, 1, infinity) of
       {'EXIT', _} ->
 	  erlang:error({xmpp_codec,
 			{bad_attr_value, <<"size">>, <<"request">>,
