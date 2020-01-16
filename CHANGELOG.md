@@ -1,3 +1,8 @@
+# Version 1.4.4
+
+* Fix handling of infinity values in couple places
+* Declare namespace for "urn:xmpp:carbons:rules:0"
+
 # Version 1.4.3
 
 * Updating fast_tls to version 1.1.3.
