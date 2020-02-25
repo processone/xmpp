@@ -1,5 +1,10 @@
 # Version 1.4.5
 
+* Updating ezlib to version 1.0.7.
+* Updating fast_tls to version 1.1.4.
+* Updating fast_xml to version 1.1.39.
+* Updating p1_utils to version 1.0.18.
+* Updating stringprep to version 1.0.19.
 * Update copyright year
 
 # Version 1.4.4
