@@ -1,3 +1,7 @@
+# Version 1.4.5
+
+* Update copyright year
+
 # Version 1.4.4
 
 * Fix handling of infinity values in couple places
