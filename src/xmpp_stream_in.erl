@@ -23,7 +23,7 @@
 -protocol({xep, 114, '1.6'}).
 
 %% API
--export([start/3, start_link/3, call/3, cast/2, reply/2, stop/1,
+-export([start/3, start_link/3, call/3, cast/2, reply/2, stop/1, stop_async/1,
 	 accept/1, send/2, close/1, close/2, send_error/3, establish/1,
 	 get_transport/1, change_shaper/2, set_timeout/2, format_error/1,
 	 send_ws_ping/1]).
@@ -31,6 +31,8 @@
 %% gen_server callbacks
 -export([init/1, handle_cast/2, handle_call/3, handle_info/2,
 	 terminate/2, code_change/3]).
+
+-deprecated([{stop, 1}]).
 
 %%-define(DBGFSM, true).
 -ifdef(DBGFSM).
@@ -163,13 +165,19 @@ reply(Ref, Reply) ->
 -spec stop(pid()) -> ok;
 	  (state()) -> no_return().
 stop(Pid) when is_pid(Pid) ->
-    cast(Pid, stop);
+    stop_async(Pid);
 stop(#{owner := Owner} = State) when Owner == self() ->
     terminate(normal, State),
     try erlang:nif_error(normal)
     catch _:_ -> exit(normal)
     end;
 stop(_) ->
+    erlang:error(badarg).
+
+-spec stop_async(pid()) -> ok.
+stop_async(Pid) when is_pid(Pid) ->
+    cast(Pid, stop);
+stop_async(_) ->
     erlang:error(badarg).
 
 -spec accept(pid()) -> ok.
@@ -288,13 +296,17 @@ handle_cast(accept, #{socket := Socket,
 	    State3 = State2#{socket => XMPPSocket,
 			     socket_monitor => SocketMonitor,
 			     ip => IP},
-	    State4 = init_state(State3, Opts),
-	    case is_disconnected(State4) of
-		true -> noreply(State4);
-		false -> handle_info({tcp, Socket, <<>>}, State4)
+	    case init_state(State3, Opts) of
+		{stop, State4} ->
+		    {stop, normal, State4};
+		State4 ->
+		    case is_disconnected(State4) of
+			true -> noreply(State4);
+			false -> handle_info({tcp, Socket, <<>>}, State4)
+		    end
 	    end;
 	{error, _} ->
-	    stop(State)
+	    {stop, normal, State}
     end;
 handle_cast({send, Pkt}, State) ->
     noreply(send_pkt(State, Pkt));
@@ -322,7 +334,7 @@ handle_call(Call, From, State) ->
 
 -spec handle_info(term(), state()) -> next_state().
 handle_info(_, #{stream_state := accepting} = State) ->
-    stop(State);
+    {stop, normal, State};
 handle_info({'$gen_event', {xmlstreamstart, Name, Attrs}},
 	    #{stream_state := wait_for_stream,
 	      xmlns := XMLNS, lang := MyLang} = State) ->
@@ -412,7 +424,7 @@ handle_info(timeout, #{lang := Lang} = State) ->
 		    Txt = <<"Idle connection">>,
 		    send_pkt(State, xmpp:serr_connection_timeout(Txt, Lang));
 		  _:{?MODULE, undef} ->
-		    stop(State)
+		      {stop, normal, State}
 	    end);
 handle_info({'DOWN', MRef, _Type, _Object, _Info},
 	    #{socket_monitor := MRef} = State) ->
@@ -496,10 +508,13 @@ init_state(#{socket := Socket, mod := Mod} = State, Opts) ->
 	{error, Reason} ->
 	    process_stream_end(Reason, State1);
 	ignore ->
-	    stop(State)
+	    {stop, State}
     end.
 
--spec noreply(state()) -> noreply().
+-spec noreply(state()) -> noreply();
+	     ({stop, state()}) -> {stop, normal, state()}.
+noreply({stop, State}) ->
+    {stop, normal, State};
 noreply(#{stream_timeout := infinity} = State) ->
     {noreply, State, infinity};
 noreply(#{stream_timeout := {MSecs, StartTime}} = State) ->
@@ -545,7 +560,9 @@ process_stream_end(Reason, State) ->
     State1 = State#{stream_timeout => infinity,
 		    stream_state => disconnected},
     try callback(handle_stream_end, Reason, State1)
-    catch _:{?MODULE, undef} -> stop(State1)
+    catch _:{?MODULE, undef} ->
+	stop_async(self()),
+	State1
     end.
 
 -spec process_stream(stream_start(), state()) -> state().
