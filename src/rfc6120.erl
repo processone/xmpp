@@ -846,14 +846,15 @@ dec_enum(Val, Enums) ->
       true -> AtomVal
     end.
 
+dec_host(S) -> try dec_ip(S) catch _:_ -> S end.
+
 dec_host_port(<<$[, T/binary>>) ->
     [IP, <<$:, Port/binary>>] = binary:split(T, <<$]>>),
     {dec_ip(IP), dec_int(Port, 0, 65535)};
 dec_host_port(S) ->
     case binary:split(S, <<$:>>) of
-      [S] -> try dec_ip(S) catch _:_ -> S end;
-      [S, P] ->
-	  {try dec_ip(S) catch _:_ -> S end, dec_int(P, 0, 65535)}
+      [S] -> dec_host(S);
+      [S, P] -> {dec_host(S), dec_int(P, 0, 65535)}
     end.
 
 dec_int(Val) -> dec_int(Val, infinity, infinity).
