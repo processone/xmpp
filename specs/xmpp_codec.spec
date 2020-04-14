@@ -4254,6 +4254,58 @@
 			  enc = {jid, encode, []}}],
 	   refs = [#ref{name = delegate, label = '$delegate'}]}).
 
+-xml(service,
+     #elem{name = <<"service">>,
+	   xmlns = <<"urn:xmpp:extdisco:2">>,
+	   module = 'xep0215',
+	   result = {service, '$action', '$expires', '$host', '$name',
+		     '$password', '$port', '$restricted', '$transport', '$type',
+		     '$username', '$xdata'},
+	   attrs = [#attr{name = <<"action">>,
+			  dec = {dec_enum, [[add, remove, modify]]},
+			  enc = {enc_enum, []}},
+		    #attr{name = <<"expires">>,
+			  dec = {dec_utc, []},
+			  enc = {enc_utc, []}},
+		    #attr{name = <<"host">>,
+			  required = true,
+			  dec = {dec_host, []},
+			  enc = {enc_host, []}},
+		    #attr{name = <<"name">>},
+		    #attr{name = <<"password">>},
+		    #attr{name = <<"port">>,
+			  dec = {dec_int, [0, 65535]},
+			  enc = {enc_int, []}},
+		    #attr{name = <<"restricted">>,
+			  dec = {dec_bool, []},
+			  enc = {enc_bool, []}},
+		    #attr{name = <<"transport">>,
+			  dec = {dec_enum, [[tcp, udp]]},
+			  enc = {enc_enum, []}},
+		    #attr{name = <<"type">>,
+			  required = true,
+			  dec = {dec_enum, [[stun, turn, stuns, turns]]},
+			  enc = {enc_enum, []}},
+		    #attr{name = <<"username">>}],
+	   refs = [#ref{name = xdata, min = 0, max = 1}]}).
+
+-xml(services,
+     #elem{name = <<"services">>,
+	   xmlns = <<"urn:xmpp:extdisco:2">>,
+	   module = 'xep0215',
+	   result = {services, '$type', '$list'},
+	   attrs = [#attr{name = <<"type">>,
+			  dec = {dec_enum, [[stun, turn, stuns, turns]]},
+			  enc = {enc_enum, []}}],
+	   refs = [#ref{name = service, label = '$list'}]}).
+
+-xml(credentials,
+     #elem{name = <<"credentials">>,
+	   xmlns = <<"urn:xmpp:extdisco:2">>,
+	   module = 'xep0215',
+	   result = {credentials, '$services'},
+	   refs = [#ref{name = service, label = '$services'}]}).
+
 -xml(avatar_data,
      #elem{name = <<"data">>,
 	   xmlns = <<"urn:xmpp:avatar:data">>,
@@ -4972,6 +5024,16 @@ enc_ip(Addr) ->
 
 -type xmpp_host() :: binary() | inet:ip_address() |
 		     {binary() | inet:ip_address(), inet:port_number()}.
+
+-spec dec_host(_) -> binary() | inet:ip_address().
+dec_host(S) ->
+    try dec_ip(S) catch _:_ -> S end.
+
+enc_host(Addr) when is_tuple(Addr) ->
+    enc_ip(Addr);
+enc_host(Host) ->
+    Host.
+
 -spec dec_host_port(_) -> binary() | inet:ip_address() |
 			  {binary() | inet:ip_address(), inet:port_number()}.
 dec_host_port(<<$[, T/binary>>) ->
@@ -4980,9 +5042,9 @@ dec_host_port(<<$[, T/binary>>) ->
 dec_host_port(S) ->
     case binary:split(S, <<$:>>) of
 	[S] ->
-	    try dec_ip(S) catch _:_ -> S end;
+	    dec_host(S);
 	[S, P] ->
-	    {try dec_ip(S) catch _:_ -> S end, dec_int(P, 0, 65535)}
+	    {dec_host(S), dec_int(P, 0, 65535)}
     end.
 
 enc_host_port(Host) when is_binary(Host) ->

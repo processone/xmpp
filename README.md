@@ -285,6 +285,7 @@ XMPP elements from the following documents are supported:
 - [XEP-0199](https://xmpp.org/extensions/xep-0199.html):  XMPP Ping
 - [XEP-0202](https://xmpp.org/extensions/xep-0202.html):  Entity Time
 - [XEP-0203](https://xmpp.org/extensions/xep-0203.html):  Delayed Delivery
+- [XEP-0215](https://xmpp.org/extensions/xep-0215.html):  External Service Discovery
 - [XEP-0220](https://xmpp.org/extensions/xep-0220.html):  Server Dialback
 - [XEP-0221](https://xmpp.org/extensions/xep-0221.html):  Data Forms Media Element
 - [XEP-0231](https://xmpp.org/extensions/xep-0231.html):  Bits of Binary
