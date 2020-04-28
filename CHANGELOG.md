@@ -1,3 +1,9 @@
+# Version 1.4.6
+
+* Recognize elements from XEP-0215 (External Service Discovery)
+* Limit usage of synchronously terminating session, as is can cause
+  problems with handling of queued messages
+
 # Version 1.4.5
 
 * Updating ezlib to version 1.0.7.
