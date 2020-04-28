@@ -1,5 +1,7 @@
 # Version 1.4.6
 
+* Updating fast_tls to version 1.1.5.
+* Updating fast_xml to version 1.1.40.
 * Recognize elements from XEP-0215 (External Service Discovery)
 * Limit usage of synchronously terminating session, as is can cause
   problems with handling of queued messages
