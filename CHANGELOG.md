@@ -1,5 +1,9 @@
 # Version 1.4.7
 
+* Updating fast_tls to version 1.1.6.
+* Updating p1_utils to version 1.0.19.
+* Updating fast_xml to version 1.1.41.
+* Updating stringprep to version 1.0.20.
 * Fix compatibility issues with Erlang 23
 
 # Version 1.4.6
