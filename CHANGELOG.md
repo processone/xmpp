@@ -1,3 +1,7 @@
+# Version 1.4.7
+
+* Fix compatibility issues with Erlang 23
+
 # Version 1.4.6
 
 * Updating fast_tls to version 1.1.5.
