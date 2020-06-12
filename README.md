@@ -49,7 +49,7 @@ from release to release. The stable API will be denoted by `2.x` tag in the futu
 
 # Dependency
 
-You need at least Erlang OTP 20.
+You need at least Erlang OTP 19.0.
 
 # Compiling
 

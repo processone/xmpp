@@ -1,0 +1,15 @@
+language: erlang
+
+os: linux
+
+dist: xenial
+
+install:
+  - rebar get-deps
+
+script: rebar compile && rebar skip_deps=true eunit
+
+otp_release:
+  - 19.0
+  - 19.3
+  - 22.3
