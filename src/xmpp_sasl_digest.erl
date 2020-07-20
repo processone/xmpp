@@ -46,13 +46,13 @@
 
 -spec format_error(error_reason()) -> {atom(), binary()}.
 format_error(parser_failed) ->
-    {'bad-protocol', <<"Response decoding failed">>};
+    {'not-authorized', <<"Response decoding failed">>};
 format_error(invalid_digest_uri) ->
-    {'bad-protocol', <<"Invalid digest URI">>};
+    {'not-authorized', <<"Invalid digest URI">>};
 format_error(not_authorized) ->
     {'not-authorized', <<"Invalid username or password">>};
 format_error(unexpected_response) ->
-    {'bad-protocol', <<"Unexpected response">>}.
+    {'not-authorized', <<"Unexpected response">>}.
 
 mech_new(Host, GetPassword, _CheckPassword, CheckPasswordDigest) ->
     #state{step = 1, nonce = p1_rand:get_string(),

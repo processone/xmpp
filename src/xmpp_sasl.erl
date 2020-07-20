@@ -70,9 +70,9 @@
 format_error(_, unsupported_mechanism) ->
     {'invalid-mechanism', <<"Unsupported mechanism">>};
 format_error(_, nodeprep_failed) ->
-    {'bad-protocol', <<"Nodeprep failed">>};
+    {'not-authorized', <<"Nodeprep failed">>};
 format_error(_, empty_username) ->
-    {'bad-protocol', <<"Empty username">>};
+    {'not-authorized', <<"Empty username">>};
 format_error(_, aborted) ->
     {'aborted', <<"Aborted">>};
 format_error(Mech, Reason) ->

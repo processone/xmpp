@@ -29,7 +29,7 @@
 
 -spec format_error(error_reason()) -> {atom(), binary()}.
 format_error(parser_failed) ->
-    {'bad-protocol', <<"Response decoding failed">>};
+    {'not-authorized', <<"Response decoding failed">>};
 format_error(not_authorized) ->
     {'not-authorized', <<"Invalid username or password">>}.
 

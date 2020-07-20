@@ -73,13 +73,13 @@ authenticate(#{xmlns := ?NS_CLIENT, stream_direction := in,
     end.
 
 format_error(idna_failed) ->
-    {'bad-protocol', <<"Remote domain is not an IDN hostname">>};
+    {'not-authorized', <<"Remote domain is not an IDN hostname">>};
 format_error(hostname_mismatch) ->
     {'not-authorized', <<"Certificate host name mismatch">>};
 format_error(jid_mismatch) ->
     {'not-authorized', <<"Certificate JID mismatch">>};
 format_error(get_cert_failed) ->
-    {'bad-protocol', <<"Failed to get peer certificate">>};
+    {'not-authorized', <<"Failed to get peer certificate">>};
 format_error(invalid_authzid) ->
     {'invalid-authzid', <<"Malformed JID">>};
 format_error(Other) ->

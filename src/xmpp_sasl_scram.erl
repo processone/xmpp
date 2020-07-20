@@ -51,7 +51,7 @@
 
 -spec format_error(error_reason()) -> {atom(), binary()}.
 format_error(unsupported_extension) ->
-    {'bad-protocol', <<"Unsupported extension">>};
+    {'not-authorized', <<"Unsupported extension">>};
 format_error(bad_username) ->
     {'invalid-authzid', <<"Malformed username">>};
 format_error(not_authorized) ->
@@ -59,13 +59,13 @@ format_error(not_authorized) ->
 format_error(saslprep_failed) ->
     {'not-authorized', <<"SASLprep failed">>};
 format_error(parser_failed) ->
-    {'bad-protocol', <<"Response decoding failed">>};
+    {'not-authorized', <<"Response decoding failed">>};
 format_error(bad_attribute) ->
-    {'bad-protocol', <<"Malformed or unexpected attribute">>};
+    {'not-authorized', <<"Malformed or unexpected attribute">>};
 format_error(nonce_mismatch) ->
-    {'bad-protocol', <<"Nonce mismatch">>};
+    {'not-authorized', <<"Nonce mismatch">>};
 format_error(bad_channel_binding) ->
-    {'bad-protocol', <<"Invalid channel binding">>}.
+    {'not-authorized', <<"Invalid channel binding">>}.
 
 mech_new(_Host, GetPassword, _CheckPassword, _CheckPasswordDigest) ->
     #state{step = 2, get_password = GetPassword}.
