@@ -1,3 +1,13 @@
+# Version 1.4.8
+
+* Fixes to compile with Erlang/OTP 23.0
+* updating ezlib to version 1.0.8.
+* updating fast_tls to version 1.1.7.
+* updating fast_xml to version 1.1.42.
+* updating stringprep to version 1.0.21.
+* Replace bad-protocol sasl errors with not-authorized
+* Add Travis setup, and set Erlang/OTP 19.0 as lowest supported version
+
 # Version 1.4.7
 
 * Updating fast_tls to version 1.1.6.
