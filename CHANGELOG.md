@@ -1,3 +1,10 @@
+# Version 1.4.9
+
+* Updating p1_utils to version 1.0.20.
+* Updating fast_xml to version 1.1.43.
+* Updating fast_tls to version 1.1.8.
+* Updating stringprep to version 1.0.22.
+
 # Version 1.4.8
 
 * Fixes to compile with Erlang/OTP 23.0
