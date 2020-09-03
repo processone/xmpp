@@ -25,7 +25,7 @@
 -include("ns.hrl").
 -include("jid.hrl").
 -include("xmpp_codec.hrl").
--include("fxml.hrl").
+-include_lib("fast_xml/include/fxml.hrl").
 
 -type stanza() :: iq() | presence() | message().
 
