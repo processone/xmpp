@@ -6,30 +6,35 @@
 -compile(export_all).
 
 do_decode(<<"paused">>,
-	  <<"http://jabber.org/protocol/chatstates">>, El,
-	  Opts) ->
+          <<"http://jabber.org/protocol/chatstates">>, El,
+          Opts) ->
     decode_chatstate_paused(<<"http://jabber.org/protocol/chatstates">>,
-			    Opts, El);
+                            Opts,
+                            El);
 do_decode(<<"inactive">>,
-	  <<"http://jabber.org/protocol/chatstates">>, El,
-	  Opts) ->
+          <<"http://jabber.org/protocol/chatstates">>, El,
+          Opts) ->
     decode_chatstate_inactive(<<"http://jabber.org/protocol/chatstates">>,
-			      Opts, El);
+                              Opts,
+                              El);
 do_decode(<<"gone">>,
-	  <<"http://jabber.org/protocol/chatstates">>, El,
-	  Opts) ->
+          <<"http://jabber.org/protocol/chatstates">>, El,
+          Opts) ->
     decode_chatstate_gone(<<"http://jabber.org/protocol/chatstates">>,
-			  Opts, El);
+                          Opts,
+                          El);
 do_decode(<<"composing">>,
-	  <<"http://jabber.org/protocol/chatstates">>, El,
-	  Opts) ->
+          <<"http://jabber.org/protocol/chatstates">>, El,
+          Opts) ->
     decode_chatstate_composing(<<"http://jabber.org/protocol/chatstates">>,
-			       Opts, El);
+                               Opts,
+                               El);
 do_decode(<<"active">>,
-	  <<"http://jabber.org/protocol/chatstates">>, El,
-	  Opts) ->
+          <<"http://jabber.org/protocol/chatstates">>, El,
+          Opts) ->
     decode_chatstate_active(<<"http://jabber.org/protocol/chatstates">>,
-			    Opts, El);
+                            Opts,
+                            El);
 do_decode(Name, <<>>, _, _) ->
     erlang:error({xmpp_codec, {missing_tag_xmlns, Name}});
 do_decode(Name, XMLNS, _, _) ->
@@ -50,7 +55,7 @@ tags() ->
 do_encode({chatstate, active} = Active, TopXMLNS) ->
     encode_chatstate_active(Active, TopXMLNS);
 do_encode({chatstate, composing} = Composing,
-	  TopXMLNS) ->
+          TopXMLNS) ->
     encode_chatstate_composing(Composing, TopXMLNS);
 do_encode({chatstate, gone} = Gone, TopXMLNS) ->
     encode_chatstate_gone(Gone, TopXMLNS);
@@ -82,70 +87,75 @@ pp(_, _) -> no.
 records() -> [{chatstate, 1}].
 
 decode_chatstate_paused(__TopXMLNS, __Opts,
-			{xmlel, <<"paused">>, _attrs, _els}) ->
+                        {xmlel, <<"paused">>, _attrs, _els}) ->
     {chatstate, paused}.
 
 encode_chatstate_paused({chatstate, paused},
-			__TopXMLNS) ->
+                        __TopXMLNS) ->
     __NewTopXMLNS =
-	xmpp_codec:choose_top_xmlns(<<"http://jabber.org/protocol/chatstates">>,
-				    [], __TopXMLNS),
+        xmpp_codec:choose_top_xmlns(<<"http://jabber.org/protocol/chatstates">>,
+                                    [],
+                                    __TopXMLNS),
     _els = [],
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
-					__TopXMLNS),
+                                        __TopXMLNS),
     {xmlel, <<"paused">>, _attrs, _els}.
 
 decode_chatstate_inactive(__TopXMLNS, __Opts,
-			  {xmlel, <<"inactive">>, _attrs, _els}) ->
+                          {xmlel, <<"inactive">>, _attrs, _els}) ->
     {chatstate, inactive}.
 
 encode_chatstate_inactive({chatstate, inactive},
-			  __TopXMLNS) ->
+                          __TopXMLNS) ->
     __NewTopXMLNS =
-	xmpp_codec:choose_top_xmlns(<<"http://jabber.org/protocol/chatstates">>,
-				    [], __TopXMLNS),
+        xmpp_codec:choose_top_xmlns(<<"http://jabber.org/protocol/chatstates">>,
+                                    [],
+                                    __TopXMLNS),
     _els = [],
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
-					__TopXMLNS),
+                                        __TopXMLNS),
     {xmlel, <<"inactive">>, _attrs, _els}.
 
 decode_chatstate_gone(__TopXMLNS, __Opts,
-		      {xmlel, <<"gone">>, _attrs, _els}) ->
+                      {xmlel, <<"gone">>, _attrs, _els}) ->
     {chatstate, gone}.
 
 encode_chatstate_gone({chatstate, gone}, __TopXMLNS) ->
     __NewTopXMLNS =
-	xmpp_codec:choose_top_xmlns(<<"http://jabber.org/protocol/chatstates">>,
-				    [], __TopXMLNS),
+        xmpp_codec:choose_top_xmlns(<<"http://jabber.org/protocol/chatstates">>,
+                                    [],
+                                    __TopXMLNS),
     _els = [],
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
-					__TopXMLNS),
+                                        __TopXMLNS),
     {xmlel, <<"gone">>, _attrs, _els}.
 
 decode_chatstate_composing(__TopXMLNS, __Opts,
-			   {xmlel, <<"composing">>, _attrs, _els}) ->
+                           {xmlel, <<"composing">>, _attrs, _els}) ->
     {chatstate, composing}.
 
 encode_chatstate_composing({chatstate, composing},
-			   __TopXMLNS) ->
+                           __TopXMLNS) ->
     __NewTopXMLNS =
-	xmpp_codec:choose_top_xmlns(<<"http://jabber.org/protocol/chatstates">>,
-				    [], __TopXMLNS),
+        xmpp_codec:choose_top_xmlns(<<"http://jabber.org/protocol/chatstates">>,
+                                    [],
+                                    __TopXMLNS),
     _els = [],
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
-					__TopXMLNS),
+                                        __TopXMLNS),
     {xmlel, <<"composing">>, _attrs, _els}.
 
 decode_chatstate_active(__TopXMLNS, __Opts,
-			{xmlel, <<"active">>, _attrs, _els}) ->
+                        {xmlel, <<"active">>, _attrs, _els}) ->
     {chatstate, active}.
 
 encode_chatstate_active({chatstate, active},
-			__TopXMLNS) ->
+                        __TopXMLNS) ->
     __NewTopXMLNS =
-	xmpp_codec:choose_top_xmlns(<<"http://jabber.org/protocol/chatstates">>,
-				    [], __TopXMLNS),
+        xmpp_codec:choose_top_xmlns(<<"http://jabber.org/protocol/chatstates">>,
+                                    [],
+                                    __TopXMLNS),
     _els = [],
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
-					__TopXMLNS),
+                                        __TopXMLNS),
     {xmlel, <<"active">>, _attrs, _els}.

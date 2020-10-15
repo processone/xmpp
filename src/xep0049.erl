@@ -6,7 +6,7 @@
 -compile(export_all).
 
 do_decode(<<"query">>, <<"jabber:iq:private">>, El,
-	  Opts) ->
+          Opts) ->
     decode_private(<<"jabber:iq:private">>, Opts, El);
 do_decode(Name, <<>>, _, _) ->
     erlang:error({xmpp_codec, {missing_tag_xmlns, Name}});
@@ -32,27 +32,32 @@ pp(_, _) -> no.
 records() -> [{private, 1}].
 
 decode_private(__TopXMLNS, __Opts,
-	       {xmlel, <<"query">>, _attrs, _els}) ->
-    __Els = decode_private_els(__TopXMLNS, __Opts, _els,
-			       []),
+               {xmlel, <<"query">>, _attrs, _els}) ->
+    __Els = decode_private_els(__TopXMLNS,
+                               __Opts,
+                               _els,
+                               []),
     {private, __Els}.
 
 decode_private_els(__TopXMLNS, __Opts, [], __Els) ->
     lists:reverse(__Els);
 decode_private_els(__TopXMLNS, __Opts,
-		   [{xmlel, _name, _attrs, _} = _el | _els], __Els) ->
-    decode_private_els(__TopXMLNS, __Opts, _els,
-		       [_el | __Els]);
+                   [{xmlel, _name, _attrs, _} = _el | _els], __Els) ->
+    decode_private_els(__TopXMLNS,
+                       __Opts,
+                       _els,
+                       [_el | __Els]);
 decode_private_els(__TopXMLNS, __Opts, [_ | _els],
-		   __Els) ->
+                   __Els) ->
     decode_private_els(__TopXMLNS, __Opts, _els, __Els).
 
 encode_private({private, __Els}, __TopXMLNS) ->
     __NewTopXMLNS =
-	xmpp_codec:choose_top_xmlns(<<"jabber:iq:private">>, [],
-				    __TopXMLNS),
+        xmpp_codec:choose_top_xmlns(<<"jabber:iq:private">>,
+                                    [],
+                                    __TopXMLNS),
     _els = [xmpp_codec:encode(_el, __NewTopXMLNS)
-	    || _el <- __Els],
+            || _el <- __Els],
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
-					__TopXMLNS),
+                                        __TopXMLNS),
     {xmlel, <<"query">>, _attrs, _els}.

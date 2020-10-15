@@ -6,10 +6,10 @@
 -compile(export_all).
 
 do_decode(<<"inactive">>, <<"urn:xmpp:csi:0">>, El,
-	  Opts) ->
+          Opts) ->
     decode_csi_inactive(<<"urn:xmpp:csi:0">>, Opts, El);
 do_decode(<<"active">>, <<"urn:xmpp:csi:0">>, El,
-	  Opts) ->
+          Opts) ->
     decode_csi_active(<<"urn:xmpp:csi:0">>, Opts, El);
 do_decode(<<"csi">>, <<"urn:xmpp:csi:0">>, El, Opts) ->
     decode_feature_csi(<<"urn:xmpp:csi:0">>, Opts, El);
@@ -45,40 +45,43 @@ pp(_, _) -> no.
 records() -> [{feature_csi, 0}, {csi, 1}].
 
 decode_csi_inactive(__TopXMLNS, __Opts,
-		    {xmlel, <<"inactive">>, _attrs, _els}) ->
+                    {xmlel, <<"inactive">>, _attrs, _els}) ->
     {csi, inactive}.
 
 encode_csi_inactive({csi, inactive}, __TopXMLNS) ->
     __NewTopXMLNS =
-	xmpp_codec:choose_top_xmlns(<<"urn:xmpp:csi:0">>, [],
-				    __TopXMLNS),
+        xmpp_codec:choose_top_xmlns(<<"urn:xmpp:csi:0">>,
+                                    [],
+                                    __TopXMLNS),
     _els = [],
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
-					__TopXMLNS),
+                                        __TopXMLNS),
     {xmlel, <<"inactive">>, _attrs, _els}.
 
 decode_csi_active(__TopXMLNS, __Opts,
-		  {xmlel, <<"active">>, _attrs, _els}) ->
+                  {xmlel, <<"active">>, _attrs, _els}) ->
     {csi, active}.
 
 encode_csi_active({csi, active}, __TopXMLNS) ->
     __NewTopXMLNS =
-	xmpp_codec:choose_top_xmlns(<<"urn:xmpp:csi:0">>, [],
-				    __TopXMLNS),
+        xmpp_codec:choose_top_xmlns(<<"urn:xmpp:csi:0">>,
+                                    [],
+                                    __TopXMLNS),
     _els = [],
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
-					__TopXMLNS),
+                                        __TopXMLNS),
     {xmlel, <<"active">>, _attrs, _els}.
 
 decode_feature_csi(__TopXMLNS, __Opts,
-		   {xmlel, <<"csi">>, _attrs, _els}) ->
+                   {xmlel, <<"csi">>, _attrs, _els}) ->
     {feature_csi}.
 
 encode_feature_csi({feature_csi}, __TopXMLNS) ->
     __NewTopXMLNS =
-	xmpp_codec:choose_top_xmlns(<<"urn:xmpp:csi:0">>, [],
-				    __TopXMLNS),
+        xmpp_codec:choose_top_xmlns(<<"urn:xmpp:csi:0">>,
+                                    [],
+                                    __TopXMLNS),
     _els = [],
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
-					__TopXMLNS),
+                                        __TopXMLNS),
     {xmlel, <<"csi">>, _attrs, _els}.

@@ -6,7 +6,7 @@
 -compile(export_all).
 
 do_decode(<<"query">>, <<"jabber:iq:last">>, El,
-	  Opts) ->
+          Opts) ->
     decode_last(<<"jabber:iq:last">>, Opts, El);
 do_decode(Name, <<>>, _, _) ->
     erlang:error({xmpp_codec, {missing_tag_xmlns, Name}});
@@ -29,32 +29,37 @@ records() -> [{last, 2}].
 
 dec_int(Val, Min, Max) ->
     case erlang:binary_to_integer(Val) of
-      Int when Int =< Max, Min == infinity -> Int;
-      Int when Int =< Max, Int >= Min -> Int
+        Int when Int =< Max, Min == infinity -> Int;
+        Int when Int =< Max, Int >= Min -> Int
     end.
 
 enc_int(Int) -> erlang:integer_to_binary(Int).
 
 decode_last(__TopXMLNS, __Opts,
-	    {xmlel, <<"query">>, _attrs, _els}) ->
-    Status = decode_last_els(__TopXMLNS, __Opts, _els,
-			     <<>>),
-    Seconds = decode_last_attrs(__TopXMLNS, _attrs,
-				undefined),
+            {xmlel, <<"query">>, _attrs, _els}) ->
+    Status = decode_last_els(__TopXMLNS,
+                             __Opts,
+                             _els,
+                             <<>>),
+    Seconds = decode_last_attrs(__TopXMLNS,
+                                _attrs,
+                                undefined),
     {last, Seconds, Status}.
 
 decode_last_els(__TopXMLNS, __Opts, [], Status) ->
     decode_last_cdata(__TopXMLNS, Status);
 decode_last_els(__TopXMLNS, __Opts,
-		[{xmlcdata, _data} | _els], Status) ->
-    decode_last_els(__TopXMLNS, __Opts, _els,
-		    <<Status/binary, _data/binary>>);
+                [{xmlcdata, _data} | _els], Status) ->
+    decode_last_els(__TopXMLNS,
+                    __Opts,
+                    _els,
+                    <<Status/binary, _data/binary>>);
 decode_last_els(__TopXMLNS, __Opts, [_ | _els],
-		Status) ->
+                Status) ->
     decode_last_els(__TopXMLNS, __Opts, _els, Status).
 
 decode_last_attrs(__TopXMLNS,
-		  [{<<"seconds">>, _val} | _attrs], _Seconds) ->
+                  [{<<"seconds">>, _val} | _attrs], _Seconds) ->
     decode_last_attrs(__TopXMLNS, _attrs, _val);
 decode_last_attrs(__TopXMLNS, [_ | _attrs], Seconds) ->
     decode_last_attrs(__TopXMLNS, _attrs, Seconds);
@@ -63,23 +68,26 @@ decode_last_attrs(__TopXMLNS, [], Seconds) ->
 
 encode_last({last, Seconds, Status}, __TopXMLNS) ->
     __NewTopXMLNS =
-	xmpp_codec:choose_top_xmlns(<<"jabber:iq:last">>, [],
-				    __TopXMLNS),
+        xmpp_codec:choose_top_xmlns(<<"jabber:iq:last">>,
+                                    [],
+                                    __TopXMLNS),
     _els = encode_last_cdata(Status, []),
     _attrs = encode_last_attr_seconds(Seconds,
-				      xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
-								 __TopXMLNS)),
+                                      xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
+                                                                 __TopXMLNS)),
     {xmlel, <<"query">>, _attrs, _els}.
 
 decode_last_attr_seconds(__TopXMLNS, undefined) ->
     undefined;
 decode_last_attr_seconds(__TopXMLNS, _val) ->
     case catch dec_int(_val, 0, infinity) of
-      {'EXIT', _} ->
-	  erlang:error({xmpp_codec,
-			{bad_attr_value, <<"seconds">>, <<"query">>,
-			 __TopXMLNS}});
-      _res -> _res
+        {'EXIT', _} ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value,
+                           <<"seconds">>,
+                           <<"query">>,
+                           __TopXMLNS}});
+        _res -> _res
     end.
 
 encode_last_attr_seconds(undefined, _acc) -> _acc;

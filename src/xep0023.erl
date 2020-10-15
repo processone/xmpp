@@ -28,52 +28,60 @@ records() -> [{expire, 2}].
 
 dec_int(Val, Min, Max) ->
     case erlang:binary_to_integer(Val) of
-      Int when Int =< Max, Min == infinity -> Int;
-      Int when Int =< Max, Int >= Min -> Int
+        Int when Int =< Max, Min == infinity -> Int;
+        Int when Int =< Max, Int >= Min -> Int
     end.
 
 enc_int(Int) -> erlang:integer_to_binary(Int).
 
 decode_expire(__TopXMLNS, __Opts,
-	      {xmlel, <<"x">>, _attrs, _els}) ->
+              {xmlel, <<"x">>, _attrs, _els}) ->
     {Seconds, Stored} = decode_expire_attrs(__TopXMLNS,
-					    _attrs, undefined, undefined),
+                                            _attrs,
+                                            undefined,
+                                            undefined),
     {expire, Seconds, Stored}.
 
 decode_expire_attrs(__TopXMLNS,
-		    [{<<"seconds">>, _val} | _attrs], _Seconds, Stored) ->
+                    [{<<"seconds">>, _val} | _attrs], _Seconds, Stored) ->
     decode_expire_attrs(__TopXMLNS, _attrs, _val, Stored);
 decode_expire_attrs(__TopXMLNS,
-		    [{<<"stored">>, _val} | _attrs], Seconds, _Stored) ->
+                    [{<<"stored">>, _val} | _attrs], Seconds, _Stored) ->
     decode_expire_attrs(__TopXMLNS, _attrs, Seconds, _val);
 decode_expire_attrs(__TopXMLNS, [_ | _attrs], Seconds,
-		    Stored) ->
-    decode_expire_attrs(__TopXMLNS, _attrs, Seconds,
-			Stored);
+                    Stored) ->
+    decode_expire_attrs(__TopXMLNS,
+                        _attrs,
+                        Seconds,
+                        Stored);
 decode_expire_attrs(__TopXMLNS, [], Seconds, Stored) ->
     {decode_expire_attr_seconds(__TopXMLNS, Seconds),
      decode_expire_attr_stored(__TopXMLNS, Stored)}.
 
 encode_expire({expire, Seconds, Stored}, __TopXMLNS) ->
     __NewTopXMLNS =
-	xmpp_codec:choose_top_xmlns(<<"jabber:x:expire">>, [],
-				    __TopXMLNS),
+        xmpp_codec:choose_top_xmlns(<<"jabber:x:expire">>,
+                                    [],
+                                    __TopXMLNS),
     _els = [],
     _attrs = encode_expire_attr_stored(Stored,
-				       encode_expire_attr_seconds(Seconds,
-								  xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
-											     __TopXMLNS))),
+                                       encode_expire_attr_seconds(Seconds,
+                                                                  xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
+                                                                                             __TopXMLNS))),
     {xmlel, <<"x">>, _attrs, _els}.
 
 decode_expire_attr_seconds(__TopXMLNS, undefined) ->
     erlang:error({xmpp_codec,
-		  {missing_attr, <<"seconds">>, <<"x">>, __TopXMLNS}});
+                  {missing_attr, <<"seconds">>, <<"x">>, __TopXMLNS}});
 decode_expire_attr_seconds(__TopXMLNS, _val) ->
     case catch dec_int(_val, 0, infinity) of
-      {'EXIT', _} ->
-	  erlang:error({xmpp_codec,
-			{bad_attr_value, <<"seconds">>, <<"x">>, __TopXMLNS}});
-      _res -> _res
+        {'EXIT', _} ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value,
+                           <<"seconds">>,
+                           <<"x">>,
+                           __TopXMLNS}});
+        _res -> _res
     end.
 
 encode_expire_attr_seconds(_val, _acc) ->
@@ -83,10 +91,10 @@ decode_expire_attr_stored(__TopXMLNS, undefined) ->
     undefined;
 decode_expire_attr_stored(__TopXMLNS, _val) ->
     case catch dec_int(_val, 0, infinity) of
-      {'EXIT', _} ->
-	  erlang:error({xmpp_codec,
-			{bad_attr_value, <<"stored">>, <<"x">>, __TopXMLNS}});
-      _res -> _res
+        {'EXIT', _} ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value, <<"stored">>, <<"x">>, __TopXMLNS}});
+        _res -> _res
     end.
 
 encode_expire_attr_stored(undefined, _acc) -> _acc;

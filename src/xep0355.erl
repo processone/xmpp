@@ -6,23 +6,26 @@
 -compile(export_all).
 
 do_decode(<<"query">>, <<"urn:xmpp:delegation:1">>, El,
-	  Opts) ->
+          Opts) ->
     decode_delegation_query(<<"urn:xmpp:delegation:1">>,
-			    Opts, El);
+                            Opts,
+                            El);
 do_decode(<<"delegate">>, <<"urn:xmpp:delegation:1">>,
-	  El, Opts) ->
+          El, Opts) ->
     decode_delegate(<<"urn:xmpp:delegation:1">>, Opts, El);
 do_decode(<<"delegation">>, <<"urn:xmpp:delegation:1">>,
-	  El, Opts) ->
-    decode_delegation(<<"urn:xmpp:delegation:1">>, Opts,
-		      El);
+          El, Opts) ->
+    decode_delegation(<<"urn:xmpp:delegation:1">>,
+                      Opts,
+                      El);
 do_decode(<<"delegated">>, <<"urn:xmpp:delegation:1">>,
-	  El, Opts) ->
+          El, Opts) ->
     decode_delegated(<<"urn:xmpp:delegation:1">>, Opts, El);
 do_decode(<<"attribute">>, <<"urn:xmpp:delegation:1">>,
-	  El, Opts) ->
+          El, Opts) ->
     decode_delegated_attribute(<<"urn:xmpp:delegation:1">>,
-			       Opts, El);
+                               Opts,
+                               El);
 do_decode(Name, <<>>, _, _) ->
     erlang:error({xmpp_codec, {missing_tag_xmlns, Name}});
 do_decode(Name, XMLNS, _, _) ->
@@ -59,116 +62,136 @@ pp(delegation_query, 2) -> [to, delegate];
 pp(_, _) -> no.
 
 records() ->
-    [{delegated, 2}, {delegation, 2},
+    [{delegated, 2},
+     {delegation, 2},
      {delegation_query, 2}].
 
 decode_delegation_query(__TopXMLNS, __Opts,
-			{xmlel, <<"query">>, _attrs, _els}) ->
+                        {xmlel, <<"query">>, _attrs, _els}) ->
     Delegate = decode_delegation_query_els(__TopXMLNS,
-					   __Opts, _els, []),
-    To = decode_delegation_query_attrs(__TopXMLNS, _attrs,
-				       undefined),
+                                           __Opts,
+                                           _els,
+                                           []),
+    To = decode_delegation_query_attrs(__TopXMLNS,
+                                       _attrs,
+                                       undefined),
     {delegation_query, To, Delegate}.
 
 decode_delegation_query_els(__TopXMLNS, __Opts, [],
-			    Delegate) ->
+                            Delegate) ->
     lists:reverse(Delegate);
 decode_delegation_query_els(__TopXMLNS, __Opts,
-			    [{xmlel, <<"delegate">>, _attrs, _} = _el | _els],
-			    Delegate) ->
-    case xmpp_codec:get_attr(<<"xmlns">>, _attrs,
-			     __TopXMLNS)
-	of
-      <<"urn:xmpp:delegation:1">> ->
-	  decode_delegation_query_els(__TopXMLNS, __Opts, _els,
-				      [decode_delegate(<<"urn:xmpp:delegation:1">>,
-						       __Opts, _el)
-				       | Delegate]);
-      _ ->
-	  decode_delegation_query_els(__TopXMLNS, __Opts, _els,
-				      Delegate)
+                            [{xmlel, <<"delegate">>, _attrs, _} = _el | _els],
+                            Delegate) ->
+    case xmpp_codec:get_attr(<<"xmlns">>,
+                             _attrs,
+                             __TopXMLNS)
+        of
+        <<"urn:xmpp:delegation:1">> ->
+            decode_delegation_query_els(__TopXMLNS,
+                                        __Opts,
+                                        _els,
+                                        [decode_delegate(<<"urn:xmpp:delegation:1">>,
+                                                         __Opts,
+                                                         _el)
+                                         | Delegate]);
+        _ ->
+            decode_delegation_query_els(__TopXMLNS,
+                                        __Opts,
+                                        _els,
+                                        Delegate)
     end;
 decode_delegation_query_els(__TopXMLNS, __Opts,
-			    [_ | _els], Delegate) ->
-    decode_delegation_query_els(__TopXMLNS, __Opts, _els,
-				Delegate).
+                            [_ | _els], Delegate) ->
+    decode_delegation_query_els(__TopXMLNS,
+                                __Opts,
+                                _els,
+                                Delegate).
 
 decode_delegation_query_attrs(__TopXMLNS,
-			      [{<<"to">>, _val} | _attrs], _To) ->
+                              [{<<"to">>, _val} | _attrs], _To) ->
     decode_delegation_query_attrs(__TopXMLNS, _attrs, _val);
 decode_delegation_query_attrs(__TopXMLNS, [_ | _attrs],
-			      To) ->
+                              To) ->
     decode_delegation_query_attrs(__TopXMLNS, _attrs, To);
 decode_delegation_query_attrs(__TopXMLNS, [], To) ->
     decode_delegation_query_attr_to(__TopXMLNS, To).
 
-encode_delegation_query({delegation_query, To,
-			 Delegate},
-			__TopXMLNS) ->
+encode_delegation_query({delegation_query,
+                         To,
+                         Delegate},
+                        __TopXMLNS) ->
     __NewTopXMLNS =
-	xmpp_codec:choose_top_xmlns(<<"urn:xmpp:delegation:1">>,
-				    [], __TopXMLNS),
+        xmpp_codec:choose_top_xmlns(<<"urn:xmpp:delegation:1">>,
+                                    [],
+                                    __TopXMLNS),
     _els =
-	lists:reverse('encode_delegation_query_$delegate'(Delegate,
-							  __NewTopXMLNS, [])),
+        lists:reverse('encode_delegation_query_$delegate'(Delegate,
+                                                          __NewTopXMLNS,
+                                                          [])),
     _attrs = encode_delegation_query_attr_to(To,
-					     xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
-									__TopXMLNS)),
+                                             xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
+                                                                        __TopXMLNS)),
     {xmlel, <<"query">>, _attrs, _els}.
 
 'encode_delegation_query_$delegate'([], __TopXMLNS,
-				    _acc) ->
+                                    _acc) ->
     _acc;
 'encode_delegation_query_$delegate'([Delegate | _els],
-				    __TopXMLNS, _acc) ->
-    'encode_delegation_query_$delegate'(_els, __TopXMLNS,
-					[encode_delegate(Delegate, __TopXMLNS)
-					 | _acc]).
+                                    __TopXMLNS, _acc) ->
+    'encode_delegation_query_$delegate'(_els,
+                                        __TopXMLNS,
+                                        [encode_delegate(Delegate, __TopXMLNS)
+                                         | _acc]).
 
 decode_delegation_query_attr_to(__TopXMLNS,
-				undefined) ->
+                                undefined) ->
     erlang:error({xmpp_codec,
-		  {missing_attr, <<"to">>, <<"query">>, __TopXMLNS}});
+                  {missing_attr, <<"to">>, <<"query">>, __TopXMLNS}});
 decode_delegation_query_attr_to(__TopXMLNS, _val) ->
     case catch jid:decode(_val) of
-      {'EXIT', _} ->
-	  erlang:error({xmpp_codec,
-			{bad_attr_value, <<"to">>, <<"query">>, __TopXMLNS}});
-      _res -> _res
+        {'EXIT', _} ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value, <<"to">>, <<"query">>, __TopXMLNS}});
+        _res -> _res
     end.
 
 encode_delegation_query_attr_to(_val, _acc) ->
     [{<<"to">>, jid:encode(_val)} | _acc].
 
 decode_delegate(__TopXMLNS, __Opts,
-		{xmlel, <<"delegate">>, _attrs, _els}) ->
-    Namespace = decode_delegate_attrs(__TopXMLNS, _attrs,
-				      undefined),
+                {xmlel, <<"delegate">>, _attrs, _els}) ->
+    Namespace = decode_delegate_attrs(__TopXMLNS,
+                                      _attrs,
+                                      undefined),
     Namespace.
 
 decode_delegate_attrs(__TopXMLNS,
-		      [{<<"namespace">>, _val} | _attrs], _Namespace) ->
+                      [{<<"namespace">>, _val} | _attrs], _Namespace) ->
     decode_delegate_attrs(__TopXMLNS, _attrs, _val);
 decode_delegate_attrs(__TopXMLNS, [_ | _attrs],
-		      Namespace) ->
+                      Namespace) ->
     decode_delegate_attrs(__TopXMLNS, _attrs, Namespace);
 decode_delegate_attrs(__TopXMLNS, [], Namespace) ->
     decode_delegate_attr_namespace(__TopXMLNS, Namespace).
 
 encode_delegate(Namespace, __TopXMLNS) ->
     __NewTopXMLNS =
-	xmpp_codec:choose_top_xmlns(<<"urn:xmpp:delegation:1">>,
-				    [], __TopXMLNS),
+        xmpp_codec:choose_top_xmlns(<<"urn:xmpp:delegation:1">>,
+                                    [],
+                                    __TopXMLNS),
     _els = [],
     _attrs = encode_delegate_attr_namespace(Namespace,
-					    xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
-								       __TopXMLNS)),
+                                            xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
+                                                                       __TopXMLNS)),
     {xmlel, <<"delegate">>, _attrs, _els}.
 
 decode_delegate_attr_namespace(__TopXMLNS, undefined) ->
     erlang:error({xmpp_codec,
-		  {missing_attr, <<"namespace">>, <<"delegate">>,
-		   __TopXMLNS}});
+                  {missing_attr,
+                   <<"namespace">>,
+                   <<"delegate">>,
+                   __TopXMLNS}});
 decode_delegate_attr_namespace(__TopXMLNS, _val) ->
     _val.
 
@@ -176,112 +199,141 @@ encode_delegate_attr_namespace(_val, _acc) ->
     [{<<"namespace">>, _val} | _acc].
 
 decode_delegation(__TopXMLNS, __Opts,
-		  {xmlel, <<"delegation">>, _attrs, _els}) ->
+                  {xmlel, <<"delegation">>, _attrs, _els}) ->
     {Forwarded, Delegated} =
-	decode_delegation_els(__TopXMLNS, __Opts, _els,
-			      undefined, []),
+        decode_delegation_els(__TopXMLNS,
+                              __Opts,
+                              _els,
+                              undefined,
+                              []),
     {delegation, Delegated, Forwarded}.
 
 decode_delegation_els(__TopXMLNS, __Opts, [], Forwarded,
-		      Delegated) ->
+                      Delegated) ->
     {Forwarded, lists:reverse(Delegated)};
 decode_delegation_els(__TopXMLNS, __Opts,
-		      [{xmlel, <<"delegated">>, _attrs, _} = _el | _els],
-		      Forwarded, Delegated) ->
-    case xmpp_codec:get_attr(<<"xmlns">>, _attrs,
-			     __TopXMLNS)
-	of
-      <<"urn:xmpp:delegation:1">> ->
-	  decode_delegation_els(__TopXMLNS, __Opts, _els,
-				Forwarded,
-				[decode_delegated(<<"urn:xmpp:delegation:1">>,
-						  __Opts, _el)
-				 | Delegated]);
-      _ ->
-	  decode_delegation_els(__TopXMLNS, __Opts, _els,
-				Forwarded, Delegated)
+                      [{xmlel, <<"delegated">>, _attrs, _} = _el | _els],
+                      Forwarded, Delegated) ->
+    case xmpp_codec:get_attr(<<"xmlns">>,
+                             _attrs,
+                             __TopXMLNS)
+        of
+        <<"urn:xmpp:delegation:1">> ->
+            decode_delegation_els(__TopXMLNS,
+                                  __Opts,
+                                  _els,
+                                  Forwarded,
+                                  [decode_delegated(<<"urn:xmpp:delegation:1">>,
+                                                    __Opts,
+                                                    _el)
+                                   | Delegated]);
+        _ ->
+            decode_delegation_els(__TopXMLNS,
+                                  __Opts,
+                                  _els,
+                                  Forwarded,
+                                  Delegated)
     end;
 decode_delegation_els(__TopXMLNS, __Opts,
-		      [{xmlel, <<"forwarded">>, _attrs, _} = _el | _els],
-		      Forwarded, Delegated) ->
-    case xmpp_codec:get_attr(<<"xmlns">>, _attrs,
-			     __TopXMLNS)
-	of
-      <<"urn:xmpp:forward:0">> ->
-	  decode_delegation_els(__TopXMLNS, __Opts, _els,
-				xep0297:decode_forwarded(<<"urn:xmpp:forward:0">>,
-							 __Opts, _el),
-				Delegated);
-      _ ->
-	  decode_delegation_els(__TopXMLNS, __Opts, _els,
-				Forwarded, Delegated)
+                      [{xmlel, <<"forwarded">>, _attrs, _} = _el | _els],
+                      Forwarded, Delegated) ->
+    case xmpp_codec:get_attr(<<"xmlns">>,
+                             _attrs,
+                             __TopXMLNS)
+        of
+        <<"urn:xmpp:forward:0">> ->
+            decode_delegation_els(__TopXMLNS,
+                                  __Opts,
+                                  _els,
+                                  xep0297:decode_forwarded(<<"urn:xmpp:forward:0">>,
+                                                           __Opts,
+                                                           _el),
+                                  Delegated);
+        _ ->
+            decode_delegation_els(__TopXMLNS,
+                                  __Opts,
+                                  _els,
+                                  Forwarded,
+                                  Delegated)
     end;
 decode_delegation_els(__TopXMLNS, __Opts, [_ | _els],
-		      Forwarded, Delegated) ->
-    decode_delegation_els(__TopXMLNS, __Opts, _els,
-			  Forwarded, Delegated).
+                      Forwarded, Delegated) ->
+    decode_delegation_els(__TopXMLNS,
+                          __Opts,
+                          _els,
+                          Forwarded,
+                          Delegated).
 
 encode_delegation({delegation, Delegated, Forwarded},
-		  __TopXMLNS) ->
+                  __TopXMLNS) ->
     __NewTopXMLNS =
-	xmpp_codec:choose_top_xmlns(<<"urn:xmpp:delegation:1">>,
-				    [], __TopXMLNS),
+        xmpp_codec:choose_top_xmlns(<<"urn:xmpp:delegation:1">>,
+                                    [],
+                                    __TopXMLNS),
     _els =
-	lists:reverse('encode_delegation_$forwarded'(Forwarded,
-						     __NewTopXMLNS,
-						     'encode_delegation_$delegated'(Delegated,
-										    __NewTopXMLNS,
-										    []))),
+        lists:reverse('encode_delegation_$forwarded'(Forwarded,
+                                                     __NewTopXMLNS,
+                                                     'encode_delegation_$delegated'(Delegated,
+                                                                                    __NewTopXMLNS,
+                                                                                    []))),
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
-					__TopXMLNS),
+                                        __TopXMLNS),
     {xmlel, <<"delegation">>, _attrs, _els}.
 
 'encode_delegation_$forwarded'(undefined, __TopXMLNS,
-			       _acc) ->
+                               _acc) ->
     _acc;
 'encode_delegation_$forwarded'(Forwarded, __TopXMLNS,
-			       _acc) ->
+                               _acc) ->
     [xep0297:encode_forwarded(Forwarded, __TopXMLNS)
      | _acc].
 
 'encode_delegation_$delegated'([], __TopXMLNS, _acc) ->
     _acc;
 'encode_delegation_$delegated'([Delegated | _els],
-			       __TopXMLNS, _acc) ->
-    'encode_delegation_$delegated'(_els, __TopXMLNS,
-				   [encode_delegated(Delegated, __TopXMLNS)
-				    | _acc]).
+                               __TopXMLNS, _acc) ->
+    'encode_delegation_$delegated'(_els,
+                                   __TopXMLNS,
+                                   [encode_delegated(Delegated, __TopXMLNS)
+                                    | _acc]).
 
 decode_delegated(__TopXMLNS, __Opts,
-		 {xmlel, <<"delegated">>, _attrs, _els}) ->
-    Attrs = decode_delegated_els(__TopXMLNS, __Opts, _els,
-				 []),
-    Ns = decode_delegated_attrs(__TopXMLNS, _attrs,
-				undefined),
+                 {xmlel, <<"delegated">>, _attrs, _els}) ->
+    Attrs = decode_delegated_els(__TopXMLNS,
+                                 __Opts,
+                                 _els,
+                                 []),
+    Ns = decode_delegated_attrs(__TopXMLNS,
+                                _attrs,
+                                undefined),
     {delegated, Ns, Attrs}.
 
 decode_delegated_els(__TopXMLNS, __Opts, [], Attrs) ->
     lists:reverse(Attrs);
 decode_delegated_els(__TopXMLNS, __Opts,
-		     [{xmlel, <<"attribute">>, _attrs, _} = _el | _els],
-		     Attrs) ->
-    case xmpp_codec:get_attr(<<"xmlns">>, _attrs,
-			     __TopXMLNS)
-	of
-      <<"urn:xmpp:delegation:1">> ->
-	  decode_delegated_els(__TopXMLNS, __Opts, _els,
-			       [decode_delegated_attribute(<<"urn:xmpp:delegation:1">>,
-							   __Opts, _el)
-				| Attrs]);
-      _ ->
-	  decode_delegated_els(__TopXMLNS, __Opts, _els, Attrs)
+                     [{xmlel, <<"attribute">>, _attrs, _} = _el | _els],
+                     Attrs) ->
+    case xmpp_codec:get_attr(<<"xmlns">>,
+                             _attrs,
+                             __TopXMLNS)
+        of
+        <<"urn:xmpp:delegation:1">> ->
+            decode_delegated_els(__TopXMLNS,
+                                 __Opts,
+                                 _els,
+                                 [decode_delegated_attribute(<<"urn:xmpp:delegation:1">>,
+                                                             __Opts,
+                                                             _el)
+                                  | Attrs]);
+        _ ->
+            decode_delegated_els(__TopXMLNS, __Opts, _els, Attrs)
     end;
 decode_delegated_els(__TopXMLNS, __Opts, [_ | _els],
-		     Attrs) ->
+                     Attrs) ->
     decode_delegated_els(__TopXMLNS, __Opts, _els, Attrs).
 
 decode_delegated_attrs(__TopXMLNS,
-		       [{<<"namespace">>, _val} | _attrs], _Ns) ->
+                       [{<<"namespace">>, _val} | _attrs], _Ns) ->
     decode_delegated_attrs(__TopXMLNS, _attrs, _val);
 decode_delegated_attrs(__TopXMLNS, [_ | _attrs], Ns) ->
     decode_delegated_attrs(__TopXMLNS, _attrs, Ns);
@@ -290,27 +342,32 @@ decode_delegated_attrs(__TopXMLNS, [], Ns) ->
 
 encode_delegated({delegated, Ns, Attrs}, __TopXMLNS) ->
     __NewTopXMLNS =
-	xmpp_codec:choose_top_xmlns(<<"urn:xmpp:delegation:1">>,
-				    [], __TopXMLNS),
+        xmpp_codec:choose_top_xmlns(<<"urn:xmpp:delegation:1">>,
+                                    [],
+                                    __TopXMLNS),
     _els = lists:reverse('encode_delegated_$attrs'(Attrs,
-						   __NewTopXMLNS, [])),
+                                                   __NewTopXMLNS,
+                                                   [])),
     _attrs = encode_delegated_attr_namespace(Ns,
-					     xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
-									__TopXMLNS)),
+                                             xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
+                                                                        __TopXMLNS)),
     {xmlel, <<"delegated">>, _attrs, _els}.
 
 'encode_delegated_$attrs'([], __TopXMLNS, _acc) -> _acc;
 'encode_delegated_$attrs'([Attrs | _els], __TopXMLNS,
-			  _acc) ->
-    'encode_delegated_$attrs'(_els, __TopXMLNS,
-			      [encode_delegated_attribute(Attrs, __TopXMLNS)
-			       | _acc]).
+                          _acc) ->
+    'encode_delegated_$attrs'(_els,
+                              __TopXMLNS,
+                              [encode_delegated_attribute(Attrs, __TopXMLNS)
+                               | _acc]).
 
 decode_delegated_attr_namespace(__TopXMLNS,
-				undefined) ->
+                                undefined) ->
     erlang:error({xmpp_codec,
-		  {missing_attr, <<"namespace">>, <<"delegated">>,
-		   __TopXMLNS}});
+                  {missing_attr,
+                   <<"namespace">>,
+                   <<"delegated">>,
+                   __TopXMLNS}});
 decode_delegated_attr_namespace(__TopXMLNS, _val) ->
     _val.
 
@@ -318,40 +375,46 @@ encode_delegated_attr_namespace(_val, _acc) ->
     [{<<"namespace">>, _val} | _acc].
 
 decode_delegated_attribute(__TopXMLNS, __Opts,
-			   {xmlel, <<"attribute">>, _attrs, _els}) ->
+                           {xmlel, <<"attribute">>, _attrs, _els}) ->
     Name = decode_delegated_attribute_attrs(__TopXMLNS,
-					    _attrs, undefined),
+                                            _attrs,
+                                            undefined),
     Name.
 
 decode_delegated_attribute_attrs(__TopXMLNS,
-				 [{<<"name">>, _val} | _attrs], _Name) ->
-    decode_delegated_attribute_attrs(__TopXMLNS, _attrs,
-				     _val);
+                                 [{<<"name">>, _val} | _attrs], _Name) ->
+    decode_delegated_attribute_attrs(__TopXMLNS,
+                                     _attrs,
+                                     _val);
 decode_delegated_attribute_attrs(__TopXMLNS,
-				 [_ | _attrs], Name) ->
-    decode_delegated_attribute_attrs(__TopXMLNS, _attrs,
-				     Name);
+                                 [_ | _attrs], Name) ->
+    decode_delegated_attribute_attrs(__TopXMLNS,
+                                     _attrs,
+                                     Name);
 decode_delegated_attribute_attrs(__TopXMLNS, [],
-				 Name) ->
+                                 Name) ->
     decode_delegated_attribute_attr_name(__TopXMLNS, Name).
 
 encode_delegated_attribute(Name, __TopXMLNS) ->
     __NewTopXMLNS =
-	xmpp_codec:choose_top_xmlns(<<"urn:xmpp:delegation:1">>,
-				    [], __TopXMLNS),
+        xmpp_codec:choose_top_xmlns(<<"urn:xmpp:delegation:1">>,
+                                    [],
+                                    __TopXMLNS),
     _els = [],
     _attrs = encode_delegated_attribute_attr_name(Name,
-						  xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
-									     __TopXMLNS)),
+                                                  xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
+                                                                             __TopXMLNS)),
     {xmlel, <<"attribute">>, _attrs, _els}.
 
 decode_delegated_attribute_attr_name(__TopXMLNS,
-				     undefined) ->
+                                     undefined) ->
     erlang:error({xmpp_codec,
-		  {missing_attr, <<"name">>, <<"attribute">>,
-		   __TopXMLNS}});
+                  {missing_attr,
+                   <<"name">>,
+                   <<"attribute">>,
+                   __TopXMLNS}});
 decode_delegated_attribute_attr_name(__TopXMLNS,
-				     _val) ->
+                                     _val) ->
     _val.
 
 encode_delegated_attribute_attr_name(_val, _acc) ->

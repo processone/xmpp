@@ -6,24 +6,28 @@
 -compile(export_all).
 
 do_decode(<<"sent">>, <<"urn:xmpp:carbons:2">>, El,
-	  Opts) ->
+          Opts) ->
     decode_carbons_sent(<<"urn:xmpp:carbons:2">>, Opts, El);
 do_decode(<<"received">>, <<"urn:xmpp:carbons:2">>, El,
-	  Opts) ->
-    decode_carbons_received(<<"urn:xmpp:carbons:2">>, Opts,
-			    El);
+          Opts) ->
+    decode_carbons_received(<<"urn:xmpp:carbons:2">>,
+                            Opts,
+                            El);
 do_decode(<<"private">>, <<"urn:xmpp:carbons:2">>, El,
-	  Opts) ->
-    decode_carbons_private(<<"urn:xmpp:carbons:2">>, Opts,
-			   El);
+          Opts) ->
+    decode_carbons_private(<<"urn:xmpp:carbons:2">>,
+                           Opts,
+                           El);
 do_decode(<<"enable">>, <<"urn:xmpp:carbons:2">>, El,
-	  Opts) ->
-    decode_carbons_enable(<<"urn:xmpp:carbons:2">>, Opts,
-			  El);
+          Opts) ->
+    decode_carbons_enable(<<"urn:xmpp:carbons:2">>,
+                          Opts,
+                          El);
 do_decode(<<"disable">>, <<"urn:xmpp:carbons:2">>, El,
-	  Opts) ->
-    decode_carbons_disable(<<"urn:xmpp:carbons:2">>, Opts,
-			   El);
+          Opts) ->
+    decode_carbons_disable(<<"urn:xmpp:carbons:2">>,
+                           Opts,
+                           El);
 do_decode(Name, <<>>, _, _) ->
     erlang:error({xmpp_codec, {missing_tag_xmlns, Name}});
 do_decode(Name, XMLNS, _, _) ->
@@ -71,147 +75,176 @@ pp(carbons_sent, 1) -> [forwarded];
 pp(_, _) -> no.
 
 records() ->
-    [{carbons_disable, 0}, {carbons_enable, 0},
-     {carbons_private, 0}, {carbons_received, 1},
+    [{carbons_disable, 0},
+     {carbons_enable, 0},
+     {carbons_private, 0},
+     {carbons_received, 1},
      {carbons_sent, 1}].
 
 decode_carbons_sent(__TopXMLNS, __Opts,
-		    {xmlel, <<"sent">>, _attrs, _els}) ->
-    Forwarded = decode_carbons_sent_els(__TopXMLNS, __Opts,
-					_els, error),
+                    {xmlel, <<"sent">>, _attrs, _els}) ->
+    Forwarded = decode_carbons_sent_els(__TopXMLNS,
+                                        __Opts,
+                                        _els,
+                                        error),
     {carbons_sent, Forwarded}.
 
 decode_carbons_sent_els(__TopXMLNS, __Opts, [],
-			Forwarded) ->
+                        Forwarded) ->
     case Forwarded of
-      error ->
-	  erlang:error({xmpp_codec,
-			{missing_tag, <<"forwarded">>, __TopXMLNS}});
-      {value, Forwarded1} -> Forwarded1
+        error ->
+            erlang:error({xmpp_codec,
+                          {missing_tag, <<"forwarded">>, __TopXMLNS}});
+        {value, Forwarded1} -> Forwarded1
     end;
 decode_carbons_sent_els(__TopXMLNS, __Opts,
-			[{xmlel, <<"forwarded">>, _attrs, _} = _el | _els],
-			Forwarded) ->
-    case xmpp_codec:get_attr(<<"xmlns">>, _attrs,
-			     __TopXMLNS)
-	of
-      <<"urn:xmpp:forward:0">> ->
-	  decode_carbons_sent_els(__TopXMLNS, __Opts, _els,
-				  {value,
-				   xep0297:decode_forwarded(<<"urn:xmpp:forward:0">>,
-							    __Opts, _el)});
-      _ ->
-	  decode_carbons_sent_els(__TopXMLNS, __Opts, _els,
-				  Forwarded)
+                        [{xmlel, <<"forwarded">>, _attrs, _} = _el | _els],
+                        Forwarded) ->
+    case xmpp_codec:get_attr(<<"xmlns">>,
+                             _attrs,
+                             __TopXMLNS)
+        of
+        <<"urn:xmpp:forward:0">> ->
+            decode_carbons_sent_els(__TopXMLNS,
+                                    __Opts,
+                                    _els,
+                                    {value,
+                                     xep0297:decode_forwarded(<<"urn:xmpp:forward:0">>,
+                                                              __Opts,
+                                                              _el)});
+        _ ->
+            decode_carbons_sent_els(__TopXMLNS,
+                                    __Opts,
+                                    _els,
+                                    Forwarded)
     end;
 decode_carbons_sent_els(__TopXMLNS, __Opts, [_ | _els],
-			Forwarded) ->
-    decode_carbons_sent_els(__TopXMLNS, __Opts, _els,
-			    Forwarded).
+                        Forwarded) ->
+    decode_carbons_sent_els(__TopXMLNS,
+                            __Opts,
+                            _els,
+                            Forwarded).
 
 encode_carbons_sent({carbons_sent, Forwarded},
-		    __TopXMLNS) ->
+                    __TopXMLNS) ->
     __NewTopXMLNS =
-	xmpp_codec:choose_top_xmlns(<<"urn:xmpp:carbons:2">>,
-				    [], __TopXMLNS),
+        xmpp_codec:choose_top_xmlns(<<"urn:xmpp:carbons:2">>,
+                                    [],
+                                    __TopXMLNS),
     _els =
-	lists:reverse('encode_carbons_sent_$forwarded'(Forwarded,
-						       __NewTopXMLNS, [])),
+        lists:reverse('encode_carbons_sent_$forwarded'(Forwarded,
+                                                       __NewTopXMLNS,
+                                                       [])),
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
-					__TopXMLNS),
+                                        __TopXMLNS),
     {xmlel, <<"sent">>, _attrs, _els}.
 
 'encode_carbons_sent_$forwarded'(Forwarded, __TopXMLNS,
-				 _acc) ->
+                                 _acc) ->
     [xep0297:encode_forwarded(Forwarded, __TopXMLNS)
      | _acc].
 
 decode_carbons_received(__TopXMLNS, __Opts,
-			{xmlel, <<"received">>, _attrs, _els}) ->
+                        {xmlel, <<"received">>, _attrs, _els}) ->
     Forwarded = decode_carbons_received_els(__TopXMLNS,
-					    __Opts, _els, error),
+                                            __Opts,
+                                            _els,
+                                            error),
     {carbons_received, Forwarded}.
 
 decode_carbons_received_els(__TopXMLNS, __Opts, [],
-			    Forwarded) ->
+                            Forwarded) ->
     case Forwarded of
-      error ->
-	  erlang:error({xmpp_codec,
-			{missing_tag, <<"forwarded">>, __TopXMLNS}});
-      {value, Forwarded1} -> Forwarded1
+        error ->
+            erlang:error({xmpp_codec,
+                          {missing_tag, <<"forwarded">>, __TopXMLNS}});
+        {value, Forwarded1} -> Forwarded1
     end;
 decode_carbons_received_els(__TopXMLNS, __Opts,
-			    [{xmlel, <<"forwarded">>, _attrs, _} = _el | _els],
-			    Forwarded) ->
-    case xmpp_codec:get_attr(<<"xmlns">>, _attrs,
-			     __TopXMLNS)
-	of
-      <<"urn:xmpp:forward:0">> ->
-	  decode_carbons_received_els(__TopXMLNS, __Opts, _els,
-				      {value,
-				       xep0297:decode_forwarded(<<"urn:xmpp:forward:0">>,
-								__Opts, _el)});
-      _ ->
-	  decode_carbons_received_els(__TopXMLNS, __Opts, _els,
-				      Forwarded)
+                            [{xmlel, <<"forwarded">>, _attrs, _} = _el | _els],
+                            Forwarded) ->
+    case xmpp_codec:get_attr(<<"xmlns">>,
+                             _attrs,
+                             __TopXMLNS)
+        of
+        <<"urn:xmpp:forward:0">> ->
+            decode_carbons_received_els(__TopXMLNS,
+                                        __Opts,
+                                        _els,
+                                        {value,
+                                         xep0297:decode_forwarded(<<"urn:xmpp:forward:0">>,
+                                                                  __Opts,
+                                                                  _el)});
+        _ ->
+            decode_carbons_received_els(__TopXMLNS,
+                                        __Opts,
+                                        _els,
+                                        Forwarded)
     end;
 decode_carbons_received_els(__TopXMLNS, __Opts,
-			    [_ | _els], Forwarded) ->
-    decode_carbons_received_els(__TopXMLNS, __Opts, _els,
-				Forwarded).
+                            [_ | _els], Forwarded) ->
+    decode_carbons_received_els(__TopXMLNS,
+                                __Opts,
+                                _els,
+                                Forwarded).
 
 encode_carbons_received({carbons_received, Forwarded},
-			__TopXMLNS) ->
+                        __TopXMLNS) ->
     __NewTopXMLNS =
-	xmpp_codec:choose_top_xmlns(<<"urn:xmpp:carbons:2">>,
-				    [], __TopXMLNS),
+        xmpp_codec:choose_top_xmlns(<<"urn:xmpp:carbons:2">>,
+                                    [],
+                                    __TopXMLNS),
     _els =
-	lists:reverse('encode_carbons_received_$forwarded'(Forwarded,
-							   __NewTopXMLNS, [])),
+        lists:reverse('encode_carbons_received_$forwarded'(Forwarded,
+                                                           __NewTopXMLNS,
+                                                           [])),
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
-					__TopXMLNS),
+                                        __TopXMLNS),
     {xmlel, <<"received">>, _attrs, _els}.
 
 'encode_carbons_received_$forwarded'(Forwarded,
-				     __TopXMLNS, _acc) ->
+                                     __TopXMLNS, _acc) ->
     [xep0297:encode_forwarded(Forwarded, __TopXMLNS)
      | _acc].
 
 decode_carbons_private(__TopXMLNS, __Opts,
-		       {xmlel, <<"private">>, _attrs, _els}) ->
+                       {xmlel, <<"private">>, _attrs, _els}) ->
     {carbons_private}.
 
 encode_carbons_private({carbons_private}, __TopXMLNS) ->
     __NewTopXMLNS =
-	xmpp_codec:choose_top_xmlns(<<"urn:xmpp:carbons:2">>,
-				    [], __TopXMLNS),
+        xmpp_codec:choose_top_xmlns(<<"urn:xmpp:carbons:2">>,
+                                    [],
+                                    __TopXMLNS),
     _els = [],
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
-					__TopXMLNS),
+                                        __TopXMLNS),
     {xmlel, <<"private">>, _attrs, _els}.
 
 decode_carbons_enable(__TopXMLNS, __Opts,
-		      {xmlel, <<"enable">>, _attrs, _els}) ->
+                      {xmlel, <<"enable">>, _attrs, _els}) ->
     {carbons_enable}.
 
 encode_carbons_enable({carbons_enable}, __TopXMLNS) ->
     __NewTopXMLNS =
-	xmpp_codec:choose_top_xmlns(<<"urn:xmpp:carbons:2">>,
-				    [], __TopXMLNS),
+        xmpp_codec:choose_top_xmlns(<<"urn:xmpp:carbons:2">>,
+                                    [],
+                                    __TopXMLNS),
     _els = [],
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
-					__TopXMLNS),
+                                        __TopXMLNS),
     {xmlel, <<"enable">>, _attrs, _els}.
 
 decode_carbons_disable(__TopXMLNS, __Opts,
-		       {xmlel, <<"disable">>, _attrs, _els}) ->
+                       {xmlel, <<"disable">>, _attrs, _els}) ->
     {carbons_disable}.
 
 encode_carbons_disable({carbons_disable}, __TopXMLNS) ->
     __NewTopXMLNS =
-	xmpp_codec:choose_top_xmlns(<<"urn:xmpp:carbons:2">>,
-				    [], __TopXMLNS),
+        xmpp_codec:choose_top_xmlns(<<"urn:xmpp:carbons:2">>,
+                                    [],
+                                    __TopXMLNS),
     _els = [],
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
-					__TopXMLNS),
+                                        __TopXMLNS),
     {xmlel, <<"disable">>, _attrs, _els}.

@@ -27,14 +27,15 @@ pp(_, _) -> no.
 records() -> [{ping, 0}].
 
 decode_ping(__TopXMLNS, __Opts,
-	    {xmlel, <<"ping">>, _attrs, _els}) ->
+            {xmlel, <<"ping">>, _attrs, _els}) ->
     {ping}.
 
 encode_ping({ping}, __TopXMLNS) ->
     __NewTopXMLNS =
-	xmpp_codec:choose_top_xmlns(<<"urn:xmpp:ping">>, [],
-				    __TopXMLNS),
+        xmpp_codec:choose_top_xmlns(<<"urn:xmpp:ping">>,
+                                    [],
+                                    __TopXMLNS),
     _els = [],
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
-					__TopXMLNS),
+                                        __TopXMLNS),
     {xmlel, <<"ping">>, _attrs, _els}.

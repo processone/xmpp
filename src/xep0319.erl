@@ -6,7 +6,7 @@
 -compile(export_all).
 
 do_decode(<<"idle">>, <<"urn:xmpp:idle:1">>, El,
-	  Opts) ->
+          Opts) ->
     decode_idle(<<"urn:xmpp:idle:1">>, Opts, El);
 do_decode(Name, <<>>, _, _) ->
     erlang:error({xmpp_codec, {missing_tag_xmlns, Name}});
@@ -32,13 +32,14 @@ dec_utc(Val) -> xmpp_util:decode_timestamp(Val).
 enc_utc(Val) -> xmpp_util:encode_timestamp(Val).
 
 decode_idle(__TopXMLNS, __Opts,
-	    {xmlel, <<"idle">>, _attrs, _els}) ->
-    Since = decode_idle_attrs(__TopXMLNS, _attrs,
-			      undefined),
+            {xmlel, <<"idle">>, _attrs, _els}) ->
+    Since = decode_idle_attrs(__TopXMLNS,
+                              _attrs,
+                              undefined),
     {idle, Since}.
 
 decode_idle_attrs(__TopXMLNS,
-		  [{<<"since">>, _val} | _attrs], _Since) ->
+                  [{<<"since">>, _val} | _attrs], _Since) ->
     decode_idle_attrs(__TopXMLNS, _attrs, _val);
 decode_idle_attrs(__TopXMLNS, [_ | _attrs], Since) ->
     decode_idle_attrs(__TopXMLNS, _attrs, Since);
@@ -47,23 +48,27 @@ decode_idle_attrs(__TopXMLNS, [], Since) ->
 
 encode_idle({idle, Since}, __TopXMLNS) ->
     __NewTopXMLNS =
-	xmpp_codec:choose_top_xmlns(<<"urn:xmpp:idle:1">>, [],
-				    __TopXMLNS),
+        xmpp_codec:choose_top_xmlns(<<"urn:xmpp:idle:1">>,
+                                    [],
+                                    __TopXMLNS),
     _els = [],
     _attrs = encode_idle_attr_since(Since,
-				    xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
-							       __TopXMLNS)),
+                                    xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
+                                                               __TopXMLNS)),
     {xmlel, <<"idle">>, _attrs, _els}.
 
 decode_idle_attr_since(__TopXMLNS, undefined) ->
     erlang:error({xmpp_codec,
-		  {missing_attr, <<"since">>, <<"idle">>, __TopXMLNS}});
+                  {missing_attr, <<"since">>, <<"idle">>, __TopXMLNS}});
 decode_idle_attr_since(__TopXMLNS, _val) ->
     case catch dec_utc(_val) of
-      {'EXIT', _} ->
-	  erlang:error({xmpp_codec,
-			{bad_attr_value, <<"since">>, <<"idle">>, __TopXMLNS}});
-      _res -> _res
+        {'EXIT', _} ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value,
+                           <<"since">>,
+                           <<"idle">>,
+                           __TopXMLNS}});
+        _res -> _res
     end.
 
 encode_idle_attr_since(_val, _acc) ->

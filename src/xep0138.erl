@@ -6,41 +6,50 @@
 -compile(export_all).
 
 do_decode(<<"compression">>,
-	  <<"http://jabber.org/features/compress">>, El, Opts) ->
+          <<"http://jabber.org/features/compress">>, El, Opts) ->
     decode_compression(<<"http://jabber.org/features/compress">>,
-		       Opts, El);
+                       Opts,
+                       El);
 do_decode(<<"method">>,
-	  <<"http://jabber.org/features/compress">>, El, Opts) ->
+          <<"http://jabber.org/features/compress">>, El, Opts) ->
     decode_compression_method(<<"http://jabber.org/features/compress">>,
-			      Opts, El);
+                              Opts,
+                              El);
 do_decode(<<"compressed">>,
-	  <<"http://jabber.org/protocol/compress">>, El, Opts) ->
+          <<"http://jabber.org/protocol/compress">>, El, Opts) ->
     decode_compressed(<<"http://jabber.org/protocol/compress">>,
-		      Opts, El);
+                      Opts,
+                      El);
 do_decode(<<"compress">>,
-	  <<"http://jabber.org/protocol/compress">>, El, Opts) ->
+          <<"http://jabber.org/protocol/compress">>, El, Opts) ->
     decode_compress(<<"http://jabber.org/protocol/compress">>,
-		    Opts, El);
+                    Opts,
+                    El);
 do_decode(<<"method">>,
-	  <<"http://jabber.org/protocol/compress">>, El, Opts) ->
+          <<"http://jabber.org/protocol/compress">>, El, Opts) ->
     decode_compress_method(<<"http://jabber.org/protocol/compress">>,
-			   Opts, El);
+                           Opts,
+                           El);
 do_decode(<<"failure">>,
-	  <<"http://jabber.org/protocol/compress">>, El, Opts) ->
+          <<"http://jabber.org/protocol/compress">>, El, Opts) ->
     decode_compress_failure(<<"http://jabber.org/protocol/compress">>,
-			    Opts, El);
+                            Opts,
+                            El);
 do_decode(<<"unsupported-method">>,
-	  <<"http://jabber.org/protocol/compress">>, El, Opts) ->
+          <<"http://jabber.org/protocol/compress">>, El, Opts) ->
     decode_compress_failure_unsupported_method(<<"http://jabber.org/protocol/compress">>,
-					       Opts, El);
+                                               Opts,
+                                               El);
 do_decode(<<"processing-failed">>,
-	  <<"http://jabber.org/protocol/compress">>, El, Opts) ->
+          <<"http://jabber.org/protocol/compress">>, El, Opts) ->
     decode_compress_failure_processing_failed(<<"http://jabber.org/protocol/compress">>,
-					      Opts, El);
+                                              Opts,
+                                              El);
 do_decode(<<"setup-failed">>,
-	  <<"http://jabber.org/protocol/compress">>, El, Opts) ->
+          <<"http://jabber.org/protocol/compress">>, El, Opts) ->
     decode_compress_failure_setup_failed(<<"http://jabber.org/protocol/compress">>,
-					 Opts, El);
+                                         Opts,
+                                         El);
 do_decode(Name, <<>>, _, _) ->
     erlang:error({xmpp_codec, {missing_tag_xmlns, Name}});
 do_decode(Name, XMLNS, _, _) ->
@@ -96,84 +105,106 @@ pp(compression, 1) -> [methods];
 pp(_, _) -> no.
 
 records() ->
-    [{compress_failure, 1}, {compress, 1}, {compressed, 0},
+    [{compress_failure, 1},
+     {compress, 1},
+     {compressed, 0},
      {compression, 1}].
 
 decode_compression(__TopXMLNS, __Opts,
-		   {xmlel, <<"compression">>, _attrs, _els}) ->
-    Methods = decode_compression_els(__TopXMLNS, __Opts,
-				     _els, []),
+                   {xmlel, <<"compression">>, _attrs, _els}) ->
+    Methods = decode_compression_els(__TopXMLNS,
+                                     __Opts,
+                                     _els,
+                                     []),
     {compression, Methods}.
 
 decode_compression_els(__TopXMLNS, __Opts, [],
-		       Methods) ->
+                       Methods) ->
     lists:reverse(Methods);
 decode_compression_els(__TopXMLNS, __Opts,
-		       [{xmlel, <<"method">>, _attrs, _} = _el | _els],
-		       Methods) ->
-    case xmpp_codec:get_attr(<<"xmlns">>, _attrs,
-			     __TopXMLNS)
-	of
-      <<"http://jabber.org/features/compress">> ->
-	  decode_compression_els(__TopXMLNS, __Opts, _els,
-				 [decode_compression_method(<<"http://jabber.org/features/compress">>,
-							    __Opts, _el)
-				  | Methods]);
-      _ ->
-	  decode_compression_els(__TopXMLNS, __Opts, _els,
-				 Methods)
+                       [{xmlel, <<"method">>, _attrs, _} = _el | _els],
+                       Methods) ->
+    case xmpp_codec:get_attr(<<"xmlns">>,
+                             _attrs,
+                             __TopXMLNS)
+        of
+        <<"http://jabber.org/features/compress">> ->
+            decode_compression_els(__TopXMLNS,
+                                   __Opts,
+                                   _els,
+                                   [decode_compression_method(<<"http://jabber.org/features/compress">>,
+                                                              __Opts,
+                                                              _el)
+                                    | Methods]);
+        _ ->
+            decode_compression_els(__TopXMLNS,
+                                   __Opts,
+                                   _els,
+                                   Methods)
     end;
 decode_compression_els(__TopXMLNS, __Opts, [_ | _els],
-		       Methods) ->
-    decode_compression_els(__TopXMLNS, __Opts, _els,
-			   Methods).
+                       Methods) ->
+    decode_compression_els(__TopXMLNS,
+                           __Opts,
+                           _els,
+                           Methods).
 
 encode_compression({compression, Methods},
-		   __TopXMLNS) ->
+                   __TopXMLNS) ->
     __NewTopXMLNS =
-	xmpp_codec:choose_top_xmlns(<<"http://jabber.org/features/compress">>,
-				    [], __TopXMLNS),
+        xmpp_codec:choose_top_xmlns(<<"http://jabber.org/features/compress">>,
+                                    [],
+                                    __TopXMLNS),
     _els =
-	lists:reverse('encode_compression_$methods'(Methods,
-						    __NewTopXMLNS, [])),
+        lists:reverse('encode_compression_$methods'(Methods,
+                                                    __NewTopXMLNS,
+                                                    [])),
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
-					__TopXMLNS),
+                                        __TopXMLNS),
     {xmlel, <<"compression">>, _attrs, _els}.
 
 'encode_compression_$methods'([], __TopXMLNS, _acc) ->
     _acc;
 'encode_compression_$methods'([Methods | _els],
-			      __TopXMLNS, _acc) ->
-    'encode_compression_$methods'(_els, __TopXMLNS,
-				  [encode_compression_method(Methods,
-							     __TopXMLNS)
-				   | _acc]).
+                              __TopXMLNS, _acc) ->
+    'encode_compression_$methods'(_els,
+                                  __TopXMLNS,
+                                  [encode_compression_method(Methods,
+                                                             __TopXMLNS)
+                                   | _acc]).
 
 decode_compression_method(__TopXMLNS, __Opts,
-			  {xmlel, <<"method">>, _attrs, _els}) ->
+                          {xmlel, <<"method">>, _attrs, _els}) ->
     Cdata = decode_compression_method_els(__TopXMLNS,
-					  __Opts, _els, <<>>),
+                                          __Opts,
+                                          _els,
+                                          <<>>),
     Cdata.
 
 decode_compression_method_els(__TopXMLNS, __Opts, [],
-			      Cdata) ->
+                              Cdata) ->
     decode_compression_method_cdata(__TopXMLNS, Cdata);
 decode_compression_method_els(__TopXMLNS, __Opts,
-			      [{xmlcdata, _data} | _els], Cdata) ->
-    decode_compression_method_els(__TopXMLNS, __Opts, _els,
-				  <<Cdata/binary, _data/binary>>);
+                              [{xmlcdata, _data} | _els], Cdata) ->
+    decode_compression_method_els(__TopXMLNS,
+                                  __Opts,
+                                  _els,
+                                  <<Cdata/binary, _data/binary>>);
 decode_compression_method_els(__TopXMLNS, __Opts,
-			      [_ | _els], Cdata) ->
-    decode_compression_method_els(__TopXMLNS, __Opts, _els,
-				  Cdata).
+                              [_ | _els], Cdata) ->
+    decode_compression_method_els(__TopXMLNS,
+                                  __Opts,
+                                  _els,
+                                  Cdata).
 
 encode_compression_method(Cdata, __TopXMLNS) ->
     __NewTopXMLNS =
-	xmpp_codec:choose_top_xmlns(<<"http://jabber.org/features/compress">>,
-				    [], __TopXMLNS),
+        xmpp_codec:choose_top_xmlns(<<"http://jabber.org/features/compress">>,
+                                    [],
+                                    __TopXMLNS),
     _els = encode_compression_method_cdata(Cdata, []),
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
-					__TopXMLNS),
+                                        __TopXMLNS),
     {xmlel, <<"method">>, _attrs, _els}.
 
 decode_compression_method_cdata(__TopXMLNS, <<>>) ->
@@ -186,87 +217,104 @@ encode_compression_method_cdata(_val, _acc) ->
     [{xmlcdata, _val} | _acc].
 
 decode_compressed(__TopXMLNS, __Opts,
-		  {xmlel, <<"compressed">>, _attrs, _els}) ->
+                  {xmlel, <<"compressed">>, _attrs, _els}) ->
     {compressed}.
 
 encode_compressed({compressed}, __TopXMLNS) ->
     __NewTopXMLNS =
-	xmpp_codec:choose_top_xmlns(<<"http://jabber.org/protocol/compress">>,
-				    [], __TopXMLNS),
+        xmpp_codec:choose_top_xmlns(<<"http://jabber.org/protocol/compress">>,
+                                    [],
+                                    __TopXMLNS),
     _els = [],
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
-					__TopXMLNS),
+                                        __TopXMLNS),
     {xmlel, <<"compressed">>, _attrs, _els}.
 
 decode_compress(__TopXMLNS, __Opts,
-		{xmlel, <<"compress">>, _attrs, _els}) ->
-    Methods = decode_compress_els(__TopXMLNS, __Opts, _els,
-				  []),
+                {xmlel, <<"compress">>, _attrs, _els}) ->
+    Methods = decode_compress_els(__TopXMLNS,
+                                  __Opts,
+                                  _els,
+                                  []),
     {compress, Methods}.
 
 decode_compress_els(__TopXMLNS, __Opts, [], Methods) ->
     lists:reverse(Methods);
 decode_compress_els(__TopXMLNS, __Opts,
-		    [{xmlel, <<"method">>, _attrs, _} = _el | _els],
-		    Methods) ->
-    case xmpp_codec:get_attr(<<"xmlns">>, _attrs,
-			     __TopXMLNS)
-	of
-      <<"http://jabber.org/protocol/compress">> ->
-	  decode_compress_els(__TopXMLNS, __Opts, _els,
-			      [decode_compress_method(<<"http://jabber.org/protocol/compress">>,
-						      __Opts, _el)
-			       | Methods]);
-      _ ->
-	  decode_compress_els(__TopXMLNS, __Opts, _els, Methods)
+                    [{xmlel, <<"method">>, _attrs, _} = _el | _els],
+                    Methods) ->
+    case xmpp_codec:get_attr(<<"xmlns">>,
+                             _attrs,
+                             __TopXMLNS)
+        of
+        <<"http://jabber.org/protocol/compress">> ->
+            decode_compress_els(__TopXMLNS,
+                                __Opts,
+                                _els,
+                                [decode_compress_method(<<"http://jabber.org/protocol/compress">>,
+                                                        __Opts,
+                                                        _el)
+                                 | Methods]);
+        _ ->
+            decode_compress_els(__TopXMLNS, __Opts, _els, Methods)
     end;
 decode_compress_els(__TopXMLNS, __Opts, [_ | _els],
-		    Methods) ->
+                    Methods) ->
     decode_compress_els(__TopXMLNS, __Opts, _els, Methods).
 
 encode_compress({compress, Methods}, __TopXMLNS) ->
     __NewTopXMLNS =
-	xmpp_codec:choose_top_xmlns(<<"http://jabber.org/protocol/compress">>,
-				    [], __TopXMLNS),
+        xmpp_codec:choose_top_xmlns(<<"http://jabber.org/protocol/compress">>,
+                                    [],
+                                    __TopXMLNS),
     _els = lists:reverse('encode_compress_$methods'(Methods,
-						    __NewTopXMLNS, [])),
+                                                    __NewTopXMLNS,
+                                                    [])),
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
-					__TopXMLNS),
+                                        __TopXMLNS),
     {xmlel, <<"compress">>, _attrs, _els}.
 
 'encode_compress_$methods'([], __TopXMLNS, _acc) ->
     _acc;
 'encode_compress_$methods'([Methods | _els], __TopXMLNS,
-			   _acc) ->
-    'encode_compress_$methods'(_els, __TopXMLNS,
-			       [encode_compress_method(Methods, __TopXMLNS)
-				| _acc]).
+                           _acc) ->
+    'encode_compress_$methods'(_els,
+                               __TopXMLNS,
+                               [encode_compress_method(Methods, __TopXMLNS)
+                                | _acc]).
 
 decode_compress_method(__TopXMLNS, __Opts,
-		       {xmlel, <<"method">>, _attrs, _els}) ->
-    Cdata = decode_compress_method_els(__TopXMLNS, __Opts,
-				       _els, <<>>),
+                       {xmlel, <<"method">>, _attrs, _els}) ->
+    Cdata = decode_compress_method_els(__TopXMLNS,
+                                       __Opts,
+                                       _els,
+                                       <<>>),
     Cdata.
 
 decode_compress_method_els(__TopXMLNS, __Opts, [],
-			   Cdata) ->
+                           Cdata) ->
     decode_compress_method_cdata(__TopXMLNS, Cdata);
 decode_compress_method_els(__TopXMLNS, __Opts,
-			   [{xmlcdata, _data} | _els], Cdata) ->
-    decode_compress_method_els(__TopXMLNS, __Opts, _els,
-			       <<Cdata/binary, _data/binary>>);
+                           [{xmlcdata, _data} | _els], Cdata) ->
+    decode_compress_method_els(__TopXMLNS,
+                               __Opts,
+                               _els,
+                               <<Cdata/binary, _data/binary>>);
 decode_compress_method_els(__TopXMLNS, __Opts,
-			   [_ | _els], Cdata) ->
-    decode_compress_method_els(__TopXMLNS, __Opts, _els,
-			       Cdata).
+                           [_ | _els], Cdata) ->
+    decode_compress_method_els(__TopXMLNS,
+                               __Opts,
+                               _els,
+                               Cdata).
 
 encode_compress_method(Cdata, __TopXMLNS) ->
     __NewTopXMLNS =
-	xmpp_codec:choose_top_xmlns(<<"http://jabber.org/protocol/compress">>,
-				    [], __TopXMLNS),
+        xmpp_codec:choose_top_xmlns(<<"http://jabber.org/protocol/compress">>,
+                                    [],
+                                    __TopXMLNS),
     _els = encode_compress_method_cdata(Cdata, []),
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
-					__TopXMLNS),
+                                        __TopXMLNS),
     {xmlel, <<"method">>, _attrs, _els}.
 
 decode_compress_method_cdata(__TopXMLNS, <<>>) -> <<>>;
@@ -277,144 +325,174 @@ encode_compress_method_cdata(_val, _acc) ->
     [{xmlcdata, _val} | _acc].
 
 decode_compress_failure(__TopXMLNS, __Opts,
-			{xmlel, <<"failure">>, _attrs, _els}) ->
-    Reason = decode_compress_failure_els(__TopXMLNS, __Opts,
-					 _els, undefined),
+                        {xmlel, <<"failure">>, _attrs, _els}) ->
+    Reason = decode_compress_failure_els(__TopXMLNS,
+                                         __Opts,
+                                         _els,
+                                         undefined),
     {compress_failure, Reason}.
 
 decode_compress_failure_els(__TopXMLNS, __Opts, [],
-			    Reason) ->
+                            Reason) ->
     Reason;
 decode_compress_failure_els(__TopXMLNS, __Opts,
-			    [{xmlel, <<"setup-failed">>, _attrs, _} = _el
-			     | _els],
-			    Reason) ->
-    case xmpp_codec:get_attr(<<"xmlns">>, _attrs,
-			     __TopXMLNS)
-	of
-      <<"http://jabber.org/protocol/compress">> ->
-	  decode_compress_failure_els(__TopXMLNS, __Opts, _els,
-				      decode_compress_failure_setup_failed(<<"http://jabber.org/protocol/compress">>,
-									   __Opts,
-									   _el));
-      _ ->
-	  decode_compress_failure_els(__TopXMLNS, __Opts, _els,
-				      Reason)
+                            [{xmlel, <<"setup-failed">>, _attrs, _} = _el
+                             | _els],
+                            Reason) ->
+    case xmpp_codec:get_attr(<<"xmlns">>,
+                             _attrs,
+                             __TopXMLNS)
+        of
+        <<"http://jabber.org/protocol/compress">> ->
+            decode_compress_failure_els(__TopXMLNS,
+                                        __Opts,
+                                        _els,
+                                        decode_compress_failure_setup_failed(<<"http://jabber.org/protocol/compress">>,
+                                                                             __Opts,
+                                                                             _el));
+        _ ->
+            decode_compress_failure_els(__TopXMLNS,
+                                        __Opts,
+                                        _els,
+                                        Reason)
     end;
 decode_compress_failure_els(__TopXMLNS, __Opts,
-			    [{xmlel, <<"processing-failed">>, _attrs, _} = _el
-			     | _els],
-			    Reason) ->
-    case xmpp_codec:get_attr(<<"xmlns">>, _attrs,
-			     __TopXMLNS)
-	of
-      <<"http://jabber.org/protocol/compress">> ->
-	  decode_compress_failure_els(__TopXMLNS, __Opts, _els,
-				      decode_compress_failure_processing_failed(<<"http://jabber.org/protocol/compress">>,
-										__Opts,
-										_el));
-      _ ->
-	  decode_compress_failure_els(__TopXMLNS, __Opts, _els,
-				      Reason)
+                            [{xmlel, <<"processing-failed">>, _attrs, _} = _el
+                             | _els],
+                            Reason) ->
+    case xmpp_codec:get_attr(<<"xmlns">>,
+                             _attrs,
+                             __TopXMLNS)
+        of
+        <<"http://jabber.org/protocol/compress">> ->
+            decode_compress_failure_els(__TopXMLNS,
+                                        __Opts,
+                                        _els,
+                                        decode_compress_failure_processing_failed(<<"http://jabber.org/protocol/compress">>,
+                                                                                  __Opts,
+                                                                                  _el));
+        _ ->
+            decode_compress_failure_els(__TopXMLNS,
+                                        __Opts,
+                                        _els,
+                                        Reason)
     end;
 decode_compress_failure_els(__TopXMLNS, __Opts,
-			    [{xmlel, <<"unsupported-method">>, _attrs, _} = _el
-			     | _els],
-			    Reason) ->
-    case xmpp_codec:get_attr(<<"xmlns">>, _attrs,
-			     __TopXMLNS)
-	of
-      <<"http://jabber.org/protocol/compress">> ->
-	  decode_compress_failure_els(__TopXMLNS, __Opts, _els,
-				      decode_compress_failure_unsupported_method(<<"http://jabber.org/protocol/compress">>,
-										 __Opts,
-										 _el));
-      _ ->
-	  decode_compress_failure_els(__TopXMLNS, __Opts, _els,
-				      Reason)
+                            [{xmlel, <<"unsupported-method">>, _attrs, _} = _el
+                             | _els],
+                            Reason) ->
+    case xmpp_codec:get_attr(<<"xmlns">>,
+                             _attrs,
+                             __TopXMLNS)
+        of
+        <<"http://jabber.org/protocol/compress">> ->
+            decode_compress_failure_els(__TopXMLNS,
+                                        __Opts,
+                                        _els,
+                                        decode_compress_failure_unsupported_method(<<"http://jabber.org/protocol/compress">>,
+                                                                                   __Opts,
+                                                                                   _el));
+        _ ->
+            decode_compress_failure_els(__TopXMLNS,
+                                        __Opts,
+                                        _els,
+                                        Reason)
     end;
 decode_compress_failure_els(__TopXMLNS, __Opts,
-			    [_ | _els], Reason) ->
-    decode_compress_failure_els(__TopXMLNS, __Opts, _els,
-				Reason).
+                            [_ | _els], Reason) ->
+    decode_compress_failure_els(__TopXMLNS,
+                                __Opts,
+                                _els,
+                                Reason).
 
 encode_compress_failure({compress_failure, Reason},
-			__TopXMLNS) ->
+                        __TopXMLNS) ->
     __NewTopXMLNS =
-	xmpp_codec:choose_top_xmlns(<<"http://jabber.org/protocol/compress">>,
-				    [], __TopXMLNS),
+        xmpp_codec:choose_top_xmlns(<<"http://jabber.org/protocol/compress">>,
+                                    [],
+                                    __TopXMLNS),
     _els =
-	lists:reverse('encode_compress_failure_$reason'(Reason,
-							__NewTopXMLNS, [])),
+        lists:reverse('encode_compress_failure_$reason'(Reason,
+                                                        __NewTopXMLNS,
+                                                        [])),
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
-					__TopXMLNS),
+                                        __TopXMLNS),
     {xmlel, <<"failure">>, _attrs, _els}.
 
 'encode_compress_failure_$reason'(undefined, __TopXMLNS,
-				  _acc) ->
+                                  _acc) ->
     _acc;
 'encode_compress_failure_$reason'('setup-failed' =
-				      Reason,
-				  __TopXMLNS, _acc) ->
+                                      Reason,
+                                  __TopXMLNS, _acc) ->
     [encode_compress_failure_setup_failed(Reason,
-					  __TopXMLNS)
+                                          __TopXMLNS)
      | _acc];
 'encode_compress_failure_$reason'('processing-failed' =
-				      Reason,
-				  __TopXMLNS, _acc) ->
+                                      Reason,
+                                  __TopXMLNS, _acc) ->
     [encode_compress_failure_processing_failed(Reason,
-					       __TopXMLNS)
+                                               __TopXMLNS)
      | _acc];
 'encode_compress_failure_$reason'('unsupported-method' =
-				      Reason,
-				  __TopXMLNS, _acc) ->
+                                      Reason,
+                                  __TopXMLNS, _acc) ->
     [encode_compress_failure_unsupported_method(Reason,
-						__TopXMLNS)
+                                                __TopXMLNS)
      | _acc].
 
 decode_compress_failure_unsupported_method(__TopXMLNS,
-					   __Opts,
-					   {xmlel, <<"unsupported-method">>,
-					    _attrs, _els}) ->
+                                           __Opts,
+                                           {xmlel,
+                                            <<"unsupported-method">>,
+                                            _attrs,
+                                            _els}) ->
     'unsupported-method'.
 
 encode_compress_failure_unsupported_method('unsupported-method',
-					   __TopXMLNS) ->
+                                           __TopXMLNS) ->
     __NewTopXMLNS =
-	xmpp_codec:choose_top_xmlns(<<"http://jabber.org/protocol/compress">>,
-				    [], __TopXMLNS),
+        xmpp_codec:choose_top_xmlns(<<"http://jabber.org/protocol/compress">>,
+                                    [],
+                                    __TopXMLNS),
     _els = [],
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
-					__TopXMLNS),
+                                        __TopXMLNS),
     {xmlel, <<"unsupported-method">>, _attrs, _els}.
 
 decode_compress_failure_processing_failed(__TopXMLNS,
-					  __Opts,
-					  {xmlel, <<"processing-failed">>,
-					   _attrs, _els}) ->
+                                          __Opts,
+                                          {xmlel,
+                                           <<"processing-failed">>,
+                                           _attrs,
+                                           _els}) ->
     'processing-failed'.
 
 encode_compress_failure_processing_failed('processing-failed',
-					  __TopXMLNS) ->
+                                          __TopXMLNS) ->
     __NewTopXMLNS =
-	xmpp_codec:choose_top_xmlns(<<"http://jabber.org/protocol/compress">>,
-				    [], __TopXMLNS),
+        xmpp_codec:choose_top_xmlns(<<"http://jabber.org/protocol/compress">>,
+                                    [],
+                                    __TopXMLNS),
     _els = [],
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
-					__TopXMLNS),
+                                        __TopXMLNS),
     {xmlel, <<"processing-failed">>, _attrs, _els}.
 
 decode_compress_failure_setup_failed(__TopXMLNS, __Opts,
-				     {xmlel, <<"setup-failed">>, _attrs,
-				      _els}) ->
+                                     {xmlel,
+                                      <<"setup-failed">>,
+                                      _attrs,
+                                      _els}) ->
     'setup-failed'.
 
 encode_compress_failure_setup_failed('setup-failed',
-				     __TopXMLNS) ->
+                                     __TopXMLNS) ->
     __NewTopXMLNS =
-	xmpp_codec:choose_top_xmlns(<<"http://jabber.org/protocol/compress">>,
-				    [], __TopXMLNS),
+        xmpp_codec:choose_top_xmlns(<<"http://jabber.org/protocol/compress">>,
+                                    [],
+                                    __TopXMLNS),
     _els = [],
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
-					__TopXMLNS),
+                                        __TopXMLNS),
     {xmlel, <<"setup-failed">>, _attrs, _els}.
