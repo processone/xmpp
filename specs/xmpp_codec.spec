@@ -3080,13 +3080,19 @@
 	   result = '$cdata',
 	   cdata = #cdata{required = true}}).
 
+-xml(mam_flip_page,
+     #elem{name = <<"flip-page">>,
+	   xmlns = <<"urn:xmpp:mam:2">>,
+	   module = 'xep0313',
+	   result = 'true'}).
+
 -xml(mam_query,
      #elem{name = <<"query">>,
            xmlns = [<<"urn:xmpp:mam:0">>, <<"urn:xmpp:mam:1">>,
 		    <<"urn:xmpp:mam:2">>, <<"urn:xmpp:mam:tmp">>],
 	   module = 'xep0313',
            result = {mam_query, '$xmlns', '$id', '$start', '$end', '$with',
-		     '$withtext', '$rsm', '$xdata'},
+		     '$withtext', '$rsm', '$flippage', '$xdata'},
            attrs = [#attr{name = <<"queryid">>, label = '$id'},
 		    #attr{name = <<"xmlns">>}],
            refs = [#ref{name = mam_start, min = 0, max = 1, label = '$start'},
@@ -3094,6 +3100,8 @@
                    #ref{name = mam_with, min = 0, max = 1, label = '$with'},
 		   #ref{name = mam_withtext, min = 0, max = 1, label = '$withtext'},
                    #ref{name = rsm_set, min = 0, max = 1, label = '$rsm'},
+                   #ref{name = mam_flip_page, min = 0, max = 1,
+                        label = '$flippage', default = false},
 		   #ref{name = xdata, min = 0, max = 1, label = '$xdata'}]}).
 
 -xml(mam_archived,
