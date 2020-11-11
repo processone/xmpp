@@ -1,5 +1,9 @@
 # Version 1.4.10
 
+* Updating ezlib to version 1.0.9.
+* Updating fast_tls to version 1.1.9.
+* Updating fast_xml to version 1.1.44.
+* Updating stringprep to version 1.0.23.
 * Add support for MAM Flipped Pages
 * Exclude old OTP releases from Travis
 * Support building specs with rebar3

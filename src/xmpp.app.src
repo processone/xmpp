@@ -24,7 +24,7 @@
 
 {application, xmpp,
  [{description,  "Erlang/Elixir XMPP parsing and serialization library"},
-  {vsn,          "1.4.9"},
+  {vsn,          "1.4.10"},
   {modules,      []},
   {registered,   []},
   {applications, [kernel, stdlib]},
