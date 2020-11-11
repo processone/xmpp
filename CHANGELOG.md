@@ -1,3 +1,9 @@
+# Version 1.4.10
+
+* Add support for MAM Flipped Pages
+* Exclude old OTP releases from Travis
+* Support building specs with rebar3
+
 # Version 1.4.9
 
 * Updating p1_utils to version 1.0.20.
