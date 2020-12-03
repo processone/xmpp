@@ -19,7 +19,7 @@
 -behaviour(xmpp_sasl).
 -author('alexey@process-one.net').
 
--export([mech_new/4, mech_step/2, format_error/1]).
+-export([mech_new/6, mech_step/2, format_error/1]).
 %% For tests
 -export([parse/1]).
 
@@ -33,7 +33,7 @@ format_error(parser_failed) ->
 format_error(not_authorized) ->
     {'not-authorized', <<"Invalid username or password">>}.
 
-mech_new(_Host, _GetPassword, CheckPassword, _CheckPasswordDigest) ->
+mech_new(_Mech, _Socket, _Host, _GetPassword, CheckPassword, _CheckPasswordDigest) ->
     #state{check_password = CheckPassword}.
 
 mech_step(State, ClientIn) ->

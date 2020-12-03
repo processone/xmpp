@@ -873,7 +873,7 @@ process_starttls_failure(Why, State) ->
 
 -spec process_sasl_request(sasl_auth(), state()) -> state().
 process_sasl_request(#sasl_auth{mechanism = Mech, text = ClientIn},
-		     #{lserver := LServer} = State) ->
+		     #{lserver := LServer, socket := Socket} = State) ->
     State1 = State#{sasl_mech => Mech},
     Mechs = get_sasl_mechanisms(State1),
     case lists:member(Mech, Mechs) of
@@ -890,7 +890,7 @@ process_sasl_request(#sasl_auth{mechanism = Mech, text = ClientIn},
 	    CheckPW = check_password_fun(Mech, State1),
 	    CheckPWDigest = check_password_digest_fun(Mech, State1),
 	    SASLState = xmpp_sasl:server_new(LServer, GetPW, CheckPW, CheckPWDigest),
-	    Res = xmpp_sasl:server_start(SASLState, Mech, ClientIn),
+	    Res = xmpp_sasl:server_start(SASLState, Mech, ClientIn, Socket),
 	    process_sasl_result(Res, State1#{sasl_state => SASLState});
 	false ->
 	    process_sasl_result({error, unsupported_mechanism, <<"">>}, State1)

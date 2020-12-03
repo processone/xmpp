@@ -18,7 +18,7 @@
 -module(xmpp_sasl).
 -author('alexey@process-one.net').
 
--export([server_new/4, server_start/3, server_step/2,
+-export([server_new/4, server_start/4, server_step/2,
 	 listmech/0, format_error/2]).
 
 %% TODO: write correct types for these callbacks
@@ -57,7 +57,8 @@
 -export_type([mechanism/0, error_reason/0,
 	      sasl_state/0, sasl_return/0, sasl_property/0]).
 
--callback mech_new(binary(),
+-callback mech_new(binary(), xmpp_socket:socket(),
+		   binary(),
 		   get_password_fun(),
 		   check_password_fun(),
 		   check_password_digest_fun()) -> mech_state().
@@ -86,7 +87,10 @@ format_error(Mech, Reason) ->
 -spec listmech() -> [mechanism()].
 listmech() ->
     [<<"ANONYMOUS">>,<<"DIGEST-MD5">>,<<"PLAIN">>,
-     <<"SCRAM-SHA-1">>,<<"X-OAUTH2">>].
+     <<"SCRAM-SHA-512-PLUS">>, <<"SCRAM-SHA-512">>,
+     <<"SCRAM-SHA-256-PLUS">>, <<"SCRAM-SHA-256">>,
+     <<"SCRAM-SHA-1-PLUS">>, <<"SCRAM-SHA-1">>,
+     <<"X-OAUTH2">>].
 
 -spec server_new(binary(),
 		 get_password_fun(),
@@ -98,13 +102,14 @@ server_new(ServerHost, GetPassword, CheckPassword, CheckPasswordDigest) ->
 		check_password = CheckPassword,
 		check_password_digest = CheckPasswordDigest}.
 
--spec server_start(sasl_state(), mechanism(), binary()) -> sasl_return().
-server_start(State, Mech, ClientIn) ->
+-spec server_start(sasl_state(), mechanism(), binary(), xmpp_socket:socket()) -> sasl_return().
+server_start(State, Mech, ClientIn, Socket) ->
     case get_mod(Mech) of
 	undefined ->
 	    {error, unsupported_mechanism, <<"">>};
 	Module ->
-	    MechState = Module:mech_new(State#sasl_state.server_host,
+	    MechState = Module:mech_new(Mech, Socket,
+					State#sasl_state.server_host,
 					State#sasl_state.get_password,
 					State#sasl_state.check_password,
 					State#sasl_state.check_password_digest),
@@ -150,8 +155,13 @@ check_credentials(Props) ->
 
 -spec get_mod(binary()) -> sasl_module() | undefined.
 get_mod(<<"ANONYMOUS">>) -> xmpp_sasl_anonymous;
-get_mod(<<"DIGEST-MD5">>) -> xmpp_sasl_digest;    
+get_mod(<<"DIGEST-MD5">>) -> xmpp_sasl_digest;
 get_mod(<<"X-OAUTH2">>) -> xmpp_sasl_oauth;
 get_mod(<<"PLAIN">>) -> xmpp_sasl_plain;
 get_mod(<<"SCRAM-SHA-1">>) -> xmpp_sasl_scram;
+get_mod(<<"SCRAM-SHA-1-PLUS">>) -> xmpp_sasl_scram;
+get_mod(<<"SCRAM-SHA-256-PLUS">>) -> xmpp_sasl_scram;
+get_mod(<<"SCRAM-SHA-256">>) -> xmpp_sasl_scram;
+get_mod(<<"SCRAM-SHA-512">>) -> xmpp_sasl_scram;
+get_mod(<<"SCRAM-SHA-512-PLUS">>) -> xmpp_sasl_scram;
 get_mod(_) -> undefined.

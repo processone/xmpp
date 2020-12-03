@@ -20,7 +20,7 @@
 -author('alexey@sevcom.net').
 -dialyzer({no_match, [get_local_fqdn/1]}).
 
--export([mech_new/4, mech_step/2, format_error/1]).
+-export([mech_new/6, mech_step/2, format_error/1]).
 %% For tests
 -export([parse/1]).
 
@@ -54,7 +54,7 @@ format_error(not_authorized) ->
 format_error(unexpected_response) ->
     {'not-authorized', <<"Unexpected response">>}.
 
-mech_new(Host, GetPassword, _CheckPassword, CheckPasswordDigest) ->
+mech_new(_Mech, _Socket, Host, GetPassword, _CheckPassword, CheckPasswordDigest) ->
     #state{step = 1, nonce = p1_rand:get_string(),
 	   host = Host, hostfqdn = get_local_fqdn(Host),
 	   get_password = GetPassword,

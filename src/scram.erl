@@ -21,58 +21,59 @@
 
 %% External exports
 %% SASLPREP is not implemented, so we use the similar RESOURCEPREP instead
--export([salted_password/3, stored_key/1, server_key/1,
-	 server_signature/2, client_signature/2, client_key/1,
-	 client_key/2]).
+-export([salted_password/4, stored_key/2, server_key/2,
+         server_signature/3, client_signature/3, client_key/2,
+         client_key_xor/2]).
 
--spec salted_password(binary(), binary(), non_neg_integer()) -> binary().
+-type algo() :: sha | sha256 | sha512.
+-spec salted_password(algo(), binary(), binary(), non_neg_integer()) -> binary().
 
-salted_password(Password, Salt, IterationCount) ->
-    hi(jid:resourceprep(Password), Salt, IterationCount).
+salted_password(Algo, Password, Salt, IterationCount) ->
+    hi(Algo, jid:resourceprep(Password), Salt, IterationCount).
 
--spec client_key(binary()) -> binary().
+-spec client_key(algo(), binary()) -> binary().
 
-client_key(SaltedPassword) ->
-    sha_mac(SaltedPassword, <<"Client Key">>).
+client_key(Algo, SaltedPassword) ->
+    sha_mac(Algo, SaltedPassword, <<"Client Key">>).
 
--spec stored_key(binary()) -> binary().
+-spec stored_key(algo(), binary()) -> binary().
 
-stored_key(ClientKey) -> crypto:hash(sha, ClientKey).
+stored_key(Algo, ClientKey) -> crypto:hash(Algo, ClientKey).
 
--spec server_key(binary()) -> binary().
+-spec server_key(algo(), binary()) -> binary().
 
-server_key(SaltedPassword) ->
-    sha_mac(SaltedPassword, <<"Server Key">>).
+server_key(Algo, SaltedPassword) ->
+    sha_mac(Algo, SaltedPassword, <<"Server Key">>).
 
--spec client_signature(binary(), binary()) -> binary().
+-spec client_signature(algo(), binary(), binary()) -> binary().
 
-client_signature(StoredKey, AuthMessage) ->
-    sha_mac(StoredKey, AuthMessage).
+client_signature(Algo, StoredKey, AuthMessage) ->
+    sha_mac(Algo, StoredKey, AuthMessage).
 
--spec client_key(binary(), binary()) -> binary().
+-spec client_key_xor(binary(), binary()) -> binary().
 
-client_key(ClientProof, ClientSignature) ->
+client_key_xor(ClientProof, ClientSignature) ->
     crypto:exor(ClientProof, ClientSignature).
 
--spec server_signature(binary(), binary()) -> binary().
+-spec server_signature(algo(), binary(), binary()) -> binary().
 
-server_signature(ServerKey, AuthMessage) ->
-    sha_mac(ServerKey, AuthMessage).
+server_signature(Algo, ServerKey, AuthMessage) ->
+    sha_mac(Algo, ServerKey, AuthMessage).
 
-hi(Password, Salt, IterationCount) ->
-    U1 = sha_mac(Password, <<Salt/binary, 0, 0, 0, 1>>),
-    crypto:exor(U1, hi_round(Password, U1, IterationCount - 1)).
+hi(Algo, Password, Salt, IterationCount) ->
+    U1 = sha_mac(Algo, Password, <<Salt/binary, 0, 0, 0, 1>>),
+    crypto:exor(U1, hi_round(Algo, Password, U1, IterationCount - 1)).
 
-hi_round(Password, UPrev, 1) ->
-    sha_mac(Password, UPrev);
-hi_round(Password, UPrev, IterationCount) ->
-    U = sha_mac(Password, UPrev),
-    crypto:exor(U, hi_round(Password, U, IterationCount - 1)).
+hi_round(Algo, Password, UPrev, 1) ->
+    sha_mac(Algo, Password, UPrev);
+hi_round(Algo, Password, UPrev, IterationCount) ->
+    U = sha_mac(Algo, Password, UPrev),
+    crypto:exor(U, hi_round(Algo, Password, U, IterationCount - 1)).
 
 -ifdef(USE_OLD_CRYPTO_HMAC).
-sha_mac(Key, Data) ->
-    crypto:hmac(sha, Key, Data).
+sha_mac(Algo, Key, Data) ->
+    crypto:hmac(Algo, Key, Data).
 -else.
-sha_mac(Key, Data) ->
-    crypto:mac(hmac, sha, Key, Data).
+sha_mac(Algo, Key, Data) ->
+    crypto:mac(hmac, Algo, Key, Data).
 -endif.
