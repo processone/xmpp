@@ -226,32 +226,26 @@ mech_step(#state{step = 4, algo = Algo} = State, ClientIn) ->
       _ -> {error, parser_failed}
     end.
 
-cbind_valid(State, Cbind) ->
-    error_logger:error_msg("cbind ~p ~p", [State, Cbind]),
-    cbind_valid2(State, Cbind).
-cbind_valid2(#state{plus = true}, <<"p=tls-unique">>) ->
+cbind_valid(#state{plus = true}, <<"p=tls-unique">>) ->
     true;
-cbind_valid2(#state{plus = true}, _) ->
+cbind_valid(#state{plus = true}, _) ->
     false;
-cbind_valid2(_, <<"y",_/binary>>) ->
+cbind_valid(_, <<"y", _/binary>>) ->
     true;
-cbind_valid2(_, <<"n",_/binary>>) ->
+cbind_valid(_, <<"n", _/binary>>) ->
     true;
-cbind_valid2(_, _) ->
+cbind_valid(_, _) ->
     false.
 
-cbind_verify(State, Cbind) ->
-    error_logger:error_msg("cbind4 ~p ~p", [State, Cbind]),
-    cbind_verify2(State, Cbind).
-cbind_verify2(#state{plus = true, plus_data = Data}, <<"p=tls-unique,,", Data/binary>>) ->
+cbind_verify(#state{plus = true, plus_data = Data}, <<"p=tls-unique,,", Data/binary>>) ->
     true;
-cbind_verify2(#state{plus = true}, _) ->
+cbind_verify(#state{plus = true}, _) ->
     false;
-cbind_verify2(_, <<"y", _/binary>>) ->
+cbind_verify(_, <<"y", _/binary>>) ->
     true;
-cbind_verify2(_, <<"n", _/binary>>) ->
+cbind_verify(_, <<"n", _/binary>>) ->
     true;
-cbind_verify2(_, _) ->
+cbind_verify(_, _) ->
     false.
 
 parse_attribute(<<Name, $=, Val/binary>>) when Val /= <<>> ->
