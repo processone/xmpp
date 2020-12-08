@@ -1,5 +1,9 @@
 # Version 1.5.0
 
+* Updating p1_utils to version 1.0.21.
+* Updating stringprep to version 1.0.24.
+* Updating fast_tls to version 1.1.10.
+* Updating fast_xml to version 1.1.45.
 * Add support for scram-sha-256/512-{plus}
 
 # Version 1.4.10
