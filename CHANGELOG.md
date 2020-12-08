@@ -1,3 +1,7 @@
+# Version 1.5.0
+
+* Add support for scram-sha-256/512-{plus}
+
 # Version 1.4.10
 
 * Updating ezlib to version 1.0.9.
