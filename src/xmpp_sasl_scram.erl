@@ -115,7 +115,7 @@ mech_step(#state{step = 2, algo = Algo} = State, ClientIn) ->
 			    case Pass of
 				false ->
 				  {error, not_authorized, UserName};
-				#scram{} when Algo /= sha ->
+				#scram{hash = Hash } when Algo /= Hash ->
 				  {error, incompatible_mechs};
 				_ when LPass == error ->
 				  {error, saslprep_failed, UserName};

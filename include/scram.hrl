@@ -18,6 +18,7 @@
 -record(scram, {storedkey = <<"">> :: binary(),
 		serverkey = <<"">> :: binary(),
 		salt = <<"">>      :: binary(),
+		hash = sha         :: sha | sha256 | sha512,
 		iterationcount = 0 :: integer()}).
 
 -type scram() :: #scram{}.
