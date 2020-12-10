@@ -84,7 +84,10 @@ mech_new(Mech, Socket, _Host, GetPassword, _CheckPassword, _CheckPasswordDigest)
     end,
     PlusData = case Plus of
 		   true ->
-		       xmpp_socket:get_peer_certificate(Socket, peer);
+		       case xmpp_socket:get_tls_last_message(Socket, peer) of
+			   {ok, Data} -> Data;
+			   _ -> <<>>
+		       end;
 		   _ ->
 		       <<>>
 	       end,
