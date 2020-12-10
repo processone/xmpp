@@ -76,9 +76,9 @@ mech_new(Mech, Socket, _Host, GetPassword, _CheckPassword, _CheckPasswordDigest)
     {Algo, Plus} =
     case Mech of
 	<<"SCRAM-SHA-1">> -> {sha, false};
-	<<"SCRAM-SHA-1-PLuS">> -> {sha, true};
+	<<"SCRAM-SHA-1-PLUS">> -> {sha, true};
 	<<"SCRAM-SHA-256">> -> {sha256, false};
-	<<"SCRAM-SHA-256-PLuS">> -> {sha256, true};
+	<<"SCRAM-SHA-256-PLUS">> -> {sha256, true};
 	<<"SCRAM-SHA-512">> -> {sha512, false};
 	<<"SCRAM-SHA-512-PLUS">> -> {sha512, true}
     end,
