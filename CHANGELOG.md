@@ -1,3 +1,7 @@
+# Version 1.5.1
+
+* Fix issues with scram *-PLUS
+
 # Version 1.5.0
 
 * Updating p1_utils to version 1.0.21.
