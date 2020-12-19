@@ -113,10 +113,6 @@
 %%%===================================================================
 start(_StartType, _StartArgs) ->
     try
-	{ok, _} = application:ensure_all_started(fast_xml),
-	{ok, _} = application:ensure_all_started(stringprep),
-	{ok, _} = application:ensure_all_started(fast_tls),
-	{ok, _} = application:ensure_all_started(ezlib),
 	ok = jid:start(),
 	ok = xmpp_uri:start(),
 	ok = xmpp_lang:start(),
