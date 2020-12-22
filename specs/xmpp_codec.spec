@@ -4959,7 +4959,7 @@ dec_tzo(Val) ->
 
 enc_tzo({H, M}) ->
     Sign = if H >= 0 ->
-                   <<>>;
+                   <<"+">>;
               true ->
                    <<"-">>
            end,

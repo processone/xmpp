@@ -42,7 +42,7 @@ dec_tzo(Val) ->
 dec_utc(Val) -> xmpp_util:decode_timestamp(Val).
 
 enc_tzo({H, M}) ->
-    Sign = if H >= 0 -> <<>>;
+    Sign = if H >= 0 -> <<"+">>;
               true -> <<"-">>
            end,
     list_to_binary([Sign,

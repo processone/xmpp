@@ -27,6 +27,7 @@ encode(El, TopXMLNS) ->
     Mod = get_mod(El),
     Mod:do_encode(El, TopXMLNS).
 
+
 get_name(El) ->
     Mod = get_mod(El),
     Mod:do_get_name(El).
