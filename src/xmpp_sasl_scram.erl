@@ -48,7 +48,8 @@
 -type error_reason() :: unsupported_extension | bad_username |
 			not_authorized | saslprep_failed |
 			parser_failed | bad_attribute |
-			nonce_mismatch | bad_channel_binding.
+			nonce_mismatch | bad_channel_binding |
+                        incompatible_mechs.
 
 -export_type([error_reason/0]).
 
@@ -202,20 +203,27 @@ mech_step(#state{step = 4, algo = Algo} = State, ClientIn) ->
 				  ClientSignature =
 				    scram:client_signature(Algo, State#state.stored_key,
 							     AuthMessage),
-				  ClientKey = scram:client_key_xor(ClientProof,
-								   ClientSignature),
-				  CompareStoredKey = scram:stored_key(Algo, ClientKey),
-				  if CompareStoredKey == State#state.stored_key ->
-					 ServerSignature =
-					     scram:server_signature(Algo,
-								    State#state.server_key,
-								    AuthMessage),
-					 {ok, [{username, State#state.username},
-					       {auth_module, State#state.auth_module},
-					       {authzid, State#state.username}],
-					  <<"v=",
-					    (base64:encode(ServerSignature))/binary>>};
-				     true -> {error, not_authorized, State#state.username}
+				  if
+                                      size(ClientProof) /= size(ClientSignature) ->
+                                          {error, bad_attribute};
+                                      true ->
+                                          ClientKey = scram:client_key_xor(ClientProof,
+                                                                           ClientSignature),
+                                          CompareStoredKey = scram:stored_key(Algo, ClientKey),
+                                          if
+                                              CompareStoredKey == State#state.stored_key ->
+                                                  ServerSignature =
+                                                  scram:server_signature(Algo,
+                                                                         State#state.server_key,
+                                                                         AuthMessage),
+                                                  {ok, [{username, State#state.username},
+                                                        {auth_module, State#state.auth_module},
+                                                        {authzid, State#state.username}],
+                                                   <<"v=",
+                                                     (base64:encode(ServerSignature))/binary>>};
+                                              true ->
+                                                  {error, not_authorized, State#state.username}
+                                          end
 				  end;
 			    _ -> {error, bad_attribute}
 			    end;
