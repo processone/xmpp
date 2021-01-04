@@ -27,7 +27,7 @@
   {vsn,          "1.5.1"},
   {modules,      []},
   {registered,   []},
-  {applications, [kernel, stdlib]},
+  {applications, [kernel, stdlib, stringprep, fast_xml, idna, ezlib, fast_tls]},
   {mod,          {xmpp, []}},
   {env,          []},
 
