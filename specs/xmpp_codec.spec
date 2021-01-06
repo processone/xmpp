@@ -3979,6 +3979,33 @@
 	   result = {receipt_response, '$id'},
 	   attrs = [#attr{name = <<"id">>}]}).
 
+-xml(mark_markable,
+     #elem{name = <<"markable">>,
+	   xmlns = <<"urn:xmpp:chat-markers:0">>,
+	   module = 'xep0333',
+	   result = true}).
+
+-xml(mark_received,
+     #elem{name = <<"received">>,
+	   xmlns = <<"urn:xmpp:chat-markers:0">>,
+	   module = 'xep0333',
+	   result = {mark_received, '$id'},
+	   attrs = [#attr{name = <<"id">>, required = true}]}).
+
+-xml(mark_displayed,
+     #elem{name = <<"displayed">>,
+	   xmlns = <<"urn:xmpp:chat-markers:0">>,
+	   module = 'xep0333',
+	   result = {mark_displayed, '$id'},
+	   attrs = [#attr{name = <<"id">>, required = true}]}).
+
+-xml(mark_acknowledged,
+     #elem{name = <<"acknowledged">>,
+	   xmlns = <<"urn:xmpp:chat-markers:0">>,
+	   module = 'xep0333',
+	   result = {mark_acknowledged, '$id'},
+	   attrs = [#attr{name = <<"id">>, required = true}]}).
+
 -xml(sic_ip,
      #elem{name = <<"ip">>,
 	   xmlns = [<<"urn:xmpp:sic:0">>, <<"urn:xmpp:sic:1">>],

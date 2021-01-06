@@ -27,7 +27,6 @@ encode(El, TopXMLNS) ->
     Mod = get_mod(El),
     Mod:do_encode(El, TopXMLNS).
 
-
 get_name(El) ->
     Mod = get_mod(El),
     Mod:do_get_name(El).
@@ -520,6 +519,9 @@ get_mod(<<"item">>,
         <<"http://jabber.org/protocol/muc#user">>) ->
     xep0045;
 get_mod(<<"x">>, <<"jabber:x:oob">>) -> xep0066;
+get_mod(<<"displayed">>,
+        <<"urn:xmpp:chat-markers:0">>) ->
+    xep0333;
 get_mod(<<"delegate">>, <<"urn:xmpp:delegation:1">>) ->
     xep0355;
 get_mod(<<"priority">>, <<"jabber:client">>) -> rfc6120;
@@ -550,6 +552,9 @@ get_mod(<<"processing-failed">>,
 get_mod(<<"address">>,
         <<"http://jabber.org/protocol/address">>) ->
     xep0033;
+get_mod(<<"acknowledged">>,
+        <<"urn:xmpp:chat-markers:0">>) ->
+    xep0333;
 get_mod(<<"unsupported-transports">>,
         <<"urn:xmpp:jingle:1">>) ->
     xep0166;
@@ -927,18 +932,7 @@ get_mod(<<"hash-used">>, <<"urn:xmpp:hashes:2">>) ->
 get_mod(<<"presence">>,
         <<"jabber:component:accept">>) ->
     rfc6120;
-get_mod(<<"abort">>,
-        <<"urn:ietf:params:xml:ns:xmpp-sasl">>) ->
-    rfc6120;
-get_mod(<<"FAMILY">>, <<"vcard-temp">>) -> xep0054;
 get_mod(<<"URL">>, <<"vcard-temp">>) -> xep0054;
-get_mod(<<"headers">>,
-        <<"http://jabber.org/protocol/shim">>) ->
-    xep0131;
-get_mod(<<"flip-page">>, <<"urn:xmpp:mam:2">>) ->
-    xep0313;
-get_mod(<<"received">>, <<"urn:xmpp:receipts">>) ->
-    xep0184;
 get_mod(<<"jid-malformed">>,
         <<"urn:ietf:params:xml:ns:xmpp-stanzas">>) ->
     rfc6120;
@@ -1003,6 +997,9 @@ get_mod(<<"precondition-not-met">>,
 get_mod(<<"item">>,
         <<"http://jabber.org/protocol/offline">>) ->
     xep0013;
+get_mod(<<"received">>,
+        <<"urn:xmpp:chat-markers:0">>) ->
+    xep0333;
 get_mod(<<"get">>, <<"urn:xmpp:http:upload">>) ->
     xep0363;
 get_mod(<<"query">>,
@@ -1495,6 +1492,9 @@ get_mod(<<"unsupported-feature">>,
     rfc6120;
 get_mod(<<"request">>, <<"urn:xmpp:receipts">>) ->
     xep0184;
+get_mod(<<"markable">>,
+        <<"urn:xmpp:chat-markers:0">>) ->
+    xep0333;
 get_mod(<<"url">>, <<"storage:bookmarks">>) -> xep0048;
 get_mod(<<"unexpected-request">>,
         <<"urn:ietf:params:xml:ns:xmpp-stanzas">>) ->
@@ -1568,6 +1568,17 @@ get_mod(<<"db:verify">>, <<"jabber:server">>) ->
 get_mod(<<"security-error">>,
         <<"urn:xmpp:jingle:1">>) ->
     xep0166;
+get_mod(<<"abort">>,
+        <<"urn:ietf:params:xml:ns:xmpp-sasl">>) ->
+    rfc6120;
+get_mod(<<"FAMILY">>, <<"vcard-temp">>) -> xep0054;
+get_mod(<<"headers">>,
+        <<"http://jabber.org/protocol/shim">>) ->
+    xep0131;
+get_mod(<<"flip-page">>, <<"urn:xmpp:mam:2">>) ->
+    xep0313;
+get_mod(<<"received">>, <<"urn:xmpp:receipts">>) ->
+    xep0184;
 get_mod(Name, XMLNS) ->
     xmpp_codec_external:lookup(Name, XMLNS).
 
@@ -1610,7 +1621,6 @@ get_mod({xdata_option, _, _}) -> xep0004;
 get_mod({x509_cert_chain, _, _}) -> xep0417;
 get_mod({vcard_geo, _, _}) -> xep0054;
 get_mod({xevent, _, _, _, _, _}) -> xep0022;
-get_mod({db_result, _, _, _, _, _}) -> xep0220;
 get_mod({jingle_content, _, _, _, _, _}) -> xep0166;
 get_mod({bookmark_conference, _, _, _, _, _}) ->
     xep0048;
@@ -1807,6 +1817,9 @@ get_mod({identity, _, _, _, _}) -> xep0030;
 get_mod({redirect, _}) -> rfc6120;
 get_mod({muc_history, _, _, _, _}) -> xep0045;
 get_mod({muc_owner, _, _, _}) -> xep0045;
+get_mod({mark_received, _}) -> xep0333;
+get_mod({mark_displayed, _}) -> xep0333;
+get_mod({mark_acknowledged, _}) -> xep0333;
 get_mod({jingle_ft_file, _, _, _, _, _, _, _, _}) ->
     xep0234;
 get_mod({bookmark_url, _, _}) -> xep0048;
@@ -1902,4 +1915,5 @@ get_mod({ps_unsubscribe, _, _, _}) -> xep0060;
 get_mod({sm_resume, _, _, _}) -> xep0198;
 get_mod({push_enable, _, _, _}) -> xep0357;
 get_mod({jingle_ft_range, _, _, _}) -> xep0234;
+get_mod({db_result, _, _, _, _, _}) -> xep0220;
 get_mod(Record) -> xmpp_codec_external:lookup(Record).
