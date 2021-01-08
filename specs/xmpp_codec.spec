@@ -3224,6 +3224,43 @@
 	   refs = [#ref{name = forwarded, min = 1,
                         max = 1, label = '$forwarded'}]}).
 
+-xml(inbox_query,
+     #elem{name = <<"inbox">>,
+	   xmlns = <<"urn:xmpp:inbox:1">>,
+	   module = 'xep0430',
+	   result = {inbox_query, '$rsm'},
+	   refs = [#ref{name = rsm_set, min = 0, max = 1, label = '$rsm'}]}).
+
+-xml(inbox_entry,
+     #elem{name = <<"entry">>,
+	   xmlns = <<"urn:xmpp:inbox:1">>,
+	   module = 'xep0430',
+	   result = {inbox_entry, '$unread', '$jid', '$id'},
+	   attrs = [#attr{name = <<"unread">>,
+			  dec = {dec_int, [0, infinity]},
+			  enc = {enc_int, []}},
+		    #attr{name = <<"jid">>,
+			  label = '$jid',
+			  dec = {jid, decode, []},
+			  enc = {jid, encode, []}},
+		    #attr{name = <<"id">>}]}).
+
+-xml(inbox_fin,
+     #elem{name = <<"fin">>,
+	   xmlns = <<"urn:xmpp:inbox:1">>,
+	   module = 'xep0430',
+	   result = {inbox_fin, '$total', '$unread', '$all_unread', '$rsm'},
+	   attrs = [#attr{name = <<"total">>,
+			  dec = {dec_int, [0, infinity]},
+			  enc = {enc_int, []}},
+		    #attr{name = <<"unread">>,
+			  dec = {dec_int, [0, infinity]},
+			  enc = {enc_int, []}},
+		    #attr{name = <<"all-unread">>, label = '$all_unread',
+			  dec = {dec_int, [0, infinity]},
+			  enc = {enc_int, []}}],
+	   refs = [#ref{name = rsm_set, min = 0, max = 1, label = '$rsm'}]}).
+
 -xml(feature_csi,
      #elem{name = <<"csi">>,
 	   xmlns = <<"urn:xmpp:csi:0">>,

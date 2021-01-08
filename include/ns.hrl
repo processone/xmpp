@@ -151,6 +151,7 @@
 -define(NS_MAM_1, <<"urn:xmpp:mam:1">>).
 -define(NS_MAM_2, <<"urn:xmpp:mam:2">>).
 -define(NS_SID_0, <<"urn:xmpp:sid:0">>).
+-define(NS_INBOX_1, <<"urn:xmpp:inbox:1">>).
 -define(NS_PING, <<"urn:xmpp:ping">>).
 -define(NS_PUSH_0, <<"urn:xmpp:push:0">>).
 -define(NS_CARBONS_2, <<"urn:xmpp:carbons:2">>).

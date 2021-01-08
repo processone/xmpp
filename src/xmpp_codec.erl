@@ -724,6 +724,7 @@ get_mod(<<"JABBERID">>, <<"vcard-temp">>) -> xep0054;
 get_mod(<<"subscription">>,
         <<"http://jabber.org/protocol/pubsub#event">>) ->
     xep0060;
+get_mod(<<"inbox">>, <<"urn:xmpp:inbox:1">>) -> xep0430;
 get_mod(<<"decline">>, <<"urn:xmpp:jingle:1">>) ->
     xep0166;
 get_mod(<<"key">>, <<"jabber:iq:register">>) -> xep0077;
@@ -956,6 +957,7 @@ get_mod(<<"delete">>,
         <<"http://jabber.org/protocol/pubsub#event">>) ->
     xep0060;
 get_mod(<<"prefs">>, <<"urn:xmpp:mam:2">>) -> xep0313;
+get_mod(<<"entry">>, <<"urn:xmpp:inbox:1">>) -> xep0430;
 get_mod(<<"sm">>, <<"urn:xmpp:sm:3">>) -> xep0198;
 get_mod(<<"fetch">>,
         <<"http://jabber.org/protocol/offline">>) ->
@@ -1354,6 +1356,7 @@ get_mod(<<"CATEGORIES">>, <<"vcard-temp">>) -> xep0054;
 get_mod(<<"delete">>,
         <<"http://jabber.org/protocol/pubsub">>) ->
     xep0060;
+get_mod(<<"fin">>, <<"urn:xmpp:inbox:1">>) -> xep0430;
 get_mod(<<"nick">>, <<"jabber:iq:search">>) -> xep0055;
 get_mod(<<"port">>, <<"urn:xmpp:sic:1">>) -> xep0279;
 get_mod(<<"desc">>, <<"jabber:x:data">>) -> xep0004;
@@ -1645,6 +1648,8 @@ get_mod({pubsub,
          _}) ->
     xep0060;
 get_mod({x_conference, _, _, _, _, _}) -> xep0249;
+get_mod({inbox_query, _}) -> xep0430;
+get_mod({inbox_fin, _, _, _, _}) -> xep0430;
 get_mod({csi, _}) -> xep0352;
 get_mod({mix_join, _, _, _, _}) -> xep0369;
 get_mod({mix_destroy, _}) -> xep0369;
@@ -1857,6 +1862,7 @@ get_mod({sasl_abort}) -> rfc6120;
 get_mod({starttls_proceed}) -> rfc6120;
 get_mod({compressed}) -> xep0138;
 get_mod({stream_error, _, _}) -> rfc6120;
+get_mod({inbox_entry, _, _, _}) -> xep0430;
 get_mod({receipt_request}) -> xep0184;
 get_mod({upload_request_0, _, _, _, _}) -> xep0363;
 get_mod({privacy_item, _, _, _, _, _, _, _, _}) ->
