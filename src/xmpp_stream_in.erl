@@ -440,6 +440,9 @@ handle_info({tcp, _, Data}, #{socket := Socket} = State) ->
 	      %% TODO: make fast_tls return atoms
 	      process_stream_end({tls, Reason}, State)
       end);
+% Skip new tcp messages after socket get removed from state
+handle_info({tcp, _, _}, State) ->
+	State;
 handle_info({tcp_closed, _}, State) ->
     handle_info({'$gen_event', closed}, State);
 handle_info({tcp_error, _, Reason}, State) ->
@@ -559,11 +562,14 @@ process_stream_end(_, #{stream_state := disconnected} = State) ->
 process_stream_end(Reason, State) ->
     State1 = State#{stream_timeout => infinity,
 		    stream_state => disconnected},
+    State2 =
     try callback(handle_stream_end, Reason, State1)
     catch _:{?MODULE, undef} ->
 	stop_async(self()),
-	State1
-    end.
+        State1
+    end,
+    erlang:demonitor(maps:get(socket_monitor, State2, make_ref())),
+    maps:remove(socket, State2).
 
 -spec process_stream(stream_start(), state()) -> state().
 process_stream(#stream_start{xmlns = XML_NS,
@@ -1241,7 +1247,9 @@ socket_send(_, _) ->
 close_socket(#{socket := Socket} = State) ->
     xmpp_socket:close(Socket),
     State#{stream_timeout => infinity,
-	   stream_state => disconnected}.
+	   stream_state => disconnected};
+close_socket(State) ->
+    State.
 
 -spec select_lang(binary(), binary()) -> binary().
 select_lang(Lang, <<"">>) -> Lang;
