@@ -1,3 +1,12 @@
+# Version 1.5.2
+
+* Allow to free socket/parser/tls when session get detached
+* Add support for XEP-0430: Inbox
+* Add support for XEP-0333: Chat Markers
+* Add missing applicaitons to xmpp.app
+* Fix timezone in timestamp used by XEP-0202
+* Don't throw exception when client send invalid lenght sasl response
+
 # Version 1.5.1
 
 * Fix issues with scram *-PLUS
