@@ -1,5 +1,6 @@
 # Version 1.5.2
 
+* Updating fast_tls to version 1.1.11.
 * Allow to free socket/parser/tls when session get detached
 * Add support for XEP-0430: Inbox
 * Add support for XEP-0333: Chat Markers
