@@ -396,7 +396,7 @@ handle_info({tcp, _, Data}, #{socket := Socket} = State) ->
       end);
 % Skip new tcp messages after socket get removed from state
 handle_info({tcp, _, _}, State) ->
-	State;
+    noreply(State);
 handle_info({tcp_closed, _}, State) ->
     handle_info({'$gen_event', closed}, State);
 handle_info({tcp_error, _, Reason}, State) ->
