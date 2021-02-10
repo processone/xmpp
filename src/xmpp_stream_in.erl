@@ -479,7 +479,7 @@ code_change(OldVsn, State, Extra) ->
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
--spec init_state(state(), [proplists:property()]) -> state().
+-spec init_state(state(), [proplists:property()]) -> state() | {stop, state()}.
 init_state(#{socket := Socket, mod := Mod} = State, Opts) ->
     Encrypted = proplists:get_bool(tls, Opts),
     State1 = State#{stream_direction => in,
