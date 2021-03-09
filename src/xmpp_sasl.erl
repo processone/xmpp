@@ -37,7 +37,7 @@
 -type mech_state() :: term().
 -type sasl_module() :: xmpp_sasl_anonymous | xmpp_sasl_digest |
 		       xmpp_sasl_oauth | xmpp_sasl_plain |
-		       xmpp_sasl_scram.
+		       xmpp_sasl_scram | xmpp_sasl_gssapi.
 -type sasl_state() :: #sasl_state{}.
 -type sasl_property() :: {username, binary()} |
 			 {authzid, binary()} |
@@ -90,7 +90,7 @@ listmech() ->
      <<"SCRAM-SHA-512-PLUS">>, <<"SCRAM-SHA-512">>,
      <<"SCRAM-SHA-256-PLUS">>, <<"SCRAM-SHA-256">>,
      <<"SCRAM-SHA-1-PLUS">>, <<"SCRAM-SHA-1">>,
-     <<"X-OAUTH2">>].
+     <<"X-OAUTH2">>, <<"GSSAPI">>].
 
 -spec server_new(binary(),
 		 get_password_fun(),
@@ -164,4 +164,5 @@ get_mod(<<"SCRAM-SHA-256-PLUS">>) -> xmpp_sasl_scram;
 get_mod(<<"SCRAM-SHA-256">>) -> xmpp_sasl_scram;
 get_mod(<<"SCRAM-SHA-512">>) -> xmpp_sasl_scram;
 get_mod(<<"SCRAM-SHA-512-PLUS">>) -> xmpp_sasl_scram;
+get_mod(<<"GSSAPI">>) -> xmpp_gssapi;
 get_mod(_) -> undefined.
