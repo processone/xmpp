@@ -3,7 +3,7 @@
 * Updating fast_tls to version 1.1.12.
 * Updating fast_xml to version 1.1.46.
 * Updating p1_utils to version 1.0.22.
-* Updating stringprep to version 1.0.26.
+* Updating stringprep to version 1.0.25.
 * Fix spec to match the current source code, as reportd by Dialyzer
 * xmpp uses p1_options, so Dialyzer reports some false warnings
 * Fix return value when skipping queued tcp packet to already closed socket
