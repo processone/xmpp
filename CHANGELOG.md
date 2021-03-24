@@ -1,3 +1,9 @@
+# Version 1.5.3
+
+* Fix spec to match the current source code, as reportd by Dialyzer
+* xmpp uses p1_options, so Dialyzer reports some false warnings
+* Fix return value when skipping queued tcp packet to already closed socket
+
 # Version 1.5.2
 
 * Updating fast_tls to version 1.1.11.
