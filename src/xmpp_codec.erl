@@ -27,6 +27,7 @@ encode(El, TopXMLNS) ->
     Mod = get_mod(El),
     Mod:do_encode(El, TopXMLNS).
 
+
 get_name(El) ->
     Mod = get_mod(El),
     Mod:do_get_name(El).
@@ -1673,37 +1674,6 @@ get_mod({jingle, _, _, _, _, _, _, _}) -> xep0166;
 get_mod({x509_csr, _, _}) -> xep0417;
 get_mod({x509_challenge_failed}) -> xep0417;
 get_mod({stats, _, _}) -> xep0039;
-get_mod({vcard_temp,
-         _,
-         _,
-         _,
-         _,
-         _,
-         _,
-         _,
-         _,
-         _,
-         _,
-         _,
-         _,
-         _,
-         _,
-         _,
-         _,
-         _,
-         _,
-         _,
-         _,
-         _,
-         _,
-         _,
-         _,
-         _,
-         _,
-         _,
-         _,
-         _}) ->
-    xep0054;
 get_mod({muc, _, _}) -> xep0045;
 get_mod({carbons_enable}) -> xep0280;
 get_mod({carbons_private}) -> xep0280;
@@ -1830,6 +1800,38 @@ get_mod({jingle_ft_file, _, _, _, _, _, _, _, _}) ->
 get_mod({bookmark_url, _, _}) -> xep0048;
 get_mod({gone, _}) -> rfc6120;
 get_mod({sasl_response, _}) -> rfc6120;
+get_mod({vcard_temp,
+         _,
+         _,
+         _,
+         _,
+         _,
+         _,
+         _,
+         _,
+         _,
+         _,
+         _,
+         _,
+         _,
+         _,
+         _,
+         _,
+         _,
+         _,
+         _,
+         _,
+         _,
+         _,
+         _,
+         _,
+         _,
+         _,
+         _,
+         _,
+         _,
+         _}) ->
+    xep0054;
 get_mod({chatstate, _}) -> xep0085;
 get_mod({muc_unique, _}) -> xep0045;
 get_mod({mix_create, _}) -> xep0369;

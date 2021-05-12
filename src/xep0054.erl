@@ -331,6 +331,7 @@ do_encode({vcard_temp,
            _,
            _,
            _,
+           _,
            _} =
               Vcard,
           TopXMLNS) ->
@@ -380,6 +381,7 @@ do_get_name({vcard_tel,
              _}) ->
     <<"TEL">>;
 do_get_name({vcard_temp,
+             _,
              _,
              _,
              _,
@@ -484,8 +486,106 @@ do_get_ns({vcard_temp,
            _,
            _,
            _,
+           _,
            _}) ->
     <<"vcard-temp">>.
+
+get_els({vcard_temp,
+         _version,
+         _fn,
+         _n,
+         _nickname,
+         _photo,
+         _bday,
+         _adr,
+         _label,
+         _tel,
+         _email,
+         _jabberid,
+         _mailer,
+         _tz,
+         _geo,
+         _title,
+         _role,
+         _logo,
+         _org,
+         _categories,
+         _note,
+         _prodid,
+         _rev,
+         _sort_string,
+         _sound,
+         _uid,
+         _url,
+         _class,
+         _key,
+         _desc,
+         _sub_els}) ->
+    _sub_els.
+
+set_els({vcard_temp,
+         _version,
+         _fn,
+         _n,
+         _nickname,
+         _photo,
+         _bday,
+         _adr,
+         _label,
+         _tel,
+         _email,
+         _jabberid,
+         _mailer,
+         _tz,
+         _geo,
+         _title,
+         _role,
+         _logo,
+         _org,
+         _categories,
+         _note,
+         _prodid,
+         _rev,
+         _sort_string,
+         _sound,
+         _uid,
+         _url,
+         _class,
+         _key,
+         _desc,
+         _},
+        _sub_els) ->
+    {vcard_temp,
+     _version,
+     _fn,
+     _n,
+     _nickname,
+     _photo,
+     _bday,
+     _adr,
+     _label,
+     _tel,
+     _email,
+     _jabberid,
+     _mailer,
+     _tz,
+     _geo,
+     _title,
+     _role,
+     _logo,
+     _org,
+     _categories,
+     _note,
+     _prodid,
+     _rev,
+     _sort_string,
+     _sound,
+     _uid,
+     _url,
+     _class,
+     _key,
+     _desc,
+     _sub_els}.
 
 pp(vcard_name, 5) ->
     [family, given, middle, prefix, suffix];
@@ -529,7 +629,7 @@ pp(vcard_photo, 3) -> [type, binval, extval];
 pp(vcard_org, 2) -> [name, units];
 pp(vcard_sound, 3) -> [phonetic, binval, extval];
 pp(vcard_key, 2) -> [type, cred];
-pp(vcard_temp, 29) ->
+pp(vcard_temp, 30) ->
     [version,
      fn,
      n,
@@ -558,7 +658,8 @@ pp(vcard_temp, 29) ->
      url,
      class,
      key,
-     desc];
+     desc,
+     sub_els];
 pp(_, _) -> no.
 
 records() ->
@@ -573,7 +674,7 @@ records() ->
      {vcard_org, 2},
      {vcard_sound, 3},
      {vcard_key, 2},
-     {vcard_temp, 29}].
+     {vcard_temp, 30}].
 
 decode_vcard_temp(__TopXMLNS, __Opts,
                   {xmlel, <<"vCard">>, _attrs, _els}) ->
@@ -605,7 +706,8 @@ decode_vcard_temp(__TopXMLNS, __Opts,
      N,
      Photo,
      Logo,
-     Geo} =
+     Geo,
+     __Els} =
         decode_vcard_temp_els(__TopXMLNS,
                               __Opts,
                               _els,
@@ -637,7 +739,8 @@ decode_vcard_temp(__TopXMLNS, __Opts,
                               undefined,
                               undefined,
                               undefined,
-                              undefined),
+                              undefined,
+                              []),
     {vcard_temp,
      Version,
      Fn,
@@ -667,13 +770,14 @@ decode_vcard_temp(__TopXMLNS, __Opts,
      Url,
      Class,
      Key,
-     Desc}.
+     Desc,
+     __Els}.
 
 decode_vcard_temp_els(__TopXMLNS, __Opts, [], Mailer,
                       Adr, Class, Categories, Desc, Uid, Prodid, Jabberid,
                       Sound, Note, Role, Title, Nickname, Rev, Sort_string,
                       Org, Bday, Key, Tz, Url, Email, Tel, Label, Fn, Version,
-                      N, Photo, Logo, Geo) ->
+                      N, Photo, Logo, Geo, __Els) ->
     {Mailer,
      lists:reverse(Adr),
      Class,
@@ -702,13 +806,14 @@ decode_vcard_temp_els(__TopXMLNS, __Opts, [], Mailer,
      N,
      Photo,
      Logo,
-     Geo};
+     Geo,
+     lists:reverse(__Els)};
 decode_vcard_temp_els(__TopXMLNS, __Opts,
                       [{xmlel, <<"N">>, _attrs, _} = _el | _els], Mailer, Adr,
                       Class, Categories, Desc, Uid, Prodid, Jabberid, Sound,
                       Note, Role, Title, Nickname, Rev, Sort_string, Org,
                       Bday, Key, Tz, Url, Email, Tel, Label, Fn, Version, N,
-                      Photo, Logo, Geo) ->
+                      Photo, Logo, Geo, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -745,7 +850,8 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   decode_vcard_N(<<"vcard-temp">>, __Opts, _el),
                                   Photo,
                                   Logo,
-                                  Geo);
+                                  Geo,
+                                  __Els);
         _ ->
             decode_vcard_temp_els(__TopXMLNS,
                                   __Opts,
@@ -778,14 +884,15 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo)
+                                  Geo,
+                                  [_el | __Els])
     end;
 decode_vcard_temp_els(__TopXMLNS, __Opts,
                       [{xmlel, <<"ADR">>, _attrs, _} = _el | _els], Mailer,
                       Adr, Class, Categories, Desc, Uid, Prodid, Jabberid,
                       Sound, Note, Role, Title, Nickname, Rev, Sort_string,
                       Org, Bday, Key, Tz, Url, Email, Tel, Label, Fn, Version,
-                      N, Photo, Logo, Geo) ->
+                      N, Photo, Logo, Geo, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -825,7 +932,8 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo);
+                                  Geo,
+                                  __Els);
         _ ->
             decode_vcard_temp_els(__TopXMLNS,
                                   __Opts,
@@ -858,14 +966,15 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo)
+                                  Geo,
+                                  [_el | __Els])
     end;
 decode_vcard_temp_els(__TopXMLNS, __Opts,
                       [{xmlel, <<"LABEL">>, _attrs, _} = _el | _els], Mailer,
                       Adr, Class, Categories, Desc, Uid, Prodid, Jabberid,
                       Sound, Note, Role, Title, Nickname, Rev, Sort_string,
                       Org, Bday, Key, Tz, Url, Email, Tel, Label, Fn, Version,
-                      N, Photo, Logo, Geo) ->
+                      N, Photo, Logo, Geo, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -905,7 +1014,8 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo);
+                                  Geo,
+                                  __Els);
         _ ->
             decode_vcard_temp_els(__TopXMLNS,
                                   __Opts,
@@ -938,14 +1048,15 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo)
+                                  Geo,
+                                  [_el | __Els])
     end;
 decode_vcard_temp_els(__TopXMLNS, __Opts,
                       [{xmlel, <<"TEL">>, _attrs, _} = _el | _els], Mailer,
                       Adr, Class, Categories, Desc, Uid, Prodid, Jabberid,
                       Sound, Note, Role, Title, Nickname, Rev, Sort_string,
                       Org, Bday, Key, Tz, Url, Email, Tel, Label, Fn, Version,
-                      N, Photo, Logo, Geo) ->
+                      N, Photo, Logo, Geo, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -985,7 +1096,8 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo);
+                                  Geo,
+                                  __Els);
         _ ->
             decode_vcard_temp_els(__TopXMLNS,
                                   __Opts,
@@ -1018,14 +1130,15 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo)
+                                  Geo,
+                                  [_el | __Els])
     end;
 decode_vcard_temp_els(__TopXMLNS, __Opts,
                       [{xmlel, <<"EMAIL">>, _attrs, _} = _el | _els], Mailer,
                       Adr, Class, Categories, Desc, Uid, Prodid, Jabberid,
                       Sound, Note, Role, Title, Nickname, Rev, Sort_string,
                       Org, Bday, Key, Tz, Url, Email, Tel, Label, Fn, Version,
-                      N, Photo, Logo, Geo) ->
+                      N, Photo, Logo, Geo, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -1065,7 +1178,8 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo);
+                                  Geo,
+                                  __Els);
         _ ->
             decode_vcard_temp_els(__TopXMLNS,
                                   __Opts,
@@ -1098,14 +1212,15 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo)
+                                  Geo,
+                                  [_el | __Els])
     end;
 decode_vcard_temp_els(__TopXMLNS, __Opts,
                       [{xmlel, <<"GEO">>, _attrs, _} = _el | _els], Mailer,
                       Adr, Class, Categories, Desc, Uid, Prodid, Jabberid,
                       Sound, Note, Role, Title, Nickname, Rev, Sort_string,
                       Org, Bday, Key, Tz, Url, Email, Tel, Label, Fn, Version,
-                      N, Photo, Logo, Geo) ->
+                      N, Photo, Logo, Geo, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -1144,7 +1259,8 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   Logo,
                                   decode_vcard_GEO(<<"vcard-temp">>,
                                                    __Opts,
-                                                   _el));
+                                                   _el),
+                                  __Els);
         _ ->
             decode_vcard_temp_els(__TopXMLNS,
                                   __Opts,
@@ -1177,14 +1293,15 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo)
+                                  Geo,
+                                  [_el | __Els])
     end;
 decode_vcard_temp_els(__TopXMLNS, __Opts,
                       [{xmlel, <<"LOGO">>, _attrs, _} = _el | _els], Mailer,
                       Adr, Class, Categories, Desc, Uid, Prodid, Jabberid,
                       Sound, Note, Role, Title, Nickname, Rev, Sort_string,
                       Org, Bday, Key, Tz, Url, Email, Tel, Label, Fn, Version,
-                      N, Photo, Logo, Geo) ->
+                      N, Photo, Logo, Geo, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -1223,7 +1340,8 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   decode_vcard_LOGO(<<"vcard-temp">>,
                                                     __Opts,
                                                     _el),
-                                  Geo);
+                                  Geo,
+                                  __Els);
         _ ->
             decode_vcard_temp_els(__TopXMLNS,
                                   __Opts,
@@ -1256,14 +1374,15 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo)
+                                  Geo,
+                                  [_el | __Els])
     end;
 decode_vcard_temp_els(__TopXMLNS, __Opts,
                       [{xmlel, <<"PHOTO">>, _attrs, _} = _el | _els], Mailer,
                       Adr, Class, Categories, Desc, Uid, Prodid, Jabberid,
                       Sound, Note, Role, Title, Nickname, Rev, Sort_string,
                       Org, Bday, Key, Tz, Url, Email, Tel, Label, Fn, Version,
-                      N, Photo, Logo, Geo) ->
+                      N, Photo, Logo, Geo, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -1302,7 +1421,8 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                                      __Opts,
                                                      _el),
                                   Logo,
-                                  Geo);
+                                  Geo,
+                                  __Els);
         _ ->
             decode_vcard_temp_els(__TopXMLNS,
                                   __Opts,
@@ -1335,14 +1455,15 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo)
+                                  Geo,
+                                  [_el | __Els])
     end;
 decode_vcard_temp_els(__TopXMLNS, __Opts,
                       [{xmlel, <<"ORG">>, _attrs, _} = _el | _els], Mailer,
                       Adr, Class, Categories, Desc, Uid, Prodid, Jabberid,
                       Sound, Note, Role, Title, Nickname, Rev, Sort_string,
                       Org, Bday, Key, Tz, Url, Email, Tel, Label, Fn, Version,
-                      N, Photo, Logo, Geo) ->
+                      N, Photo, Logo, Geo, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -1381,7 +1502,8 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo);
+                                  Geo,
+                                  __Els);
         _ ->
             decode_vcard_temp_els(__TopXMLNS,
                                   __Opts,
@@ -1414,14 +1536,15 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo)
+                                  Geo,
+                                  [_el | __Els])
     end;
 decode_vcard_temp_els(__TopXMLNS, __Opts,
                       [{xmlel, <<"SOUND">>, _attrs, _} = _el | _els], Mailer,
                       Adr, Class, Categories, Desc, Uid, Prodid, Jabberid,
                       Sound, Note, Role, Title, Nickname, Rev, Sort_string,
                       Org, Bday, Key, Tz, Url, Email, Tel, Label, Fn, Version,
-                      N, Photo, Logo, Geo) ->
+                      N, Photo, Logo, Geo, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -1460,7 +1583,8 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo);
+                                  Geo,
+                                  __Els);
         _ ->
             decode_vcard_temp_els(__TopXMLNS,
                                   __Opts,
@@ -1493,14 +1617,15 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo)
+                                  Geo,
+                                  [_el | __Els])
     end;
 decode_vcard_temp_els(__TopXMLNS, __Opts,
                       [{xmlel, <<"KEY">>, _attrs, _} = _el | _els], Mailer,
                       Adr, Class, Categories, Desc, Uid, Prodid, Jabberid,
                       Sound, Note, Role, Title, Nickname, Rev, Sort_string,
                       Org, Bday, Key, Tz, Url, Email, Tel, Label, Fn, Version,
-                      N, Photo, Logo, Geo) ->
+                      N, Photo, Logo, Geo, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -1539,7 +1664,8 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo);
+                                  Geo,
+                                  __Els);
         _ ->
             decode_vcard_temp_els(__TopXMLNS,
                                   __Opts,
@@ -1572,14 +1698,15 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo)
+                                  Geo,
+                                  [_el | __Els])
     end;
 decode_vcard_temp_els(__TopXMLNS, __Opts,
                       [{xmlel, <<"VERSION">>, _attrs, _} = _el | _els],
                       Mailer, Adr, Class, Categories, Desc, Uid, Prodid,
                       Jabberid, Sound, Note, Role, Title, Nickname, Rev,
                       Sort_string, Org, Bday, Key, Tz, Url, Email, Tel, Label,
-                      Fn, Version, N, Photo, Logo, Geo) ->
+                      Fn, Version, N, Photo, Logo, Geo, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -1618,7 +1745,8 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo);
+                                  Geo,
+                                  __Els);
         _ ->
             decode_vcard_temp_els(__TopXMLNS,
                                   __Opts,
@@ -1651,14 +1779,15 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo)
+                                  Geo,
+                                  [_el | __Els])
     end;
 decode_vcard_temp_els(__TopXMLNS, __Opts,
                       [{xmlel, <<"FN">>, _attrs, _} = _el | _els], Mailer,
                       Adr, Class, Categories, Desc, Uid, Prodid, Jabberid,
                       Sound, Note, Role, Title, Nickname, Rev, Sort_string,
                       Org, Bday, Key, Tz, Url, Email, Tel, Label, Fn, Version,
-                      N, Photo, Logo, Geo) ->
+                      N, Photo, Logo, Geo, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -1697,7 +1826,8 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo);
+                                  Geo,
+                                  __Els);
         _ ->
             decode_vcard_temp_els(__TopXMLNS,
                                   __Opts,
@@ -1730,14 +1860,15 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo)
+                                  Geo,
+                                  [_el | __Els])
     end;
 decode_vcard_temp_els(__TopXMLNS, __Opts,
                       [{xmlel, <<"NICKNAME">>, _attrs, _} = _el | _els],
                       Mailer, Adr, Class, Categories, Desc, Uid, Prodid,
                       Jabberid, Sound, Note, Role, Title, Nickname, Rev,
                       Sort_string, Org, Bday, Key, Tz, Url, Email, Tel, Label,
-                      Fn, Version, N, Photo, Logo, Geo) ->
+                      Fn, Version, N, Photo, Logo, Geo, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -1776,7 +1907,8 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo);
+                                  Geo,
+                                  __Els);
         _ ->
             decode_vcard_temp_els(__TopXMLNS,
                                   __Opts,
@@ -1809,14 +1941,15 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo)
+                                  Geo,
+                                  [_el | __Els])
     end;
 decode_vcard_temp_els(__TopXMLNS, __Opts,
                       [{xmlel, <<"BDAY">>, _attrs, _} = _el | _els], Mailer,
                       Adr, Class, Categories, Desc, Uid, Prodid, Jabberid,
                       Sound, Note, Role, Title, Nickname, Rev, Sort_string,
                       Org, Bday, Key, Tz, Url, Email, Tel, Label, Fn, Version,
-                      N, Photo, Logo, Geo) ->
+                      N, Photo, Logo, Geo, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -1855,7 +1988,8 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo);
+                                  Geo,
+                                  __Els);
         _ ->
             decode_vcard_temp_els(__TopXMLNS,
                                   __Opts,
@@ -1888,14 +2022,15 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo)
+                                  Geo,
+                                  [_el | __Els])
     end;
 decode_vcard_temp_els(__TopXMLNS, __Opts,
                       [{xmlel, <<"JABBERID">>, _attrs, _} = _el | _els],
                       Mailer, Adr, Class, Categories, Desc, Uid, Prodid,
                       Jabberid, Sound, Note, Role, Title, Nickname, Rev,
                       Sort_string, Org, Bday, Key, Tz, Url, Email, Tel, Label,
-                      Fn, Version, N, Photo, Logo, Geo) ->
+                      Fn, Version, N, Photo, Logo, Geo, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -1934,7 +2069,8 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo);
+                                  Geo,
+                                  __Els);
         _ ->
             decode_vcard_temp_els(__TopXMLNS,
                                   __Opts,
@@ -1967,14 +2103,15 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo)
+                                  Geo,
+                                  [_el | __Els])
     end;
 decode_vcard_temp_els(__TopXMLNS, __Opts,
                       [{xmlel, <<"MAILER">>, _attrs, _} = _el | _els], Mailer,
                       Adr, Class, Categories, Desc, Uid, Prodid, Jabberid,
                       Sound, Note, Role, Title, Nickname, Rev, Sort_string,
                       Org, Bday, Key, Tz, Url, Email, Tel, Label, Fn, Version,
-                      N, Photo, Logo, Geo) ->
+                      N, Photo, Logo, Geo, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -2013,7 +2150,8 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo);
+                                  Geo,
+                                  __Els);
         _ ->
             decode_vcard_temp_els(__TopXMLNS,
                                   __Opts,
@@ -2046,14 +2184,15 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo)
+                                  Geo,
+                                  [_el | __Els])
     end;
 decode_vcard_temp_els(__TopXMLNS, __Opts,
                       [{xmlel, <<"TZ">>, _attrs, _} = _el | _els], Mailer,
                       Adr, Class, Categories, Desc, Uid, Prodid, Jabberid,
                       Sound, Note, Role, Title, Nickname, Rev, Sort_string,
                       Org, Bday, Key, Tz, Url, Email, Tel, Label, Fn, Version,
-                      N, Photo, Logo, Geo) ->
+                      N, Photo, Logo, Geo, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -2092,7 +2231,8 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo);
+                                  Geo,
+                                  __Els);
         _ ->
             decode_vcard_temp_els(__TopXMLNS,
                                   __Opts,
@@ -2125,14 +2265,15 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo)
+                                  Geo,
+                                  [_el | __Els])
     end;
 decode_vcard_temp_els(__TopXMLNS, __Opts,
                       [{xmlel, <<"TITLE">>, _attrs, _} = _el | _els], Mailer,
                       Adr, Class, Categories, Desc, Uid, Prodid, Jabberid,
                       Sound, Note, Role, Title, Nickname, Rev, Sort_string,
                       Org, Bday, Key, Tz, Url, Email, Tel, Label, Fn, Version,
-                      N, Photo, Logo, Geo) ->
+                      N, Photo, Logo, Geo, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -2171,7 +2312,8 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo);
+                                  Geo,
+                                  __Els);
         _ ->
             decode_vcard_temp_els(__TopXMLNS,
                                   __Opts,
@@ -2204,14 +2346,15 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo)
+                                  Geo,
+                                  [_el | __Els])
     end;
 decode_vcard_temp_els(__TopXMLNS, __Opts,
                       [{xmlel, <<"ROLE">>, _attrs, _} = _el | _els], Mailer,
                       Adr, Class, Categories, Desc, Uid, Prodid, Jabberid,
                       Sound, Note, Role, Title, Nickname, Rev, Sort_string,
                       Org, Bday, Key, Tz, Url, Email, Tel, Label, Fn, Version,
-                      N, Photo, Logo, Geo) ->
+                      N, Photo, Logo, Geo, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -2250,7 +2393,8 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo);
+                                  Geo,
+                                  __Els);
         _ ->
             decode_vcard_temp_els(__TopXMLNS,
                                   __Opts,
@@ -2283,14 +2427,15 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo)
+                                  Geo,
+                                  [_el | __Els])
     end;
 decode_vcard_temp_els(__TopXMLNS, __Opts,
                       [{xmlel, <<"NOTE">>, _attrs, _} = _el | _els], Mailer,
                       Adr, Class, Categories, Desc, Uid, Prodid, Jabberid,
                       Sound, Note, Role, Title, Nickname, Rev, Sort_string,
                       Org, Bday, Key, Tz, Url, Email, Tel, Label, Fn, Version,
-                      N, Photo, Logo, Geo) ->
+                      N, Photo, Logo, Geo, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -2329,7 +2474,8 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo);
+                                  Geo,
+                                  __Els);
         _ ->
             decode_vcard_temp_els(__TopXMLNS,
                                   __Opts,
@@ -2362,14 +2508,15 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo)
+                                  Geo,
+                                  [_el | __Els])
     end;
 decode_vcard_temp_els(__TopXMLNS, __Opts,
                       [{xmlel, <<"PRODID">>, _attrs, _} = _el | _els], Mailer,
                       Adr, Class, Categories, Desc, Uid, Prodid, Jabberid,
                       Sound, Note, Role, Title, Nickname, Rev, Sort_string,
                       Org, Bday, Key, Tz, Url, Email, Tel, Label, Fn, Version,
-                      N, Photo, Logo, Geo) ->
+                      N, Photo, Logo, Geo, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -2408,7 +2555,8 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo);
+                                  Geo,
+                                  __Els);
         _ ->
             decode_vcard_temp_els(__TopXMLNS,
                                   __Opts,
@@ -2441,14 +2589,15 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo)
+                                  Geo,
+                                  [_el | __Els])
     end;
 decode_vcard_temp_els(__TopXMLNS, __Opts,
                       [{xmlel, <<"REV">>, _attrs, _} = _el | _els], Mailer,
                       Adr, Class, Categories, Desc, Uid, Prodid, Jabberid,
                       Sound, Note, Role, Title, Nickname, Rev, Sort_string,
                       Org, Bday, Key, Tz, Url, Email, Tel, Label, Fn, Version,
-                      N, Photo, Logo, Geo) ->
+                      N, Photo, Logo, Geo, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -2487,7 +2636,8 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo);
+                                  Geo,
+                                  __Els);
         _ ->
             decode_vcard_temp_els(__TopXMLNS,
                                   __Opts,
@@ -2520,14 +2670,15 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo)
+                                  Geo,
+                                  [_el | __Els])
     end;
 decode_vcard_temp_els(__TopXMLNS, __Opts,
                       [{xmlel, <<"SORT-STRING">>, _attrs, _} = _el | _els],
                       Mailer, Adr, Class, Categories, Desc, Uid, Prodid,
                       Jabberid, Sound, Note, Role, Title, Nickname, Rev,
                       Sort_string, Org, Bday, Key, Tz, Url, Email, Tel, Label,
-                      Fn, Version, N, Photo, Logo, Geo) ->
+                      Fn, Version, N, Photo, Logo, Geo, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -2566,7 +2717,8 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo);
+                                  Geo,
+                                  __Els);
         _ ->
             decode_vcard_temp_els(__TopXMLNS,
                                   __Opts,
@@ -2599,14 +2751,15 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo)
+                                  Geo,
+                                  [_el | __Els])
     end;
 decode_vcard_temp_els(__TopXMLNS, __Opts,
                       [{xmlel, <<"UID">>, _attrs, _} = _el | _els], Mailer,
                       Adr, Class, Categories, Desc, Uid, Prodid, Jabberid,
                       Sound, Note, Role, Title, Nickname, Rev, Sort_string,
                       Org, Bday, Key, Tz, Url, Email, Tel, Label, Fn, Version,
-                      N, Photo, Logo, Geo) ->
+                      N, Photo, Logo, Geo, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -2645,7 +2798,8 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo);
+                                  Geo,
+                                  __Els);
         _ ->
             decode_vcard_temp_els(__TopXMLNS,
                                   __Opts,
@@ -2678,14 +2832,15 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo)
+                                  Geo,
+                                  [_el | __Els])
     end;
 decode_vcard_temp_els(__TopXMLNS, __Opts,
                       [{xmlel, <<"URL">>, _attrs, _} = _el | _els], Mailer,
                       Adr, Class, Categories, Desc, Uid, Prodid, Jabberid,
                       Sound, Note, Role, Title, Nickname, Rev, Sort_string,
                       Org, Bday, Key, Tz, Url, Email, Tel, Label, Fn, Version,
-                      N, Photo, Logo, Geo) ->
+                      N, Photo, Logo, Geo, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -2724,7 +2879,8 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo);
+                                  Geo,
+                                  __Els);
         _ ->
             decode_vcard_temp_els(__TopXMLNS,
                                   __Opts,
@@ -2757,14 +2913,15 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo)
+                                  Geo,
+                                  [_el | __Els])
     end;
 decode_vcard_temp_els(__TopXMLNS, __Opts,
                       [{xmlel, <<"DESC">>, _attrs, _} = _el | _els], Mailer,
                       Adr, Class, Categories, Desc, Uid, Prodid, Jabberid,
                       Sound, Note, Role, Title, Nickname, Rev, Sort_string,
                       Org, Bday, Key, Tz, Url, Email, Tel, Label, Fn, Version,
-                      N, Photo, Logo, Geo) ->
+                      N, Photo, Logo, Geo, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -2803,7 +2960,8 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo);
+                                  Geo,
+                                  __Els);
         _ ->
             decode_vcard_temp_els(__TopXMLNS,
                                   __Opts,
@@ -2836,14 +2994,15 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo)
+                                  Geo,
+                                  [_el | __Els])
     end;
 decode_vcard_temp_els(__TopXMLNS, __Opts,
                       [{xmlel, <<"CATEGORIES">>, _attrs, _} = _el | _els],
                       Mailer, Adr, Class, Categories, Desc, Uid, Prodid,
                       Jabberid, Sound, Note, Role, Title, Nickname, Rev,
                       Sort_string, Org, Bday, Key, Tz, Url, Email, Tel, Label,
-                      Fn, Version, N, Photo, Logo, Geo) ->
+                      Fn, Version, N, Photo, Logo, Geo, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -2882,7 +3041,8 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo);
+                                  Geo,
+                                  __Els);
         _ ->
             decode_vcard_temp_els(__TopXMLNS,
                                   __Opts,
@@ -2915,14 +3075,15 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo)
+                                  Geo,
+                                  [_el | __Els])
     end;
 decode_vcard_temp_els(__TopXMLNS, __Opts,
                       [{xmlel, <<"CLASS">>, _attrs, _} = _el | _els], Mailer,
                       Adr, Class, Categories, Desc, Uid, Prodid, Jabberid,
                       Sound, Note, Role, Title, Nickname, Rev, Sort_string,
                       Org, Bday, Key, Tz, Url, Email, Tel, Label, Fn, Version,
-                      N, Photo, Logo, Geo) ->
+                      N, Photo, Logo, Geo, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -2961,7 +3122,8 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo);
+                                  Geo,
+                                  __Els);
         _ ->
             decode_vcard_temp_els(__TopXMLNS,
                                   __Opts,
@@ -2994,13 +3156,134 @@ decode_vcard_temp_els(__TopXMLNS, __Opts,
                                   N,
                                   Photo,
                                   Logo,
-                                  Geo)
+                                  Geo,
+                                  [_el | __Els])
+    end;
+decode_vcard_temp_els(__TopXMLNS, __Opts,
+                      [{xmlel, _name, _attrs, _} = _el | _els], Mailer, Adr,
+                      Class, Categories, Desc, Uid, Prodid, Jabberid, Sound,
+                      Note, Role, Title, Nickname, Rev, Sort_string, Org,
+                      Bday, Key, Tz, Url, Email, Tel, Label, Fn, Version, N,
+                      Photo, Logo, Geo, __Els) ->
+    case proplists:get_bool(ignore_els, __Opts) of
+        true ->
+            decode_vcard_temp_els(__TopXMLNS,
+                                  __Opts,
+                                  _els,
+                                  Mailer,
+                                  Adr,
+                                  Class,
+                                  Categories,
+                                  Desc,
+                                  Uid,
+                                  Prodid,
+                                  Jabberid,
+                                  Sound,
+                                  Note,
+                                  Role,
+                                  Title,
+                                  Nickname,
+                                  Rev,
+                                  Sort_string,
+                                  Org,
+                                  Bday,
+                                  Key,
+                                  Tz,
+                                  Url,
+                                  Email,
+                                  Tel,
+                                  Label,
+                                  Fn,
+                                  Version,
+                                  N,
+                                  Photo,
+                                  Logo,
+                                  Geo,
+                                  [_el | __Els]);
+        false ->
+            __XMLNS = xmpp_codec:get_attr(<<"xmlns">>,
+                                          _attrs,
+                                          __TopXMLNS),
+            case xmpp_codec:get_mod(_name, __XMLNS) of
+                undefined ->
+                    decode_vcard_temp_els(__TopXMLNS,
+                                          __Opts,
+                                          _els,
+                                          Mailer,
+                                          Adr,
+                                          Class,
+                                          Categories,
+                                          Desc,
+                                          Uid,
+                                          Prodid,
+                                          Jabberid,
+                                          Sound,
+                                          Note,
+                                          Role,
+                                          Title,
+                                          Nickname,
+                                          Rev,
+                                          Sort_string,
+                                          Org,
+                                          Bday,
+                                          Key,
+                                          Tz,
+                                          Url,
+                                          Email,
+                                          Tel,
+                                          Label,
+                                          Fn,
+                                          Version,
+                                          N,
+                                          Photo,
+                                          Logo,
+                                          Geo,
+                                          [_el | __Els]);
+                Mod ->
+                    decode_vcard_temp_els(__TopXMLNS,
+                                          __Opts,
+                                          _els,
+                                          Mailer,
+                                          Adr,
+                                          Class,
+                                          Categories,
+                                          Desc,
+                                          Uid,
+                                          Prodid,
+                                          Jabberid,
+                                          Sound,
+                                          Note,
+                                          Role,
+                                          Title,
+                                          Nickname,
+                                          Rev,
+                                          Sort_string,
+                                          Org,
+                                          Bday,
+                                          Key,
+                                          Tz,
+                                          Url,
+                                          Email,
+                                          Tel,
+                                          Label,
+                                          Fn,
+                                          Version,
+                                          N,
+                                          Photo,
+                                          Logo,
+                                          Geo,
+                                          [Mod:do_decode(_name,
+                                                         __XMLNS,
+                                                         _el,
+                                                         __Opts)
+                                           | __Els])
+            end
     end;
 decode_vcard_temp_els(__TopXMLNS, __Opts, [_ | _els],
                       Mailer, Adr, Class, Categories, Desc, Uid, Prodid,
                       Jabberid, Sound, Note, Role, Title, Nickname, Rev,
                       Sort_string, Org, Bday, Key, Tz, Url, Email, Tel, Label,
-                      Fn, Version, N, Photo, Logo, Geo) ->
+                      Fn, Version, N, Photo, Logo, Geo, __Els) ->
     decode_vcard_temp_els(__TopXMLNS,
                           __Opts,
                           _els,
@@ -3032,7 +3315,8 @@ decode_vcard_temp_els(__TopXMLNS, __Opts, [_ | _els],
                           N,
                           Photo,
                           Logo,
-                          Geo).
+                          Geo,
+                          __Els).
 
 encode_vcard_temp({vcard_temp,
                    Version,
@@ -3063,71 +3347,75 @@ encode_vcard_temp({vcard_temp,
                    Url,
                    Class,
                    Key,
-                   Desc},
+                   Desc,
+                   __Els},
                   __TopXMLNS) ->
     __NewTopXMLNS =
         xmpp_codec:choose_top_xmlns(<<"vcard-temp">>,
                                     [],
                                     __TopXMLNS),
-    _els = lists:reverse('encode_vcard_temp_$mailer'(Mailer,
-                                                     __NewTopXMLNS,
-                                                     'encode_vcard_temp_$adr'(Adr,
-                                                                              __NewTopXMLNS,
-                                                                              'encode_vcard_temp_$class'(Class,
-                                                                                                         __NewTopXMLNS,
-                                                                                                         'encode_vcard_temp_$categories'(Categories,
-                                                                                                                                         __NewTopXMLNS,
-                                                                                                                                         'encode_vcard_temp_$desc'(Desc,
-                                                                                                                                                                   __NewTopXMLNS,
-                                                                                                                                                                   'encode_vcard_temp_$uid'(Uid,
-                                                                                                                                                                                            __NewTopXMLNS,
-                                                                                                                                                                                            'encode_vcard_temp_$prodid'(Prodid,
-                                                                                                                                                                                                                        __NewTopXMLNS,
-                                                                                                                                                                                                                        'encode_vcard_temp_$jabberid'(Jabberid,
-                                                                                                                                                                                                                                                      __NewTopXMLNS,
-                                                                                                                                                                                                                                                      'encode_vcard_temp_$sound'(Sound,
-                                                                                                                                                                                                                                                                                 __NewTopXMLNS,
-                                                                                                                                                                                                                                                                                 'encode_vcard_temp_$note'(Note,
-                                                                                                                                                                                                                                                                                                           __NewTopXMLNS,
-                                                                                                                                                                                                                                                                                                           'encode_vcard_temp_$role'(Role,
-                                                                                                                                                                                                                                                                                                                                     __NewTopXMLNS,
-                                                                                                                                                                                                                                                                                                                                     'encode_vcard_temp_$title'(Title,
-                                                                                                                                                                                                                                                                                                                                                                __NewTopXMLNS,
-                                                                                                                                                                                                                                                                                                                                                                'encode_vcard_temp_$nickname'(Nickname,
-                                                                                                                                                                                                                                                                                                                                                                                              __NewTopXMLNS,
-                                                                                                                                                                                                                                                                                                                                                                                              'encode_vcard_temp_$rev'(Rev,
-                                                                                                                                                                                                                                                                                                                                                                                                                       __NewTopXMLNS,
-                                                                                                                                                                                                                                                                                                                                                                                                                       'encode_vcard_temp_$sort_string'(Sort_string,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                        __NewTopXMLNS,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                        'encode_vcard_temp_$org'(Org,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 __NewTopXMLNS,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 'encode_vcard_temp_$bday'(Bday,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           __NewTopXMLNS,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           'encode_vcard_temp_$key'(Key,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    __NewTopXMLNS,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    'encode_vcard_temp_$tz'(Tz,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            __NewTopXMLNS,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            'encode_vcard_temp_$url'(Url,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     __NewTopXMLNS,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     'encode_vcard_temp_$email'(Email,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                __NewTopXMLNS,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                'encode_vcard_temp_$tel'(Tel,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         __NewTopXMLNS,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         'encode_vcard_temp_$label'(Label,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    __NewTopXMLNS,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    'encode_vcard_temp_$fn'(Fn,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            __NewTopXMLNS,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            'encode_vcard_temp_$version'(Version,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         __NewTopXMLNS,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         'encode_vcard_temp_$n'(N,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                __NewTopXMLNS,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                'encode_vcard_temp_$photo'(Photo,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           __NewTopXMLNS,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           'encode_vcard_temp_$logo'(Logo,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     __NewTopXMLNS,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     'encode_vcard_temp_$geo'(Geo,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              __NewTopXMLNS,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              [])))))))))))))))))))))))))))))),
+    _els = [xmpp_codec:encode(_el, __NewTopXMLNS)
+            || _el <- __Els]
+               ++
+               lists:reverse('encode_vcard_temp_$mailer'(Mailer,
+                                                         __NewTopXMLNS,
+                                                         'encode_vcard_temp_$adr'(Adr,
+                                                                                  __NewTopXMLNS,
+                                                                                  'encode_vcard_temp_$class'(Class,
+                                                                                                             __NewTopXMLNS,
+                                                                                                             'encode_vcard_temp_$categories'(Categories,
+                                                                                                                                             __NewTopXMLNS,
+                                                                                                                                             'encode_vcard_temp_$desc'(Desc,
+                                                                                                                                                                       __NewTopXMLNS,
+                                                                                                                                                                       'encode_vcard_temp_$uid'(Uid,
+                                                                                                                                                                                                __NewTopXMLNS,
+                                                                                                                                                                                                'encode_vcard_temp_$prodid'(Prodid,
+                                                                                                                                                                                                                            __NewTopXMLNS,
+                                                                                                                                                                                                                            'encode_vcard_temp_$jabberid'(Jabberid,
+                                                                                                                                                                                                                                                          __NewTopXMLNS,
+                                                                                                                                                                                                                                                          'encode_vcard_temp_$sound'(Sound,
+                                                                                                                                                                                                                                                                                     __NewTopXMLNS,
+                                                                                                                                                                                                                                                                                     'encode_vcard_temp_$note'(Note,
+                                                                                                                                                                                                                                                                                                               __NewTopXMLNS,
+                                                                                                                                                                                                                                                                                                               'encode_vcard_temp_$role'(Role,
+                                                                                                                                                                                                                                                                                                                                         __NewTopXMLNS,
+                                                                                                                                                                                                                                                                                                                                         'encode_vcard_temp_$title'(Title,
+                                                                                                                                                                                                                                                                                                                                                                    __NewTopXMLNS,
+                                                                                                                                                                                                                                                                                                                                                                    'encode_vcard_temp_$nickname'(Nickname,
+                                                                                                                                                                                                                                                                                                                                                                                                  __NewTopXMLNS,
+                                                                                                                                                                                                                                                                                                                                                                                                  'encode_vcard_temp_$rev'(Rev,
+                                                                                                                                                                                                                                                                                                                                                                                                                           __NewTopXMLNS,
+                                                                                                                                                                                                                                                                                                                                                                                                                           'encode_vcard_temp_$sort_string'(Sort_string,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                            __NewTopXMLNS,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                            'encode_vcard_temp_$org'(Org,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     __NewTopXMLNS,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     'encode_vcard_temp_$bday'(Bday,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               __NewTopXMLNS,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               'encode_vcard_temp_$key'(Key,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        __NewTopXMLNS,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        'encode_vcard_temp_$tz'(Tz,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                __NewTopXMLNS,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                'encode_vcard_temp_$url'(Url,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         __NewTopXMLNS,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         'encode_vcard_temp_$email'(Email,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    __NewTopXMLNS,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    'encode_vcard_temp_$tel'(Tel,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             __NewTopXMLNS,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             'encode_vcard_temp_$label'(Label,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        __NewTopXMLNS,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        'encode_vcard_temp_$fn'(Fn,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                __NewTopXMLNS,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                'encode_vcard_temp_$version'(Version,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             __NewTopXMLNS,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             'encode_vcard_temp_$n'(N,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    __NewTopXMLNS,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    'encode_vcard_temp_$photo'(Photo,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               __NewTopXMLNS,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               'encode_vcard_temp_$logo'(Logo,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         __NewTopXMLNS,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         'encode_vcard_temp_$geo'(Geo,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  __NewTopXMLNS,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  [])))))))))))))))))))))))))))))),
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
                                         __TopXMLNS),
     {xmlel, <<"vCard">>, _attrs, _els}.

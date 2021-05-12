@@ -1874,7 +1874,7 @@
                      '$mailer', '$tz', '$geo', '$title', '$role', '$logo',
                      '$org', '$categories', '$note', '$prodid', %% '$agent',
                      '$rev', '$sort_string', '$sound', '$uid', '$url', '$class',
-                     '$key', '$desc'},
+                     '$key', '$desc', '$_els'},
            refs = [#ref{name = vcard_N, min = 0, max = 1, label = '$n'},
                    #ref{name = vcard_ADR, label = '$adr'},
                    #ref{name = vcard_LABEL, label = '$label'},

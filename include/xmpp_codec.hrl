@@ -1212,7 +1212,8 @@
                      url :: 'undefined' | binary(),
                      class :: 'confidential' | 'private' | 'public' | 'undefined',
                      key :: 'undefined' | #vcard_key{},
-                     desc :: 'undefined' | binary()}).
+                     desc :: 'undefined' | binary(),
+                     sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
 -type vcard_temp() :: #vcard_temp{}.
 
 -record(time, {tzo :: 'undefined' | {integer(),integer()},
