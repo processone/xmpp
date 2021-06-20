@@ -41,8 +41,6 @@ IsRebar3 = case application:get_key(rebar, vsn) of
 		   lists:keymember(mix, 1, application:loaded_applications())
 	   end,
 
-JobId = case os:getenv("TRAVIS_JOB_ID") of false -> ""; V -> V end,
-
 ModCfg0 = fun(F, Cfg, [Key|Tail], Op, Default) ->
 		  {OldVal,PartCfg} = case lists:keytake(Key, 1, Cfg) of
 					 {value, {_, V1}, V2} -> {V1, V2};
@@ -129,6 +127,23 @@ ProcessErlOpt = fun(Vals) ->
 				  ErlOpt
 			  end, Vals)
 		end,
+GithubConfig = case {os:getenv("GITHUB_ACTIONS"), os:getenv("GITHUB_TOKEN")} of
+  {"true", Token} when is_list(Token) ->
+    CONFIG1 = [{coveralls_repo_token, Token},
+               {coveralls_service_job_id, os:getenv("GITHUB_RUN_ID")},
+               {coveralls_commit_sha, os:getenv("GITHUB_SHA")},
+               {coveralls_service_number, os:getenv("GITHUB_RUN_NUMBER")}],
+    case os:getenv("GITHUB_EVENT_NAME") =:= "pull_request"
+        andalso string:tokens(os:getenv("GITHUB_REF"), "/") of
+        [_, "pull", PRNO, _] ->
+            [{coveralls_service_pull_request, PRNO} | CONFIG1];
+        _ ->
+            CONFIG1
+    end;
+  _ ->
+    []
+end,
+
 Rules = [
 	 {[port_env, "CFLAGS"], SysVersion >= [7, 3],
 	  AppendStr("-DHAS_ERTS_EXIT"), "$CFLAGS"},
@@ -136,9 +151,12 @@ Rules = [
 	  AppendStr(CfgCFlags), "$CFLAGS"},
 	 {[port_env, "LDFLAGS"], true,
 	  AppendStr(CfgLDFlags), "$LDFLAGS"},
-	 {[post_hooks], CfgWithGCov == "true",
-	  AppendList([{eunit, "gcov -o c_src jid"},
+	 {[post_hooks], (not IsRebar3) and (CfgWithGCov == "true"),
+	  AppendList([{eunit, "gcov -o c_src stringprep"},
 		      {eunit, "mv *.gcov .eunit/"}]), []},
+	 {[post_hooks], IsRebar3 and (CfgWithGCov == "true"),
+	  AppendList([{eunit, "gcov -o c_src stringprep"},
+		      {eunit, "mv *.gcov _build/test/cover/"}]), []},
 	 {[port_env, "LDFLAGS"], CfgWithGCov == "true",
 	  AppendStr("--coverage"), ""},
 	 {[port_env, "CFLAGS"], CfgWithGCov == "true",
@@ -154,11 +172,10 @@ Rules = [
 			     {compile, {asn, compile}},
 			     {clean, {asn, clean}}
 			    ]}]), []},
-	 {[deps], os:getenv("TRAVIS") == "true",
-	  AppendList([{coveralls, ".*", {git, "https://github.com/markusn/coveralls-erl.git", {tag, "v2.0.1"}}}]), []},
-	 {[post_hooks], os:getenv("TRAVIS") == "true",
-	  AppendList([{eunit, "echo '\n%%! -pa .eunit/ deps/coveralls/ebin\nmain(_)->{ok,F}=file:open(\"erlang.json\",[write]),io:fwrite(F,\"~s\",[coveralls:convert_file(\".eunit/cover.coverdata\", \""++JobId++"\", \"travis-ci\",\"\")]).' > getcover.erl"},
-		      {eunit, "escript ./getcover.erl"}]), []},
+	 {[plugins], os:getenv("COVERALLS") == "true",
+	  AppendList([{coveralls, {git,
+	                           "https://github.com/RoadRunnr/coveralls-erl.git",
+	                           {branch, "feature/git-info"}}} ]), []},
 	 {[deps], os:getenv("USE_GLOBAL_DEPS") /= false,
 	  GlobalDepsFilter, []},
 	 {[erl_opts], true,
@@ -166,7 +183,7 @@ Rules = [
 	],
 
 
-Config = FilterConfig(FilterConfig, CONFIG, Rules),
+Config = FilterConfig(FilterConfig, CONFIG, Rules) ++ GithubConfig,
 
 %io:format("Rules:~n~p~n~nCONFIG:~n~p~n~nConfig:~n~p~n", [Rules, CONFIG, Config]),
 
