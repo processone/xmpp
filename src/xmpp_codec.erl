@@ -336,6 +336,8 @@ get_mod(<<"first">>, <<"jabber:iq:register">>) ->
 get_mod(<<"x">>,
         <<"http://jabber.org/protocol/muc">>) ->
     xep0045;
+get_mod(<<"channel">>, <<"urn:xmpp:mix:roster:0">>) ->
+    xep0405;
 get_mod(<<"media">>, <<"urn:xmpp:media-element">>) ->
     xep0221;
 get_mod(<<"out-of-order">>,
@@ -1678,6 +1680,7 @@ get_mod({muc, _, _}) -> xep0045;
 get_mod({carbons_enable}) -> xep0280;
 get_mod({carbons_private}) -> xep0280;
 get_mod({mix_leave}) -> xep0369;
+get_mod({mix_roster_channel, _}) -> xep0405;
 get_mod({services, _, _}) -> xep0215;
 get_mod({avatar_info, _, _, _, _, _, _}) -> xep0084;
 get_mod({privacy_list, _, _}) -> xep0016;
@@ -1744,7 +1747,6 @@ get_mod({muc_subscription, _, _, _}) -> p1_mucsub;
 get_mod({muc_subscribe, _, _, _, _}) -> p1_mucsub;
 get_mod({feature_csi}) -> xep0352;
 get_mod({ibb_open, _, _, _}) -> xep0047;
-get_mod({roster_item, _, _, _, _, _}) -> rfc6121;
 get_mod({vcard_tel,
          _,
          _,
@@ -1856,6 +1858,7 @@ get_mod({vcard_email, _, _, _, _, _, _}) -> xep0054;
 get_mod({ps_affiliation, _, _, _, _}) -> xep0060;
 get_mod({upload_retry, _}) -> xep0363;
 get_mod({x509_register}) -> xep0417;
+get_mod({roster_item, _, _, _, _, _, _}) -> rfc6121;
 get_mod({rsm_set, _, _, _, _, _, _, _}) -> xep0059;
 get_mod({avatar_meta, _, _}) -> xep0084;
 get_mod({unblock, _}) -> xep0191;

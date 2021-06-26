@@ -5,6 +5,11 @@
 
 -compile(export_all).
 
+do_decode(<<"channel">>, <<"urn:xmpp:mix:roster:0">>,
+          El, Opts) ->
+    decode_mix_roster_channel(<<"urn:xmpp:mix:roster:0">>,
+                              Opts,
+                              El);
 do_decode(<<"client-leave">>, <<"urn:xmpp:mix:pam:0">>,
           El, Opts) ->
     decode_mix_client_leave(<<"urn:xmpp:mix:pam:0">>,
@@ -21,7 +26,8 @@ do_decode(Name, XMLNS, _, _) ->
     erlang:error({xmpp_codec, {unknown_tag, Name, XMLNS}}).
 
 tags() ->
-    [{<<"client-leave">>, <<"urn:xmpp:mix:pam:0">>},
+    [{<<"channel">>, <<"urn:xmpp:mix:roster:0">>},
+     {<<"client-leave">>, <<"urn:xmpp:mix:pam:0">>},
      {<<"client-join">>, <<"urn:xmpp:mix:pam:0">>}].
 
 do_encode({mix_client_join, _, _} = Client_join,
@@ -29,24 +35,86 @@ do_encode({mix_client_join, _, _} = Client_join,
     encode_mix_client_join(Client_join, TopXMLNS);
 do_encode({mix_client_leave, _, _} = Client_leave,
           TopXMLNS) ->
-    encode_mix_client_leave(Client_leave, TopXMLNS).
+    encode_mix_client_leave(Client_leave, TopXMLNS);
+do_encode({mix_roster_channel, _} = Channel,
+          TopXMLNS) ->
+    encode_mix_roster_channel(Channel, TopXMLNS).
 
 do_get_name({mix_client_join, _, _}) ->
     <<"client-join">>;
 do_get_name({mix_client_leave, _, _}) ->
-    <<"client-leave">>.
+    <<"client-leave">>;
+do_get_name({mix_roster_channel, _}) -> <<"channel">>.
 
 do_get_ns({mix_client_join, _, _}) ->
     <<"urn:xmpp:mix:pam:0">>;
 do_get_ns({mix_client_leave, _, _}) ->
-    <<"urn:xmpp:mix:pam:0">>.
+    <<"urn:xmpp:mix:pam:0">>;
+do_get_ns({mix_roster_channel, _}) ->
+    <<"urn:xmpp:mix:roster:0">>.
 
 pp(mix_client_join, 2) -> [channel, join];
 pp(mix_client_leave, 2) -> [channel, leave];
+pp(mix_roster_channel, 1) -> ['participant-id'];
 pp(_, _) -> no.
 
 records() ->
-    [{mix_client_join, 2}, {mix_client_leave, 2}].
+    [{mix_client_join, 2},
+     {mix_client_leave, 2},
+     {mix_roster_channel, 1}].
+
+decode_mix_roster_channel(__TopXMLNS, __Opts,
+                          {xmlel, <<"channel">>, _attrs, _els}) ->
+    Participant_id =
+        decode_mix_roster_channel_attrs(__TopXMLNS,
+                                        _attrs,
+                                        undefined),
+    {mix_roster_channel, Participant_id}.
+
+decode_mix_roster_channel_attrs(__TopXMLNS,
+                                [{<<"participant-id">>, _val} | _attrs],
+                                _Participant_id) ->
+    decode_mix_roster_channel_attrs(__TopXMLNS,
+                                    _attrs,
+                                    _val);
+decode_mix_roster_channel_attrs(__TopXMLNS,
+                                [_ | _attrs], Participant_id) ->
+    decode_mix_roster_channel_attrs(__TopXMLNS,
+                                    _attrs,
+                                    Participant_id);
+decode_mix_roster_channel_attrs(__TopXMLNS, [],
+                                Participant_id) ->
+    'decode_mix_roster_channel_attr_participant-id'(__TopXMLNS,
+                                                    Participant_id).
+
+encode_mix_roster_channel({mix_roster_channel,
+                           Participant_id},
+                          __TopXMLNS) ->
+    __NewTopXMLNS =
+        xmpp_codec:choose_top_xmlns(<<"urn:xmpp:mix:roster:0">>,
+                                    [],
+                                    __TopXMLNS),
+    _els = [],
+    _attrs =
+        'encode_mix_roster_channel_attr_participant-id'(Participant_id,
+                                                        xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
+                                                                                   __TopXMLNS)),
+    {xmlel, <<"channel">>, _attrs, _els}.
+
+'decode_mix_roster_channel_attr_participant-id'(__TopXMLNS,
+                                                undefined) ->
+    erlang:error({xmpp_codec,
+                  {missing_attr,
+                   <<"participant-id">>,
+                   <<"channel">>,
+                   __TopXMLNS}});
+'decode_mix_roster_channel_attr_participant-id'(__TopXMLNS,
+                                                _val) ->
+    _val.
+
+'encode_mix_roster_channel_attr_participant-id'(_val,
+                                                _acc) ->
+    [{<<"participant-id">>, _val} | _acc].
 
 decode_mix_client_leave(__TopXMLNS, __Opts,
                         {xmlel, <<"client-leave">>, _attrs, _els}) ->

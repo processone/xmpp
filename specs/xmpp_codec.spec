@@ -71,7 +71,7 @@
            xmlns = <<"jabber:iq:roster">>,
 	   module = rfc6121,
            result = {roster_item, '$jid', '$name',
-                     '$groups', '$subscription', '$ask'},
+                     '$groups', '$subscription', '$ask', '$mix_channel'},
            attrs = [#attr{name = <<"jid">>,
                           required = true,
                           dec = {jid, decode, []},
@@ -85,7 +85,8 @@
                     #attr{name = <<"ask">>,
                           enc = {enc_enum, []},
                           dec = {dec_enum, [[subscribe]]}}],
-           refs = [#ref{name = roster_group, label = '$groups'}]}).
+           refs = [#ref{name = roster_group, label = '$groups'},
+                   #ref{name = mix_roster_channel, label = '$mix_channel', min = 0, max = 1}]}).
 
 -xml(roster_query,
      #elem{name = <<"query">>,
@@ -3574,6 +3575,14 @@
 		   #ref{name = mix_jid,	min = 0, max = 1, label = '$jid'},
 		   #ref{name = mix_nick, min = 0, max = 1,
 			label = '$nick', default = <<"">>}]}).
+
+-xml(mix_roster_channel,
+     #elem{name = <<"channel">>,
+           xmlns = <<"urn:xmpp:mix:roster:0">>,
+           module = 'xep0405',
+           result = {mix_roster_channel, '$participant-id'},
+           attrs = [#attr{name = <<"participant-id">>,
+                          required = true}]}).
 
 -record(hint, {type :: 'no-copy' | 'no-store' | 'no-storage' | 'store' |
 		       'no-permanent-store' | 'no-permanent-storage'}).
