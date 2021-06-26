@@ -175,9 +175,14 @@
 -define(NS_SIC_0, <<"urn:xmpp:sic:0">>).
 -define(NS_SIC_1, <<"urn:xmpp:sic:1">>).
 -define(NS_MIX_CORE_0, <<"urn:xmpp:mix:core:0">>).
+-define(NS_MIX_CORE_1, <<"urn:xmpp:mix:core:1">>).
 -define(NS_MIX_CORE_SEARCHABLE_0, <<"urn:xmpp:mix:core:0#searchable">>).
+-define(NS_MIX_CORE_SEARCHABLE_1, <<"urn:xmpp:mix:core:1#searchable">>).
 -define(NS_MIX_CORE_CREATE_CHANNEL_0, <<"urn:xmpp:mix:core:0#create-channel">>).
+-define(NS_MIX_CORE_CREATE_CHANNEL_1, <<"urn:xmpp:mix:core:1#create-channel">>).
 -define(NS_MIX_PAM_0, <<"urn:xmpp:mix:pam:0">>).
+-define(NS_MIX_PAM_2, <<"urn:xmpp:mix:pam:2">>).
+-define(NS_MIX_PAM_ARCHIVE_2, <<"urn:xmpp:mix:pam:2#archive">>).
 -define(NS_MIX_ROSTER_0, <<"urn:xmpp:mix:roster:0">>).
 -define(NS_MIX_NODES_MESSAGES, <<"urn:xmpp:mix:nodes:messages">>).
 -define(NS_MIX_NODES_PRESENCE, <<"urn:xmpp:mix:nodes:presence">>).
