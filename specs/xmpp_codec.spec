@@ -3455,7 +3455,7 @@
 
 -xml(mix_subscribe,
      #elem{name = <<"subscribe">>,
-	   xmlns = <<"urn:xmpp:mix:core:0">>,
+	   xmlns = [<<"urn:xmpp:mix:core:0">>, <<"urn:xmpp:mix:core:1">>],
 	   module = 'xep0369',
 	   result = '$node',
 	   attrs = [#attr{name = <<"node">>,
@@ -3464,14 +3464,14 @@
 
 -xml(mix_nick,
      #elem{name = <<"nick">>,
-	   xmlns = <<"urn:xmpp:mix:core:0">>,
+	   xmlns = [<<"urn:xmpp:mix:core:0">>, <<"urn:xmpp:mix:core:1">>],
 	   module = 'xep0369',
 	   result = '$cdata',
 	   cdata = #cdata{required = true}}).
 
 -xml(mix_jid,
      #elem{name = <<"jid">>,
-	   xmlns = <<"urn:xmpp:mix:core:0">>,
+	   xmlns = [<<"urn:xmpp:mix:core:0">>, <<"urn:xmpp:mix:core:1">>],
 	   module = 'xep0369',
 	   result = '$cdata',
 	   cdata = #cdata{required = true,
@@ -3487,7 +3487,7 @@
 
 -xml(mix_setnick,
      #elem{name = <<"setnick">>,
-	   xmlns = <<"urn:xmpp:mix:core:0">>,
+	   xmlns = [<<"urn:xmpp:mix:core:0">>, <<"urn:xmpp:mix:core:1">>],
 	   module = 'xep0369',
 	   result = {mix_setnick, '$nick'},
 	   refs = [#ref{name = mix_nick, min = 1, max = 1,
@@ -3495,7 +3495,7 @@
 
 -xml(mix_join,
      #elem{name = <<"join">>,
-	   xmlns = <<"urn:xmpp:mix:core:0">>,
+	   xmlns = [<<"urn:xmpp:mix:core:0">>, <<"urn:xmpp:mix:core:1">>],
 	   module = 'xep0369',
 	   result = {mix_join, '$id', '$jid', '$nick', '$subscribe'},
 	   attrs = [#attr{name = <<"id">>},
@@ -3511,7 +3511,7 @@
 
 -xml(mix_client_join,
      #elem{name = <<"client-join">>,
-	   xmlns = <<"urn:xmpp:mix:pam:0">>,
+	   xmlns = [<<"urn:xmpp:mix:pam:0">>, <<"urn:xmpp:mix:pam:2">>],
 	   module = 'xep0405',
 	   result = {mix_client_join, '$channel', '$join'},
 	   attrs = [#attr{name = <<"channel">>,
@@ -3521,13 +3521,13 @@
 
 -xml(mix_leave,
      #elem{name = <<"leave">>,
-	   xmlns = <<"urn:xmpp:mix:core:0">>,
+	   xmlns = [<<"urn:xmpp:mix:core:0">>, <<"urn:xmpp:mix:core:1">>],
 	   module = 'xep0369',
 	   result = {mix_leave}}).
 
 -xml(mix_client_leave,
      #elem{name = <<"client-leave">>,
-	   xmlns = <<"urn:xmpp:mix:pam:0">>,
+	   xmlns = [<<"urn:xmpp:mix:pam:0">>, <<"urn:xmpp:mix:pam:2">>],
 	   module = 'xep0405',
 	   result = {mix_client_leave, '$channel', '$leave'},
 	   attrs = [#attr{name = <<"channel">>,
@@ -3537,7 +3537,7 @@
 
 -xml(mix_participant,
      #elem{name = <<"participant">>,
-	   xmlns = <<"urn:xmpp:mix:core:0">>,
+	   xmlns = [<<"urn:xmpp:mix:core:0">>, <<"urn:xmpp:mix:core:1">>],
 	   module = 'xep0369',
 	   result = {mix_participant, '$jid', '$nick'},
 	   attrs = [#attr{name = <<"jid">>,
@@ -3550,7 +3550,7 @@
 
 -xml(mix_create,
      #elem{name = <<"create">>,
-	   xmlns = <<"urn:xmpp:mix:core:0">>,
+	   xmlns = [<<"urn:xmpp:mix:core:0">>, <<"urn:xmpp:mix:core:1">>],
 	   module = 'xep0369',
 	   result = {mix_create, '$channel'},
 	   attrs = [#attr{name = <<"channel">>,
@@ -3559,7 +3559,7 @@
 
 -xml(mix_destroy,
      #elem{name = <<"destroy">>,
-	   xmlns = <<"urn:xmpp:mix:core:0">>,
+	   xmlns = [<<"urn:xmpp:mix:core:0">>, <<"urn:xmpp:mix:core:1">>],
 	   module = 'xep0369',
 	   result = {mix_destroy, '$channel'},
 	   attrs = [#attr{name = <<"channel">>,
@@ -3568,7 +3568,7 @@
 
 -xml(mix,
      #elem{name = <<"mix">>,
-	   xmlns = <<"urn:xmpp:mix:core:0">>,
+	   xmlns = [<<"urn:xmpp:mix:core:0">>, <<"urn:xmpp:mix:core:1">>],
 	   module = 'xep0369',
 	   result = {mix, '$submission_id', '$jid', '$nick'},
 	   refs = [#ref{name = mix_submission_id, default = <<"">>,
