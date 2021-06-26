@@ -5,6 +5,11 @@
 
 -compile(export_all).
 
+do_decode(<<"annotate">>, <<"urn:xmpp:mix:roster:0">>,
+          El, Opts) ->
+    decode_mix_roster_annotate(<<"urn:xmpp:mix:roster:0">>,
+                               Opts,
+                               El);
 do_decode(<<"channel">>, <<"urn:xmpp:mix:roster:0">>,
           El, Opts) ->
     decode_mix_roster_channel(<<"urn:xmpp:mix:roster:0">>,
@@ -26,7 +31,8 @@ do_decode(Name, XMLNS, _, _) ->
     erlang:error({xmpp_codec, {unknown_tag, Name, XMLNS}}).
 
 tags() ->
-    [{<<"channel">>, <<"urn:xmpp:mix:roster:0">>},
+    [{<<"annotate">>, <<"urn:xmpp:mix:roster:0">>},
+     {<<"channel">>, <<"urn:xmpp:mix:roster:0">>},
      {<<"client-leave">>, <<"urn:xmpp:mix:pam:0">>},
      {<<"client-join">>, <<"urn:xmpp:mix:pam:0">>}].
 
@@ -38,30 +44,52 @@ do_encode({mix_client_leave, _, _} = Client_leave,
     encode_mix_client_leave(Client_leave, TopXMLNS);
 do_encode({mix_roster_channel, _} = Channel,
           TopXMLNS) ->
-    encode_mix_roster_channel(Channel, TopXMLNS).
+    encode_mix_roster_channel(Channel, TopXMLNS);
+do_encode({mix_roster_annotate} = Annotate, TopXMLNS) ->
+    encode_mix_roster_annotate(Annotate, TopXMLNS).
 
 do_get_name({mix_client_join, _, _}) ->
     <<"client-join">>;
 do_get_name({mix_client_leave, _, _}) ->
     <<"client-leave">>;
+do_get_name({mix_roster_annotate}) -> <<"annotate">>;
 do_get_name({mix_roster_channel, _}) -> <<"channel">>.
 
 do_get_ns({mix_client_join, _, _}) ->
     <<"urn:xmpp:mix:pam:0">>;
 do_get_ns({mix_client_leave, _, _}) ->
     <<"urn:xmpp:mix:pam:0">>;
+do_get_ns({mix_roster_annotate}) ->
+    <<"urn:xmpp:mix:roster:0">>;
 do_get_ns({mix_roster_channel, _}) ->
     <<"urn:xmpp:mix:roster:0">>.
 
 pp(mix_client_join, 2) -> [channel, join];
 pp(mix_client_leave, 2) -> [channel, leave];
 pp(mix_roster_channel, 1) -> ['participant-id'];
+pp(mix_roster_annotate, 0) -> [];
 pp(_, _) -> no.
 
 records() ->
     [{mix_client_join, 2},
      {mix_client_leave, 2},
-     {mix_roster_channel, 1}].
+     {mix_roster_channel, 1},
+     {mix_roster_annotate, 0}].
+
+decode_mix_roster_annotate(__TopXMLNS, __Opts,
+                           {xmlel, <<"annotate">>, _attrs, _els}) ->
+    {mix_roster_annotate}.
+
+encode_mix_roster_annotate({mix_roster_annotate},
+                           __TopXMLNS) ->
+    __NewTopXMLNS =
+        xmpp_codec:choose_top_xmlns(<<"urn:xmpp:mix:roster:0">>,
+                                    [],
+                                    __TopXMLNS),
+    _els = [],
+    _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
+                                        __TopXMLNS),
+    {xmlel, <<"annotate">>, _attrs, _els}.
 
 decode_mix_roster_channel(__TopXMLNS, __Opts,
                           {xmlel, <<"channel">>, _attrs, _els}) ->

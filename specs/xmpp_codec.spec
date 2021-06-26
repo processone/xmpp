@@ -92,9 +92,10 @@
      #elem{name = <<"query">>,
            xmlns = <<"jabber:iq:roster">>,
 	   module = rfc6121,
-           result = {roster_query, '$items', '$ver'},
+           result = {roster_query, '$items', '$ver', '$mix_annotate'},
            attrs = [#attr{name = <<"ver">>, default = undefined}],
-           refs = [#ref{name = roster_item, label = '$items'}]}).
+           refs = [#ref{name = roster_item, label = '$items'},
+                   #ref{name = mix_roster_annotate, label = '$mix_annotate', min = 0, max = 1}]}).
 
 -xml(rosterver_feature,
      #elem{name = <<"ver">>,
@@ -3583,6 +3584,12 @@
            result = {mix_roster_channel, '$participant-id'},
            attrs = [#attr{name = <<"participant-id">>,
                           required = true}]}).
+
+-xml(mix_roster_annotate,
+     #elem{name  = <<"annotate">>,
+           xmlns = <<"urn:xmpp:mix:roster:0">>,
+           module = 'xep0405',
+           result = {mix_roster_annotate}}).
 
 -record(hint, {type :: 'no-copy' | 'no-store' | 'no-storage' | 'store' |
 		       'no-permanent-store' | 'no-permanent-storage'}).
