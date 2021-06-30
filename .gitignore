@@ -2,3 +2,6 @@ c_src/*.o
 deps/
 ebin/
 priv/
+include/XmppAddr.hrl
+src/XmppAddr.asn1db
+src/XmppAddr.erl
