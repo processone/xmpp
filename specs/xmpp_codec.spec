@@ -3753,7 +3753,7 @@
      #elem{name = <<"address">>,
 	   xmlns = <<"http://jabber.org/protocol/address">>,
 	   module = 'xep0033',
-	   result = {address, '$type', '$jid', '$desc', '$node', '$delivered'},
+	   result = {address, '$type', '$jid', '$desc', '$node', '$delivered', '$_els'},
 	   attrs = [#attr{name = <<"type">>,
 			  required = true,
 			  dec = {dec_enum, [[bcc, cc, noreply, ofrom,
