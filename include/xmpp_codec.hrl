@@ -118,8 +118,7 @@
                   jid :: undefined | jid:jid(),
                   desc = <<>> :: binary(),
                   node = <<>> :: binary(),
-                  delivered :: 'false' | 'true' | 'undefined',
-                  sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
+                  delivered :: 'false' | 'true' | 'undefined'}).
 -type address() :: #address{}.
 
 -record(sasl_success, {text = <<>> :: binary()}).
