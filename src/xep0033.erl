@@ -26,25 +26,52 @@ tags() ->
      {<<"address">>,
       <<"http://jabber.org/protocol/address">>}].
 
-do_encode({address, _, _, _, _, _} = Address,
+do_encode({address, _, _, _, _, _, _} = Address,
           TopXMLNS) ->
     encode_address(Address, TopXMLNS);
 do_encode({addresses, _} = Addresses, TopXMLNS) ->
     encode_addresses(Addresses, TopXMLNS).
 
-do_get_name({address, _, _, _, _, _}) -> <<"address">>;
+do_get_name({address, _, _, _, _, _, _}) ->
+    <<"address">>;
 do_get_name({addresses, _}) -> <<"addresses">>.
 
-do_get_ns({address, _, _, _, _, _}) ->
+do_get_ns({address, _, _, _, _, _, _}) ->
     <<"http://jabber.org/protocol/address">>;
 do_get_ns({addresses, _}) ->
     <<"http://jabber.org/protocol/address">>.
 
-pp(address, 5) -> [type, jid, desc, node, delivered];
+get_els({address,
+         _type,
+         _jid,
+         _desc,
+         _node,
+         _delivered,
+         _sub_els}) ->
+    _sub_els.
+
+set_els({address,
+         _type,
+         _jid,
+         _desc,
+         _node,
+         _delivered,
+         _},
+        _sub_els) ->
+    {address,
+     _type,
+     _jid,
+     _desc,
+     _node,
+     _delivered,
+     _sub_els}.
+
+pp(address, 6) ->
+    [type, jid, desc, node, delivered, sub_els];
 pp(addresses, 1) -> [list];
 pp(_, _) -> no.
 
-records() -> [{address, 5}, {addresses, 1}].
+records() -> [{address, 6}, {addresses, 1}].
 
 dec_bool(<<"false">>) -> false;
 dec_bool(<<"0">>) -> false;
@@ -115,6 +142,10 @@ encode_addresses({addresses, List}, __TopXMLNS) ->
 
 decode_address(__TopXMLNS, __Opts,
                {xmlel, <<"address">>, _attrs, _els}) ->
+    __Els = decode_address_els(__TopXMLNS,
+                               __Opts,
+                               _els,
+                               []),
     {Type, Jid, Desc, Node, Delivered} =
         decode_address_attrs(__TopXMLNS,
                              _attrs,
@@ -123,7 +154,42 @@ decode_address(__TopXMLNS, __Opts,
                              undefined,
                              undefined,
                              undefined),
-    {address, Type, Jid, Desc, Node, Delivered}.
+    {address, Type, Jid, Desc, Node, Delivered, __Els}.
+
+decode_address_els(__TopXMLNS, __Opts, [], __Els) ->
+    lists:reverse(__Els);
+decode_address_els(__TopXMLNS, __Opts,
+                   [{xmlel, _name, _attrs, _} = _el | _els], __Els) ->
+    case proplists:get_bool(ignore_els, __Opts) of
+        true ->
+            decode_address_els(__TopXMLNS,
+                               __Opts,
+                               _els,
+                               [_el | __Els]);
+        false ->
+            __XMLNS = xmpp_codec:get_attr(<<"xmlns">>,
+                                          _attrs,
+                                          __TopXMLNS),
+            case xmpp_codec:get_mod(_name, __XMLNS) of
+                undefined ->
+                    decode_address_els(__TopXMLNS,
+                                       __Opts,
+                                       _els,
+                                       [_el | __Els]);
+                Mod ->
+                    decode_address_els(__TopXMLNS,
+                                       __Opts,
+                                       _els,
+                                       [Mod:do_decode(_name,
+                                                      __XMLNS,
+                                                      _el,
+                                                      __Opts)
+                                        | __Els])
+            end
+    end;
+decode_address_els(__TopXMLNS, __Opts, [_ | _els],
+                   __Els) ->
+    decode_address_els(__TopXMLNS, __Opts, _els, __Els).
 
 decode_address_attrs(__TopXMLNS,
                      [{<<"type">>, _val} | _attrs], _Type, Jid, Desc, Node,
@@ -197,13 +263,15 @@ encode_address({address,
                 Jid,
                 Desc,
                 Node,
-                Delivered},
+                Delivered,
+                __Els},
                __TopXMLNS) ->
     __NewTopXMLNS =
         xmpp_codec:choose_top_xmlns(<<"http://jabber.org/protocol/address">>,
                                     [],
                                     __TopXMLNS),
-    _els = [],
+    _els = [xmpp_codec:encode(_el, __NewTopXMLNS)
+            || _el <- __Els],
     _attrs = encode_address_attr_delivered(Delivered,
                                            encode_address_attr_node(Node,
                                                                     encode_address_attr_desc(Desc,
