@@ -27,6 +27,7 @@ spec: src/xmpp_codec.erl include/xmpp_codec.hrl $(DEPDIR)/fast_xml/ebin/fxml_gen
 	'case fxml_gen:compile("specs/xmpp_codec.spec", [{add_type_specs, xmpp_element}, {erl_dir, "src"}, {hrl_dir, "include"}]) of ok -> halt(0); _ -> halt(1) end.'
 
 xdata: ebin/xdata_codec.beam
+	ERLTIDY=true $(REBAR) compile
 	$(ERL) -noinput +B -pa ebin -pa $(DEPDIR)/*/ebin -eval \
 	'case xdata_codec:compile("specs", [{erl_dir, "src"}, {hrl_dir, "include"}]) of ok -> halt(0); _ -> halt(1) end.'
 
