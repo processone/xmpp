@@ -16,6 +16,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - run: rebar3 compile
+    - run: ERLTIDY=true rebar3 compile
     - run: rebar3 xref
     - run: rebar3 dialyzer
     - run: rebar3 eunit -v
