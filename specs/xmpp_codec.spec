@@ -71,7 +71,7 @@
            xmlns = <<"jabber:iq:roster">>,
 	   module = rfc6121,
            result = {roster_item, '$jid', '$name',
-                     '$groups', '$subscription', '$ask'},
+                     '$groups', '$subscription', '$ask', '$mix_channel'},
            attrs = [#attr{name = <<"jid">>,
                           required = true,
                           dec = {jid, decode, []},
@@ -85,15 +85,17 @@
                     #attr{name = <<"ask">>,
                           enc = {enc_enum, []},
                           dec = {dec_enum, [[subscribe]]}}],
-           refs = [#ref{name = roster_group, label = '$groups'}]}).
+           refs = [#ref{name = roster_group, label = '$groups'},
+                   #ref{name = mix_roster_channel, label = '$mix_channel', min = 0, max = 1}]}).
 
 -xml(roster_query,
      #elem{name = <<"query">>,
            xmlns = <<"jabber:iq:roster">>,
 	   module = rfc6121,
-           result = {roster_query, '$items', '$ver'},
+           result = {roster_query, '$items', '$ver', '$mix_annotate'},
            attrs = [#attr{name = <<"ver">>, default = undefined}],
-           refs = [#ref{name = roster_item, label = '$items'}]}).
+           refs = [#ref{name = roster_item, label = '$items'},
+                   #ref{name = mix_roster_annotate, label = '$mix_annotate', min = 0, max = 1}]}).
 
 -xml(rosterver_feature,
      #elem{name = <<"ver">>,
@@ -3453,7 +3455,7 @@
 
 -xml(mix_subscribe,
      #elem{name = <<"subscribe">>,
-	   xmlns = <<"urn:xmpp:mix:core:0">>,
+	   xmlns = [<<"urn:xmpp:mix:core:0">>, <<"urn:xmpp:mix:core:1">>],
 	   module = 'xep0369',
 	   result = '$node',
 	   attrs = [#attr{name = <<"node">>,
@@ -3462,14 +3464,14 @@
 
 -xml(mix_nick,
      #elem{name = <<"nick">>,
-	   xmlns = <<"urn:xmpp:mix:core:0">>,
+	   xmlns = [<<"urn:xmpp:mix:core:0">>, <<"urn:xmpp:mix:core:1">>],
 	   module = 'xep0369',
 	   result = '$cdata',
 	   cdata = #cdata{required = true}}).
 
 -xml(mix_jid,
      #elem{name = <<"jid">>,
-	   xmlns = <<"urn:xmpp:mix:core:0">>,
+	   xmlns = [<<"urn:xmpp:mix:core:0">>, <<"urn:xmpp:mix:core:1">>],
 	   module = 'xep0369',
 	   result = '$cdata',
 	   cdata = #cdata{required = true,
@@ -3485,7 +3487,7 @@
 
 -xml(mix_setnick,
      #elem{name = <<"setnick">>,
-	   xmlns = <<"urn:xmpp:mix:core:0">>,
+	   xmlns = [<<"urn:xmpp:mix:core:0">>, <<"urn:xmpp:mix:core:1">>],
 	   module = 'xep0369',
 	   result = {mix_setnick, '$nick'},
 	   refs = [#ref{name = mix_nick, min = 1, max = 1,
@@ -3493,7 +3495,7 @@
 
 -xml(mix_join,
      #elem{name = <<"join">>,
-	   xmlns = <<"urn:xmpp:mix:core:0">>,
+	   xmlns = [<<"urn:xmpp:mix:core:0">>, <<"urn:xmpp:mix:core:1">>],
 	   module = 'xep0369',
 	   result = {mix_join, '$id', '$jid', '$nick', '$subscribe'},
 	   attrs = [#attr{name = <<"id">>},
@@ -3509,7 +3511,7 @@
 
 -xml(mix_client_join,
      #elem{name = <<"client-join">>,
-	   xmlns = <<"urn:xmpp:mix:pam:0">>,
+	   xmlns = [<<"urn:xmpp:mix:pam:0">>, <<"urn:xmpp:mix:pam:2">>],
 	   module = 'xep0405',
 	   result = {mix_client_join, '$channel', '$join'},
 	   attrs = [#attr{name = <<"channel">>,
@@ -3519,13 +3521,13 @@
 
 -xml(mix_leave,
      #elem{name = <<"leave">>,
-	   xmlns = <<"urn:xmpp:mix:core:0">>,
+	   xmlns = [<<"urn:xmpp:mix:core:0">>, <<"urn:xmpp:mix:core:1">>],
 	   module = 'xep0369',
 	   result = {mix_leave}}).
 
 -xml(mix_client_leave,
      #elem{name = <<"client-leave">>,
-	   xmlns = <<"urn:xmpp:mix:pam:0">>,
+	   xmlns = [<<"urn:xmpp:mix:pam:0">>, <<"urn:xmpp:mix:pam:2">>],
 	   module = 'xep0405',
 	   result = {mix_client_leave, '$channel', '$leave'},
 	   attrs = [#attr{name = <<"channel">>,
@@ -3535,7 +3537,7 @@
 
 -xml(mix_participant,
      #elem{name = <<"participant">>,
-	   xmlns = <<"urn:xmpp:mix:core:0">>,
+	   xmlns = [<<"urn:xmpp:mix:core:0">>, <<"urn:xmpp:mix:core:1">>],
 	   module = 'xep0369',
 	   result = {mix_participant, '$jid', '$nick'},
 	   attrs = [#attr{name = <<"jid">>,
@@ -3548,7 +3550,7 @@
 
 -xml(mix_create,
      #elem{name = <<"create">>,
-	   xmlns = <<"urn:xmpp:mix:core:0">>,
+	   xmlns = [<<"urn:xmpp:mix:core:0">>, <<"urn:xmpp:mix:core:1">>],
 	   module = 'xep0369',
 	   result = {mix_create, '$channel'},
 	   attrs = [#attr{name = <<"channel">>,
@@ -3557,7 +3559,7 @@
 
 -xml(mix_destroy,
      #elem{name = <<"destroy">>,
-	   xmlns = <<"urn:xmpp:mix:core:0">>,
+	   xmlns = [<<"urn:xmpp:mix:core:0">>, <<"urn:xmpp:mix:core:1">>],
 	   module = 'xep0369',
 	   result = {mix_destroy, '$channel'},
 	   attrs = [#attr{name = <<"channel">>,
@@ -3566,7 +3568,7 @@
 
 -xml(mix,
      #elem{name = <<"mix">>,
-	   xmlns = <<"urn:xmpp:mix:core:0">>,
+	   xmlns = [<<"urn:xmpp:mix:core:0">>, <<"urn:xmpp:mix:core:1">>],
 	   module = 'xep0369',
 	   result = {mix, '$submission_id', '$jid', '$nick'},
 	   refs = [#ref{name = mix_submission_id, default = <<"">>,
@@ -3574,6 +3576,20 @@
 		   #ref{name = mix_jid,	min = 0, max = 1, label = '$jid'},
 		   #ref{name = mix_nick, min = 0, max = 1,
 			label = '$nick', default = <<"">>}]}).
+
+-xml(mix_roster_channel,
+     #elem{name = <<"channel">>,
+           xmlns = <<"urn:xmpp:mix:roster:0">>,
+           module = 'xep0405',
+           result = {mix_roster_channel, '$participant-id'},
+           attrs = [#attr{name = <<"participant-id">>,
+                          required = true}]}).
+
+-xml(mix_roster_annotate,
+     #elem{name  = <<"annotate">>,
+           xmlns = <<"urn:xmpp:mix:roster:0">>,
+           module = 'xep0405',
+           result = {mix_roster_annotate}}).
 
 -record(hint, {type :: 'no-copy' | 'no-store' | 'no-storage' | 'store' |
 		       'no-permanent-store' | 'no-permanent-storage'}).

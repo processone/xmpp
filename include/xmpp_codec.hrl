@@ -318,6 +318,9 @@
 -record(db_feature, {errors = false :: boolean()}).
 -type db_feature() :: #db_feature{}.
 
+-record(mix_roster_annotate, {}).
+-type mix_roster_annotate() :: #mix_roster_annotate{}.
+
 -record(x_conference, {jid :: jid:jid(),
                        password = <<>> :: binary(),
                        reason = <<>> :: binary(),
@@ -365,17 +368,6 @@
 
 -record(nick, {name = <<>> :: binary()}).
 -type nick() :: #nick{}.
-
--record(roster_item, {jid :: jid:jid(),
-                      name = <<>> :: binary(),
-                      groups = [] :: [binary()],
-                      subscription = none :: 'both' | 'from' | 'none' | 'remove' | 'to',
-                      ask :: 'subscribe' | 'undefined'}).
--type roster_item() :: #roster_item{}.
-
--record(roster_query, {items = [] :: [#roster_item{}],
-                       ver :: 'undefined' | binary()}).
--type roster_query() :: #roster_query{}.
 
 -record(feature_sm, {xmlns = <<>> :: binary()}).
 -type feature_sm() :: #feature_sm{}.
@@ -894,6 +886,22 @@
 -record(mix_setnick, {nick :: binary()}).
 -type mix_setnick() :: #mix_setnick{}.
 
+-record(mix_roster_channel, {'participant-id' = <<>> :: binary()}).
+-type mix_roster_channel() :: #mix_roster_channel{}.
+
+-record(roster_item, {jid :: jid:jid(),
+                      name = <<>> :: binary(),
+                      groups = [] :: [binary()],
+                      subscription = none :: 'both' | 'from' | 'none' | 'remove' | 'to',
+                      ask :: 'subscribe' | 'undefined',
+                      mix_channel :: 'undefined' | #mix_roster_channel{}}).
+-type roster_item() :: #roster_item{}.
+
+-record(roster_query, {items = [] :: [#roster_item{}],
+                       ver :: 'undefined' | binary(),
+                       mix_annotate :: 'undefined' | #mix_roster_annotate{}}).
+-type roster_query() :: #roster_query{}.
+
 -record(xmpp_session, {optional = false :: boolean()}).
 -type xmpp_session() :: #xmpp_session{}.
 
@@ -1318,6 +1326,8 @@
                         mix_join() |
                         mix_leave() |
                         mix_participant() |
+                        mix_roster_annotate() |
+                        mix_roster_channel() |
                         mix_setnick() |
                         muc() |
                         muc_actor() |

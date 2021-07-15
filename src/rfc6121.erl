@@ -30,34 +30,35 @@ tags() ->
      {<<"item">>, <<"jabber:iq:roster">>},
      {<<"group">>, <<"jabber:iq:roster">>}].
 
-do_encode({roster_item, _, _, _, _, _} = Item,
+do_encode({roster_item, _, _, _, _, _, _} = Item,
           TopXMLNS) ->
     encode_roster_item(Item, TopXMLNS);
-do_encode({roster_query, _, _} = Query, TopXMLNS) ->
+do_encode({roster_query, _, _, _} = Query, TopXMLNS) ->
     encode_roster_query(Query, TopXMLNS);
 do_encode({rosterver_feature} = Ver, TopXMLNS) ->
     encode_rosterver_feature(Ver, TopXMLNS).
 
-do_get_name({roster_item, _, _, _, _, _}) -> <<"item">>;
-do_get_name({roster_query, _, _}) -> <<"query">>;
+do_get_name({roster_item, _, _, _, _, _, _}) ->
+    <<"item">>;
+do_get_name({roster_query, _, _, _}) -> <<"query">>;
 do_get_name({rosterver_feature}) -> <<"ver">>.
 
-do_get_ns({roster_item, _, _, _, _, _}) ->
+do_get_ns({roster_item, _, _, _, _, _, _}) ->
     <<"jabber:iq:roster">>;
-do_get_ns({roster_query, _, _}) ->
+do_get_ns({roster_query, _, _, _}) ->
     <<"jabber:iq:roster">>;
 do_get_ns({rosterver_feature}) ->
     <<"urn:xmpp:features:rosterver">>.
 
-pp(roster_item, 5) ->
-    [jid, name, groups, subscription, ask];
-pp(roster_query, 2) -> [items, ver];
+pp(roster_item, 6) ->
+    [jid, name, groups, subscription, ask, mix_channel];
+pp(roster_query, 3) -> [items, ver, mix_annotate];
 pp(rosterver_feature, 0) -> [];
 pp(_, _) -> no.
 
 records() ->
-    [{roster_item, 5},
-     {roster_query, 2},
+    [{roster_item, 6},
+     {roster_query, 3},
      {rosterver_feature, 0}].
 
 dec_enum(Val, Enums) ->
@@ -85,20 +86,23 @@ encode_rosterver_feature({rosterver_feature},
 
 decode_roster_query(__TopXMLNS, __Opts,
                     {xmlel, <<"query">>, _attrs, _els}) ->
-    Items = decode_roster_query_els(__TopXMLNS,
-                                    __Opts,
-                                    _els,
-                                    []),
+    {Items, Mix_annotate} =
+        decode_roster_query_els(__TopXMLNS,
+                                __Opts,
+                                _els,
+                                [],
+                                undefined),
     Ver = decode_roster_query_attrs(__TopXMLNS,
                                     _attrs,
                                     undefined),
-    {roster_query, Items, Ver}.
+    {roster_query, Items, Ver, Mix_annotate}.
 
-decode_roster_query_els(__TopXMLNS, __Opts, [],
-                        Items) ->
-    lists:reverse(Items);
+decode_roster_query_els(__TopXMLNS, __Opts, [], Items,
+                        Mix_annotate) ->
+    {lists:reverse(Items), Mix_annotate};
 decode_roster_query_els(__TopXMLNS, __Opts,
-                        [{xmlel, <<"item">>, _attrs, _} = _el | _els], Items) ->
+                        [{xmlel, <<"item">>, _attrs, _} = _el | _els], Items,
+                        Mix_annotate) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -110,16 +114,44 @@ decode_roster_query_els(__TopXMLNS, __Opts,
                                     [decode_roster_item(<<"jabber:iq:roster">>,
                                                         __Opts,
                                                         _el)
-                                     | Items]);
+                                     | Items],
+                                    Mix_annotate);
         _ ->
-            decode_roster_query_els(__TopXMLNS, __Opts, _els, Items)
+            decode_roster_query_els(__TopXMLNS,
+                                    __Opts,
+                                    _els,
+                                    Items,
+                                    Mix_annotate)
+    end;
+decode_roster_query_els(__TopXMLNS, __Opts,
+                        [{xmlel, <<"annotate">>, _attrs, _} = _el | _els],
+                        Items, Mix_annotate) ->
+    case xmpp_codec:get_attr(<<"xmlns">>,
+                             _attrs,
+                             __TopXMLNS)
+        of
+        <<"urn:xmpp:mix:roster:0">> ->
+            decode_roster_query_els(__TopXMLNS,
+                                    __Opts,
+                                    _els,
+                                    Items,
+                                    xep0405:decode_mix_roster_annotate(<<"urn:xmpp:mix:roster:0">>,
+                                                                       __Opts,
+                                                                       _el));
+        _ ->
+            decode_roster_query_els(__TopXMLNS,
+                                    __Opts,
+                                    _els,
+                                    Items,
+                                    Mix_annotate)
     end;
 decode_roster_query_els(__TopXMLNS, __Opts, [_ | _els],
-                        Items) ->
+                        Items, Mix_annotate) ->
     decode_roster_query_els(__TopXMLNS,
                             __Opts,
                             _els,
-                            Items).
+                            Items,
+                            Mix_annotate).
 
 decode_roster_query_attrs(__TopXMLNS,
                           [{<<"ver">>, _val} | _attrs], _Ver) ->
@@ -130,7 +162,10 @@ decode_roster_query_attrs(__TopXMLNS, [_ | _attrs],
 decode_roster_query_attrs(__TopXMLNS, [], Ver) ->
     decode_roster_query_attr_ver(__TopXMLNS, Ver).
 
-encode_roster_query({roster_query, Items, Ver},
+encode_roster_query({roster_query,
+                     Items,
+                     Ver,
+                     Mix_annotate},
                     __TopXMLNS) ->
     __NewTopXMLNS =
         xmpp_codec:choose_top_xmlns(<<"jabber:iq:roster">>,
@@ -138,7 +173,9 @@ encode_roster_query({roster_query, Items, Ver},
                                     __TopXMLNS),
     _els = lists:reverse('encode_roster_query_$items'(Items,
                                                       __NewTopXMLNS,
-                                                      [])),
+                                                      'encode_roster_query_$mix_annotate'(Mix_annotate,
+                                                                                          __NewTopXMLNS,
+                                                                                          []))),
     _attrs = encode_roster_query_attr_ver(Ver,
                                           xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
                                                                      __TopXMLNS)),
@@ -153,6 +190,15 @@ encode_roster_query({roster_query, Items, Ver},
                                  [encode_roster_item(Items, __TopXMLNS)
                                   | _acc]).
 
+'encode_roster_query_$mix_annotate'(undefined,
+                                    __TopXMLNS, _acc) ->
+    _acc;
+'encode_roster_query_$mix_annotate'(Mix_annotate,
+                                    __TopXMLNS, _acc) ->
+    [xep0405:encode_mix_roster_annotate(Mix_annotate,
+                                        __TopXMLNS)
+     | _acc].
+
 decode_roster_query_attr_ver(__TopXMLNS, undefined) ->
     undefined;
 decode_roster_query_attr_ver(__TopXMLNS, _val) -> _val.
@@ -163,10 +209,12 @@ encode_roster_query_attr_ver(_val, _acc) ->
 
 decode_roster_item(__TopXMLNS, __Opts,
                    {xmlel, <<"item">>, _attrs, _els}) ->
-    Groups = decode_roster_item_els(__TopXMLNS,
-                                    __Opts,
-                                    _els,
-                                    []),
+    {Groups, Mix_channel} =
+        decode_roster_item_els(__TopXMLNS,
+                               __Opts,
+                               _els,
+                               [],
+                               undefined),
     {Jid, Name, Subscription, Ask} =
         decode_roster_item_attrs(__TopXMLNS,
                                  _attrs,
@@ -174,14 +222,20 @@ decode_roster_item(__TopXMLNS, __Opts,
                                  undefined,
                                  undefined,
                                  undefined),
-    {roster_item, Jid, Name, Groups, Subscription, Ask}.
+    {roster_item,
+     Jid,
+     Name,
+     Groups,
+     Subscription,
+     Ask,
+     Mix_channel}.
 
-decode_roster_item_els(__TopXMLNS, __Opts, [],
-                       Groups) ->
-    lists:reverse(Groups);
+decode_roster_item_els(__TopXMLNS, __Opts, [], Groups,
+                       Mix_channel) ->
+    {lists:reverse(Groups), Mix_channel};
 decode_roster_item_els(__TopXMLNS, __Opts,
-                       [{xmlel, <<"group">>, _attrs, _} = _el | _els],
-                       Groups) ->
+                       [{xmlel, <<"group">>, _attrs, _} = _el | _els], Groups,
+                       Mix_channel) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -193,16 +247,44 @@ decode_roster_item_els(__TopXMLNS, __Opts,
                                    [decode_roster_group(<<"jabber:iq:roster">>,
                                                         __Opts,
                                                         _el)
-                                    | Groups]);
+                                    | Groups],
+                                   Mix_channel);
         _ ->
-            decode_roster_item_els(__TopXMLNS, __Opts, _els, Groups)
+            decode_roster_item_els(__TopXMLNS,
+                                   __Opts,
+                                   _els,
+                                   Groups,
+                                   Mix_channel)
+    end;
+decode_roster_item_els(__TopXMLNS, __Opts,
+                       [{xmlel, <<"channel">>, _attrs, _} = _el | _els],
+                       Groups, Mix_channel) ->
+    case xmpp_codec:get_attr(<<"xmlns">>,
+                             _attrs,
+                             __TopXMLNS)
+        of
+        <<"urn:xmpp:mix:roster:0">> ->
+            decode_roster_item_els(__TopXMLNS,
+                                   __Opts,
+                                   _els,
+                                   Groups,
+                                   xep0405:decode_mix_roster_channel(<<"urn:xmpp:mix:roster:0">>,
+                                                                     __Opts,
+                                                                     _el));
+        _ ->
+            decode_roster_item_els(__TopXMLNS,
+                                   __Opts,
+                                   _els,
+                                   Groups,
+                                   Mix_channel)
     end;
 decode_roster_item_els(__TopXMLNS, __Opts, [_ | _els],
-                       Groups) ->
+                       Groups, Mix_channel) ->
     decode_roster_item_els(__TopXMLNS,
                            __Opts,
                            _els,
-                           Groups).
+                           Groups,
+                           Mix_channel).
 
 decode_roster_item_attrs(__TopXMLNS,
                          [{<<"jid">>, _val} | _attrs], _Jid, Name, Subscription,
@@ -261,7 +343,8 @@ encode_roster_item({roster_item,
                     Name,
                     Groups,
                     Subscription,
-                    Ask},
+                    Ask,
+                    Mix_channel},
                    __TopXMLNS) ->
     __NewTopXMLNS =
         xmpp_codec:choose_top_xmlns(<<"jabber:iq:roster">>,
@@ -270,7 +353,9 @@ encode_roster_item({roster_item,
     _els =
         lists:reverse('encode_roster_item_$groups'(Groups,
                                                    __NewTopXMLNS,
-                                                   [])),
+                                                   'encode_roster_item_$mix_channel'(Mix_channel,
+                                                                                     __NewTopXMLNS,
+                                                                                     []))),
     _attrs = encode_roster_item_attr_ask(Ask,
                                          encode_roster_item_attr_subscription(Subscription,
                                                                               encode_roster_item_attr_name(Name,
@@ -287,6 +372,15 @@ encode_roster_item({roster_item,
                                  __TopXMLNS,
                                  [encode_roster_group(Groups, __TopXMLNS)
                                   | _acc]).
+
+'encode_roster_item_$mix_channel'(undefined, __TopXMLNS,
+                                  _acc) ->
+    _acc;
+'encode_roster_item_$mix_channel'(Mix_channel,
+                                  __TopXMLNS, _acc) ->
+    [xep0405:encode_mix_roster_channel(Mix_channel,
+                                       __TopXMLNS)
+     | _acc].
 
 decode_roster_item_attr_jid(__TopXMLNS, undefined) ->
     erlang:error({xmpp_codec,
