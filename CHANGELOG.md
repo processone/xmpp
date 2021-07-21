@@ -1,3 +1,11 @@
+# Version 1.5.4
+
+* Switch from using Travis to Github Actions as CI
+* Add support for MIX roster extension
+* Allow childrens inside address element
+* Make compatible with OTP24
+* Allow arbitrary childrens inside vCard
+
 # Version 1.5.3
 
 * Updating fast_tls to version 1.1.12.
