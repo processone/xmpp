@@ -1,5 +1,10 @@
 # Version 1.5.4
 
+* Updating ezlib to version 1.0.10.
+* Updating fast_tls to version 1.1.13.
+* Updating fast_xml to version 1.1.47.
+* Updating stringprep to version 1.0.27.
+* Updating p1_utils to version 1.0.23.
 * Switch from using Travis to Github Actions as CI
 * Add support for MIX roster extension
 * Allow childrens inside address element
