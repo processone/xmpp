@@ -26,11 +26,15 @@
 
 %% API
 -export([get_xdata_values/2, set_xdata_field/2, has_xdata_var/2,
-	 make_adhoc_response/1, make_adhoc_response/2,
-	 decode_timestamp/1, encode_timestamp/1]).
+	 make_adhoc_response/1, make_adhoc_response/2, decode_limit/1,
+	 encode_limit/1, decode_timestamp/1, encode_timestamp/1]).
 -export([hex/1]).
 
 -include("xmpp.hrl").
+
+-type limit() :: non_neg_integer() | max.
+
+-export_type([limit/0]).
 
 %%%===================================================================
 %%% API
@@ -72,6 +76,18 @@ make_adhoc_response(#adhoc_command{sid = <<"">>,
 make_adhoc_response(Command) ->
     Command.
 
+-spec decode_limit(binary()) -> limit().
+decode_limit(S) ->
+    try try_decode_limit(S)
+    catch _:_ -> erlang:error({bad_limit, S})
+    end.
+
+-spec encode_limit(limit()) -> binary().
+encode_limit(I) when is_integer(I), I >= 0 ->
+    integer_to_binary(I);
+encode_limit(max) ->
+    <<"max">>.
+
 -spec decode_timestamp(binary()) -> erlang:timestamp().
 decode_timestamp(S) ->
     try try_decode_timestamp(S)
@@ -99,6 +115,14 @@ hex(Bin) ->
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
+try_decode_limit(<<"max">>) ->
+    max;
+try_decode_limit(S) ->
+    case binary_to_integer(S) of
+	I when I >= 0 ->
+	    I
+    end.
+
 try_decode_timestamp(<<Y:4/binary, $-, Mo:2/binary, $-, D:2/binary, $T,
 		       H:2/binary, $:, Mi:2/binary, $:, S:2/binary, T/binary>>) ->
     Date = {to_integer(Y, 1970, 9999), to_integer(Mo, 1, 12), to_integer(D, 1, 31)},

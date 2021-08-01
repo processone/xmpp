@@ -47,7 +47,7 @@
          label='The child nodes (leaf or collection) associated with a collection'/>
   <field var='pubsub#children_max'
          type='text-single'
-         label='The maximum number of child nodes that can be associated with a collection'/>
+         label='The maximum number of child nodes that can be associated with a collection, or `max` for no specific limit other than a server imposed maximum'/>
   <field var='pubsub#collection'
          type='text-multi'
          label='The collections with which a node is affiliated'/>
@@ -73,7 +73,7 @@
          label='A description of the node'/>
   <field var='pubsub#item_expire'
          type='text-single'
-         label='Number of seconds after which to automatically purge items'/>
+         label='Number of seconds after which to automatically purge items, or `max` for no specific limit other than a server imposed maximum'/>
   <field var='pubsub#itemreply'
          type='list-single'
          label='Whether owners or publisher should receive replies to items'>
@@ -92,7 +92,7 @@
          label='The default language of the node'/>
   <field var='pubsub#max_items'
          type='text-single'
-         label='Max # of items to persist'>
+         label='Max # of items to persist, or `max` for no specific limit other than a server imposed maximum'>
   </field>
   <field var='pubsub#max_payload_size'
          type='text-single'

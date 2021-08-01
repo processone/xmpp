@@ -584,7 +584,7 @@ do_decode([#xdata_field{var = <<"pubsub#children_max">>,
                         values = [Value]}
            | Fs],
           XMLNS, Required, Acc) ->
-    try Value of
+    try xmpp_util:decode_limit(Value) of
         Result ->
             do_decode(Fs,
                       XMLNS,
@@ -803,7 +803,7 @@ do_decode([#xdata_field{var = <<"pubsub#item_expire">>,
                         values = [Value]}
            | Fs],
           XMLNS, Required, Acc) ->
-    try Value of
+    try xmpp_util:decode_limit(Value) of
         Result ->
             do_decode(Fs,
                       XMLNS,
@@ -896,7 +896,7 @@ do_decode([#xdata_field{var = <<"pubsub#max_items">>,
                         values = [Value]}
            | Fs],
           XMLNS, Required, Acc) ->
-    try dec_int(Value, 0, infinity) of
+    try xmpp_util:decode_limit(Value) of
         Result ->
             do_decode(Fs,
                       XMLNS,
@@ -1652,13 +1652,13 @@ encode_children(Value, Lang, IsRequired) ->
                                 ?T("The child nodes (leaf or collection) "
                                    "associated with a collection"))}.
 
--spec encode_children_max(binary(), binary(),
-                          boolean()) -> xdata_field().
+-spec encode_children_max(xmpp_util:limit() | undefined,
+                          binary(), boolean()) -> xdata_field().
 
 encode_children_max(Value, Lang, IsRequired) ->
     Values = case Value of
-                 <<>> -> [];
-                 Value -> [Value]
+                 undefined -> [];
+                 Value -> [xmpp_util:encode_limit(Value)]
              end,
     Opts = [],
     #xdata_field{var = <<"pubsub#children_max">>,
@@ -1667,7 +1667,9 @@ encode_children_max(Value, Lang, IsRequired) ->
                  label =
                      xmpp_tr:tr(Lang,
                                 ?T("The maximum number of child nodes that "
-                                   "can be associated with a collection"))}.
+                                   "can be associated with a collection, "
+                                   "or `max` for no specific limit other "
+                                   "than a server imposed maximum"))}.
 
 -spec encode_collection([binary()], binary(),
                         boolean()) -> xdata_field().
@@ -1770,13 +1772,13 @@ encode_description(Value, Lang, IsRequired) ->
                  label =
                      xmpp_tr:tr(Lang, ?T("A description of the node"))}.
 
--spec encode_item_expire(binary(), binary(),
-                         boolean()) -> xdata_field().
+-spec encode_item_expire(xmpp_util:limit() | undefined,
+                         binary(), boolean()) -> xdata_field().
 
 encode_item_expire(Value, Lang, IsRequired) ->
     Values = case Value of
-                 <<>> -> [];
-                 Value -> [Value]
+                 undefined -> [];
+                 Value -> [xmpp_util:encode_limit(Value)]
              end,
     Opts = [],
     #xdata_field{var = <<"pubsub#item_expire">>,
@@ -1785,7 +1787,8 @@ encode_item_expire(Value, Lang, IsRequired) ->
                  label =
                      xmpp_tr:tr(Lang,
                                 ?T("Number of seconds after which to automaticall"
-                                   "y purge items"))}.
+                                   "y purge items, or `max` for no specific "
+                                   "limit other than a server imposed maximum"))}.
 
 -spec encode_itemreply(itemreply() | undefined,
                        default | options(itemreply()), binary(),
@@ -1842,20 +1845,23 @@ encode_language(Value, Options, Lang, IsRequired) ->
                      xmpp_tr:tr(Lang,
                                 ?T("The default language of the node"))}.
 
--spec encode_max_items(non_neg_integer() | undefined,
+-spec encode_max_items(xmpp_util:limit() | undefined,
                        binary(), boolean()) -> xdata_field().
 
 encode_max_items(Value, Lang, IsRequired) ->
     Values = case Value of
                  undefined -> [];
-                 Value -> [enc_int(Value)]
+                 Value -> [xmpp_util:encode_limit(Value)]
              end,
     Opts = [],
     #xdata_field{var = <<"pubsub#max_items">>,
                  values = Values, required = IsRequired,
                  type = 'text-single', options = Opts, desc = <<>>,
                  label =
-                     xmpp_tr:tr(Lang, ?T("Max # of items to persist"))}.
+                     xmpp_tr:tr(Lang,
+                                ?T("Max # of items to persist, or `max` "
+                                   "for no specific limit other than a server "
+                                   "imposed maximum"))}.
 
 -spec encode_max_payload_size(non_neg_integer() |
                               undefined,

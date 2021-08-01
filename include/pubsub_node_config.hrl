@@ -16,17 +16,17 @@
                     {'children_association_policy', 'children_association_policy'()} |
                     {'children_association_whitelist', [jid:jid()]} |
                     {'children', [binary()]} |
-                    {'children_max', binary()} |
+                    {'children_max', xmpp_util:limit()} |
                     {'collection', [binary()]} |
                     {'contact', [jid:jid()]} |
                     {'dataform_xslt', binary()} |
                     {'deliver_notifications', boolean()} |
                     {'deliver_payloads', boolean()} |
                     {'description', binary()} |
-                    {'item_expire', binary()} |
+                    {'item_expire', xmpp_util:limit()} |
                     {'itemreply', 'itemreply'()} |
                     {'language', binary()} |
-                    {'max_items', non_neg_integer()} |
+                    {'max_items', xmpp_util:limit()} |
                     {'max_payload_size', non_neg_integer()} |
                     {'node_type', 'node_type'()} |
                     {'notification_type', 'notification_type'()} |
@@ -55,19 +55,19 @@
       {'children_association_policy', 'children_association_policy'() | undefined, options('children_association_policy'())} |
       {'children_association_whitelist', [jid:jid()]} |
       {'children', [binary()]} |
-      {'children_max', binary()} |
+      {'children_max', xmpp_util:limit() | undefined} |
       {'collection', [binary()]} |
       {'contact', [jid:jid()]} |
       {'dataform_xslt', binary()} |
       {'deliver_notifications', boolean() | undefined} |
       {'deliver_payloads', boolean() | undefined} |
       {'description', binary()} |
-      {'item_expire', binary()} |
+      {'item_expire', xmpp_util:limit() | undefined} |
       {'itemreply', 'itemreply'() | undefined} |
       {'itemreply', 'itemreply'() | undefined, options('itemreply'())} |
       {'language', binary()} |
       {'language', binary(), options(binary())} |
-      {'max_items', non_neg_integer() | undefined} |
+      {'max_items', xmpp_util:limit() | undefined} |
       {'max_payload_size', non_neg_integer() | undefined} |
       {'node_type', 'node_type'() | undefined} |
       {'node_type', 'node_type'() | undefined, options('node_type'())} |

@@ -16,7 +16,7 @@
                     {'publisher', [jid:jid()]} |
                     {'title', binary()} |
                     {'type', binary()} |
-                    {'max_items', non_neg_integer()} |
+                    {'max_items', xmpp_util:limit()} |
                     {'access_model', 'access_model'()} |
                     {'publish_model', 'publish_model'()}.
 -type result() :: [property()].
@@ -34,7 +34,7 @@
       {'publisher', [jid:jid()]} |
       {'title', binary()} |
       {'type', binary()} |
-      {'max_items', non_neg_integer() | undefined} |
+      {'max_items', xmpp_util:limit() | undefined} |
       {'access_model', 'access_model'() | undefined} |
       {'access_model', 'access_model'() | undefined, options('access_model'())} |
       {'publish_model', 'publish_model'() | undefined} |
