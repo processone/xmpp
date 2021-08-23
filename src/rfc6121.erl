@@ -421,8 +421,6 @@ decode_roster_item_attr_subscription(__TopXMLNS,
         _res -> _res
     end.
 
-encode_roster_item_attr_subscription(none, _acc) ->
-    _acc;
 encode_roster_item_attr_subscription(_val, _acc) ->
     [{<<"subscription">>, enc_enum(_val)} | _acc].
 

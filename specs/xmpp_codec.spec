@@ -80,6 +80,7 @@
 			  default = <<"">>},
                     #attr{name = <<"subscription">>,
                           default = none,
+                          always_encode = true,
                           enc = {enc_enum, []},
                           dec = {dec_enum, [[none,to,from,both,remove]]}},
                     #attr{name = <<"ask">>,
