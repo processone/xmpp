@@ -645,199 +645,199 @@ get_config() ->
 %%%===================================================================
 -spec err_bad_request() -> stanza_error().
 err_bad_request() ->
-    err(modify, 'bad-request', 400).
+    err(modify, 'bad-request').
 
 -spec err_bad_request(reason_text(), lang()) -> stanza_error().
 err_bad_request(Text, Lang) ->
-    err(modify, 'bad-request', 400, Text, Lang).
+    err(modify, 'bad-request', Text, Lang).
 
 -spec err_conflict() -> stanza_error().
 err_conflict() ->
-    err(cancel, 'conflict', 409).
+    err(cancel, 'conflict').
 
 -spec err_conflict(reason_text(), lang()) -> stanza_error().
 err_conflict(Text, Lang) ->
-    err(cancel, 'conflict', 409, Text, Lang).
+    err(cancel, 'conflict', Text, Lang).
 
 -spec err_feature_not_implemented() -> stanza_error().
 err_feature_not_implemented() ->
-    err(cancel, 'feature-not-implemented', 501).
+    err(cancel, 'feature-not-implemented').
 
 -spec err_feature_not_implemented(reason_text(), lang()) -> stanza_error().
 err_feature_not_implemented(Text, Lang) ->
-    err(cancel, 'feature-not-implemented', 501, Text, Lang).
+    err(cancel, 'feature-not-implemented', Text, Lang).
 
 -spec err_forbidden() -> stanza_error().
 err_forbidden() ->
-    err(auth, 'forbidden', 403).
+    err(auth, 'forbidden').
 
 -spec err_forbidden(reason_text(), lang()) -> stanza_error().
 err_forbidden(Text, Lang) ->
-    err(auth, 'forbidden', 403, Text, Lang).
+    err(auth, 'forbidden', Text, Lang).
 
 %% RFC 6120 says error type SHOULD be "cancel".
 %% RFC 3920 and XEP-0082 says it SHOULD be "modify".
 -spec err_gone(binary()) -> stanza_error().
 err_gone(URI) ->
-    err(modify, #gone{uri = URI}, 302).
+    err(modify, #gone{uri = URI}).
 
 -spec err_gone(binary(), reason_text(), lang()) -> stanza_error().
 err_gone(URI, Text, Lang) ->
-    err(modify, #gone{uri = URI}, 302, Text, Lang).
+    err(modify, #gone{uri = URI}, Text, Lang).
 
 %% RFC 6120 says error type SHOULD be "cancel".
 %% RFC 3920 and XEP-0082 says it SHOULD be "wait".
 -spec err_internal_server_error() -> stanza_error().
 err_internal_server_error() ->
-    err(wait, 'internal-server-error', 500).
+    err(wait, 'internal-server-error').
 
 -spec err_internal_server_error(reason_text(), lang()) -> stanza_error().
 err_internal_server_error(Text, Lang) ->
-    err(wait, 'internal-server-error', 500, Text, Lang).
+    err(wait, 'internal-server-error', Text, Lang).
 
 -spec err_item_not_found() -> stanza_error().
 err_item_not_found() ->
-    err(cancel, 'item-not-found', 404).
+    err(cancel, 'item-not-found').
 
 -spec err_item_not_found(reason_text(), lang()) -> stanza_error().
 err_item_not_found(Text, Lang) ->
-    err(cancel, 'item-not-found', 404, Text, Lang).
+    err(cancel, 'item-not-found', Text, Lang).
 
 -spec err_jid_malformed() -> stanza_error().
 err_jid_malformed() ->
-    err(modify, 'jid-malformed', 400).
+    err(modify, 'jid-malformed').
 
 -spec err_jid_malformed(reason_text(), lang()) -> stanza_error().
 err_jid_malformed(Text, Lang) ->
-    err(modify, 'jid-malformed', 400, Text, Lang).
+    err(modify, 'jid-malformed', Text, Lang).
 
 -spec err_not_acceptable() -> stanza_error().
 err_not_acceptable() ->
-    err(modify, 'not-acceptable', 406).
+    err(modify, 'not-acceptable').
 
 -spec err_not_acceptable(reason_text(), lang()) -> stanza_error().
 err_not_acceptable(Text, Lang) ->
-    err(modify, 'not-acceptable', 406, Text, Lang).
+    err(modify, 'not-acceptable', Text, Lang).
 
 -spec err_not_allowed() -> stanza_error().
 err_not_allowed() ->
-    err(cancel, 'not-allowed', 405).
+    err(cancel, 'not-allowed').
 
 -spec err_not_allowed(reason_text(), lang()) -> stanza_error().
 err_not_allowed(Text, Lang) ->
-    err(cancel, 'not-allowed', 405, Text, Lang).
+    err(cancel, 'not-allowed', Text, Lang).
 
 -spec err_not_authorized() -> stanza_error().
 err_not_authorized() ->
-    err(auth, 'not-authorized', 401).
+    err(auth, 'not-authorized').
 
 -spec err_not_authorized(reason_text(), lang()) -> stanza_error().
 err_not_authorized(Text, Lang) ->
-    err(auth, 'not-authorized', 401, Text, Lang).
+    err(auth, 'not-authorized', Text, Lang).
 
 -spec err_payment_required() -> stanza_error().
 err_payment_required() ->
-    err(auth, 'not-authorized', 402).
+    err(auth, 'not-authorized').
 
 -spec err_payment_required(reason_text(), lang()) -> stanza_error().
 err_payment_required(Text, Lang) ->
-    err(auth, 'not-authorized', 402, Text, Lang).
+    err(auth, 'not-authorized', Text, Lang).
 
 %% <policy-violation/> is defined in neither RFC 3920 nor XEP-0086.
 %% We choose '403' error code (as in <forbidden/>).
 -spec err_policy_violation() -> stanza_error().
 err_policy_violation() ->
-    err(modify, 'policy-violation', 403).
+    err(modify, 'policy-violation').
 
 -spec err_policy_violation(reason_text(), lang()) -> stanza_error().
 err_policy_violation(Text, Lang) ->
-    err(modify, 'policy-violation', 403, Text, Lang).
+    err(modify, 'policy-violation', Text, Lang).
 
 -spec err_recipient_unavailable() -> stanza_error().
 err_recipient_unavailable() ->
-    err(wait, 'recipient-unavailable', 404).
+    err(wait, 'recipient-unavailable').
 
 -spec err_recipient_unavailable(reason_text(), lang()) -> stanza_error().
 err_recipient_unavailable(Text, Lang) ->
-    err(wait, 'recipient-unavailable', 404, Text, Lang).
+    err(wait, 'recipient-unavailable', Text, Lang).
 
 -spec err_redirect(binary()) -> stanza_error().
 err_redirect(URI) ->
-    err(modify, #redirect{uri = URI}, 302).
+    err(modify, #redirect{uri = URI}).
 
 -spec err_redirect(binary(), reason_text(), lang()) -> stanza_error().
 err_redirect(URI, Text, Lang) ->
-    err(modify, #redirect{uri = URI}, 302, Text, Lang).
+    err(modify, #redirect{uri = URI}, Text, Lang).
 
 -spec err_registration_required() -> stanza_error().
 err_registration_required() ->
-    err(auth, 'registration-required', 407).
+    err(auth, 'registration-required').
 
 -spec err_registration_required(reason_text(), lang()) -> stanza_error().
 err_registration_required(Text, Lang) ->
-    err(auth, 'registration-required', 407, Text, Lang).
+    err(auth, 'registration-required', Text, Lang).
 
 -spec err_remote_server_not_found() -> stanza_error().
 err_remote_server_not_found() ->
-    err(cancel, 'remote-server-not-found', 404).
+    err(cancel, 'remote-server-not-found').
 
 -spec err_remote_server_not_found(reason_text(), lang()) -> stanza_error().
 err_remote_server_not_found(Text, Lang) ->
-    err(cancel, 'remote-server-not-found', 404, Text, Lang).
+    err(cancel, 'remote-server-not-found', Text, Lang).
 
 -spec err_remote_server_timeout() -> stanza_error().
 err_remote_server_timeout() ->
-    err(wait, 'remote-server-timeout', 504).
+    err(wait, 'remote-server-timeout').
 
 -spec err_remote_server_timeout(reason_text(), lang()) -> stanza_error().
 err_remote_server_timeout(Text, Lang) ->
-    err(wait, 'remote-server-timeout', 504, Text, Lang).
+    err(wait, 'remote-server-timeout', Text, Lang).
 
 -spec err_resource_constraint() -> stanza_error().
 err_resource_constraint() ->
-    err(wait, 'resource-constraint', 500).
+    err(wait, 'resource-constraint').
 
 -spec err_resource_constraint(reason_text(), lang()) -> stanza_error().
 err_resource_constraint(Text, Lang) ->
-    err(wait, 'resource-constraint', 500, Text, Lang).
+    err(wait, 'resource-constraint', Text, Lang).
 
 -spec err_service_unavailable() -> stanza_error().
 err_service_unavailable() ->
-    err(cancel, 'service-unavailable', 503).
+    err(cancel, 'service-unavailable').
 
 -spec err_service_unavailable(reason_text(), lang()) -> stanza_error().
 err_service_unavailable(Text, Lang) ->
-    err(cancel, 'service-unavailable', 503, Text, Lang).
+    err(cancel, 'service-unavailable', Text, Lang).
 
 -spec err_subscription_required() -> stanza_error().
 err_subscription_required() ->
-    err(auth, 'subscription-required', 407).
+    err(auth, 'subscription-required').
 
 -spec err_subscription_required(reason_text(), lang()) -> stanza_error().
 err_subscription_required(Text, Lang) ->
-    err(auth, 'subscription-required', 407, Text, Lang).
+    err(auth, 'subscription-required', Text, Lang).
 
 %% No error type is defined for <undefined-confition/>.
 %% Let user provide the type.
 -spec err_undefined_condition('auth' | 'cancel' | 'continue' |
 			      'modify' | 'wait') -> stanza_error().
 err_undefined_condition(Type) ->
-    err(Type, 'undefined-condition', 500).
+    err(Type, 'undefined-condition').
 
 -spec err_undefined_condition('auth' | 'cancel' | 'continue' | 'modify' | 'wait',
 			      reason_text(), lang()) -> stanza_error().
 err_undefined_condition(Type, Text, Lang) ->
-    err(Type, 'undefined-condition', 500, Text, Lang).
+    err(Type, 'undefined-condition', Text, Lang).
 
 %% RFC 6120 says error type SHOULD be "wait" or "modify".
 %% RFC 3920 and XEP-0082 says it SHOULD be "wait".
 -spec err_unexpected_request() -> stanza_error().
 err_unexpected_request() ->
-    err(wait, 'unexpected-request', 400).
+    err(wait, 'unexpected-request').
 
 -spec err_unexpected_request(reason_text(), lang()) -> stanza_error().
 err_unexpected_request(Text, Lang) ->
-    err(wait, 'unexpected-request', 400, Text, Lang).
+    err(wait, 'unexpected-request', Text, Lang).
 
 %%%===================================================================
 %%% Functions to construct stream errors
@@ -1054,16 +1054,15 @@ serr_unsupported_version(Text, Lang) ->
 %%% Internal functions
 %%%===================================================================
 -spec err('auth' | 'cancel' | 'continue' | 'modify' | 'wait',
-	  atom() | gone() | redirect(), non_neg_integer()) -> stanza_error().
-err(Type, Reason, Code) ->
-    #stanza_error{type = Type, reason = Reason, code = Code}.
+	  atom() | gone() | redirect()) -> stanza_error().
+err(Type, Reason) ->
+    #stanza_error{type = Type, reason = Reason}.
 
 -spec err('auth' | 'cancel' | 'continue' | 'modify' | 'wait',
-	  atom() | gone() | redirect(), non_neg_integer(),
-	  reason_text(), lang()) -> stanza_error().
-err(Type, Reason, Code, Text, Lang) ->
-    #stanza_error{type = Type, reason = Reason, code = Code,
-		  text = mk_text(Text, Lang)}.
+	  atom() | gone() | redirect(), reason_text(),
+	  lang()) -> stanza_error().
+err(Type, Reason, Text, Lang) ->
+    #stanza_error{type = Type, reason = Reason, text = mk_text(Text, Lang)}.
 
 -spec serr(atom() | 'see-other-host'()) -> stream_error().
 serr(Reason) ->

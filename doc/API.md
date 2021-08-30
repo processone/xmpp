@@ -879,7 +879,7 @@ Appends a list of elements `Els` to the end of a list of sub-elements of `Stanza
         attrs = [{<<"stamp">>,<<"2017-03-15T20:39:26.339167Z">>},
                  {<<"xmlns">>,<<"urn:xmpp:delay">>}],
         children = []},
- #stanza_error{type = modify,code = 400,by = <<>>,
+ #stanza_error{type = modify,by = <<>>,
                reason = 'bad-request',text = undefined,sub_els = []}]
 > xmpp:append_subtags(#presence{sub_els = [#caps{}]}, Els).
 #presence{id = <<>>,type = available,lang = <<>>,
@@ -891,7 +891,7 @@ Appends a list of elements `Els` to the end of a list of sub-elements of `Stanza
                             attrs = [{<<"stamp">>,<<"2017-03-15T20:39:26.339167Z">>},
                                      {<<"xmlns">>,<<"urn:xmpp:delay">>}],
                             children = []},
-                     #stanza_error{type = modify,code = 400,by = <<>>,
+                     #stanza_error{type = modify,by = <<>>,
                                    reason = 'bad-request',text = undefined,sub_els = []}],
           meta = #{}}
 ```
@@ -1187,7 +1187,7 @@ Constructs `stanza()` of type `error` from `Stanza`.
 #message{id = <<>>,type = error,lang = <<>>,
          from = undefined,to = undefined,subject = [],body = [],
          thread = undefined,
-         sub_els = [#stanza_error{type = modify,code = 400,by = <<>>,
+         sub_els = [#stanza_error{type = modify,by = <<>>,
                                   reason = 'bad-request',text = undefined,sub_els = []}],
          meta = #{}}
 ```
@@ -1208,13 +1208,13 @@ if not found of if decoding has failed.
 ```erlang
 > Err.
 #xmlel{name = <<"error">>,
-       attrs = [{<<"code">>,<<"400">>},{<<"type">>,<<"modify">>}],
+       attrs = [{<<"type">>,<<"modify">>}],
        children = [#xmlel{name = <<"bad-request">>,
                           attrs = [{<<"xmlns">>,
                                     <<"urn:ietf:params:xml:ns:xmpp-stanzas">>}],
                           children = []}]}
 > xmpp:get_error(#message{sub_els = [Err]}).
-#stanza_error{type = modify,code = 400,by = <<>>,
+#stanza_error{type = modify,by = <<>>,
               reason = 'bad-request',text = undefined,sub_els = []}
 ```
 **Example 2**: no `stanza_error()` element found
@@ -1283,7 +1283,7 @@ Creates diagnostic text from `stanza_error()` element.
 **Example**:
 ```erlang
 > Err.
-#stanza_error{type = cancel,code = 501,by = <<>>,
+#stanza_error{type = cancel,by = <<>>,
               reason = 'feature-not-implemented',
               text = [#text{lang = <<"en">>,
                             data = <<"Unsupported query">>}],
