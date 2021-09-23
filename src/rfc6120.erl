@@ -728,7 +728,7 @@ do_encode({gone, _} = Gone, TopXMLNS) ->
     encode_error_gone(Gone, TopXMLNS);
 do_encode({redirect, _} = Redirect, TopXMLNS) ->
     encode_error_redirect(Redirect, TopXMLNS);
-do_encode({stanza_error, _, _, _, _, _, _} = Error,
+do_encode({stanza_error, _, _, _, _, _} = Error,
           TopXMLNS) ->
     encode_error(Error, TopXMLNS);
 do_encode({bind, _, _} = Bind, TopXMLNS) ->
@@ -789,7 +789,7 @@ do_get_name({sasl_response, _}) -> <<"response">>;
 do_get_name({sasl_success, _}) -> <<"success">>;
 do_get_name({'see-other-host', _}) ->
     <<"see-other-host">>;
-do_get_name({stanza_error, _, _, _, _, _, _}) ->
+do_get_name({stanza_error, _, _, _, _, _}) ->
     <<"error">>;
 do_get_name({starttls, _}) -> <<"starttls">>;
 do_get_name({starttls_failure}) -> <<"failure">>;
@@ -831,7 +831,7 @@ do_get_ns({sasl_success, _}) ->
     <<"urn:ietf:params:xml:ns:xmpp-sasl">>;
 do_get_ns({'see-other-host', _}) ->
     <<"urn:ietf:params:xml:ns:xmpp-streams">>;
-do_get_ns({stanza_error, _, _, _, _, _, _}) ->
+do_get_ns({stanza_error, _, _, _, _, _}) ->
     <<"jabber:client">>;
 do_get_ns({starttls, _}) ->
     <<"urn:ietf:params:xml:ns:xmpp-tls">>;
@@ -879,7 +879,6 @@ get_els({presence,
     _sub_els;
 get_els({stanza_error,
          _type,
-         _code,
          _by,
          _reason,
          _text,
@@ -936,21 +935,9 @@ set_els({presence,
      _priority,
      _sub_els,
      _meta};
-set_els({stanza_error,
-         _type,
-         _code,
-         _by,
-         _reason,
-         _text,
-         _},
+set_els({stanza_error, _type, _by, _reason, _text, _},
         _sub_els) ->
-    {stanza_error,
-     _type,
-     _code,
-     _by,
-     _reason,
-     _text,
-     _sub_els};
+    {stanza_error, _type, _by, _reason, _text, _sub_els};
 set_els({stream_features, _}, _sub_els) ->
     {stream_features, _sub_els}.
 
@@ -980,8 +967,8 @@ pp(presence, 10) ->
      meta];
 pp(gone, 1) -> [uri];
 pp(redirect, 1) -> [uri];
-pp(stanza_error, 6) ->
-    [type, code, by, reason, text, sub_els];
+pp(stanza_error, 5) ->
+    [type, by, reason, text, sub_els];
 pp(bind, 2) -> [jid, resource];
 pp(sasl_auth, 2) -> [mechanism, text];
 pp(sasl_abort, 0) -> [];
@@ -1015,7 +1002,7 @@ records() ->
      {presence, 10},
      {gone, 1},
      {redirect, 1},
-     {stanza_error, 6},
+     {stanza_error, 5},
      {bind, 2},
      {sasl_auth, 2},
      {sasl_abort, 0},
@@ -4137,12 +4124,11 @@ decode_error(__TopXMLNS, __Opts,
                                              [],
                                              undefined,
                                              []),
-    {Type, Code, By} = decode_error_attrs(__TopXMLNS,
-                                          _attrs,
-                                          undefined,
-                                          undefined,
-                                          undefined),
-    {stanza_error, Type, Code, By, Reason, Text, __Els}.
+    {Type, By} = decode_error_attrs(__TopXMLNS,
+                                    _attrs,
+                                    undefined,
+                                    undefined),
+    {stanza_error, Type, By, Reason, Text, __Els}.
 
 decode_error_els(__TopXMLNS, __Opts, [], Text, Reason,
                  __Els) ->
@@ -4780,29 +4766,20 @@ decode_error_els(__TopXMLNS, __Opts, [_ | _els], Text,
                      __Els).
 
 decode_error_attrs(__TopXMLNS,
-                   [{<<"type">>, _val} | _attrs], _Type, Code, By) ->
-    decode_error_attrs(__TopXMLNS, _attrs, _val, Code, By);
+                   [{<<"type">>, _val} | _attrs], _Type, By) ->
+    decode_error_attrs(__TopXMLNS, _attrs, _val, By);
 decode_error_attrs(__TopXMLNS,
-                   [{<<"code">>, _val} | _attrs], Type, _Code, By) ->
-    decode_error_attrs(__TopXMLNS, _attrs, Type, _val, By);
-decode_error_attrs(__TopXMLNS,
-                   [{<<"by">>, _val} | _attrs], Type, Code, _By) ->
-    decode_error_attrs(__TopXMLNS,
-                       _attrs,
-                       Type,
-                       Code,
-                       _val);
-decode_error_attrs(__TopXMLNS, [_ | _attrs], Type, Code,
+                   [{<<"by">>, _val} | _attrs], Type, _By) ->
+    decode_error_attrs(__TopXMLNS, _attrs, Type, _val);
+decode_error_attrs(__TopXMLNS, [_ | _attrs], Type,
                    By) ->
-    decode_error_attrs(__TopXMLNS, _attrs, Type, Code, By);
-decode_error_attrs(__TopXMLNS, [], Type, Code, By) ->
+    decode_error_attrs(__TopXMLNS, _attrs, Type, By);
+decode_error_attrs(__TopXMLNS, [], Type, By) ->
     {decode_error_attr_type(__TopXMLNS, Type),
-     decode_error_attr_code(__TopXMLNS, Code),
      decode_error_attr_by(__TopXMLNS, By)}.
 
 encode_error({stanza_error,
               Type,
-              Code,
               By,
               Reason,
               Text,
@@ -4822,10 +4799,9 @@ encode_error({stanza_error,
                                                                          __NewTopXMLNS,
                                                                          []))),
     _attrs = encode_error_attr_by(By,
-                                  encode_error_attr_code(Code,
-                                                         encode_error_attr_type(Type,
-                                                                                xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
-                                                                                                           __TopXMLNS)))),
+                                  encode_error_attr_type(Type,
+                                                         xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
+                                                                                    __TopXMLNS))),
     {xmlel, <<"error">>, _attrs, _els}.
 
 'encode_error_$text'([], __TopXMLNS, _acc) -> _acc;
@@ -4944,23 +4920,6 @@ decode_error_attr_type(__TopXMLNS, _val) ->
 
 encode_error_attr_type(_val, _acc) ->
     [{<<"type">>, enc_enum(_val)} | _acc].
-
-decode_error_attr_code(__TopXMLNS, undefined) ->
-    undefined;
-decode_error_attr_code(__TopXMLNS, _val) ->
-    case catch dec_int(_val, 0, infinity) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_attr_value,
-                           <<"code">>,
-                           <<"error">>,
-                           __TopXMLNS}});
-        _res -> _res
-    end.
-
-encode_error_attr_code(undefined, _acc) -> _acc;
-encode_error_attr_code(_val, _acc) ->
-    [{<<"code">>, enc_int(_val)} | _acc].
 
 decode_error_attr_by(__TopXMLNS, undefined) ->
     undefined;

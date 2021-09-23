@@ -1177,7 +1177,6 @@
 -type sm_failed() :: #sm_failed{}.
 
 -record(stanza_error, {type :: 'auth' | 'cancel' | 'continue' | 'modify' | 'wait',
-                       code :: 'undefined' | non_neg_integer(),
                        by :: undefined | jid:jid(),
                        reason :: atom() | #gone{} | #redirect{},
                        text = [] :: [#text{}],
