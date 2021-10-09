@@ -36,6 +36,8 @@ tags() ->
      {<<"received">>, <<"urn:xmpp:chat-markers:0">>},
      {<<"markable">>, <<"urn:xmpp:chat-markers:0">>}].
 
+do_encode({markable} = Markable, TopXMLNS) ->
+    encode_mark_markable(Markable, TopXMLNS);
 do_encode({mark_received, _} = Received, TopXMLNS) ->
     encode_mark_received(Received, TopXMLNS);
 do_encode({mark_displayed, _} = Displayed, TopXMLNS) ->
@@ -47,22 +49,26 @@ do_encode({mark_acknowledged, _} = Acknowledged,
 do_get_name({mark_acknowledged, _}) ->
     <<"acknowledged">>;
 do_get_name({mark_displayed, _}) -> <<"displayed">>;
-do_get_name({mark_received, _}) -> <<"received">>.
+do_get_name({mark_received, _}) -> <<"received">>;
+do_get_name({markable}) -> <<"markable">>.
 
 do_get_ns({mark_acknowledged, _}) ->
     <<"urn:xmpp:chat-markers:0">>;
 do_get_ns({mark_displayed, _}) ->
     <<"urn:xmpp:chat-markers:0">>;
 do_get_ns({mark_received, _}) ->
-    <<"urn:xmpp:chat-markers:0">>.
+    <<"urn:xmpp:chat-markers:0">>;
+do_get_ns({markable}) -> <<"urn:xmpp:chat-markers:0">>.
 
+pp(markable, 0) -> [];
 pp(mark_received, 1) -> [id];
 pp(mark_displayed, 1) -> [id];
 pp(mark_acknowledged, 1) -> [id];
 pp(_, _) -> no.
 
 records() ->
-    [{mark_received, 1},
+    [{markable, 0},
+     {mark_received, 1},
      {mark_displayed, 1},
      {mark_acknowledged, 1}].
 
@@ -182,9 +188,9 @@ encode_mark_received_attr_id(_val, _acc) ->
 
 decode_mark_markable(__TopXMLNS, __Opts,
                      {xmlel, <<"markable">>, _attrs, _els}) ->
-    true.
+    {markable}.
 
-encode_mark_markable(true, __TopXMLNS) ->
+encode_mark_markable({markable}, __TopXMLNS) ->
     __NewTopXMLNS =
         xmpp_codec:choose_top_xmlns(<<"urn:xmpp:chat-markers:0">>,
                                     [],

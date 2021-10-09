@@ -1896,6 +1896,7 @@ get_mod({privacy_item, _, _, _, _, _, _, _, _}) ->
 get_mod({starttls_failure}) -> rfc6120;
 get_mod({mix_roster_annotate}) -> xep0405;
 get_mod({bob_data, _, _, _, _}) -> xep0231;
+get_mod({markable}) -> xep0333;
 get_mod({bind, _, _}) -> rfc6120;
 get_mod({rsm_first, _, _}) -> xep0059;
 get_mod({caps, _, _, _, _}) -> xep0115;

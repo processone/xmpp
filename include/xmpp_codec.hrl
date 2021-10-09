@@ -454,6 +454,9 @@
 -record(muc_unique, {name = <<>> :: binary()}).
 -type muc_unique() :: #muc_unique{}.
 
+-record(markable, {}).
+-type markable() :: #markable{}.
+
 -record(sasl_response, {text = <<>> :: binary()}).
 -type sasl_response() :: #sasl_response{}.
 
@@ -1313,6 +1316,7 @@
                         mark_acknowledged() |
                         mark_displayed() |
                         mark_received() |
+                        markable() |
                         media() |
                         media_uri() |
                         message() |
