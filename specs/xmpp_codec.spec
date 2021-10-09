@@ -4033,7 +4033,7 @@
      #elem{name = <<"markable">>,
 	   xmlns = <<"urn:xmpp:chat-markers:0">>,
 	   module = 'xep0333',
-	   result = true}).
+	   result = {markable}}).
 
 -xml(mark_received,
      #elem{name = <<"received">>,
