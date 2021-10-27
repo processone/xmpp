@@ -677,6 +677,9 @@ get_mod(<<"no-store">>, <<"urn:xmpp:hints">>) ->
 get_mod(<<"nick">>,
         <<"http://jabber.org/protocol/nick">>) ->
     xep0172;
+get_mod(<<"hats">>,
+        <<"xmpp:prosody.im/protocol/hats:1">>) ->
+    xep0317;
 get_mod(<<"item">>, <<"jabber:iq:roster">>) -> rfc6121;
 get_mod(<<"redirect">>,
         <<"http://jabber.org/protocol/pubsub#owner">>) ->
@@ -1413,6 +1416,9 @@ get_mod(<<"destroy">>,
 get_mod(<<"participant">>, <<"urn:xmpp:mix:core:1">>) ->
     xep0369;
 get_mod(<<"id">>, <<"jabber:x:event">>) -> xep0022;
+get_mod(<<"hat">>,
+        <<"xmpp:prosody.im/protocol/hats:1">>) ->
+    xep0317;
 get_mod(<<"not-acceptable">>,
         <<"urn:ietf:params:xml:ns:xmpp-stanzas">>) ->
     rfc6120;
@@ -1635,6 +1641,7 @@ get_mod({jingle_ft_error, _}) -> xep0234;
 get_mod({legacy_auth, _, _, _, _}) -> xep0078;
 get_mod({stream_features, _}) -> rfc6120;
 get_mod({muc_item, _, _, _, _, _, _, _}) -> xep0045;
+get_mod({muc_hats, _}) -> xep0317;
 get_mod({block_list, _}) -> xep0191;
 get_mod({carbons_received, _}) -> xep0280;
 get_mod({carbons_sent, _}) -> xep0280;
@@ -1716,6 +1723,7 @@ get_mod({stanza_id, _, _}) -> xep0359;
 get_mod({delegated, _, _}) -> xep0355;
 get_mod({text, _, _}) -> xep0234;
 get_mod({jingle_ft_received, _, _}) -> xep0234;
+get_mod({muc_hat, _, _}) -> xep0317;
 get_mod({bookmark_storage, _, _}) -> xep0048;
 get_mod({sasl_failure, _, _}) -> rfc6120;
 get_mod({xmpp_session, _}) -> rfc3921;

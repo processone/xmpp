@@ -100,7 +100,8 @@
               roomowners |
               roomsecret |
               whois |
-              mam]) -> [xdata_field()].
+              mam |
+              enable_hats]) -> [xdata_field()].
 
 dec_int(Val) -> dec_int(Val, infinity, infinity).
 
@@ -406,6 +407,10 @@ encode(List, Lang, Required) ->
                                 lists:member(whois, Required))];
               {mam, Val} ->
                   [encode_mam(Val, Lang, lists:member(mam, Required))];
+              {enable_hats, Val} ->
+                  [encode_enable_hats(Val,
+                                      Lang,
+                                      lists:member(enable_hats, Required))];
               #xdata_field{} -> [Opt]
           end
           || Opt <- List],
@@ -1603,6 +1608,36 @@ do_decode([#xdata_field{var = <<"mam">>} | _], XMLNS, _,
           _) ->
     erlang:error({?MODULE,
                   {too_many_values, <<"mam">>, XMLNS}});
+do_decode([#xdata_field{var = <<"enable_hats">>,
+                        values = [Value]}
+           | Fs],
+          XMLNS, Required, Acc) ->
+    try dec_bool(Value) of
+        Result ->
+            do_decode(Fs,
+                      XMLNS,
+                      lists:delete(<<"enable_hats">>, Required),
+                      [{enable_hats, Result} | Acc])
+    catch
+        _:_ ->
+            erlang:error({?MODULE,
+                          {bad_var_value, <<"enable_hats">>, XMLNS}})
+    end;
+do_decode([#xdata_field{var = <<"enable_hats">>,
+                        values = []} =
+               F
+           | Fs],
+          XMLNS, Required, Acc) ->
+    do_decode([F#xdata_field{var = <<"enable_hats">>,
+                             values = [<<>>]}
+               | Fs],
+              XMLNS,
+              Required,
+              Acc);
+do_decode([#xdata_field{var = <<"enable_hats">>} | _],
+          XMLNS, _, _) ->
+    erlang:error({?MODULE,
+                  {too_many_values, <<"enable_hats">>, XMLNS}});
 do_decode([#xdata_field{var = Var} | Fs], XMLNS,
           Required, Acc) ->
     if Var /= <<"FORM_TYPE">> ->
@@ -2231,3 +2266,17 @@ encode_mam(Value, Lang, IsRequired) ->
                  desc = <<>>,
                  label =
                      xmpp_tr:tr(Lang, ?T("Enable message archiving"))}.
+
+-spec encode_enable_hats(boolean() | undefined,
+                         binary(), boolean()) -> xdata_field().
+
+encode_enable_hats(Value, Lang, IsRequired) ->
+    Values = case Value of
+                 undefined -> [];
+                 Value -> [enc_bool(Value)]
+             end,
+    Opts = [],
+    #xdata_field{var = <<"enable_hats">>, values = Values,
+                 required = IsRequired, type = boolean, options = Opts,
+                 desc = <<>>,
+                 label = xmpp_tr:tr(Lang, ?T("Enable hats"))}.

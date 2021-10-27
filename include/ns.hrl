@@ -207,3 +207,4 @@
 -define(NS_BOOKMARKS_CONVERSION_0, <<"urn:xmpp:bookmarks-conversion:0">>).
 -define(NS_STORAGE_BOOKMARKS, <<"storage:bookmarks">>).
 -define(NS_X509_0, <<"urn:xmpp:x509:0">>).
+-define(NS_HATS, <<"xmpp:prosody.im/protocol/hats:1">>).

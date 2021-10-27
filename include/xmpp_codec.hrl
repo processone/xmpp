@@ -474,11 +474,6 @@
 -record(feature_csi, {}).
 -type feature_csi() :: #feature_csi{}.
 
--record(disco_item, {jid :: jid:jid(),
-                     name = <<>> :: binary(),
-                     node = <<>> :: binary()}).
--type disco_item() :: #disco_item{}.
-
 -record(report, {reason :: 'abuse' | 'spam' | 'undefined',
                  text = [] :: [#text{}]}).
 -type report() :: #report{}.
@@ -492,6 +487,11 @@
 
 -record(block, {items = [] :: [#block_item{}]}).
 -type block() :: #block{}.
+
+-record(disco_item, {jid :: jid:jid(),
+                     name = <<>> :: binary(),
+                     node = <<>> :: binary()}).
+-type disco_item() :: #disco_item{}.
 
 -record(compression, {methods = [] :: [binary()]}).
 -type compression() :: #compression{}.
@@ -619,6 +619,13 @@
                      notify = false :: boolean(),
                      items = [] :: [#ps_item{}]}).
 -type ps_retract() :: #ps_retract{}.
+
+-record(muc_hat, {title = <<>> :: binary(),
+                  uri = <<>> :: binary()}).
+-type muc_hat() :: #muc_hat{}.
+
+-record(muc_hats, {hats = [] :: [#muc_hat{}]}).
+-type muc_hats() :: #muc_hats{}.
 
 -record(upload_slot, {get :: 'undefined' | binary(),
                       put :: 'undefined' | binary(),
@@ -1337,6 +1344,8 @@
                         muc_admin() |
                         muc_decline() |
                         muc_destroy() |
+                        muc_hat() |
+                        muc_hats() |
                         muc_history() |
                         muc_invite() |
                         muc_item() |

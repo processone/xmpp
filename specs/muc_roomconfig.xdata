@@ -196,6 +196,10 @@
       var='mam'
       type='boolean'
       label='Enable message archiving'/>
+  <field
+      var='enable_hats'
+      type='boolean'
+      label='Enable hats'/>
 </form_type>
 
 <!--
