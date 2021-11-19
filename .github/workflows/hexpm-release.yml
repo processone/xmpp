@@ -17,6 +17,21 @@ jobs:
           mkdir -p ~/.config/rebar3/
           echo "{plugins, [rebar3_hex]}." > ~/.config/rebar3/rebar.config
 
+      - name: Prepare Markdown
+        run: |
+          sed -i 's|doc/API.md|API.html|g' README.md
+
+      - name: Convert Markdown to HTML
+        uses: natescherer/markdown-to-html-with-github-style-action@v1.1.0
+        with:
+          path: README.md,doc/API.md
+
+      - name: Postprocess links
+        run: |
+          mv README.html doc/index.html
+          sed -i 's| href="API.html#| href="API.html#user-content-|g' doc/index.html
+          sed -i 's| href="#| href="#user-content-|g' doc/API.html
+
       - name: Publish to hex.pm
         run: DEBUG=1 rebar3 hex publish --repo hexpm --yes
         env:
