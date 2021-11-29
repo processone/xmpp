@@ -1,5 +1,6 @@
 # Version 1.5.5
 
+* Updating fast_xml to version 1.1.47.
 * Allow 'max' value in pubsub max_items, item_expire and children_max
 * Add compatibility quirk for old smack version in roster
 * Don't generate code attribute in errors (deprececed by rfc6120)
