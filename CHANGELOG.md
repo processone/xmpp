@@ -1,3 +1,13 @@
+# Version 1.5.5
+
+* Allow 'max' value in pubsub max_items, item_expire and children_max
+* Add compatibility quirk for old smack version in roster
+* Don't generate code attribute in errors (deprececed by rfc6120)
+* Change internal representation of markable element
+* Add MUC hats support
+* Generate documentation before publishing to hex
+* 
+
 # Version 1.5.4
 
 * Updating ezlib to version 1.0.10.
