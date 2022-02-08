@@ -45,7 +45,8 @@
 	 pp/1,
 	 sockname/1,
 	 peername/1,
-	 send_ws_ping/1, get_negotiated_cipher/1, get_tls_last_message/2]).
+	 send_ws_ping/1, get_negotiated_cipher/1, get_tls_last_message/2,
+	 release/1]).
 
 -include("xmpp.hrl").
 -include_lib("public_key/include/public_key.hrl").
@@ -344,6 +345,13 @@ get_verify_result(SocketData) ->
 
 close(#socket_state{sockmod = SockMod, socket = Socket}) ->
     SockMod:close(Socket).
+
+release(#socket_state{xml_stream = XMLStream} = State) ->
+    close(State),
+    case XMLStream of
+	undefined -> ok;
+	_ -> fxml_stream:close(XMLStream)
+    end.
 
 -spec sockname(socket_state()) -> {ok, endpoint()} | {error, inet:posix()}.
 sockname(#socket_state{sockmod = SockMod,

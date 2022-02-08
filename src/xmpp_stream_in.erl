@@ -312,8 +312,10 @@ handle_cast({send, Pkt}, State) ->
     noreply(send_pkt(State, Pkt));
 handle_cast(send_ws_ping, State) ->
     noreply(send_ws_ping(State));
-handle_cast(release_socket, State) ->
-    erlang:demonitor(maps:get(socket_monitor, State, make_ref())),
+handle_cast(release_socket, #{socket := Socket,
+			      socket_monitor := Monitor} = State) ->
+    erlang:demonitor(Monitor),
+    xmpp_socket:release(Socket),
     State2 = maps:remove(socket, State),
     State3 = maps:remove(socket_monitor, State2),
     noreply(State3);
