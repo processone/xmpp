@@ -263,6 +263,11 @@ handle_cast({send, Pkt}, State) ->
     noreply(send_pkt(State, Pkt));
 handle_cast(send_ws_ping, State) ->
     noreply(send_ws_ping(State));
+handle_cast(release_socket, State) ->
+    erlang:demonitor(maps:get(socket_monitor, State, make_ref())),
+    State2 = maps:remove(socket, State),
+    State3 = maps:remove(socket_monitor, State2),
+    noreply(State3);
 handle_cast(stop, State) ->
     {stop, normal, State};
 handle_cast({close, Reason}, State) ->
@@ -506,12 +511,14 @@ process_stream_end(_, #{stream_state := disconnected} = State) ->
 process_stream_end(Reason, State) ->
     State1 = State#{stream_timeout => infinity,
 		    stream_state => disconnected},
-    State2 =
-    try callback(handle_stream_end, Reason, State1)
-    catch _:{?MODULE, undef} -> stop(State1)
-    end,
-    erlang:demonitor(maps:get(socket_monitor, State2, make_ref())),
-    maps:remove(socket, State2).
+    try
+        State2 = callback(handle_stream_end, Reason, State1),
+        cast(self(), release_socket),
+        State2
+    catch _:{?MODULE, undef} ->
+	stop(self()),
+        State1
+    end.
 
 -spec process_stream(stream_start(), state()) -> state().
 process_stream(#stream_start{xmlns = XML_NS,
