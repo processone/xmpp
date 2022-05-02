@@ -1,3 +1,8 @@
+# Version 1.5.8
+
+* Updating fast_tls to version 1.1.15.
+* Updating ezlib to version 1.0.12.
+
 # Version 1.5.7
 
 * Updating ezlib to version 1.0.11.
