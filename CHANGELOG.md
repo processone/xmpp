@@ -1,5 +1,10 @@
 # Version 1.5.7
 
+* Updating ezlib to version 1.0.11.
+* Updating fast_tls to version 1.1.14.
+* Updating fast_xml to version 1.1.49.
+* Updating stringprep to version 1.0.28.
+* Updating p1_utils to version 1.0.25.
 * Make socket release on detach, free resources earlier
 * Fix crash when doing srv resolution
 
