@@ -37,9 +37,9 @@
 * Updating p1_utils to version 1.0.23.
 * Switch from using Travis to Github Actions as CI
 * Add support for MIX roster extension
-* Allow childrens inside address element
+* Allow children inside address element
 * Make compatible with OTP24
-* Allow arbitrary childrens inside vCard
+* Allow arbitrary children inside vCard
 
 # Version 1.5.3
 
@@ -57,9 +57,9 @@
 * Allow to free socket/parser/tls when session get detached
 * Add support for XEP-0430: Inbox
 * Add support for XEP-0333: Chat Markers
-* Add missing applicaitons to xmpp.app
+* Add missing applications to xmpp.app
 * Fix timezone in timestamp used by XEP-0202
-* Don't throw exception when client send invalid lenght sasl response
+* Don't throw exception when client send invalid length sasl response
 
 # Version 1.5.1
 
@@ -205,7 +205,7 @@
 
 * Updating fast_tls to version 1.0.26.
 * Add support for XEP-0048 and XEP-0411
-* Add logging of data transmited over xml sockets
+* Add logging of data transmitted over xml sockets
 * Add functions for processing white space pings
 * Validate xml:lang values
 * Fix encoding of timestamp with negative TZ offsets
@@ -395,7 +395,7 @@ Evgeniy Khramtsov:
 
 # Version 1.1.4
 
-* Support for password on MUC subcribe (Badlop)
+* Support for password on MUC subscribe (Badlop)
 
 # Version 1.1.3
 
