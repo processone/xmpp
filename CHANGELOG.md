@@ -1,3 +1,8 @@
+# Version 1.5.7
+
+* Make socket release on detach, free resources earlier
+* Fix crash when doing srv resolution
+
 # Version 1.5.6
 
 * Updating fast_xml to version 1.1.48.
