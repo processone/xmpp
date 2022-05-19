@@ -195,7 +195,7 @@ can be used, such as [serr_not_well_formed/0](doc/API.md#serr_not_well_formed0) 
 The text element is represented by `#text{}` record (of `text()` type).
 Some record fields, such as `#message.body` or `#presence.status`,
 contain a list of text elements (i.e. `[text()]`).
-To avoid writting a lot of extracting code the following functions can be used
+To avoid writing a lot of extracting code the following functions can be used
 to manipulate with `text()` elements: [get_text/1](doc/API.md#get_text1),
 [get_text/2](doc/API.md#get_text2), [mk_text/1](doc/API.md#mk_text1) and [mk_text/2](doc/API.md#mk_text2).
 
