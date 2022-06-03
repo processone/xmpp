@@ -14,6 +14,10 @@
       type='boolean'
       label='Occupants are allowed to invite others'/>
   <field
+      var='muc#roomconfig_allow_query_users'
+      type='boolean'
+      label='Occupants are allowed to query others'/>
+  <field
       var='muc#roomconfig_allowpm'
       type='list-single'
       label='Roles that May Send Private Messages'>
