@@ -26,7 +26,7 @@
 %% API
 -export([start/3, start_link/3, call/3, cast/2, reply/2, connect/1,
 	 stop/1, stop_async/1, send/2, close/1, close/2, bind/2, establish/1, format_error/1,
-	 set_timeout/2, get_transport/1, change_shaper/2]).
+	 configure_queue/3, set_timeout/2, get_transport/1, change_shaper/2]).
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
 	 terminate/2, code_change/3]).
@@ -67,6 +67,9 @@
 		   stream_restarted := boolean(),
 		   stream_state := stream_state(),
 		   stream_remote_id => binary(),
+		   stream_queue := [xmpp_element() | xmlel()],
+		   stream_queue_max := non_neg_integer(),
+		   stream_queue_timeout => {non_neg_integer(), integer()},
 		   ip => {inet:ip_address(), inet:port_number()},
 		   socket => xmpp_socket:socket(),
 		   socket_monitor => reference(),
@@ -243,6 +246,19 @@ bind(#{stream_authenticated := true} = State, StreamFeatures) ->
 establish(State) ->
     process_stream_established(State).
 
+-spec configure_queue(state(), non_neg_integer(), non_neg_integer()) -> state().
+configure_queue(#{owner := Owner} = State, MaxSize, MaxDelay)
+  when Owner == self() ->
+    flush_queue(State), % Support reconfiguration.
+    if MaxSize == 0; MaxDelay == 0 ->
+	   State#{stream_queue_max => 0};
+       true ->
+	   State#{stream_queue_max => MaxSize,
+		  stream_queue_timeout => {MaxDelay, current_time()}}
+    end;
+configure_queue(_, _, _) ->
+    erlang:error(badarg).
+
 -spec set_timeout(state(), timeout()) -> state().
 set_timeout(#{owner := Owner} = State, Timeout) when Owner == self() ->
     case Timeout of
@@ -318,7 +334,9 @@ init([Mod, From, To, Opts]) ->
 	      stream_verified => false,
 	      stream_authenticated => false,
 	      stream_restarted => false,
-	      stream_state => connecting},
+	      stream_state => connecting,
+	      stream_queue => [],
+	      stream_queue_max => 0},
     case try Mod:init([State, Opts])
 	 catch _:undef -> {ok, State}
 	 end of
@@ -451,6 +469,8 @@ handle_info({'$gen_event', {xmlstreamend, _}}, State) ->
     noreply(process_stream_end({stream, reset}, State));
 handle_info({'$gen_event', closed}, State) ->
     noreply(process_stream_end({socket, closed}, State));
+handle_info(timeout, #{stream_queue := [_|_]} = State) ->
+    noreply(flush_queue(State));
 handle_info(timeout, #{lang := Lang} = State) ->
     Disconnected = is_disconnected(State),
     try noreply(callback(handle_timeout, State))
@@ -936,21 +956,29 @@ send_header(#{remote_server := RemoteServer,
 
 -spec send_pkt(state(), xmpp_element() | xmlel()) -> state().
 send_pkt(State, Pkt) ->
-    Result = socket_send(State, Pkt),
-    State1 = try callback(handle_send, Pkt, Result, State)
-	     catch _:{?MODULE, undef} -> State
-	     end,
-    case Result of
-	_ when is_record(Pkt, stream_error) ->
-	    process_stream_end({stream, {out, Pkt}}, State1);
-	ok ->
-	    State1;
-	{error, _Why} ->
-	    % Queue process_stream_end instead of calling it directly,
-	    % so we have opurtunity to process incoming queued messages before
-	    % terminating session.
-	    self() ! {'$gen_event', closed},
-	    State1
+    case check_queue(State, Pkt) of
+	flush ->
+	    flush_queue(State, Pkt);
+	queue ->
+	    queue_pkt(State, Pkt);
+	noqueue ->
+	    State1 = flush_queue(State),
+	    Result = socket_send(State1, Pkt),
+	    State2 = try callback(handle_send, Pkt, Result, State1)
+		     catch _:{?MODULE, undef} -> State1
+		     end,
+	    case Result of
+		_ when is_record(Pkt, stream_error) ->
+		    process_stream_end({stream, {out, Pkt}}, State2);
+		ok ->
+		    State2;
+		{error, _Why} ->
+		    % Queue process_stream_end instead of calling it directly,
+		    % so we have the opportunity to process incoming queued
+		    % messages before terminating the session.
+		    self() ! {'$gen_event', closed},
+		    State2
+	    end
     end.
 
 -spec send_error(state(), xmpp_element() | xmlel(), stanza_error()) -> state().
@@ -1015,6 +1043,62 @@ starttls(Socket, #{xmlns := NS,
 	   end,
     xmpp_socket:starttls(Socket, [connect, {sni, SNI}, {alpn, [ALPN]}|TLSOpts]).
 
+-spec check_queue(state(), xmpp_element() | xmlel()) -> flush | queue | noqueue.
+check_queue(#{stream_queue_max := 0}, _Pkt) ->
+    noqueue;
+check_queue(#{stream_state := StreamState}, _Pkt)
+  when StreamState /= established->
+    noqueue;
+check_queue(_State, Pkt)
+  when not ?is_stanza(Pkt),
+       not is_record(Pkt, sm_a),
+       not is_record(Pkt, sm_r) ->
+    noqueue;
+check_queue(#{stream_queue := Q, stream_queue_max := MaxQueue}, _Pkt)
+  when length(Q) >= MaxQueue ->
+    flush;
+check_queue(_State, _Pkt) ->
+    queue.
+
+-spec queue_pkt(state(), xmpp_element() | xmlel()) -> state().
+queue_pkt(#{stream_queue := [],
+	    stream_queue_timeout := {MSecs, _PrevTime}} = State, Pkt) ->
+    CurrentTime = current_time(),
+    State#{stream_queue := [Pkt],
+	   stream_queue_timeout := {MSecs, CurrentTime}};
+queue_pkt(#{stream_queue := Q} = State, Pkt) ->
+    State#{stream_queue := [Pkt|Q]}.
+
+-spec flush_queue(state(), xmpp_element() | xmlel()) -> state().
+flush_queue(State, Pkt) ->
+    flush_queue(queue_pkt(State, Pkt)).
+
+-spec flush_queue(state()) -> state().
+flush_queue(#{stream_queue := []} = State) ->
+    State;
+flush_queue(#{stream_queue := Q0,
+	      socket := Sock,
+	      xmlns := NS} = State0) ->
+    Q = lists:reverse(Q0),
+    Els = [xmpp:encode(Pkt, NS) || Pkt <- Q],
+    Result = xmpp_socket:send_elements(Sock, Els),
+    State1 = State0#{stream_queue := []},
+    State2 = try lists:foldl(
+		   fun(Pkt, State) ->
+			   callback(handle_send, Pkt, Result, State)
+		   end, State1, Q)
+	     catch _:{?MODULE, undef} -> State1
+	     end,
+    case Result of
+	ok ->
+	    State2;
+	{error, _Why} ->
+	    self() ! {'$gen_event', closed},
+	    State2
+    end;
+flush_queue(#{stream_queue := _Q} = State) -> % Socket has been released.
+    State#{stream_queue := []}.
+
 -spec select_lang(binary(), binary()) -> binary().
 select_lang(Lang, <<"">>) -> Lang;
 select_lang(_, Lang) -> Lang.
@@ -1071,11 +1155,20 @@ current_time() ->
     p1_time_compat:monotonic_time(milli_seconds).
 
 -spec get_timeout(state()) -> timeout().
-get_timeout(#{stream_timeout := ExpireTime}) ->
-    case ExpireTime of
-	infinity -> infinity;
-	_ -> max(0, ExpireTime - current_time())
-    end.
+get_timeout(State) ->
+    min(get_stream_timeout(State), get_queue_timeout(State)).
+
+-spec get_stream_timeout(state()) -> timeout().
+get_stream_timeout(#{stream_timeout := infinity}) ->
+    infinity;
+get_stream_timeout(#{stream_timeout := ExpireTime}) ->
+    max(0, ExpireTime - current_time()).
+
+-spec get_queue_timeout(state()) -> timeout().
+get_queue_timeout(#{stream_queue := []}) ->
+    infinity;
+get_queue_timeout(#{stream_queue_timeout := {MSecs, StartTime}}) ->
+    max(0, MSecs - current_time() + StartTime).
 
 %%%===================================================================
 %%% State resets

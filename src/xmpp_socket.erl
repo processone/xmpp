@@ -28,6 +28,7 @@
 	 compress/1,
 	 compress/2,
 	 reset_stream/1,
+	 send_elements/2,
 	 send_element/2,
 	 send_header/2,
 	 send_trailer/1,
@@ -195,6 +196,12 @@ reset_stream(#socket_state{xml_stream = XMLStream,
 	    Socket1 = SockMod:reset_stream(Socket),
 	    SocketData#socket_state{socket = Socket1}
     end.
+
+-spec send_elements(socket_state(), [fxml:xmlel()]) -> ok | {error, inet:posix()}.
+send_elements(#socket_state{xml_stream = undefined}, _Els) ->
+    erlang:error(not_implemented);
+send_elements(SocketData, Els) ->
+    send(SocketData, list_to_binary([fxml:element_to_binary(El) || El <- Els])).
 
 -spec send_element(socket_state(), fxml:xmlel()) -> ok | {error, inet:posix()}.
 send_element(#socket_state{xml_stream = undefined} = SocketData, El) ->
