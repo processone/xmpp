@@ -108,57 +108,54 @@ tags() ->
 
 do_encode({mix_setnick, _} = Setnick, TopXMLNS) ->
     encode_mix_setnick(Setnick, TopXMLNS);
-do_encode({mix_join, _, _, _, _} = Join, TopXMLNS) ->
+do_encode({mix_join, _, _, _, _, _} = Join, TopXMLNS) ->
     encode_mix_join(Join, TopXMLNS);
 do_encode({mix_leave} = Leave, TopXMLNS) ->
     encode_mix_leave(Leave, TopXMLNS);
-do_encode({mix_participant, _, _} = Participant,
+do_encode({mix_participant, _, _, _} = Participant,
           TopXMLNS) ->
     encode_mix_participant(Participant, TopXMLNS);
-do_encode({mix_create, _} = Create, TopXMLNS) ->
+do_encode({mix_create, _, _} = Create, TopXMLNS) ->
     encode_mix_create(Create, TopXMLNS);
-do_encode({mix_destroy, _} = Destroy, TopXMLNS) ->
+do_encode({mix_destroy, _, _} = Destroy, TopXMLNS) ->
     encode_mix_destroy(Destroy, TopXMLNS);
 do_encode({mix, _, _, _} = Mix, TopXMLNS) ->
     encode_mix(Mix, TopXMLNS).
 
 do_get_name({mix, _, _, _}) -> <<"mix">>;
-do_get_name({mix_create, _}) -> <<"create">>;
-do_get_name({mix_destroy, _}) -> <<"destroy">>;
-do_get_name({mix_join, _, _, _, _}) -> <<"join">>;
+do_get_name({mix_create, _, _}) -> <<"create">>;
+do_get_name({mix_destroy, _, _}) -> <<"destroy">>;
+do_get_name({mix_join, _, _, _, _, _}) -> <<"join">>;
 do_get_name({mix_leave}) -> <<"leave">>;
-do_get_name({mix_participant, _, _}) ->
+do_get_name({mix_participant, _, _, _}) ->
     <<"participant">>;
 do_get_name({mix_setnick, _}) -> <<"setnick">>.
 
 do_get_ns({mix, _, _, _}) -> <<"urn:xmpp:mix:core:0">>;
-do_get_ns({mix_create, _}) -> <<"urn:xmpp:mix:core:0">>;
-do_get_ns({mix_destroy, _}) ->
-    <<"urn:xmpp:mix:core:0">>;
-do_get_ns({mix_join, _, _, _, _}) ->
-    <<"urn:xmpp:mix:core:0">>;
+do_get_ns({mix_create, _, Xmlns}) -> Xmlns;
+do_get_ns({mix_destroy, _, Xmlns}) -> Xmlns;
+do_get_ns({mix_join, _, _, _, _, Xmlns}) -> Xmlns;
 do_get_ns({mix_leave}) -> <<"urn:xmpp:mix:core:0">>;
-do_get_ns({mix_participant, _, _}) ->
-    <<"urn:xmpp:mix:core:0">>;
+do_get_ns({mix_participant, _, _, Xmlns}) -> Xmlns;
 do_get_ns({mix_setnick, _}) ->
     <<"urn:xmpp:mix:core:0">>.
 
 pp(mix_setnick, 1) -> [nick];
-pp(mix_join, 4) -> [id, jid, nick, subscribe];
+pp(mix_join, 5) -> [id, jid, nick, subscribe, xmlns];
 pp(mix_leave, 0) -> [];
-pp(mix_participant, 2) -> [jid, nick];
-pp(mix_create, 1) -> [channel];
-pp(mix_destroy, 1) -> [channel];
+pp(mix_participant, 3) -> [jid, nick, xmlns];
+pp(mix_create, 2) -> [channel, xmlns];
+pp(mix_destroy, 2) -> [channel, xmlns];
 pp(mix, 3) -> [submission_id, jid, nick];
 pp(_, _) -> no.
 
 records() ->
     [{mix_setnick, 1},
-     {mix_join, 4},
+     {mix_join, 5},
      {mix_leave, 0},
-     {mix_participant, 2},
-     {mix_create, 1},
-     {mix_destroy, 1},
+     {mix_participant, 3},
+     {mix_create, 2},
+     {mix_destroy, 2},
      {mix, 3}].
 
 nodeprep(S) ->
@@ -313,23 +310,38 @@ encode_mix({mix, Submission_id, Jid, Nick},
 
 decode_mix_destroy(__TopXMLNS, __Opts,
                    {xmlel, <<"destroy">>, _attrs, _els}) ->
-    Channel = decode_mix_destroy_attrs(__TopXMLNS,
-                                       _attrs,
-                                       undefined),
-    {mix_destroy, Channel}.
+    {Channel, Xmlns} = decode_mix_destroy_attrs(__TopXMLNS,
+                                                _attrs,
+                                                undefined,
+                                                undefined),
+    {mix_destroy, Channel, Xmlns}.
 
 decode_mix_destroy_attrs(__TopXMLNS,
-                         [{<<"channel">>, _val} | _attrs], _Channel) ->
-    decode_mix_destroy_attrs(__TopXMLNS, _attrs, _val);
+                         [{<<"channel">>, _val} | _attrs], _Channel, Xmlns) ->
+    decode_mix_destroy_attrs(__TopXMLNS,
+                             _attrs,
+                             _val,
+                             Xmlns);
+decode_mix_destroy_attrs(__TopXMLNS,
+                         [{<<"xmlns">>, _val} | _attrs], Channel, _Xmlns) ->
+    decode_mix_destroy_attrs(__TopXMLNS,
+                             _attrs,
+                             Channel,
+                             _val);
 decode_mix_destroy_attrs(__TopXMLNS, [_ | _attrs],
-                         Channel) ->
-    decode_mix_destroy_attrs(__TopXMLNS, _attrs, Channel);
-decode_mix_destroy_attrs(__TopXMLNS, [], Channel) ->
-    decode_mix_destroy_attr_channel(__TopXMLNS, Channel).
+                         Channel, Xmlns) ->
+    decode_mix_destroy_attrs(__TopXMLNS,
+                             _attrs,
+                             Channel,
+                             Xmlns);
+decode_mix_destroy_attrs(__TopXMLNS, [], Channel,
+                         Xmlns) ->
+    {decode_mix_destroy_attr_channel(__TopXMLNS, Channel),
+     decode_mix_destroy_attr_xmlns(__TopXMLNS, Xmlns)}.
 
-encode_mix_destroy({mix_destroy, Channel},
+encode_mix_destroy({mix_destroy, Channel, Xmlns},
                    __TopXMLNS) ->
-    __NewTopXMLNS = xmpp_codec:choose_top_xmlns(<<>>,
+    __NewTopXMLNS = xmpp_codec:choose_top_xmlns(Xmlns,
                                                 [<<"urn:xmpp:mix:core:0">>,
                                                  <<"urn:xmpp:mix:core:1">>],
                                                 __TopXMLNS),
@@ -360,24 +372,44 @@ decode_mix_destroy_attr_channel(__TopXMLNS, _val) ->
 encode_mix_destroy_attr_channel(_val, _acc) ->
     [{<<"channel">>, _val} | _acc].
 
+decode_mix_destroy_attr_xmlns(__TopXMLNS, undefined) ->
+    <<>>;
+decode_mix_destroy_attr_xmlns(__TopXMLNS, _val) -> _val.
+
 decode_mix_create(__TopXMLNS, __Opts,
                   {xmlel, <<"create">>, _attrs, _els}) ->
-    Channel = decode_mix_create_attrs(__TopXMLNS,
-                                      _attrs,
-                                      undefined),
-    {mix_create, Channel}.
+    {Channel, Xmlns} = decode_mix_create_attrs(__TopXMLNS,
+                                               _attrs,
+                                               undefined,
+                                               undefined),
+    {mix_create, Channel, Xmlns}.
 
 decode_mix_create_attrs(__TopXMLNS,
-                        [{<<"channel">>, _val} | _attrs], _Channel) ->
-    decode_mix_create_attrs(__TopXMLNS, _attrs, _val);
+                        [{<<"channel">>, _val} | _attrs], _Channel, Xmlns) ->
+    decode_mix_create_attrs(__TopXMLNS,
+                            _attrs,
+                            _val,
+                            Xmlns);
+decode_mix_create_attrs(__TopXMLNS,
+                        [{<<"xmlns">>, _val} | _attrs], Channel, _Xmlns) ->
+    decode_mix_create_attrs(__TopXMLNS,
+                            _attrs,
+                            Channel,
+                            _val);
 decode_mix_create_attrs(__TopXMLNS, [_ | _attrs],
-                        Channel) ->
-    decode_mix_create_attrs(__TopXMLNS, _attrs, Channel);
-decode_mix_create_attrs(__TopXMLNS, [], Channel) ->
-    decode_mix_create_attr_channel(__TopXMLNS, Channel).
+                        Channel, Xmlns) ->
+    decode_mix_create_attrs(__TopXMLNS,
+                            _attrs,
+                            Channel,
+                            Xmlns);
+decode_mix_create_attrs(__TopXMLNS, [], Channel,
+                        Xmlns) ->
+    {decode_mix_create_attr_channel(__TopXMLNS, Channel),
+     decode_mix_create_attr_xmlns(__TopXMLNS, Xmlns)}.
 
-encode_mix_create({mix_create, Channel}, __TopXMLNS) ->
-    __NewTopXMLNS = xmpp_codec:choose_top_xmlns(<<>>,
+encode_mix_create({mix_create, Channel, Xmlns},
+                  __TopXMLNS) ->
+    __NewTopXMLNS = xmpp_codec:choose_top_xmlns(Xmlns,
                                                 [<<"urn:xmpp:mix:core:0">>,
                                                  <<"urn:xmpp:mix:core:1">>],
                                                 __TopXMLNS),
@@ -404,40 +436,62 @@ encode_mix_create_attr_channel(<<>>, _acc) -> _acc;
 encode_mix_create_attr_channel(_val, _acc) ->
     [{<<"channel">>, _val} | _acc].
 
+decode_mix_create_attr_xmlns(__TopXMLNS, undefined) ->
+    <<>>;
+decode_mix_create_attr_xmlns(__TopXMLNS, _val) -> _val.
+
 decode_mix_participant(__TopXMLNS, __Opts,
                        {xmlel, <<"participant">>, _attrs, _els}) ->
-    {Jid, Nick} = decode_mix_participant_attrs(__TopXMLNS,
-                                               _attrs,
-                                               undefined,
-                                               undefined),
-    {mix_participant, Jid, Nick}.
+    {Jid, Nick, Xmlns} =
+        decode_mix_participant_attrs(__TopXMLNS,
+                                     _attrs,
+                                     undefined,
+                                     undefined,
+                                     undefined),
+    {mix_participant, Jid, Nick, Xmlns}.
 
 decode_mix_participant_attrs(__TopXMLNS,
-                             [{<<"jid">>, _val} | _attrs], _Jid, Nick) ->
+                             [{<<"jid">>, _val} | _attrs], _Jid, Nick, Xmlns) ->
     decode_mix_participant_attrs(__TopXMLNS,
                                  _attrs,
                                  _val,
-                                 Nick);
+                                 Nick,
+                                 Xmlns);
 decode_mix_participant_attrs(__TopXMLNS,
-                             [{<<"nick">>, _val} | _attrs], Jid, _Nick) ->
+                             [{<<"nick">>, _val} | _attrs], Jid, _Nick,
+                             Xmlns) ->
     decode_mix_participant_attrs(__TopXMLNS,
                                  _attrs,
                                  Jid,
+                                 _val,
+                                 Xmlns);
+decode_mix_participant_attrs(__TopXMLNS,
+                             [{<<"xmlns">>, _val} | _attrs], Jid, Nick,
+                             _Xmlns) ->
+    decode_mix_participant_attrs(__TopXMLNS,
+                                 _attrs,
+                                 Jid,
+                                 Nick,
                                  _val);
 decode_mix_participant_attrs(__TopXMLNS, [_ | _attrs],
-                             Jid, Nick) ->
+                             Jid, Nick, Xmlns) ->
     decode_mix_participant_attrs(__TopXMLNS,
                                  _attrs,
                                  Jid,
-                                 Nick);
-decode_mix_participant_attrs(__TopXMLNS, [], Jid,
-                             Nick) ->
+                                 Nick,
+                                 Xmlns);
+decode_mix_participant_attrs(__TopXMLNS, [], Jid, Nick,
+                             Xmlns) ->
     {decode_mix_participant_attr_jid(__TopXMLNS, Jid),
-     decode_mix_participant_attr_nick(__TopXMLNS, Nick)}.
+     decode_mix_participant_attr_nick(__TopXMLNS, Nick),
+     decode_mix_participant_attr_xmlns(__TopXMLNS, Xmlns)}.
 
-encode_mix_participant({mix_participant, Jid, Nick},
+encode_mix_participant({mix_participant,
+                        Jid,
+                        Nick,
+                        Xmlns},
                        __TopXMLNS) ->
-    __NewTopXMLNS = xmpp_codec:choose_top_xmlns(<<>>,
+    __NewTopXMLNS = xmpp_codec:choose_top_xmlns(Xmlns,
                                                 [<<"urn:xmpp:mix:core:0">>,
                                                  <<"urn:xmpp:mix:core:1">>],
                                                 __TopXMLNS),
@@ -479,6 +533,12 @@ encode_mix_participant_attr_nick(<<>>, _acc) -> _acc;
 encode_mix_participant_attr_nick(_val, _acc) ->
     [{<<"nick">>, _val} | _acc].
 
+decode_mix_participant_attr_xmlns(__TopXMLNS,
+                                  undefined) ->
+    <<>>;
+decode_mix_participant_attr_xmlns(__TopXMLNS, _val) ->
+    _val.
+
 decode_mix_leave(__TopXMLNS, __Opts,
                  {xmlel, <<"leave">>, _attrs, _els}) ->
     {mix_leave}.
@@ -500,11 +560,12 @@ decode_mix_join(__TopXMLNS, __Opts,
                                             _els,
                                             [],
                                             <<>>),
-    {Id, Jid} = decode_mix_join_attrs(__TopXMLNS,
-                                      _attrs,
-                                      undefined,
-                                      undefined),
-    {mix_join, Id, Jid, Nick, Subscribe}.
+    {Id, Jid, Xmlns} = decode_mix_join_attrs(__TopXMLNS,
+                                             _attrs,
+                                             undefined,
+                                             undefined,
+                                             undefined),
+    {mix_join, Id, Jid, Nick, Subscribe, Xmlns}.
 
 decode_mix_join_els(__TopXMLNS, __Opts, [], Subscribe,
                     Nick) ->
@@ -580,21 +641,46 @@ decode_mix_join_els(__TopXMLNS, __Opts, [_ | _els],
                         Nick).
 
 decode_mix_join_attrs(__TopXMLNS,
-                      [{<<"id">>, _val} | _attrs], _Id, Jid) ->
-    decode_mix_join_attrs(__TopXMLNS, _attrs, _val, Jid);
+                      [{<<"id">>, _val} | _attrs], _Id, Jid, Xmlns) ->
+    decode_mix_join_attrs(__TopXMLNS,
+                          _attrs,
+                          _val,
+                          Jid,
+                          Xmlns);
 decode_mix_join_attrs(__TopXMLNS,
-                      [{<<"jid">>, _val} | _attrs], Id, _Jid) ->
-    decode_mix_join_attrs(__TopXMLNS, _attrs, Id, _val);
-decode_mix_join_attrs(__TopXMLNS, [_ | _attrs], Id,
-                      Jid) ->
-    decode_mix_join_attrs(__TopXMLNS, _attrs, Id, Jid);
-decode_mix_join_attrs(__TopXMLNS, [], Id, Jid) ->
+                      [{<<"jid">>, _val} | _attrs], Id, _Jid, Xmlns) ->
+    decode_mix_join_attrs(__TopXMLNS,
+                          _attrs,
+                          Id,
+                          _val,
+                          Xmlns);
+decode_mix_join_attrs(__TopXMLNS,
+                      [{<<"xmlns">>, _val} | _attrs], Id, Jid, _Xmlns) ->
+    decode_mix_join_attrs(__TopXMLNS,
+                          _attrs,
+                          Id,
+                          Jid,
+                          _val);
+decode_mix_join_attrs(__TopXMLNS, [_ | _attrs], Id, Jid,
+                      Xmlns) ->
+    decode_mix_join_attrs(__TopXMLNS,
+                          _attrs,
+                          Id,
+                          Jid,
+                          Xmlns);
+decode_mix_join_attrs(__TopXMLNS, [], Id, Jid, Xmlns) ->
     {decode_mix_join_attr_id(__TopXMLNS, Id),
-     decode_mix_join_attr_jid(__TopXMLNS, Jid)}.
+     decode_mix_join_attr_jid(__TopXMLNS, Jid),
+     decode_mix_join_attr_xmlns(__TopXMLNS, Xmlns)}.
 
-encode_mix_join({mix_join, Id, Jid, Nick, Subscribe},
+encode_mix_join({mix_join,
+                 Id,
+                 Jid,
+                 Nick,
+                 Subscribe,
+                 Xmlns},
                 __TopXMLNS) ->
-    __NewTopXMLNS = xmpp_codec:choose_top_xmlns(<<>>,
+    __NewTopXMLNS = xmpp_codec:choose_top_xmlns(Xmlns,
                                                 [<<"urn:xmpp:mix:core:0">>,
                                                  <<"urn:xmpp:mix:core:1">>],
                                                 __TopXMLNS),
@@ -643,6 +729,10 @@ decode_mix_join_attr_jid(__TopXMLNS, _val) ->
 encode_mix_join_attr_jid(undefined, _acc) -> _acc;
 encode_mix_join_attr_jid(_val, _acc) ->
     [{<<"jid">>, jid:encode(_val)} | _acc].
+
+decode_mix_join_attr_xmlns(__TopXMLNS, undefined) ->
+    <<>>;
+decode_mix_join_attr_xmlns(__TopXMLNS, _val) -> _val.
 
 decode_mix_setnick(__TopXMLNS, __Opts,
                    {xmlel, <<"setnick">>, _attrs, _els}) ->
@@ -833,22 +923,37 @@ encode_mix_nick_cdata(_val, _acc) ->
 
 decode_mix_subscribe(__TopXMLNS, __Opts,
                      {xmlel, <<"subscribe">>, _attrs, _els}) ->
-    Node = decode_mix_subscribe_attrs(__TopXMLNS,
-                                      _attrs,
-                                      undefined),
-    Node.
+    {Node, Xmlns} = decode_mix_subscribe_attrs(__TopXMLNS,
+                                               _attrs,
+                                               undefined,
+                                               undefined),
+    {Node, Xmlns}.
 
 decode_mix_subscribe_attrs(__TopXMLNS,
-                           [{<<"node">>, _val} | _attrs], _Node) ->
-    decode_mix_subscribe_attrs(__TopXMLNS, _attrs, _val);
+                           [{<<"node">>, _val} | _attrs], _Node, Xmlns) ->
+    decode_mix_subscribe_attrs(__TopXMLNS,
+                               _attrs,
+                               _val,
+                               Xmlns);
+decode_mix_subscribe_attrs(__TopXMLNS,
+                           [{<<"xmlns">>, _val} | _attrs], Node, _Xmlns) ->
+    decode_mix_subscribe_attrs(__TopXMLNS,
+                               _attrs,
+                               Node,
+                               _val);
 decode_mix_subscribe_attrs(__TopXMLNS, [_ | _attrs],
-                           Node) ->
-    decode_mix_subscribe_attrs(__TopXMLNS, _attrs, Node);
-decode_mix_subscribe_attrs(__TopXMLNS, [], Node) ->
-    decode_mix_subscribe_attr_node(__TopXMLNS, Node).
+                           Node, Xmlns) ->
+    decode_mix_subscribe_attrs(__TopXMLNS,
+                               _attrs,
+                               Node,
+                               Xmlns);
+decode_mix_subscribe_attrs(__TopXMLNS, [], Node,
+                           Xmlns) ->
+    {decode_mix_subscribe_attr_node(__TopXMLNS, Node),
+     decode_mix_subscribe_attr_xmlns(__TopXMLNS, Xmlns)}.
 
-encode_mix_subscribe(Node, __TopXMLNS) ->
-    __NewTopXMLNS = xmpp_codec:choose_top_xmlns(<<>>,
+encode_mix_subscribe({Node, Xmlns}, __TopXMLNS) ->
+    __NewTopXMLNS = xmpp_codec:choose_top_xmlns(Xmlns,
                                                 [<<"urn:xmpp:mix:core:0">>,
                                                  <<"urn:xmpp:mix:core:1">>],
                                                 __TopXMLNS),
@@ -869,3 +974,9 @@ decode_mix_subscribe_attr_node(__TopXMLNS, _val) ->
 
 encode_mix_subscribe_attr_node(_val, _acc) ->
     [{<<"node">>, _val} | _acc].
+
+decode_mix_subscribe_attr_xmlns(__TopXMLNS,
+                                undefined) ->
+    <<>>;
+decode_mix_subscribe_attr_xmlns(__TopXMLNS, _val) ->
+    _val.

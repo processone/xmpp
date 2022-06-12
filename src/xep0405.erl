@@ -48,10 +48,10 @@ tags() ->
      {<<"client-join">>, <<"urn:xmpp:mix:pam:0">>},
      {<<"client-join">>, <<"urn:xmpp:mix:pam:2">>}].
 
-do_encode({mix_client_join, _, _} = Client_join,
+do_encode({mix_client_join, _, _, _} = Client_join,
           TopXMLNS) ->
     encode_mix_client_join(Client_join, TopXMLNS);
-do_encode({mix_client_leave, _, _} = Client_leave,
+do_encode({mix_client_leave, _, _, _} = Client_leave,
           TopXMLNS) ->
     encode_mix_client_leave(Client_leave, TopXMLNS);
 do_encode({mix_roster_channel, _} = Channel,
@@ -60,31 +60,29 @@ do_encode({mix_roster_channel, _} = Channel,
 do_encode({mix_roster_annotate} = Annotate, TopXMLNS) ->
     encode_mix_roster_annotate(Annotate, TopXMLNS).
 
-do_get_name({mix_client_join, _, _}) ->
+do_get_name({mix_client_join, _, _, _}) ->
     <<"client-join">>;
-do_get_name({mix_client_leave, _, _}) ->
+do_get_name({mix_client_leave, _, _, _}) ->
     <<"client-leave">>;
 do_get_name({mix_roster_annotate}) -> <<"annotate">>;
 do_get_name({mix_roster_channel, _}) -> <<"channel">>.
 
-do_get_ns({mix_client_join, _, _}) ->
-    <<"urn:xmpp:mix:pam:0">>;
-do_get_ns({mix_client_leave, _, _}) ->
-    <<"urn:xmpp:mix:pam:0">>;
+do_get_ns({mix_client_join, _, _, Xmlns}) -> Xmlns;
+do_get_ns({mix_client_leave, _, _, Xmlns}) -> Xmlns;
 do_get_ns({mix_roster_annotate}) ->
     <<"urn:xmpp:mix:roster:0">>;
 do_get_ns({mix_roster_channel, _}) ->
     <<"urn:xmpp:mix:roster:0">>.
 
-pp(mix_client_join, 2) -> [channel, join];
-pp(mix_client_leave, 2) -> [channel, leave];
+pp(mix_client_join, 3) -> [channel, join, xmlns];
+pp(mix_client_leave, 3) -> [channel, leave, xmlns];
 pp(mix_roster_channel, 1) -> ['participant-id'];
 pp(mix_roster_annotate, 0) -> [];
 pp(_, _) -> no.
 
 records() ->
-    [{mix_client_join, 2},
-     {mix_client_leave, 2},
+    [{mix_client_join, 3},
+     {mix_client_leave, 3},
      {mix_roster_channel, 1},
      {mix_roster_annotate, 0}].
 
@@ -162,10 +160,12 @@ decode_mix_client_leave(__TopXMLNS, __Opts,
                                         __Opts,
                                         _els,
                                         error),
-    Channel = decode_mix_client_leave_attrs(__TopXMLNS,
-                                            _attrs,
-                                            undefined),
-    {mix_client_leave, Channel, Leave}.
+    {Channel, Xmlns} =
+        decode_mix_client_leave_attrs(__TopXMLNS,
+                                      _attrs,
+                                      undefined,
+                                      undefined),
+    {mix_client_leave, Channel, Leave, Xmlns}.
 
 decode_mix_client_leave_els(__TopXMLNS, __Opts, [],
                             Leave) ->
@@ -212,23 +212,37 @@ decode_mix_client_leave_els(__TopXMLNS, __Opts,
                                 Leave).
 
 decode_mix_client_leave_attrs(__TopXMLNS,
-                              [{<<"channel">>, _val} | _attrs], _Channel) ->
-    decode_mix_client_leave_attrs(__TopXMLNS, _attrs, _val);
-decode_mix_client_leave_attrs(__TopXMLNS, [_ | _attrs],
-                              Channel) ->
+                              [{<<"channel">>, _val} | _attrs], _Channel,
+                              Xmlns) ->
     decode_mix_client_leave_attrs(__TopXMLNS,
                                   _attrs,
-                                  Channel);
-decode_mix_client_leave_attrs(__TopXMLNS, [],
-                              Channel) ->
-    decode_mix_client_leave_attr_channel(__TopXMLNS,
-                                         Channel).
+                                  _val,
+                                  Xmlns);
+decode_mix_client_leave_attrs(__TopXMLNS,
+                              [{<<"xmlns">>, _val} | _attrs], Channel,
+                              _Xmlns) ->
+    decode_mix_client_leave_attrs(__TopXMLNS,
+                                  _attrs,
+                                  Channel,
+                                  _val);
+decode_mix_client_leave_attrs(__TopXMLNS, [_ | _attrs],
+                              Channel, Xmlns) ->
+    decode_mix_client_leave_attrs(__TopXMLNS,
+                                  _attrs,
+                                  Channel,
+                                  Xmlns);
+decode_mix_client_leave_attrs(__TopXMLNS, [], Channel,
+                              Xmlns) ->
+    {decode_mix_client_leave_attr_channel(__TopXMLNS,
+                                          Channel),
+     decode_mix_client_leave_attr_xmlns(__TopXMLNS, Xmlns)}.
 
 encode_mix_client_leave({mix_client_leave,
                          Channel,
-                         Leave},
+                         Leave,
+                         Xmlns},
                         __TopXMLNS) ->
-    __NewTopXMLNS = xmpp_codec:choose_top_xmlns(<<>>,
+    __NewTopXMLNS = xmpp_codec:choose_top_xmlns(Xmlns,
                                                 [<<"urn:xmpp:mix:pam:0">>,
                                                  <<"urn:xmpp:mix:pam:2">>],
                                                 __TopXMLNS),
@@ -265,16 +279,24 @@ encode_mix_client_leave_attr_channel(undefined, _acc) ->
 encode_mix_client_leave_attr_channel(_val, _acc) ->
     [{<<"channel">>, jid:encode(_val)} | _acc].
 
+decode_mix_client_leave_attr_xmlns(__TopXMLNS,
+                                   undefined) ->
+    <<>>;
+decode_mix_client_leave_attr_xmlns(__TopXMLNS, _val) ->
+    _val.
+
 decode_mix_client_join(__TopXMLNS, __Opts,
                        {xmlel, <<"client-join">>, _attrs, _els}) ->
     Join = decode_mix_client_join_els(__TopXMLNS,
                                       __Opts,
                                       _els,
                                       error),
-    Channel = decode_mix_client_join_attrs(__TopXMLNS,
-                                           _attrs,
-                                           undefined),
-    {mix_client_join, Channel, Join}.
+    {Channel, Xmlns} =
+        decode_mix_client_join_attrs(__TopXMLNS,
+                                     _attrs,
+                                     undefined,
+                                     undefined),
+    {mix_client_join, Channel, Join, Xmlns}.
 
 decode_mix_client_join_els(__TopXMLNS, __Opts, [],
                            Join) ->
@@ -321,20 +343,36 @@ decode_mix_client_join_els(__TopXMLNS, __Opts,
                                Join).
 
 decode_mix_client_join_attrs(__TopXMLNS,
-                             [{<<"channel">>, _val} | _attrs], _Channel) ->
-    decode_mix_client_join_attrs(__TopXMLNS, _attrs, _val);
-decode_mix_client_join_attrs(__TopXMLNS, [_ | _attrs],
-                             Channel) ->
+                             [{<<"channel">>, _val} | _attrs], _Channel,
+                             Xmlns) ->
     decode_mix_client_join_attrs(__TopXMLNS,
                                  _attrs,
-                                 Channel);
-decode_mix_client_join_attrs(__TopXMLNS, [], Channel) ->
-    decode_mix_client_join_attr_channel(__TopXMLNS,
-                                        Channel).
+                                 _val,
+                                 Xmlns);
+decode_mix_client_join_attrs(__TopXMLNS,
+                             [{<<"xmlns">>, _val} | _attrs], Channel, _Xmlns) ->
+    decode_mix_client_join_attrs(__TopXMLNS,
+                                 _attrs,
+                                 Channel,
+                                 _val);
+decode_mix_client_join_attrs(__TopXMLNS, [_ | _attrs],
+                             Channel, Xmlns) ->
+    decode_mix_client_join_attrs(__TopXMLNS,
+                                 _attrs,
+                                 Channel,
+                                 Xmlns);
+decode_mix_client_join_attrs(__TopXMLNS, [], Channel,
+                             Xmlns) ->
+    {decode_mix_client_join_attr_channel(__TopXMLNS,
+                                         Channel),
+     decode_mix_client_join_attr_xmlns(__TopXMLNS, Xmlns)}.
 
-encode_mix_client_join({mix_client_join, Channel, Join},
+encode_mix_client_join({mix_client_join,
+                        Channel,
+                        Join,
+                        Xmlns},
                        __TopXMLNS) ->
-    __NewTopXMLNS = xmpp_codec:choose_top_xmlns(<<>>,
+    __NewTopXMLNS = xmpp_codec:choose_top_xmlns(Xmlns,
                                                 [<<"urn:xmpp:mix:pam:0">>,
                                                  <<"urn:xmpp:mix:pam:2">>],
                                                 __TopXMLNS),
@@ -369,3 +407,9 @@ encode_mix_client_join_attr_channel(undefined, _acc) ->
     _acc;
 encode_mix_client_join_attr_channel(_val, _acc) ->
     [{<<"channel">>, jid:encode(_val)} | _acc].
+
+decode_mix_client_join_attr_xmlns(__TopXMLNS,
+                                  undefined) ->
+    <<>>;
+decode_mix_client_join_attr_xmlns(__TopXMLNS, _val) ->
+    _val.
