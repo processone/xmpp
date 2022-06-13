@@ -159,7 +159,8 @@
 -record(carbons_enable, {}).
 -type carbons_enable() :: #carbons_enable{}.
 
--record(mix_create, {channel = <<>> :: binary()}).
+-record(mix_create, {channel = <<>> :: binary(),
+                     xmlns = <<>> :: binary()}).
 -type mix_create() :: #mix_create{}.
 
 -record(carbons_private, {}).
@@ -672,7 +673,8 @@
 -type x509_ca_list() :: #x509_ca_list{}.
 
 -record(mix_participant, {jid :: jid:jid(),
-                          nick = <<>> :: binary()}).
+                          nick = <<>> :: binary(),
+                          xmlns = <<>> :: binary()}).
 -type mix_participant() :: #mix_participant{}.
 
 -record(compressed, {}).
@@ -705,7 +707,8 @@
 -type jingle_ft_description() :: #jingle_ft_description{}.
 
 -record(mix_client_leave, {channel :: undefined | jid:jid(),
-                           leave :: #mix_leave{}}).
+                           leave :: #mix_leave{},
+                           xmlns = <<>> :: binary()}).
 -type mix_client_leave() :: #mix_client_leave{}.
 
 -record(legacy_auth_feature, {}).
@@ -870,7 +873,8 @@
                 uri = [] :: [#media_uri{}]}).
 -type media() :: #media{}.
 
--record(mix_destroy, {channel :: any()}).
+-record(mix_destroy, {channel :: any(),
+                      xmlns = <<>> :: binary()}).
 -type mix_destroy() :: #mix_destroy{}.
 
 -record(vcard_key, {type :: 'undefined' | binary(),
@@ -1148,11 +1152,13 @@
 -record(mix_join, {id = <<>> :: binary(),
                    jid :: undefined | jid:jid(),
                    nick = <<>> :: binary(),
-                   subscribe = [] :: [binary()]}).
+                   subscribe = [] :: [{binary(),binary()}],
+                   xmlns = <<>> :: binary()}).
 -type mix_join() :: #mix_join{}.
 
 -record(mix_client_join, {channel :: undefined | jid:jid(),
-                          join :: #mix_join{}}).
+                          join :: #mix_join{},
+                          xmlns = <<>> :: binary()}).
 -type mix_client_join() :: #mix_client_join{}.
 
 -record(inbox_fin, {total :: 'undefined' | non_neg_integer(),
