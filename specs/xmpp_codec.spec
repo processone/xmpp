@@ -3454,11 +3454,10 @@
      #elem{name = <<"subscribe">>,
 	   xmlns = [<<"urn:xmpp:mix:core:0">>, <<"urn:xmpp:mix:core:1">>],
 	   module = 'xep0369',
-	   result = {'$node', '$xmlns'},
+	   result = '$node',
 	   attrs = [#attr{name = <<"node">>,
 			  required = true,
-			  label = '$node'},
-		    #attr{name = <<"xmlns">>}]}).
+			  label = '$node'}]}).
 
 -xml(mix_unsubscribe,
      #elem{name = <<"unsubscribe">>,
@@ -3496,7 +3495,8 @@
      #elem{name = <<"setnick">>,
 	   xmlns = [<<"urn:xmpp:mix:core:0">>, <<"urn:xmpp:mix:core:1">>],
 	   module = 'xep0369',
-	   result = {mix_setnick, '$nick'},
+	   result = {mix_setnick, '$nick', '$xmlns'},
+	   attrs = [#attr{name = <<"xmlns">>}],
 	   refs = [#ref{name = mix_nick, min = 1, max = 1,
 			label = '$nick'}]}).
 
@@ -3543,7 +3543,8 @@
      #elem{name = <<"leave">>,
 	   xmlns = [<<"urn:xmpp:mix:core:0">>, <<"urn:xmpp:mix:core:1">>],
 	   module = 'xep0369',
-	   result = {mix_leave}}).
+	   result = {mix_leave, '$xmlns'},
+	   attrs = [#attr{name = <<"xmlns">>}]}).
 
 -xml(mix_client_leave,
      #elem{name = <<"client-leave">>,
@@ -3594,7 +3595,8 @@
      #elem{name = <<"mix">>,
 	   xmlns = [<<"urn:xmpp:mix:core:0">>, <<"urn:xmpp:mix:core:1">>],
 	   module = 'xep0369',
-	   result = {mix, '$submission_id', '$jid', '$nick'},
+	   result = {mix, '$submission_id', '$jid', '$nick', '$xmlns'},
+	   attrs = [#attr{name = <<"xmlns">>}],
 	   refs = [#ref{name = mix_submission_id, default = <<"">>,
 			min = 0, max = 1, label = '$submission_id'},
 		   #ref{name = mix_jid,	min = 0, max = 1, label = '$jid'},
