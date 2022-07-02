@@ -3462,14 +3462,14 @@
 
 -xml(mix_nick,
      #elem{name = <<"nick">>,
-	   xmlns = [<<"urn:xmpp:mix:core:0">>, <<"urn:xmpp:mix:core:1">>],
+	   xmlns = [<<"urn:xmpp:mix:core:0">>, <<"urn:xmpp:mix:core:1">>, <<"urn:xmpp:mix:presence:0">>],
 	   module = 'xep0369',
 	   result = '$cdata',
 	   cdata = #cdata{required = true}}).
 
 -xml(mix_jid,
      #elem{name = <<"jid">>,
-	   xmlns = [<<"urn:xmpp:mix:core:0">>, <<"urn:xmpp:mix:core:1">>],
+	   xmlns = [<<"urn:xmpp:mix:core:0">>, <<"urn:xmpp:mix:core:1">>, <<"urn:xmpp:mix:presence:0">>],
 	   module = 'xep0369',
 	   result = '$cdata',
 	   cdata = #cdata{required = true,
@@ -3594,6 +3594,16 @@
            xmlns = <<"urn:xmpp:mix:roster:0">>,
            module = 'xep0405',
            result = {mix_roster_annotate}}).
+
+-xml(mix_presence,
+     #elem{name = <<"mix">>,
+	   xmlns = [<<"urn:xmpp:mix:presence:0">>],
+	   module = 'xep0403',
+	   result = {mix_presence, '$xmlns', '$jid', '$nick'},
+	   attrs = [#attr{name = <<"xmlns">>}],
+	   refs = [#ref{name = mix_jid,	min = 0, max = 1, label = '$jid'},
+		   #ref{name = mix_nick, min = 0, max = 1, label = '$nick',
+			default = <<"">>}]}).
 
 -record(hint, {type :: 'no-copy' | 'no-store' | 'no-storage' | 'store' |
 		       'no-permanent-store' | 'no-permanent-storage'}).
