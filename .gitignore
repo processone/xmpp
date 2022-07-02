@@ -19,3 +19,4 @@ rebar.lock
 src/XmppAddr.asn1db
 src/XmppAddr.erl
 vars.config
+dialyzer
