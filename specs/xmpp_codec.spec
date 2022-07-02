@@ -3460,6 +3460,15 @@
 			  label = '$node'},
 		    #attr{name = <<"xmlns">>}]}).
 
+-xml(mix_unsubscribe,
+     #elem{name = <<"unsubscribe">>,
+	   xmlns = [<<"urn:xmpp:mix:core:0">>, <<"urn:xmpp:mix:core:1">>],
+	   module = 'xep0369',
+	   result = '$node',
+	   attrs = [#attr{name = <<"node">>,
+			  required = true,
+			  label = '$node'}]}).
+
 -xml(mix_nick,
      #elem{name = <<"nick">>,
 	   xmlns = [<<"urn:xmpp:mix:core:0">>, <<"urn:xmpp:mix:core:1">>, <<"urn:xmpp:mix:presence:0">>],
@@ -3490,6 +3499,17 @@
 	   result = {mix_setnick, '$nick'},
 	   refs = [#ref{name = mix_nick, min = 1, max = 1,
 			label = '$nick'}]}).
+
+-xml(mix_update_subscription,
+     #elem{name = <<"update-subscription">>,
+	   xmlns = [<<"urn:xmpp:mix:core:0">>, <<"urn:xmpp:mix:core:1">>],
+	   module = 'xep0369',
+	   result = {mix_update_subscription, '$xmlns', '$jid', '$subscribe', '$unsubscribe'},
+	   attrs = [#attr{name = <<"xmlns">>},
+		    #attr{name = <<"jid">>, label = '$jid',
+			  dec = {jid, decode, []}, enc = {jid, encode, []}}],
+	   refs = [#ref{name = mix_subscribe, min = 0, label = '$subscribe'},
+		   #ref{name = mix_unsubscribe, min = 0, label = '$unsubscribe'}]}).
 
 -xml(mix_join,
      #elem{name = <<"join">>,
