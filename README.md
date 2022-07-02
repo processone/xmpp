@@ -313,6 +313,7 @@ XMPP elements from the following documents are supported:
 - [XEP-0363](https://xmpp.org/extensions/xep-0363.html):  HTTP File Upload
 - [XEP-0369](https://xmpp.org/extensions/xep-0369.html):  Mediated Information eXchange (MIX)
 - [XEP-0377](https://xmpp.org/extensions/xep-0377.html):  Spam Reporting
+- [XEP-0403](https://xmpp.org/extensions/xep-0403.html):  MIX: Presence Support
 - [XEP-0405](https://xmpp.org/extensions/xep-0405.html):  MIX: Participant Server Requirements
 - [XEP-0417](https://xmpp.org/extensions/xep-0417.html):  E2E Authentication in XMPP: Certificate Issuance and Revocation
 - [XEP-0430](https://xmpp.org/extensions/xep-0430.html):  Inbox
