@@ -1,0 +1,21 @@
+We are open to contributions for ejabberd, as GitHub pull requests (PR).
+Here are a few points to consider before submitting your PR. (You can
+remove the whole text after reading.)
+
+1. Does this PR address an issue? Please reference it in the PR
+   description.
+
+2. Have you properly described the proposed change?
+
+3. Please make sure the change is atomic and only touches the needed
+   files. If you have other changes/fixes to provide, please submit
+   them as separate PRs, or in separate commits.
+
+4. Don't mix in the same commit your improvements in the source code
+   and the changes produced when running `make spec` or `make xdata`.
+   In fact, don't commit changes generated automatically, because
+   there's a GitHub Action that will do this once your PR is merged.
+
+5. Do you provide tests? How can we check the behavior of the code?
+
+6. Are there any changes required in the documentation?
