@@ -18,11 +18,12 @@ jobs:
     - run: make
     - run: rebar3 compile
     - run: ERLTIDY=true rebar3 compile
+    - run: REBAR=rebar3 make spec
+    - run: REBAR=rebar3 make xdata
+    - run: rebar3 compile
     - run: rebar3 xref
     - run: rebar3 dialyzer
     - run: rebar3 eunit -v
-    - run: REBAR=rebar3 make spec
-    - run: REBAR=rebar3 make xdata
 
   cover:
     name: Cover
@@ -31,6 +32,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - run: ./configure --enable-gcov
+    - run: rebar3 compile
+    - run: REBAR=rebar3 make spec
+    - run: REBAR=rebar3 make xdata
     - run: rebar3 compile
     - run: rebar3 eunit -v
     - run: pip install --user cpp-coveralls
