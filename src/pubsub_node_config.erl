@@ -1786,7 +1786,7 @@ encode_item_expire(Value, Lang, IsRequired) ->
                  type = 'text-single', options = Opts, desc = <<>>,
                  label =
                      xmpp_tr:tr(Lang,
-                                ?T("Number of seconds after which to automatically"
+                                ?T("Number of seconds after which to automaticall"
                                    "y purge items, or `max` for no specific "
                                    "limit other than a server imposed maximum"))}.
 
