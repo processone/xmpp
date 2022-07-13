@@ -173,7 +173,7 @@
                  stored :: 'undefined' | non_neg_integer()}).
 -type expire() :: #expire{}.
 
--record(mix_leave, {}).
+-record(mix_leave, {xmlns = <<>> :: binary()}).
 -type mix_leave() :: #mix_leave{}.
 
 -record(muc_unsubscribe, {nick = <<>> :: binary(),
@@ -449,6 +449,11 @@
                        jid :: jid:jid()}).
 -type ps_subscribe() :: #ps_subscribe{}.
 
+-record(mix_presence, {xmlns = <<>> :: binary(),
+                       jid :: undefined | jid:jid(),
+                       nick = <<>> :: binary()}).
+-type mix_presence() :: #mix_presence{}.
+
 -record(idle, {since :: erlang:timestamp()}).
 -type idle() :: #idle{}.
 
@@ -653,7 +658,8 @@
 
 -record(mix, {submission_id = <<>> :: binary(),
               jid :: undefined | jid:jid(),
-              nick = <<>> :: binary()}).
+              nick = <<>> :: binary(),
+              xmlns = <<>> :: binary()}).
 -type mix() :: #mix{}.
 
 -record(carbons_sent, {forwarded :: #forwarded{}}).
@@ -748,6 +754,12 @@
                          'content-type' = <<>> :: binary(),
                          xmlns = <<>> :: binary()}).
 -type upload_request() :: #upload_request{}.
+
+-record(mix_update_subscription, {xmlns = <<>> :: binary(),
+                                  jid :: undefined | jid:jid(),
+                                  subscribe = [] :: [binary()],
+                                  unsubscribe = [] :: [binary()]}).
+-type mix_update_subscription() :: #mix_update_subscription{}.
 
 -record(xdata_option, {label = <<>> :: binary(),
                        value :: binary()}).
@@ -897,7 +909,8 @@
                               password :: 'undefined' | binary()}).
 -type bookmark_conference() :: #bookmark_conference{}.
 
--record(mix_setnick, {nick :: binary()}).
+-record(mix_setnick, {nick :: binary(),
+                      xmlns = <<>> :: binary()}).
 -type mix_setnick() :: #mix_setnick{}.
 
 -record(mix_roster_channel, {'participant-id' = <<>> :: binary()}).
@@ -1152,7 +1165,7 @@
 -record(mix_join, {id = <<>> :: binary(),
                    jid :: undefined | jid:jid(),
                    nick = <<>> :: binary(),
-                   subscribe = [] :: [{binary(),binary()}],
+                   subscribe = [] :: [binary()],
                    xmlns = <<>> :: binary()}).
 -type mix_join() :: #mix_join{}.
 
@@ -1342,9 +1355,11 @@
                         mix_join() |
                         mix_leave() |
                         mix_participant() |
+                        mix_presence() |
                         mix_roster_annotate() |
                         mix_roster_channel() |
                         mix_setnick() |
+                        mix_update_subscription() |
                         muc() |
                         muc_actor() |
                         muc_admin() |
