@@ -257,7 +257,6 @@ get_mod(<<"last">>,
     xep0059;
 get_mod(<<"message">>, <<"jabber:iq:privacy">>) ->
     xep0016;
-get_mod(<<"presence">>, <<"jabber:client">>) -> rfc6120;
 get_mod(<<"configuration-required">>,
         <<"http://jabber.org/protocol/pubsub#errors">>) ->
     xep0060;
@@ -345,6 +344,8 @@ get_mod(<<"create">>,
 get_mod(<<"offline">>,
         <<"http://jabber.org/protocol/offline">>) ->
     xep0013;
+get_mod(<<"nick">>, <<"urn:xmpp:mix:presence:0">>) ->
+    xep0369;
 get_mod(<<"leave">>, <<"urn:xmpp:mix:core:1">>) ->
     xep0369;
 get_mod(<<"actions">>,
@@ -395,6 +396,8 @@ get_mod(<<"pubsub">>,
     xep0060;
 get_mod(<<"disable">>, <<"urn:xmpp:carbons:2">>) ->
     xep0280;
+get_mod(<<"mix">>, <<"urn:xmpp:mix:presence:0">>) ->
+    xep0403;
 get_mod(<<"unsupported-method">>,
         <<"http://jabber.org/protocol/compress">>) ->
     xep0138;
@@ -588,6 +591,8 @@ get_mod(<<"method">>,
         <<"http://jabber.org/protocol/compress">>) ->
     xep0138;
 get_mod(<<"x">>, <<"jabber:x:data">>) -> xep0004;
+get_mod(<<"jid">>, <<"urn:xmpp:mix:presence:0">>) ->
+    xep0369;
 get_mod(<<"transport">>,
         <<"urn:xmpp:jingle:transports:s5b:1">>) ->
     xep0260;
@@ -1617,6 +1622,7 @@ get_mod(<<"history">>,
     xep0045;
 get_mod(<<"inactive">>, <<"urn:xmpp:csi:0">>) ->
     xep0352;
+get_mod(<<"presence">>, <<"jabber:client">>) -> rfc6120;
 get_mod(Name, XMLNS) ->
     xmpp_codec_external:lookup(Name, XMLNS).
 
@@ -1658,6 +1664,7 @@ get_mod({presence, _, _, _, _, _, _, _, _, _, _}) ->
 get_mod({streamhost, _, _, _}) -> xep0065;
 get_mod({iq, _, _, _, _, _, _, _}) -> rfc6120;
 get_mod({xdata_option, _, _}) -> xep0004;
+get_mod({mix_presence, _, _, _}) -> xep0403;
 get_mod({x509_cert_chain, _, _}) -> xep0417;
 get_mod({vcard_geo, _, _}) -> xep0054;
 get_mod({xevent, _, _, _, _, _}) -> xep0022;

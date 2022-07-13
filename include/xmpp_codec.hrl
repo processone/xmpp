@@ -449,6 +449,11 @@
                        jid :: jid:jid()}).
 -type ps_subscribe() :: #ps_subscribe{}.
 
+-record(mix_presence, {xmlns = <<>> :: binary(),
+                       jid :: undefined | jid:jid(),
+                       nick = <<>> :: binary()}).
+-type mix_presence() :: #mix_presence{}.
+
 -record(idle, {since :: erlang:timestamp()}).
 -type idle() :: #idle{}.
 
@@ -1342,6 +1347,7 @@
                         mix_join() |
                         mix_leave() |
                         mix_participant() |
+                        mix_presence() |
                         mix_roster_annotate() |
                         mix_roster_channel() |
                         mix_setnick() |

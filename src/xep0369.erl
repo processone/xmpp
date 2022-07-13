@@ -62,12 +62,20 @@ do_decode(<<"jid">>, <<"urn:xmpp:mix:core:0">>, El,
 do_decode(<<"jid">>, <<"urn:xmpp:mix:core:1">>, El,
           Opts) ->
     decode_mix_jid(<<"urn:xmpp:mix:core:1">>, Opts, El);
+do_decode(<<"jid">>, <<"urn:xmpp:mix:presence:0">>, El,
+          Opts) ->
+    decode_mix_jid(<<"urn:xmpp:mix:presence:0">>, Opts, El);
 do_decode(<<"nick">>, <<"urn:xmpp:mix:core:0">>, El,
           Opts) ->
     decode_mix_nick(<<"urn:xmpp:mix:core:0">>, Opts, El);
 do_decode(<<"nick">>, <<"urn:xmpp:mix:core:1">>, El,
           Opts) ->
     decode_mix_nick(<<"urn:xmpp:mix:core:1">>, Opts, El);
+do_decode(<<"nick">>, <<"urn:xmpp:mix:presence:0">>, El,
+          Opts) ->
+    decode_mix_nick(<<"urn:xmpp:mix:presence:0">>,
+                    Opts,
+                    El);
 do_decode(<<"subscribe">>, <<"urn:xmpp:mix:core:0">>,
           El, Opts) ->
     decode_mix_subscribe(<<"urn:xmpp:mix:core:0">>,
@@ -101,8 +109,10 @@ tags() ->
      {<<"submission-id">>, <<"urn:xmpp:mix:core:0">>},
      {<<"jid">>, <<"urn:xmpp:mix:core:0">>},
      {<<"jid">>, <<"urn:xmpp:mix:core:1">>},
+     {<<"jid">>, <<"urn:xmpp:mix:presence:0">>},
      {<<"nick">>, <<"urn:xmpp:mix:core:0">>},
      {<<"nick">>, <<"urn:xmpp:mix:core:1">>},
+     {<<"nick">>, <<"urn:xmpp:mix:presence:0">>},
      {<<"subscribe">>, <<"urn:xmpp:mix:core:0">>},
      {<<"subscribe">>, <<"urn:xmpp:mix:core:1">>}].
 
@@ -226,6 +236,15 @@ decode_mix_els(__TopXMLNS, __Opts,
                                           _el),
                            Submission_id,
                            Nick);
+        <<"urn:xmpp:mix:presence:0">> ->
+            decode_mix_els(__TopXMLNS,
+                           __Opts,
+                           _els,
+                           decode_mix_jid(<<"urn:xmpp:mix:presence:0">>,
+                                          __Opts,
+                                          _el),
+                           Submission_id,
+                           Nick);
         _ ->
             decode_mix_els(__TopXMLNS,
                            __Opts,
@@ -257,6 +276,15 @@ decode_mix_els(__TopXMLNS, __Opts,
                            Jid,
                            Submission_id,
                            decode_mix_nick(<<"urn:xmpp:mix:core:1">>,
+                                           __Opts,
+                                           _el));
+        <<"urn:xmpp:mix:presence:0">> ->
+            decode_mix_els(__TopXMLNS,
+                           __Opts,
+                           _els,
+                           Jid,
+                           Submission_id,
+                           decode_mix_nick(<<"urn:xmpp:mix:presence:0">>,
                                            __Opts,
                                            _el));
         _ ->
@@ -625,6 +653,14 @@ decode_mix_join_els(__TopXMLNS, __Opts,
                                 decode_mix_nick(<<"urn:xmpp:mix:core:1">>,
                                                 __Opts,
                                                 _el));
+        <<"urn:xmpp:mix:presence:0">> ->
+            decode_mix_join_els(__TopXMLNS,
+                                __Opts,
+                                _els,
+                                Subscribe,
+                                decode_mix_nick(<<"urn:xmpp:mix:presence:0">>,
+                                                __Opts,
+                                                _el));
         _ ->
             decode_mix_join_els(__TopXMLNS,
                                 __Opts,
@@ -771,6 +807,14 @@ decode_mix_setnick_els(__TopXMLNS, __Opts,
                                     decode_mix_nick(<<"urn:xmpp:mix:core:1">>,
                                                     __Opts,
                                                     _el)});
+        <<"urn:xmpp:mix:presence:0">> ->
+            decode_mix_setnick_els(__TopXMLNS,
+                                   __Opts,
+                                   _els,
+                                   {value,
+                                    decode_mix_nick(<<"urn:xmpp:mix:presence:0">>,
+                                                    __Opts,
+                                                    _el)});
         _ ->
             decode_mix_setnick_els(__TopXMLNS, __Opts, _els, Nick)
     end;
@@ -862,7 +906,8 @@ decode_mix_jid_els(__TopXMLNS, __Opts, [_ | _els],
 encode_mix_jid(Cdata, __TopXMLNS) ->
     __NewTopXMLNS = xmpp_codec:choose_top_xmlns(<<>>,
                                                 [<<"urn:xmpp:mix:core:0">>,
-                                                 <<"urn:xmpp:mix:core:1">>],
+                                                 <<"urn:xmpp:mix:core:1">>,
+                                                 <<"urn:xmpp:mix:presence:0">>],
                                                 __TopXMLNS),
     _els = encode_mix_jid_cdata(Cdata, []),
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
@@ -906,7 +951,8 @@ decode_mix_nick_els(__TopXMLNS, __Opts, [_ | _els],
 encode_mix_nick(Cdata, __TopXMLNS) ->
     __NewTopXMLNS = xmpp_codec:choose_top_xmlns(<<>>,
                                                 [<<"urn:xmpp:mix:core:0">>,
-                                                 <<"urn:xmpp:mix:core:1">>],
+                                                 <<"urn:xmpp:mix:core:1">>,
+                                                 <<"urn:xmpp:mix:presence:0">>],
                                                 __TopXMLNS),
     _els = encode_mix_nick_cdata(Cdata, []),
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
