@@ -257,7 +257,6 @@ get_mod(<<"last">>,
     xep0059;
 get_mod(<<"message">>, <<"jabber:iq:privacy">>) ->
     xep0016;
-get_mod(<<"presence">>, <<"jabber:client">>) -> rfc6120;
 get_mod(<<"configuration-required">>,
         <<"http://jabber.org/protocol/pubsub#errors">>) ->
     xep0060;
@@ -685,6 +684,9 @@ get_mod(<<"redirect">>,
         <<"http://jabber.org/protocol/pubsub#owner">>) ->
     xep0060;
 get_mod(<<"a">>, <<"urn:xmpp:sm:3">>) -> xep0198;
+get_mod(<<"update-subscription">>,
+        <<"urn:xmpp:mix:core:0">>) ->
+    xep0369;
 get_mod(<<"info">>, <<"urn:xmpp:avatar:metadata">>) ->
     xep0084;
 get_mod(<<"date">>,
@@ -1007,6 +1009,8 @@ get_mod(<<"streamhost-used">>,
         <<"http://jabber.org/protocol/bytestreams">>) ->
     xep0065;
 get_mod(<<"query">>, <<"urn:xmpp:mam:0">>) -> xep0313;
+get_mod(<<"unsubscribe">>, <<"urn:xmpp:mix:core:0">>) ->
+    xep0369;
 get_mod(<<"recipient-unavailable">>,
         <<"urn:ietf:params:xml:ns:xmpp-stanzas">>) ->
     rfc6120;
@@ -1145,6 +1149,9 @@ get_mod(<<"text">>,
         <<"urn:ietf:params:xml:ns:xmpp-sasl">>) ->
     rfc6120;
 get_mod(<<"LON">>, <<"vcard-temp">>) -> xep0054;
+get_mod(<<"update-subscription">>,
+        <<"urn:xmpp:mix:core:1">>) ->
+    xep0369;
 get_mod(<<"name">>, <<"jabber:iq:version">>) -> xep0092;
 get_mod(<<"blocklist">>, <<"urn:xmpp:blocking">>) ->
     xep0191;
@@ -1485,6 +1492,8 @@ get_mod(<<"ORGNAME">>, <<"vcard-temp">>) -> xep0054;
 get_mod(<<"NOTE">>, <<"vcard-temp">>) -> xep0054;
 get_mod(<<"REV">>, <<"vcard-temp">>) -> xep0054;
 get_mod(<<"query">>, <<"urn:xmpp:mam:1">>) -> xep0313;
+get_mod(<<"unsubscribe">>, <<"urn:xmpp:mix:core:1">>) ->
+    xep0369;
 get_mod(<<"remote-server-not-found">>,
         <<"urn:ietf:params:xml:ns:xmpp-stanzas">>) ->
     rfc6120;
@@ -1617,6 +1626,7 @@ get_mod(<<"history">>,
     xep0045;
 get_mod(<<"inactive">>, <<"urn:xmpp:csi:0">>) ->
     xep0352;
+get_mod(<<"presence">>, <<"jabber:client">>) -> rfc6120;
 get_mod(Name, XMLNS) ->
     xmpp_codec_external:lookup(Name, XMLNS).
 
@@ -1883,6 +1893,8 @@ get_mod({x509_challenge, _, _, _}) -> xep0417;
 get_mod({sm_enabled, _, _, _, _, _}) -> xep0198;
 get_mod({vcard_email, _, _, _, _, _, _}) -> xep0054;
 get_mod({ps_affiliation, _, _, _, _}) -> xep0060;
+get_mod({mix_update_subscription, _, _, _, _}) ->
+    xep0369;
 get_mod({upload_retry, _}) -> xep0363;
 get_mod({x509_register}) -> xep0417;
 get_mod({roster_item, _, _, _, _, _, _}) -> rfc6121;

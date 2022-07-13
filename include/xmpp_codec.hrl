@@ -749,6 +749,12 @@
                          xmlns = <<>> :: binary()}).
 -type upload_request() :: #upload_request{}.
 
+-record(mix_update_subscription, {xmlns = <<>> :: binary(),
+                                  jid :: undefined | jid:jid(),
+                                  subscribe = [] :: [{binary(),binary()}],
+                                  unsubscribe = [] :: [binary()]}).
+-type mix_update_subscription() :: #mix_update_subscription{}.
+
 -record(xdata_option, {label = <<>> :: binary(),
                        value :: binary()}).
 -type xdata_option() :: #xdata_option{}.
@@ -1345,6 +1351,7 @@
                         mix_roster_annotate() |
                         mix_roster_channel() |
                         mix_setnick() |
+                        mix_update_subscription() |
                         muc() |
                         muc_actor() |
                         muc_admin() |
