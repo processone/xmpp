@@ -69,6 +69,7 @@
 -spec encode(form(), binary(),
              [maxhistoryfetch |
               allowinvites |
+              allow_query_users |
               allowpm |
               contactjid |
               description |
@@ -210,6 +211,11 @@ encode(List, Lang, Required) ->
                   [encode_allowinvites(Val,
                                        Lang,
                                        lists:member(allowinvites, Required))];
+              {allow_query_users, Val} ->
+                  [encode_allow_query_users(Val,
+                                            Lang,
+                                            lists:member(allow_query_users,
+                                                         Required))];
               {allowpm, Val} ->
                   [encode_allowpm(Val,
                                   default,
@@ -340,6 +346,46 @@ do_decode([#xdata_field{var =
     erlang:error({?MODULE,
                   {too_many_values,
                    <<"muc#roomconfig_allowinvites">>,
+                   XMLNS}});
+do_decode([#xdata_field{var =
+                            <<"muc#roomconfig_allow_query_users">>,
+                        values = [Value]}
+           | Fs],
+          XMLNS, Required, Acc) ->
+    try dec_bool(Value) of
+        Result ->
+            do_decode(Fs,
+                      XMLNS,
+                      lists:delete(<<"muc#roomconfig_allow_query_users">>,
+                                   Required),
+                      [{allow_query_users, Result} | Acc])
+    catch
+        _:_ ->
+            erlang:error({?MODULE,
+                          {bad_var_value,
+                           <<"muc#roomconfig_allow_query_users">>,
+                           XMLNS}})
+    end;
+do_decode([#xdata_field{var =
+                            <<"muc#roomconfig_allow_query_users">>,
+                        values = []} =
+               F
+           | Fs],
+          XMLNS, Required, Acc) ->
+    do_decode([F#xdata_field{var =
+                                 <<"muc#roomconfig_allow_query_users">>,
+                             values = [<<>>]}
+               | Fs],
+              XMLNS,
+              Required,
+              Acc);
+do_decode([#xdata_field{var =
+                            <<"muc#roomconfig_allow_query_users">>}
+           | _],
+          XMLNS, _, _) ->
+    erlang:error({?MODULE,
+                  {too_many_values,
+                   <<"muc#roomconfig_allow_query_users">>,
                    XMLNS}});
 do_decode([#xdata_field{var =
                             <<"muc#roomconfig_allowpm">>,
@@ -816,6 +862,23 @@ encode_allowinvites(Value, Lang, IsRequired) ->
                  label =
                      xmpp_tr:tr(Lang,
                                 ?T("Occupants are allowed to invite others"))}.
+
+-spec encode_allow_query_users(boolean() | undefined,
+                               binary(), boolean()) -> xdata_field().
+
+encode_allow_query_users(Value, Lang, IsRequired) ->
+    Values = case Value of
+                 undefined -> [];
+                 Value -> [enc_bool(Value)]
+             end,
+    Opts = [],
+    #xdata_field{var =
+                     <<"muc#roomconfig_allow_query_users">>,
+                 values = Values, required = IsRequired, type = boolean,
+                 options = Opts, desc = <<>>,
+                 label =
+                     xmpp_tr:tr(Lang,
+                                ?T("Occupants are allowed to query others"))}.
 
 -spec encode_allowpm(allowpm() | undefined,
                      default | options(allowpm()), binary(),

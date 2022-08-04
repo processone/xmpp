@@ -7,6 +7,7 @@
 
 -type property() :: {'maxhistoryfetch', non_neg_integer()} |
                     {'allowinvites', boolean()} |
+                    {'allow_query_users', boolean()} |
                     {'allowpm', 'allowpm'()} |
                     {'contactjid', [jid:jid()]} |
                     {'description', binary()} |
@@ -25,6 +26,7 @@
 -type form_property() ::
       {'maxhistoryfetch', non_neg_integer() | undefined} |
       {'allowinvites', boolean() | undefined} |
+      {'allow_query_users', boolean() | undefined} |
       {'allowpm', 'allowpm'() | undefined} |
       {'allowpm', 'allowpm'() | undefined, options('allowpm'())} |
       {'contactjid', [jid:jid()]} |
