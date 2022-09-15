@@ -319,9 +319,6 @@
 -record(db_feature, {errors = false :: boolean()}).
 -type db_feature() :: #db_feature{}.
 
--record(mix_roster_annotate, {}).
--type mix_roster_annotate() :: #mix_roster_annotate{}.
-
 -record(x_conference, {jid :: jid:jid(),
                        password = <<>> :: binary(),
                        reason = <<>> :: binary(),
@@ -913,7 +910,7 @@
                       xmlns = <<>> :: binary()}).
 -type mix_setnick() :: #mix_setnick{}.
 
--record(mix_roster_channel, {'participant-id' = <<>> :: binary()}).
+-record(mix_roster_channel, {participant_id = <<>> :: binary()}).
 -type mix_roster_channel() :: #mix_roster_channel{}.
 
 -record(roster_item, {jid :: jid:jid(),
@@ -926,7 +923,7 @@
 
 -record(roster_query, {items = [] :: [#roster_item{}],
                        ver :: 'undefined' | binary(),
-                       mix_annotate :: 'undefined' | #mix_roster_annotate{}}).
+                       mix_annotate = false :: boolean()}).
 -type roster_query() :: #roster_query{}.
 
 -record(xmpp_session, {optional = false :: boolean()}).
@@ -1356,7 +1353,6 @@
                         mix_leave() |
                         mix_participant() |
                         mix_presence() |
-                        mix_roster_annotate() |
                         mix_roster_channel() |
                         mix_setnick() |
                         mix_update_subscription() |

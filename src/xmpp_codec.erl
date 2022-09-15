@@ -1701,7 +1701,10 @@ get_mod({pubsub,
 get_mod({x_conference, _, _, _, _, _}) -> xep0249;
 get_mod({inbox_query, _}) -> xep0430;
 get_mod({disco_info, _, _, _, _}) -> xep0030;
+get_mod({sm_a, _, _}) -> xep0198;
 get_mod({oob_x, _, _, _}) -> xep0066;
+get_mod({jingle_s5b_transport, _, _, _, _, _, _, _}) ->
+    xep0260;
 get_mod({privacy_query, _, _, _}) -> xep0016;
 get_mod({block, _}) -> xep0191;
 get_mod({vcard_label, _, _, _, _, _, _, _, _}) ->
@@ -1917,7 +1920,6 @@ get_mod({upload_request_0, _, _, _, _}) -> xep0363;
 get_mod({privacy_item, _, _, _, _, _, _, _, _}) ->
     xep0016;
 get_mod({starttls_failure}) -> rfc6120;
-get_mod({mix_roster_annotate}) -> xep0405;
 get_mod({bob_data, _, _, _, _}) -> xep0231;
 get_mod({markable}) -> xep0333;
 get_mod({bind, _, _}) -> rfc6120;
@@ -1979,7 +1981,4 @@ get_mod({bookmark_conference, _, _, _, _, _}) ->
 get_mod({vcard_name, _, _, _, _, _}) -> xep0054;
 get_mod({inbox_fin, _, _, _, _}) -> xep0430;
 get_mod({csi, _}) -> xep0352;
-get_mod({sm_a, _, _}) -> xep0198;
-get_mod({jingle_s5b_transport, _, _, _, _, _, _, _}) ->
-    xep0260;
 get_mod(Record) -> xmpp_codec_external:lookup(Record).

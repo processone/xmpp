@@ -56,42 +56,34 @@ do_encode({mix_client_leave, _, _, _} = Client_leave,
     encode_mix_client_leave(Client_leave, TopXMLNS);
 do_encode({mix_roster_channel, _} = Channel,
           TopXMLNS) ->
-    encode_mix_roster_channel(Channel, TopXMLNS);
-do_encode({mix_roster_annotate} = Annotate, TopXMLNS) ->
-    encode_mix_roster_annotate(Annotate, TopXMLNS).
+    encode_mix_roster_channel(Channel, TopXMLNS).
 
 do_get_name({mix_client_join, _, _, _}) ->
     <<"client-join">>;
 do_get_name({mix_client_leave, _, _, _}) ->
     <<"client-leave">>;
-do_get_name({mix_roster_annotate}) -> <<"annotate">>;
 do_get_name({mix_roster_channel, _}) -> <<"channel">>.
 
 do_get_ns({mix_client_join, _, _, Xmlns}) -> Xmlns;
 do_get_ns({mix_client_leave, _, _, Xmlns}) -> Xmlns;
-do_get_ns({mix_roster_annotate}) ->
-    <<"urn:xmpp:mix:roster:0">>;
 do_get_ns({mix_roster_channel, _}) ->
     <<"urn:xmpp:mix:roster:0">>.
 
 pp(mix_client_join, 3) -> [channel, join, xmlns];
 pp(mix_client_leave, 3) -> [channel, leave, xmlns];
-pp(mix_roster_channel, 1) -> ['participant-id'];
-pp(mix_roster_annotate, 0) -> [];
+pp(mix_roster_channel, 1) -> [participant_id];
 pp(_, _) -> no.
 
 records() ->
     [{mix_client_join, 3},
      {mix_client_leave, 3},
-     {mix_roster_channel, 1},
-     {mix_roster_annotate, 0}].
+     {mix_roster_channel, 1}].
 
 decode_mix_roster_annotate(__TopXMLNS, __Opts,
                            {xmlel, <<"annotate">>, _attrs, _els}) ->
-    {mix_roster_annotate}.
+    true.
 
-encode_mix_roster_annotate({mix_roster_annotate},
-                           __TopXMLNS) ->
+encode_mix_roster_annotate(true, __TopXMLNS) ->
     __NewTopXMLNS =
         xmpp_codec:choose_top_xmlns(<<"urn:xmpp:mix:roster:0">>,
                                     [],

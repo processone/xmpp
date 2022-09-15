@@ -91,7 +91,7 @@ decode_roster_query(__TopXMLNS, __Opts,
                                 __Opts,
                                 _els,
                                 [],
-                                undefined),
+                                false),
     Ver = decode_roster_query_attrs(__TopXMLNS,
                                     _attrs,
                                     undefined),
@@ -190,8 +190,8 @@ encode_roster_query({roster_query,
                                  [encode_roster_item(Items, __TopXMLNS)
                                   | _acc]).
 
-'encode_roster_query_$mix_annotate'(undefined,
-                                    __TopXMLNS, _acc) ->
+'encode_roster_query_$mix_annotate'(false, __TopXMLNS,
+                                    _acc) ->
     _acc;
 'encode_roster_query_$mix_annotate'(Mix_annotate,
                                     __TopXMLNS, _acc) ->
