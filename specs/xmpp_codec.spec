@@ -3608,8 +3608,8 @@
      #elem{name = <<"channel">>,
            xmlns = <<"urn:xmpp:mix:roster:0">>,
            module = 'xep0405',
-           result = {mix_roster_channel, '$participant-id'},
-           attrs = [#attr{name = <<"participant-id">>,
+           result = {mix_roster_channel, '$participant_id'},
+           attrs = [#attr{name = <<"participant-id">>, label = '$participant_id',
                           required = true}]}).
 
 -xml(mix_roster_annotate,
