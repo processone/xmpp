@@ -178,8 +178,8 @@
          label='A friendly name for the node'/>
   <field var='pubsub#type'
          type='text-single'
-         label='The type of node data, usually specified by
-                the namespace of the payload (if any)'/>
+         label='The semantic type information of data in the node, usually specified
+                by the namespace of the payload (if any)'/>
 </form_type>
 
 <!--

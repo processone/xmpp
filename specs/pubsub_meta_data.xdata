@@ -31,7 +31,7 @@
          label='The name of the node'/>
   <field var='pubsub#type'
          type='text-single'
-         label='Payload type'/>
+         label='Payload semantic type information'/>
   <field var='pubsub#max_items'
          type='text-single'
          label='Maximum number of items to persist'/>
