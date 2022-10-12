@@ -1,3 +1,9 @@
+# Version 1.6.0
+
+* Support additional namespaces in MIX elements
+* Add support for MIX presences, update_subscriptions and unsubscribe
+* Add allow_query_users to muc config
+
 # Version 1.5.8
 
 * Updating fast_tls to version 1.1.15.
