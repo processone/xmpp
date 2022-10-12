@@ -1,5 +1,7 @@
 # Version 1.6.0
 
+* Updating fast_tls to version 1.1.16.
+* Updating stringprep to version 1.0.29.
 * Support additional namespaces in MIX elements
 * Add support for MIX presences, update_subscriptions and unsubscribe
 * Add allow_query_users to muc config
