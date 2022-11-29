@@ -85,6 +85,7 @@
 -type next_state() :: noreply() | {stop, term(), state()}.
 -type host_port() :: {inet:hostname(), inet:port_number(), boolean()} | ip_port().
 -type ip_port() :: {inet:ip_address(), inet:port_number(), boolean()}.
+-type addr_info() :: {net:address_info(), boolean()}.
 -type h_addr_list() :: [{{integer(), integer(), inet:port_number(), string()}, boolean()}].
 -type network_error() :: {error, inet:posix() | atom()}.
 -type tls_error_reason() :: inet:posix() | atom() | binary().
@@ -1146,7 +1147,7 @@ idna_to_ascii(Host) ->
 	    end
     end.
 
--spec resolve(string(), state()) -> {ok, [ip_port()]} | network_error().
+-spec resolve(string(), state()) -> {ok, [ip_port()]} | {ok, [addr_info()]} | network_error().
 resolve(Host, State) ->
     try callback(resolve, Host, State) of
 	[] ->
@@ -1157,7 +1158,7 @@ resolve(Host, State) ->
 	    do_resolve(Host, State)
     end.
 
--spec do_resolve(string(), state()) -> {ok, [ip_port()]} | network_error().
+-spec do_resolve(string(), state()) -> {ok, [ip_port()]} | {ok, [addr_info()]} | network_error().
 do_resolve(Host, State) ->
     case srv_lookup(Host, State) of
 	{error, _Reason} ->
@@ -1237,6 +1238,60 @@ do_srv_lookup(SRVName, State, Retries) ->
 	{error, nxdomain}
     end.
 
+
+-ifndef(USE_GETHOSTBYNAME).
+% New getaddrinfo based lookups (getaddrinfo available in OTP 22, but connect(SockAddr, ...) introduced in OTP 24.3)
+-spec a_lookup([host_port()], state()) ->
+		      {ok, [addr_info()]} | network_error().
+a_lookup(HostPorts, State) ->
+    a_lookup(HostPorts, State, [], {error, nxdomain}).
+
+-spec a_lookup([{inet:hostname() | inet:ip_address(), inet:port_number(),
+		 boolean()}],
+	       state(), [addr_info()], network_error()) -> {ok, [addr_info()]} | network_error().
+a_lookup([{Addr, Port, TLS}|HostPorts], State, Acc, Err)
+  when is_tuple(Addr) ->
+    a_lookup([{inet:ntoa(Addr), Port, TLS}|HostPorts], State, Acc, Err);
+a_lookup([{Host, Port, TLS}|HostPorts], State, Acc, Err) ->
+    Retries = get_dns_retries(State),
+    case a_lookup(Host, Port, TLS, State, Retries) of
+	{error, Reason} ->
+	    a_lookup(HostPorts, State, Acc, {error, Reason});
+	{ok, AddrPorts} ->
+	    a_lookup(HostPorts, State, Acc ++ AddrPorts, Err)
+    end;
+a_lookup([], _State, [], Err) ->
+    Err;
+a_lookup([], _State, Acc, _) ->
+    {ok, Acc}.
+
+-spec a_lookup(inet:hostname(), inet:port_number(), boolean(),
+	       state(), integer()) -> {ok, [addr_info()]} | network_error().
+a_lookup(_Host, _Port, _TLS, _State, Retries) when Retries < 1 ->
+    {error, timeout};
+a_lookup(Host, Port, TLS, State, Retries) ->
+    Timeout = get_dns_timeout(State),
+    Start = current_time(),
+    case net:getaddrinfo(Host, integer_to_list(Port)) of
+	{error, nxdomain} = Err ->
+	    %% net:getaddrinfo/2 doesn't return {error, timeout},
+	    %% so we should check if 'nxdomain' is in fact a result
+	    %% of a timeout.
+	    End = current_time(),
+	    if (End - Start) >= Timeout ->
+		    a_lookup(Host, Port, TLS, State, Retries - 1);
+	       true ->
+		    Err
+	    end;
+	{error, _} = Err ->
+	    Err;
+	{ok, AddressInfos} ->
+        FilteredAddressInfos  = [{Addr, TLSVal} || #{protocol := Protocol} = Addr <- AddressInfos, TLSVal <- [TLS], Protocol == tcp],
+        {ok, FilteredAddressInfos}
+    end.
+
+-else.
+% Old gethostbyname lookups
 -spec a_lookup([host_port()], state()) ->
 		      {ok, [ip_port()]} | network_error().
 a_lookup(HostPorts, State) ->
@@ -1297,6 +1352,23 @@ a_lookup(Host, Port, TLS, Family, State, Retries) ->
 	    host_entry_to_addr_ports(HostEntry, Port, TLS)
     end.
 
+-spec host_entry_to_addr_ports(inet:hostent(), inet:port_number(), boolean()) ->
+				      {ok, [ip_port()]} | {error, nxdomain}.
+host_entry_to_addr_ports(#hostent{h_addr_list = AddrList}, Port, TLS) ->
+    AddrPorts = lists:flatmap(
+		  fun(Addr) ->
+			  try get_addr_type(Addr) of
+			      _ -> [{Addr, Port, TLS}]
+			  catch _:_ ->
+				  []
+			  end
+		  end, AddrList),
+    case AddrPorts of
+	[] -> {error, nxdomain};
+	_ -> {ok, AddrPorts}
+    end.
+-endif.
+
 -spec h_addr_list_to_host_ports(h_addr_list()) -> {ok, [host_port(),...]} |
 						  {error, nxdomain}.
 h_addr_list_to_host_ports(AddrList) ->
@@ -1317,23 +1389,7 @@ h_addr_list_to_host_ports(AddrList) ->
 	_ -> {ok, HostPorts}
     end.
 
--spec host_entry_to_addr_ports(inet:hostent(), inet:port_number(), boolean()) ->
-				      {ok, [ip_port()]} | {error, nxdomain}.
-host_entry_to_addr_ports(#hostent{h_addr_list = AddrList}, Port, TLS) ->
-    AddrPorts = lists:flatmap(
-		  fun(Addr) ->
-			  try get_addr_type(Addr) of
-			      _ -> [{Addr, Port, TLS}]
-			  catch _:_ ->
-				  []
-			  end
-		  end, AddrList),
-    case AddrPorts of
-	[] -> {error, nxdomain};
-	_ -> {ok, AddrPorts}
-    end.
-
--spec connect([ip_port()], state()) -> {ok, term(), ip_port()} |
+-spec connect([ip_port() | addr_info()], state()) -> {ok, term(), ip_port()} |
 				       {error, {socket, socket_error_reason()}} |
 				       {error, {tls, tls_error_reason()}}.
 connect(AddrPorts, State) ->
@@ -1349,6 +1405,30 @@ connect(AddrPorts, State) ->
 	    {error, {socket, Why}}
     end.
 
+-ifndef(USE_GETHOSTBYNAME).
+-spec connect([addr_info()], state(), network_error()) ->
+		     {ok, term(), ip_port()} | network_error().
+connect([{#{family := Type, addr := SockAddr}, TLS}|AddressInfos], State, _) ->
+    #{addr := Addr, port := Port} = SockAddr,
+    Opts = [binary, {packet, 0},
+	    {send_timeout, ?TCP_SEND_TIMEOUT},
+	    {send_timeout_close, true},
+	    {active, false}, Type],
+    Opts1 = try callback(connect_options, Addr, Opts, State)
+	    catch _:{?MODULE, undef} -> Opts
+	    end,
+    Timeout = get_connect_timeout(State),
+    try xmpp_socket:connect(SockAddr, Port, Opts1, Timeout) of
+	{ok, Socket} ->
+	    {ok, Socket, {Addr, Port, TLS}};
+	Err ->
+	    connect(AddressInfos, State, Err)
+    catch _:badarg ->
+	    connect(AddressInfos, State, {error, einval})
+    end;
+connect([], _State, Err) ->
+    Err.
+-else.
 -spec connect([ip_port()], state(), network_error()) ->
 		     {ok, term(), ip_port()} | network_error().
 connect([{Addr, Port, TLS}|AddrPorts], State, _) ->
@@ -1375,6 +1455,7 @@ connect([], _State, Err) ->
 -spec get_addr_type(inet:ip_address()) -> inet:address_family().
 get_addr_type({_, _, _, _}) -> inet;
 get_addr_type({_, _, _, _, _, _, _, _}) -> inet6.
+-endif.
 
 -spec get_dns_timeout(state()) -> timeout().
 get_dns_timeout(State) ->
@@ -1396,11 +1477,13 @@ get_default_port(#{xmlns := NS} = State) ->
 	  _:{?MODULE, undef} when NS == ?NS_CLIENT -> 5222
     end.
 
+-ifdef(USE_GETHOSTBYNAME).
 -spec get_address_families(state()) -> [inet:address_family()].
 get_address_families(State) ->
     try callback(address_families, State)
     catch _:{?MODULE, undef} -> [inet, inet6]
     end.
+-endif.
 
 -spec get_connect_timeout(state()) -> timeout().
 get_connect_timeout(State) ->
