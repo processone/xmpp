@@ -122,7 +122,7 @@ connect(Addr, Port, Opts, Timeout) ->
     connect(Addr, Port, Opts, Timeout, self()).
 
 connect(Addr, Port, Opts, Timeout, Owner) ->
-    case gen_tcp:connect(Addr, Port, Opts, Timeout) of
+    case do_connect(Addr, Port, Opts, Timeout) of
 	{ok, Socket} ->
 	    SocketData = new(gen_tcp, Socket, []),
 	    case controlling_process(SocketData, Owner) of
@@ -136,6 +136,16 @@ connect(Addr, Port, Opts, Timeout, Owner) ->
 	{error, _Reason} = Error ->
 	    Error
     end.
+
+do_connect(Addr, Port, Opts, Timeout)
+    when is_tuple(Addr) orelse
+         is_list(Addr)  orelse
+         is_atom(Addr)  orelse
+         (Addr =:= any) orelse
+         (Addr =:= loopback) ->
+        gen_tcp:connect(Addr, Port, Opts, Timeout);
+do_connect(SockAddr, _Port, Opts, Timeout) ->
+        gen_tcp:connect(SockAddr, Opts, Timeout).
 
 -spec starttls(socket_state(), [proplists:property()]) ->
 		      {ok, socket_state()} |
