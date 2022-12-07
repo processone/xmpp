@@ -137,6 +137,7 @@ connect(Addr, Port, Opts, Timeout, Owner) ->
 	    Error
     end.
 
+-ifndef(USE_ADDRPORTCONNECT).
 do_connect(Addr, Port, Opts, Timeout)
     when is_tuple(Addr) orelse
          is_list(Addr)  orelse
@@ -146,6 +147,18 @@ do_connect(Addr, Port, Opts, Timeout)
         gen_tcp:connect(Addr, Port, Opts, Timeout);
 do_connect(SockAddr, _Port, Opts, Timeout) ->
         gen_tcp:connect(SockAddr, Opts, Timeout).
+-else.
+do_connect(Addr, Port, Opts, Timeout)
+    when is_tuple(Addr) orelse
+         is_list(Addr)  orelse
+         is_atom(Addr)  orelse
+         (Addr =:= any) orelse
+         (Addr =:= loopback) ->
+        gen_tcp:connect(Addr, Port, Opts, Timeout);
+do_connect(SockAddr, _Port, Opts, Timeout) ->
+        #{addr := Addr, port := Port} = SockAddr,
+        gen_tcp:connect(Addr, Port, Opts, Timeout).
+-endif.
 
 -spec starttls(socket_state(), [proplists:property()]) ->
 		      {ok, socket_state()} |
