@@ -2214,6 +2214,6 @@ encode_type(Value, Lang, IsRequired) ->
                  options = Opts, desc = <<>>,
                  label =
                      xmpp_tr:tr(Lang,
-                                ?T("The type of node data, usually specified "
-                                   "by the namespace of the payload (if "
-                                   "any)"))}.
+                                ?T("The semantic type information of data "
+                                   "in the node, usually specified by the "
+                                   "namespace of the payload (if any)"))}.

@@ -856,7 +856,9 @@ encode_type(Value, Lang, IsRequired) ->
     #xdata_field{var = <<"pubsub#type">>, values = Values,
                  required = IsRequired, type = 'text-single',
                  options = Opts, desc = <<>>,
-                 label = xmpp_tr:tr(Lang, ?T("Payload type"))}.
+                 label =
+                     xmpp_tr:tr(Lang,
+                                ?T("Payload semantic type information"))}.
 
 -spec encode_max_items(xmpp_util:limit() | undefined,
                        binary(), boolean()) -> xdata_field().
