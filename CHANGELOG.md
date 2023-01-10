@@ -1,3 +1,8 @@
+# Version 1.6.1
+
+* Apply change introduced in XEP-0060 Version 1.23.0
+* Use net:getaddrinfo for hostname resolution
+
 # Version 1.6.0
 
 * Updating fast_tls to version 1.1.16.
