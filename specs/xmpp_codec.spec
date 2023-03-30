@@ -5082,6 +5082,69 @@
                     #attr{name = <<"uri">>,
                           required = true}]}).
 
+-xml(fasten_apply_to,
+     #elem{name = <<"apply-to">>,
+	   xmlns = <<"urn:xmpp:fasten:0">>,
+	   module = 'xep0422',
+	   result = {fasten_apply_to, '$id', '$external', '$_els'},
+	   attrs = [#attr{name = <<"id">>,
+	                  required = true}],
+	   refs = [#ref{name = fasten_external, min = 0, max = 1,
+	                label = '$external'}]}).
+
+-xml(fasten_external,
+     #elem{name = <<"external">>,
+	   xmlns = <<"urn:xmpp:fasten:0">>,
+	   module = 'xep0422',
+	   result = {fasten_external, '$name'},
+           attrs = [#attr{name = <<"name">>,
+                          required = true}]}).
+
+-xml(message_retract,
+     #elem{name = <<"retract">>,
+	   xmlns = <<"urn:xmpp:message-retract:0">>,
+	   module = 'xep0424',
+	   result = {message_retract}}).
+
+-xml(message_retracted,
+     #elem{name = <<"retracted">>,
+	   xmlns = <<"urn:xmpp:message-retract:0">>,
+	   module = 'xep0424',
+	   result = {message_retracted, '$by', '$from', '$stamp', '$_els'},
+           attrs = [#attr{name = <<"by">>},
+                    #attr{name = <<"from">>},
+                    #attr{name = <<"stamp">>,
+                          required = true,
+                          dec = {dec_utc, []},
+                          enc = {enc_utc, []}}]}).
+
+-xml(message_moderate,
+     #elem{name = <<"moderate">>,
+	   xmlns = <<"urn:xmpp:message-moderate:0">>,
+	   module = 'xep0425',
+	   result = {message_moderate, '$reason', '$retract'},
+	   refs = [#ref{name = message_moderate_reason, min = 0, max = 1,
+	                label = '$reason'},
+	           #ref{name = message_retract, min = 0, max = 1,
+	                label = '$retract'}]}).
+
+-xml(message_moderated,
+     #elem{name = <<"moderated">>,
+	   xmlns = <<"urn:xmpp:message-moderate:0">>,
+	   module = 'xep0425',
+	   result = {message_moderated, '$by', '$reason', '$retract', '$_els'},
+           attrs = [#attr{name = <<"by">>}],
+	   refs = [#ref{name = message_moderate_reason, min = 0, max = 1,
+	                label = '$reason'},
+	           #ref{name = message_retract, min = 0, max = 1,
+	                label = '$retract'}]}).
+
+-xml(message_moderate_reason,
+     #elem{name = <<"reason">>,
+	   xmlns = <<"urn:xmpp:message-moderate:0">>,
+	   module = 'xep0425',
+	   result = '$cdata'}).
+
 -spec dec_tzo(_) -> {integer(), integer()}.
 dec_tzo(Val) ->
     [H1, M1] = binary:split(Val, <<":">>),

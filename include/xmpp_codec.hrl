@@ -147,6 +147,9 @@
                      port = 1080 :: non_neg_integer()}).
 -type streamhost() :: #streamhost{}.
 
+-record(message_retract, {}).
+-type message_retract() :: #message_retract{}.
+
 -record(x509_challenge_failed, {}).
 -type x509_challenge_failed() :: #x509_challenge_failed{}.
 
@@ -416,6 +419,12 @@
                status = <<>> :: binary()}).
 -type last() :: #last{}.
 
+-record(message_retracted, {by = <<>> :: binary(),
+                            from = <<>> :: binary(),
+                            stamp :: erlang:timestamp(),
+                            sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
+-type message_retracted() :: #message_retracted{}.
+
 -record('see-other-host', {host :: binary() | inet:ip_address() | {binary() | inet:ip_address(),inet:port_number()}}).
 -type 'see-other-host'() :: #'see-other-host'{}.
 
@@ -519,6 +528,10 @@
                           expiry :: undefined | erlang:timestamp()}).
 -type ps_subscription() :: #ps_subscription{}.
 
+-record(message_moderate, {reason :: 'undefined' | binary(),
+                           retract :: 'undefined' | #message_retract{}}).
+-type message_moderate() :: #message_moderate{}.
+
 -record(avatar_info, {bytes :: non_neg_integer(),
                       id = <<>> :: binary(),
                       type = <<>> :: binary(),
@@ -543,6 +556,9 @@
 -record(x509_register, {}).
 -type x509_register() :: #x509_register{}.
 
+-record(shim, {headers = [] :: [{binary(),binary()}]}).
+-type shim() :: #shim{}.
+
 -record(muc_item, {actor :: 'undefined' | #muc_actor{},
                    continue :: 'undefined' | binary(),
                    reason = <<>> :: binary(),
@@ -554,9 +570,6 @@
 
 -record(muc_admin, {items = [] :: [#muc_item{}]}).
 -type muc_admin() :: #muc_admin{}.
-
--record(shim, {headers = [] :: [{binary(),binary()}]}).
--type shim() :: #shim{}.
 
 -record(caps, {node = <<>> :: binary(),
                version = <<>> :: binary(),
@@ -594,8 +607,11 @@
               xmlns = <<>> :: binary()}).
 -type sic() :: #sic{}.
 
--record(sasl_abort, {}).
--type sasl_abort() :: #sasl_abort{}.
+-record(message_moderated, {by = <<>> :: binary(),
+                            reason :: 'undefined' | binary(),
+                            retract :: 'undefined' | #message_retract{},
+                            sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
+-type message_moderated() :: #message_moderated{}.
 
 -record(receipt_request, {}).
 -type receipt_request() :: #receipt_request{}.
@@ -630,11 +646,6 @@
 -record(muc_hats, {hats = [] :: [#muc_hat{}]}).
 -type muc_hats() :: #muc_hats{}.
 
--record(upload_slot, {get :: 'undefined' | binary(),
-                      put :: 'undefined' | binary(),
-                      xmlns = <<>> :: binary()}).
--type upload_slot() :: #upload_slot{}.
-
 -record(vcard_geo, {lat :: 'undefined' | binary(),
                     lon :: 'undefined' | binary()}).
 -type vcard_geo() :: #vcard_geo{}.
@@ -645,13 +656,6 @@
 
 -record(hash_used, {algo = <<>> :: binary()}).
 -type hash_used() :: #hash_used{}.
-
--record(xevent, {offline = false :: boolean(),
-                 delivered = false :: boolean(),
-                 displayed = false :: boolean(),
-                 composing = false :: boolean(),
-                 id :: 'undefined' | binary()}).
--type xevent() :: #xevent{}.
 
 -record(mix, {submission_id = <<>> :: binary(),
               jid :: undefined | jid:jid(),
@@ -686,10 +690,20 @@
 -record(block_list, {items = [] :: [#block_item{}]}).
 -type block_list() :: #block_list{}.
 
--record(version, {name :: 'undefined' | binary(),
-                  ver :: 'undefined' | binary(),
-                  os :: 'undefined' | binary()}).
--type version() :: #version{}.
+-record(upload_slot, {get :: 'undefined' | binary(),
+                      put :: 'undefined' | binary(),
+                      xmlns = <<>> :: binary()}).
+-type upload_slot() :: #upload_slot{}.
+
+-record(xevent, {offline = false :: boolean(),
+                 delivered = false :: boolean(),
+                 displayed = false :: boolean(),
+                 composing = false :: boolean(),
+                 id :: 'undefined' | binary()}).
+-type xevent() :: #xevent{}.
+
+-record(sasl_abort, {}).
+-type sasl_abort() :: #sasl_abort{}.
 
 -record(jingle_ft_file, {date :: undefined | erlang:timestamp(),
                          desc = [] :: [#text{}],
@@ -799,6 +813,11 @@
 
 -record(carbons_disable, {}).
 -type carbons_disable() :: #carbons_disable{}.
+
+-record(version, {name :: 'undefined' | binary(),
+                  ver :: 'undefined' | binary(),
+                  os :: 'undefined' | binary()}).
+-type version() :: #version{}.
 
 -record(adhoc_actions, {execute :: 'complete' | 'next' | 'prev' | 'undefined',
                         prev = false :: boolean(),
@@ -951,6 +970,14 @@
                       binval :: 'undefined' | binary(),
                       extval :: 'undefined' | binary()}).
 -type vcard_photo() :: #vcard_photo{}.
+
+-record(fasten_external, {name = <<>> :: binary()}).
+-type fasten_external() :: #fasten_external{}.
+
+-record(fasten_apply_to, {id = <<>> :: binary(),
+                          external :: 'undefined' | #fasten_external{},
+                          sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
+-type fasten_apply_to() :: #fasten_apply_to{}.
 
 -record(vcard_label, {home = false :: boolean(),
                       work = false :: boolean(),
@@ -1296,6 +1323,8 @@
                         disco_item() |
                         disco_items() |
                         expire() |
+                        fasten_apply_to() |
+                        fasten_external() |
                         feature_csi() |
                         feature_register() |
                         feature_sm() |
@@ -1343,6 +1372,10 @@
                         media() |
                         media_uri() |
                         message() |
+                        message_moderate() |
+                        message_moderated() |
+                        message_retract() |
+                        message_retracted() |
                         message_thread() |
                         mix() |
                         mix_client_join() |
