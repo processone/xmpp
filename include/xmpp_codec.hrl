@@ -419,7 +419,7 @@
                status = <<>> :: binary()}).
 -type last() :: #last{}.
 
--record(message_retracted, {by = <<>> :: binary(),
+-record(message_retracted, {by :: undefined | jid:jid(),
                             from = <<>> :: binary(),
                             stamp :: erlang:timestamp(),
                             sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
@@ -607,7 +607,7 @@
               xmlns = <<>> :: binary()}).
 -type sic() :: #sic{}.
 
--record(message_moderated, {by = <<>> :: binary(),
+-record(message_moderated, {by :: undefined | jid:jid(),
                             reason :: 'undefined' | binary(),
                             retract :: 'undefined' | #message_retract{},
                             sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).

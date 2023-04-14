@@ -171,13 +171,22 @@ encode_message_retracted({message_retracted,
 
 decode_message_retracted_attr_by(__TopXMLNS,
                                  undefined) ->
-    <<>>;
+    undefined;
 decode_message_retracted_attr_by(__TopXMLNS, _val) ->
-    _val.
+    case catch jid:decode(_val) of
+        {'EXIT', _} ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value,
+                           <<"by">>,
+                           <<"retracted">>,
+                           __TopXMLNS}});
+        _res -> _res
+    end.
 
-encode_message_retracted_attr_by(<<>>, _acc) -> _acc;
+encode_message_retracted_attr_by(undefined, _acc) ->
+    _acc;
 encode_message_retracted_attr_by(_val, _acc) ->
-    [{<<"by">>, _val} | _acc].
+    [{<<"by">>, jid:encode(_val)} | _acc].
 
 decode_message_retracted_attr_from(__TopXMLNS,
                                    undefined) ->
