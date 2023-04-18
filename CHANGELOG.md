@@ -1,3 +1,9 @@
+# Version 1.6.2
+
+* Add decoders for xep-0422 - Message Fastening
+* Add decoders for xep-0424 - Message Retraction
+* Add decoders for xep-0425 - Message Moderation
+
 # Version 1.6.1
 
 * Apply change introduced in XEP-0060 Version 1.23.0
