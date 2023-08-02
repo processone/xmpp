@@ -5082,6 +5082,14 @@
                     #attr{name = <<"uri">>,
                           required = true}]}).
 
+-xml(occupant_id,
+     #elem{name = <<"occupant-id">>,
+	   xmlns = <<"urn:xmpp:occupant-id:0">>,
+	   module = 'xep0421',
+	   result = {occupant_id, '$id'},
+	   attrs = [#attr{name = <<"id">>,
+	                  required = true}]}).
+
 -xml(fasten_apply_to,
      #elem{name = <<"apply-to">>,
 	   xmlns = <<"urn:xmpp:fasten:0">>,
