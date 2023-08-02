@@ -1435,6 +1435,9 @@ get_mod(<<"id">>, <<"jabber:x:event">>) -> xep0022;
 get_mod(<<"hat">>,
         <<"xmpp:prosody.im/protocol/hats:1">>) ->
     xep0317;
+get_mod(<<"occupant-id">>,
+        <<"urn:xmpp:occupant-id:0">>) ->
+    xep0421;
 get_mod(<<"not-acceptable">>,
         <<"urn:ietf:params:xml:ns:xmpp-stanzas">>) ->
     rfc6120;
@@ -1683,6 +1686,7 @@ get_mod({carbons_sent, _}) -> xep0280;
 get_mod({origin_id, _}) -> xep0359;
 get_mod({hash_used, _}) -> xep0300;
 get_mod({x509_ca_list, _}) -> xep0417;
+get_mod({occupant_id, _}) -> xep0421;
 get_mod({disco_items, _, _, _}) -> xep0030;
 get_mod({vcard_xupdate, _}) -> xep0153;
 get_mod({block_item, _, _}) -> xep0191;
