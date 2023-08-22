@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        otp: ['19.3', '21.3', 24]
+        otp: ['19.3', '25.3', 26]
     runs-on: ubuntu-20.04
     container:
       image: erlang:${{ matrix.otp }}
@@ -25,7 +25,7 @@ jobs:
     - run: REBAR=rebar3 make dialyzer
     - run: rebar3 eunit -v
     - uses: stefanzweifel/git-auto-commit-action@v4
-      if: matrix.otp == 24 && github.event_name == 'push'
+      if: matrix.otp == '25.3' && github.event_name == 'push'
       with:
         commit_message: Automatic changes "make spec xdata"
 
