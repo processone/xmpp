@@ -16,6 +16,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - run: make
+      if: matrix.otp >= '22.0'
     - run: REBAR=rebar3 ERLTIDY=true make
     - run: REBAR=rebar3 make spec
     - run: REBAR=rebar3 make xdata
