@@ -27,7 +27,9 @@
   {vsn,          "1.6.2"},
   {modules,      []},
   {registered,   []},
-  {applications, [kernel, stdlib, ezlib, fast_tls, fast_xml, idna, p1_utils, stringprep]},
+  {applications, [asn1, compiler, kernel, public_key, stdlib, syntax_tools,
+                  erl_tidy, idna,
+                  ezlib, fast_tls, fast_xml, p1_utils, stringprep]},
   {mod,          {xmpp, []}},
   {env,          []},
 
