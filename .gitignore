@@ -2,6 +2,7 @@
 *.swp
 .eunit
 .rebar
+.tool-versions
 _build
 asngen/XmppAddr.*
 autom4te.cache
