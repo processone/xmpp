@@ -23,6 +23,8 @@ jobs:
     - run: REBAR=rebar3 make xdata
     - run: REBAR=rebar3 make
     - run: REBAR=rebar3 make xref
+    - run: sed -i 's|erl_tidy, ||g' src/xmpp.app.src
+      if: matrix.otp < 24
     - run: REBAR=rebar3 make dialyzer
     - run: rebar3 eunit -v
     - uses: stefanzweifel/git-auto-commit-action@v4
