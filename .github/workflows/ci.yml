@@ -14,7 +14,7 @@ jobs:
     container:
       image: erlang:${{ matrix.otp }}
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - run: make
       if: matrix.otp >= '22.0'
     - run: REBAR=rebar3 ERLTIDY=true make
@@ -37,7 +37,7 @@ jobs:
     needs: [tests]
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - run: ./configure --enable-gcov
     - run: REBAR=rebar3 make
     - run: REBAR=rebar3 make spec
