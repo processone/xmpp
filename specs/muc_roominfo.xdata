@@ -80,7 +80,7 @@
       type='text-single'
       label='XMPP URI of Associated Publish-Subscribe Node'/>
   <field
-      var='muc#roominfo_changesubject'
+      var='muc#roomconfig_changesubject'
       type='boolean'
       label='Occupants May Change the Subject'>
   </field>
