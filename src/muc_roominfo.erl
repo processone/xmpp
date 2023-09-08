@@ -779,7 +779,7 @@ do_decode([#xdata_field{var = <<"muc#roominfo_pubsub">>}
     erlang:error({?MODULE,
                   {too_many_values, <<"muc#roominfo_pubsub">>, XMLNS}});
 do_decode([#xdata_field{var =
-                            <<"muc#roominfo_changesubject">>,
+                            <<"muc#roomconfig_changesubject">>,
                         values = [Value]}
            | Fs],
           XMLNS, Required, Acc) ->
@@ -787,36 +787,36 @@ do_decode([#xdata_field{var =
         Result ->
             do_decode(Fs,
                       XMLNS,
-                      lists:delete(<<"muc#roominfo_changesubject">>,
+                      lists:delete(<<"muc#roomconfig_changesubject">>,
                                    Required),
                       [{changesubject, Result} | Acc])
     catch
         _:_ ->
             erlang:error({?MODULE,
                           {bad_var_value,
-                           <<"muc#roominfo_changesubject">>,
+                           <<"muc#roomconfig_changesubject">>,
                            XMLNS}})
     end;
 do_decode([#xdata_field{var =
-                            <<"muc#roominfo_changesubject">>,
+                            <<"muc#roomconfig_changesubject">>,
                         values = []} =
                F
            | Fs],
           XMLNS, Required, Acc) ->
     do_decode([F#xdata_field{var =
-                                 <<"muc#roominfo_changesubject">>,
+                                 <<"muc#roomconfig_changesubject">>,
                              values = [<<>>]}
                | Fs],
               XMLNS,
               Required,
               Acc);
 do_decode([#xdata_field{var =
-                            <<"muc#roominfo_changesubject">>}
+                            <<"muc#roomconfig_changesubject">>}
            | _],
           XMLNS, _, _) ->
     erlang:error({?MODULE,
                   {too_many_values,
-                   <<"muc#roominfo_changesubject">>,
+                   <<"muc#roomconfig_changesubject">>,
                    XMLNS}});
 do_decode([#xdata_field{var = Var} | Fs], XMLNS,
           Required, Acc) ->
@@ -1082,7 +1082,7 @@ encode_changesubject(Value, Lang, IsRequired) ->
                  Value -> [enc_bool(Value)]
              end,
     Opts = [],
-    #xdata_field{var = <<"muc#roominfo_changesubject">>,
+    #xdata_field{var = <<"muc#roomconfig_changesubject">>,
                  values = Values, required = IsRequired, type = boolean,
                  options = Opts, desc = <<>>,
                  label =
