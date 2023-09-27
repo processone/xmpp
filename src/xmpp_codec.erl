@@ -269,16 +269,9 @@ get_mod(<<"TZ">>, <<"vcard-temp">>) -> xep0054;
 get_mod(<<"content">>, <<"urn:xmpp:jingle:1">>) ->
     xep0166;
 get_mod(<<"nick">>, <<"storage:bookmarks">>) -> xep0048;
-get_mod(<<"iq">>, <<"jabber:component:accept">>) ->
-    rfc6120;
 get_mod(<<"setup-failed">>,
         <<"http://jabber.org/protocol/compress">>) ->
     xep0138;
-get_mod(<<"query">>,
-        <<"http://jabber.org/protocol/muc#admin">>) ->
-    xep0045;
-get_mod(<<"thumbnail">>, <<"urn:xmpp:thumbs:1">>) ->
-    xep0264;
 get_mod(<<"security-required">>,
         <<"urn:xmpp:jingle:errors:1">>) ->
     xep0166;
@@ -505,6 +498,8 @@ get_mod(<<"displayed">>,
     xep0333;
 get_mod(<<"delegate">>, <<"urn:xmpp:delegation:1">>) ->
     xep0355;
+get_mod(<<"nick">>, <<"urn:xmpp:bookmarks:1">>) ->
+    xep0402;
 get_mod(<<"priority">>, <<"jabber:client">>) -> rfc6120;
 get_mod(<<"configuration">>,
         <<"http://jabber.org/protocol/pubsub#event">>) ->
@@ -1289,6 +1284,8 @@ get_mod(<<"nick">>, <<"urn:xmpp:mix:core:0">>) ->
 get_mod(<<"retract">>,
         <<"urn:xmpp:message-retract:0">>) ->
     xep0424;
+get_mod(<<"password">>, <<"urn:xmpp:bookmarks:1">>) ->
+    xep0402;
 get_mod(<<"LABEL">>, <<"vcard-temp">>) -> xep0054;
 get_mod(<<"purge">>,
         <<"http://jabber.org/protocol/pubsub#owner">>) ->
@@ -1378,6 +1375,8 @@ get_mod(<<"filename">>, <<"urn:xmpp:http:upload">>) ->
 get_mod(<<"file-too-large">>,
         <<"urn:xmpp:http:upload">>) ->
     xep0363;
+get_mod(<<"conference">>, <<"urn:xmpp:bookmarks:1">>) ->
+    xep0402;
 get_mod(<<"storage">>, <<"storage:bookmarks">>) ->
     xep0048;
 get_mod(<<"LINE">>, <<"vcard-temp">>) -> xep0054;
@@ -1476,6 +1475,8 @@ get_mod(<<"file-too-large">>,
     xep0363;
 get_mod(<<"jingle">>, <<"urn:xmpp:jingle:1">>) ->
     xep0166;
+get_mod(<<"extensions">>, <<"urn:xmpp:bookmarks:1">>) ->
+    xep0402;
 get_mod(<<"conflict">>,
         <<"urn:ietf:params:xml:ns:xmpp-streams">>) ->
     rfc6120;
@@ -1655,6 +1656,13 @@ get_mod(<<"request">>, <<"urn:xmpp:http:upload">>) ->
     xep0363;
 get_mod(<<"timeout">>, <<"urn:xmpp:jingle:1">>) ->
     xep0166;
+get_mod(<<"iq">>, <<"jabber:component:accept">>) ->
+    rfc6120;
+get_mod(<<"query">>,
+        <<"http://jabber.org/protocol/muc#admin">>) ->
+    xep0045;
+get_mod(<<"thumbnail">>, <<"urn:xmpp:thumbs:1">>) ->
+    xep0264;
 get_mod(Name, XMLNS) ->
     xmpp_codec_external:lookup(Name, XMLNS).
 
@@ -1998,6 +2006,8 @@ get_mod({bookmark_conference, _, _, _, _, _}) ->
 get_mod({vcard_name, _, _, _, _, _}) -> xep0054;
 get_mod({inbox_fin, _, _, _, _}) -> xep0430;
 get_mod({csi, _}) -> xep0352;
+get_mod({pep_bookmarks_conference, _, _, _, _, _}) ->
+    xep0402;
 get_mod({sm_a, _, _}) -> xep0198;
 get_mod({jingle_s5b_transport, _, _, _, _, _, _, _}) ->
     xep0260;

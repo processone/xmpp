@@ -5157,6 +5157,47 @@
 	   module = 'xep0425',
 	   result = '$cdata'}).
 
+-xml(pep_conference_nick,
+     #elem{name = <<"nick">>,
+           xmlns = <<"urn:xmpp:bookmarks:1">>,
+	   module = 'xep0402',
+           result = '$cdata'}).
+
+-xml(pep_conference_password,
+     #elem{name = <<"password">>,
+           xmlns = <<"urn:xmpp:bookmarks:1">>,
+	   module = 'xep0402',
+           result = '$cdata'}).
+
+-xml(pep_conference_extensions,
+     #elem{name = <<"extensions">>,
+           xmlns = <<"urn:xmpp:bookmarks:1">>,
+	   module = 'xep0402',
+           ignore_els = true,
+           result = '$_els'}).
+
+-xml(pep_bookmarks_conference,
+     #elem{name = <<"conference">>,
+           xmlns = <<"urn:xmpp:bookmarks:1">>,
+	   module = 'xep0402',
+           result = {pep_bookmarks_conference, '$name',
+                     '$autojoin', '$nick', '$password', '$extensions'},
+           attrs = [#attr{name = <<"name">>},
+                    #attr{name = <<"autojoin">>,
+                          default = false,
+                          dec = {dec_bool, []},
+                          enc = {enc_bool, []}}],
+           refs = [#ref{name = pep_conference_nick,
+                        label = '$nick',
+                        min = 0, max = 1},
+                   #ref{name = pep_conference_password,
+                        label = '$password',
+                        min = 0, max = 1},
+                   #ref{name = pep_conference_extensions,
+                        label = '$extensions',
+                        min = 0, max = 1}]}).
+
+
 -spec dec_tzo(_) -> {integer(), integer()}.
 dec_tzo(Val) ->
     [H1, M1] = binary:split(Val, <<":">>),
