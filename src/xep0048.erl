@@ -404,15 +404,13 @@ encode_bookmark_conference({bookmark_conference,
 
 decode_bookmark_conference_attr_name(__TopXMLNS,
                                      undefined) ->
-    erlang:error({xmpp_codec,
-                  {missing_attr,
-                   <<"name">>,
-                   <<"conference">>,
-                   __TopXMLNS}});
+    <<>>;
 decode_bookmark_conference_attr_name(__TopXMLNS,
                                      _val) ->
     _val.
 
+encode_bookmark_conference_attr_name(<<>>, _acc) ->
+    _acc;
 encode_bookmark_conference_attr_name(_val, _acc) ->
     [{<<"name">>, _val} | _acc].
 
