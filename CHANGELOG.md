@@ -1,3 +1,13 @@
+# 1.7.0
+
+* Add support for  xep-0421 - MUC Occupant Id
+* Accept all node config options in pubsub publish options
+* Update bundled rebar
+* Fix compilation on Erlang 26
+* Add automatic update of files on specs change
+* Add support for  xep-0402 - PEP Native Bookmarks
+* Fix types of pubsub publish options
+
 # Version 1.6.2
 
 * Add decoders for xep-0422 - Message Fastening
