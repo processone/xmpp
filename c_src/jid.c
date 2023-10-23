@@ -42,12 +42,12 @@ static ERL_NIF_TERM string_to_usr(ErlNifEnv* env, int argc,
   ErlNifBinary input;
   ERL_NIF_TERM node, domain, resource;
   int cs = 0, ret = 1;
-  char *node_start = NULL;
-  char *node_end = NULL;
-  char *domain_start = NULL;
-  char *domain_end = NULL;
-  char *resource_start = NULL;
-  char *resource_end = NULL;
+  signed char *node_start = NULL;
+  signed char *node_end = NULL;
+  signed char *domain_start = NULL;
+  signed char *domain_end = NULL;
+  signed char *resource_start = NULL;
+  signed char *resource_end = NULL;
 
   if (argc != 1)
     return enif_make_badarg(env);
@@ -58,9 +58,9 @@ static ERL_NIF_TERM string_to_usr(ErlNifEnv* env, int argc,
   if (!input.size)
     return enif_make_atom(env, "error");
 
-  char *p = (char *) input.data;
-  char *pe = p + input.size;
-  char *eof = pe;
+  signed char *p = (signed char *) input.data;
+  signed char *pe = p + input.size;
+  signed char *eof = pe;
 
   
 #line 67 "jid.c"
@@ -819,9 +819,9 @@ case 32:
 #line 87 "jid.rl"
 
   if (ret) {
-    node = mk_binary_term(env, node_start, node_end, 0, 0);
-    domain = mk_binary_term(env, domain_start, domain_end, 0, 1);
-    resource = mk_binary_term(env, resource_start, resource_end, 1, 1);
+    node = mk_binary_term(env, (char *) node_start, (char *) node_end, 0, 0);
+    domain = mk_binary_term(env, (char *) domain_start, (char *) domain_end, 0, 1);
+    resource = mk_binary_term(env, (char *) resource_start, (char *) resource_end, 1, 1);
     return enif_make_tuple3(env, node, domain, resource);
   } else {
     return enif_make_atom(env, "error");
