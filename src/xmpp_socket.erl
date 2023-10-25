@@ -45,8 +45,11 @@
 	 pp/1,
 	 sockname/1,
 	 peername/1,
-	 send_ws_ping/1, get_negotiated_cipher/1, get_tls_last_message/2,
-	 release/1]).
+	 send_ws_ping/1,
+	 get_negotiated_cipher/1,
+	 get_tls_last_message/2,
+	 release/1,
+	 get_tls_cb_exporter/1]).
 
 -include("xmpp.hrl").
 -include_lib("public_key/include/public_key.hrl").
@@ -360,6 +363,14 @@ get_tls_last_message(#socket_state{sockmod = SockMod,
 				    socket = Socket}, Type) ->
     case erlang:function_exported(SockMod, get_tls_last_message, 2) of
 	true -> SockMod:get_tls_last_message(Type, Socket);
+	false -> {error, unavailable}
+    end.
+
+-spec get_tls_cb_exporter(socket_state()) -> {ok, binary()} | {error, term()}.
+get_tls_cb_exporter(#socket_state{sockmod = SockMod,
+				  socket = Socket}) ->
+    case erlang:function_exported(SockMod, get_tls_cb_exporter, 1) of
+	true -> SockMod:get_tls_cb_exporter(Socket);
 	false -> {error, unavailable}
     end.
 

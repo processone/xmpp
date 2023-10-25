@@ -30,16 +30,16 @@
 
 -record(state,
 	{step = 2              :: 2 | 4,
-         algo = sha            :: sha | sha256 | sha512,
-	 plus = false          :: boolean(),
-	 plus_data = <<>>      :: binary(),
-         stored_key = <<"">>   :: binary(),
-         server_key = <<"">>   :: binary(),
-         username = <<"">>     :: binary(),
+	 algo = sha            :: sha | sha256 | sha512,
+	 use_cb = false        :: boolean(),
+	 cb_data = #{}         :: map(),
+	 stored_key = <<"">>   :: binary(),
+	 server_key = <<"">>   :: binary(),
+	 username = <<"">>     :: binary(),
 	 auth_module           :: module(),
-         get_password          :: get_password_fun(),
-         auth_message = <<"">> :: binary(),
-         client_nonce = <<"">> :: binary(),
+	 get_password          :: get_password_fun(),
+	 auth_message = <<"">> :: binary(),
+	 client_nonce = <<"">> :: binary(),
 	 server_nonce = <<"">> :: binary()}).
 
 -define(SALT_LENGTH, 16).
@@ -74,7 +74,7 @@ format_error(incompatible_mechs) ->
     {'not-authorized', <<"Incompatible SCRAM methods">>}.
 
 mech_new(Mech, Socket, _Host, GetPassword, _CheckPassword, _CheckPasswordDigest) ->
-    {Algo, Plus} =
+    {Algo, UseCB} =
     case Mech of
 	<<"SCRAM-SHA-1">> -> {sha, false};
 	<<"SCRAM-SHA-1-PLUS">> -> {sha, true};
@@ -83,17 +83,21 @@ mech_new(Mech, Socket, _Host, GetPassword, _CheckPassword, _CheckPasswordDigest)
 	<<"SCRAM-SHA-512">> -> {sha512, false};
 	<<"SCRAM-SHA-512-PLUS">> -> {sha512, true}
     end,
-    PlusData = case Plus of
-		   true ->
-		       case xmpp_socket:get_tls_last_message(Socket, peer) of
-			   {ok, Data} -> Data;
-			   _ -> <<>>
-		       end;
-		   _ ->
-		       <<>>
-	       end,
+    CBData = case UseCB of
+		 true ->
+		     CB = case xmpp_socket:get_tls_last_message(Socket, peer) of
+			      {ok, Data} -> #{tls_unique => Data};
+			      _ -> #{}
+			  end,
+		     case xmpp_socket:get_tls_cb_exporter(Socket) of
+			 {ok, Data2} -> CB#{tls_exporter => Data2};
+			 _ -> CB
+		     end;
+		 _ ->
+		     #{}
+	     end,
     #state{step = 2, get_password = GetPassword, algo = Algo,
-	   plus = Plus, plus_data = PlusData}.
+	   use_cb = UseCB, cb_data = CBData}.
 
 mech_step(#state{step = 2, algo = Algo} = State, ClientIn) ->
     case re:split(ClientIn, <<",">>, [{return, binary}]) of
@@ -237,9 +241,11 @@ mech_step(#state{step = 4, algo = Algo} = State, ClientIn) ->
       _ -> {error, parser_failed}
     end.
 
-cbind_valid(#state{plus = true}, <<"p=tls-unique">>) ->
+cbind_valid(#state{use_cb = true}, <<"p=tls-unique">>) ->
     true;
-cbind_valid(#state{plus = true}, _) ->
+cbind_valid(#state{use_cb = true}, <<"p=tls-exporter">>) ->
+    true;
+cbind_valid(#state{use_cb = true}, _) ->
     false;
 cbind_valid(_, <<"y", _/binary>>) ->
     true;
@@ -248,9 +254,13 @@ cbind_valid(_, <<"n", _/binary>>) ->
 cbind_valid(_, _) ->
     false.
 
-cbind_verify(#state{plus = true, plus_data = Data}, <<"p=tls-unique,,", Data/binary>>) ->
+cbind_verify(#state{use_cb = true, cb_data = #{tls_unique := Data}},
+	     <<"p=tls-unique,,", Data/binary>>) ->
     true;
-cbind_verify(#state{plus = true}, _) ->
+cbind_verify(#state{use_cb = true, cb_data = #{tls_exporter := Data}},
+	     <<"p=tls-exporter,,", Data/binary>>) ->
+    true;
+cbind_verify(#state{use_cb = true}, _) ->
     false;
 cbind_verify(_, <<"y", _/binary>>) ->
     true;
