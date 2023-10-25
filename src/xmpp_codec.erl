@@ -275,11 +275,7 @@ get_mod(<<"setup-failed">>,
 get_mod(<<"security-required">>,
         <<"urn:xmpp:jingle:errors:1">>) ->
     xep0166;
-get_mod(<<"url">>, <<"jabber:iq:register">>) -> xep0077;
-get_mod(<<"GIVEN">>, <<"vcard-temp">>) -> xep0054;
 get_mod(<<"TYPE">>, <<"vcard-temp">>) -> xep0054;
-get_mod(<<"subscribe">>, <<"urn:xmpp:mix:core:0">>) ->
-    xep0369;
 get_mod(<<"query">>,
         <<"http://jabber.org/protocol/disco#items">>) ->
     xep0030;
@@ -937,6 +933,9 @@ get_mod(<<"optional">>,
         <<"urn:ietf:params:xml:ns:xmpp-session">>) ->
     rfc3921;
 get_mod(<<"offline">>, <<"jabber:x:event">>) -> xep0022;
+get_mod(<<"sasl-channel-binding">>,
+        <<"urn:xmpp:sasl-cb:0">>) ->
+    xep0440;
 get_mod(<<"default">>, <<"jabber:iq:privacy">>) ->
     xep0016;
 get_mod(<<"bind">>,
@@ -1462,6 +1461,9 @@ get_mod(<<"fin">>, <<"urn:xmpp:mam:0">>) -> xep0313;
 get_mod(<<"enabled">>, <<"urn:xmpp:sm:2">>) -> xep0198;
 get_mod(<<"client-join">>, <<"urn:xmpp:mix:pam:2">>) ->
     xep0405;
+get_mod(<<"channel-binding">>,
+        <<"urn:xmpp:sasl-cb:0">>) ->
+    xep0440;
 get_mod(<<"TITLE">>, <<"vcard-temp">>) -> xep0054;
 get_mod(<<"too-many-subscriptions">>,
         <<"http://jabber.org/protocol/pubsub#errors">>) ->
@@ -1663,6 +1665,10 @@ get_mod(<<"query">>,
     xep0045;
 get_mod(<<"thumbnail">>, <<"urn:xmpp:thumbs:1">>) ->
     xep0264;
+get_mod(<<"url">>, <<"jabber:iq:register">>) -> xep0077;
+get_mod(<<"GIVEN">>, <<"vcard-temp">>) -> xep0054;
+get_mod(<<"subscribe">>, <<"urn:xmpp:mix:core:0">>) ->
+    xep0369;
 get_mod(Name, XMLNS) ->
     xmpp_codec_external:lookup(Name, XMLNS).
 
@@ -2000,6 +2006,7 @@ get_mod({ps_unsubscribe, _, _, _}) -> xep0060;
 get_mod({sm_resume, _, _, _}) -> xep0198;
 get_mod({push_enable, _, _, _}) -> xep0357;
 get_mod({jingle_ft_range, _, _, _}) -> xep0234;
+get_mod({sasl_channel_binding, _}) -> xep0440;
 get_mod({db_result, _, _, _, _, _}) -> xep0220;
 get_mod({bookmark_conference, _, _, _, _, _}) ->
     xep0048;

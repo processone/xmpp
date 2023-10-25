@@ -5196,6 +5196,22 @@
                         label = '$extensions',
                         min = 0, max = 1}]}).
 
+-xml(sasl_channel_binding,
+     #elem{name = <<"sasl-channel-binding">>,
+           xmlns = <<"urn:xmpp:sasl-cb:0">>,
+	   module = 'xep0440',
+           result = {sasl_channel_binding, '$bindings'},
+           refs = [#ref{name = sasl_channel_binding_element,
+                        label = '$bindings',
+                        min = 0}]}).
+
+-xml(sasl_channel_binding_element,
+     #elem{name = <<"channel-binding">>,
+           xmlns = <<"urn:xmpp:sasl-cb:0">>,
+	   module = 'xep0440',
+           attrs = [#attr{name = <<"type">>, required = true}],
+           result = '$type'}).
+
 
 -spec dec_tzo(_) -> {integer(), integer()}.
 dec_tzo(Val) ->
