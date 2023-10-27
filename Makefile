@@ -40,6 +40,16 @@ clean:
 xref: all
 	$(REBAR) xref
 
+xep_files := $(wildcard src/xep*.erl)
+xep_numbers := $(foreach i,$(xep_files),$(shell echo $(i) | sed 's|.*p\([0-9]*\).*|\1|g' | sort -u))
+xeps_missing := $(foreach i,$(xep_numbers),$(shell grep -q $(i) xmpp.doap || echo $(i)))
+xeps_missing2 := $(foreach i,$(xeps_missing),$(strip $(i)))
+
+doap:
+	@[ -z "$(xeps_missing2)" ] \
+	        && echo "All the supported XEPs are mentioned in xmpp.doap." \
+	        || (echo "XEPs supported but not mentioned in xmpp.doap: $(xeps_missing2)." && exit 1)
+
 ifeq "$(IS_REBAR3)" "1"
 dialyzer:
 	$(REBAR) dialyzer

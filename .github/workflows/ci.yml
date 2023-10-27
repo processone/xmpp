@@ -27,6 +27,7 @@ jobs:
     - run: REBAR=rebar3 make xref
     - run: REBAR=rebar3 make dialyzer
     - run: rebar3 eunit -v
+    - run: make doap
     - run: git config --global --add safe.directory /__w/xmpp/xmpp
       if: matrix.otp == '25.3' && github.event_name == 'push'
     - uses: stefanzweifel/git-auto-commit-action@v4
