@@ -31,8 +31,7 @@
 -record(state,
 	{step = 2              :: 2 | 4,
 	 algo = sha            :: sha | sha256 | sha512,
-	 use_cb = false        :: boolean(),
-	 cb_data = #{}         :: map(),
+	 cb_socket = none      :: none | xmpp_socket:socket(),
 	 stored_key = <<"">>   :: binary(),
 	 server_key = <<"">>   :: binary(),
 	 username = <<"">>     :: binary(),
@@ -83,21 +82,13 @@ mech_new(Mech, Socket, _Host, GetPassword, _CheckPassword, _CheckPasswordDigest)
 	<<"SCRAM-SHA-512">> -> {sha512, false};
 	<<"SCRAM-SHA-512-PLUS">> -> {sha512, true}
     end,
-    CBData = case UseCB of
+    CBSocket = case UseCB of
 		 true ->
-		     CB = case xmpp_socket:get_tls_last_message(Socket, peer) of
-			      {ok, Data} -> #{tls_unique => Data};
-			      _ -> #{}
-			  end,
-		     case xmpp_socket:get_tls_cb_exporter(Socket) of
-			 {ok, Data2} -> CB#{tls_exporter => Data2};
-			 _ -> CB
-		     end;
+		     Socket;
 		 _ ->
-		     #{}
+		     none
 	     end,
-    #state{step = 2, get_password = GetPassword, algo = Algo,
-	   use_cb = UseCB, cb_data = CBData}.
+    #state{step = 2, get_password = GetPassword, algo = Algo, cb_socket = CBSocket}.
 
 mech_step(#state{step = 2, algo = Algo} = State, ClientIn) ->
     case re:split(ClientIn, <<",">>, [{return, binary}]) of
@@ -241,11 +232,13 @@ mech_step(#state{step = 4, algo = Algo} = State, ClientIn) ->
       _ -> {error, parser_failed}
     end.
 
-cbind_valid(#state{use_cb = true}, <<"p=tls-unique">>) ->
+cbind_valid(#state{cb_socket = Sock}, <<"p=tls-unique">>) when Sock /= none ->
     true;
-cbind_valid(#state{use_cb = true}, <<"p=tls-exporter">>) ->
+cbind_valid(#state{cb_socket = Sock}, <<"p=tls-exporter">>) when Sock /= none  ->
     true;
-cbind_valid(#state{use_cb = true}, _) ->
+cbind_valid(#state{cb_socket = Sock}, <<"p=tls-server-end-point">>) when Sock /= none  ->
+    true;
+cbind_valid(#state{cb_socket = Sock}, _) when Sock /= none ->
     false;
 cbind_valid(_, <<"y", _/binary>>) ->
     true;
@@ -254,16 +247,31 @@ cbind_valid(_, <<"n", _/binary>>) ->
 cbind_valid(_, _) ->
     false.
 
-cbind_verify(#state{use_cb = true, cb_data = #{tls_unique := Data}},
-	     <<"p=tls-unique,,", Data/binary>>) ->
-    true;
-cbind_verify(#state{use_cb = true, cb_data = #{tls_exporter := Data}},
-	     <<"p=tls-exporter,,", Data/binary>>) ->
-    true;
-cbind_verify(#state{use_cb = true}, _) ->
+cbind_verify(#state{cb_socket = Socket}, <<"p=tls-unique,,", Data/binary>>) when Socket /= none ->
+  case xmpp_socket:get_tls_last_message(Socket, peer) of
+      {ok, Data2} ->
+	  Data == Data2;
+      _ ->
+	  false
+  end;
+cbind_verify(#state{cb_socket = Socket}, <<"p=tls-exporter,,", Data/binary>>) when Socket /= none ->
+    case xmpp_socket:get_tls_cb_exporter(Socket) of
+	{ok, Data2} ->
+	    Data == Data2;
+	_ ->
+	    false
+    end;
+cbind_verify(#state{cb_socket = Socket}, <<"p=tls-server-end-point,,", Data/binary>>) when Socket /= none ->
+    case xmpp_socket:get_tls_cert_hash(Socket) of
+	{ok, Data2} ->
+	    Data == Data2;
+	_ ->
+	    false
+    end;
+cbind_verify(#state{cb_socket = Socket}, _) when Socket /= none->
     false;
 cbind_verify(_, <<"y", _/binary>>) ->
-    true;
+    false;
 cbind_verify(_, <<"n", _/binary>>) ->
     true;
 cbind_verify(_, _) ->

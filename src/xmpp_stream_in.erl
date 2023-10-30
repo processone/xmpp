@@ -1045,8 +1045,13 @@ get_sasl_feature(#{stream_authenticated := false,
     TLSRequired = is_starttls_required(State),
     if Encrypted or not TLSRequired ->
 	    Mechs = get_sasl_mechanisms(State),
-	    [#sasl_mechanisms{list = Mechs},
-	     #sasl_channel_binding{bindings = [<<"tls-unique">>, <<"tls-exporter">>]}];
+	    [#sasl_mechanisms{list = Mechs}] ++
+	    if Encrypted ->
+		[#sasl_channel_binding{bindings = [<<"tls-server-end-point">>,
+						   <<"tls-unique">>,
+						   <<"tls-exporter">>]}];
+		true -> []
+	    end;
        true ->
 	    []
     end;
