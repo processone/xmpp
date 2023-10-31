@@ -139,15 +139,9 @@
 -record(x509_register, {}).
 -type x509_register() :: #x509_register{}.
 
--record(mark_received, {id = <<>> :: binary()}).
--type mark_received() :: #mark_received{}.
-
 -record(mix_create, {channel = <<>> :: binary(),
                      xmlns = <<>> :: binary()}).
 -type mix_create() :: #mix_create{}.
-
--record(carbons_private, {}).
--type carbons_private() :: #carbons_private{}.
 
 -record(ping, {}).
 -type ping() :: #ping{}.
@@ -156,11 +150,6 @@
                    'block-size' :: non_neg_integer(),
                    stanza = iq :: 'iq' | 'message'}).
 -type ibb_open() :: #ibb_open{}.
-
--record(ibb_data, {sid = <<>> :: binary(),
-                   seq :: non_neg_integer(),
-                   data = <<>> :: binary()}).
--type ibb_data() :: #ibb_data{}.
 
 -record(starttls_proceed, {}).
 -type starttls_proceed() :: #starttls_proceed{}.
@@ -217,6 +206,9 @@
 -record(compression, {methods = [] :: [binary()]}).
 -type compression() :: #compression{}.
 
+-record(sasl2_response, {text = <<>> :: binary()}).
+-type sasl2_response() :: #sasl2_response{}.
+
 -record(receipt_response, {id = <<>> :: binary()}).
 -type receipt_response() :: #receipt_response{}.
 
@@ -248,6 +240,10 @@
                status = <<>> :: binary()}).
 -type last() :: #last{}.
 
+-record(sasl2_failure, {text :: 'undefined' | binary(),
+                        sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
+-type sasl2_failure() :: #sasl2_failure{}.
+
 -record(ps_subscribe, {node = <<>> :: binary(),
                        jid :: jid:jid()}).
 -type ps_subscribe() :: #ps_subscribe{}.
@@ -261,6 +257,9 @@
                     key = <<>> :: binary(),
                     sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
 -type db_result() :: #db_result{}.
+
+-record(sasl2_challenge, {text = <<>> :: binary()}).
+-type sasl2_challenge() :: #sasl2_challenge{}.
 
 -record(vcard_xupdate, {hash :: 'undefined' | binary()}).
 -type vcard_xupdate() :: #vcard_xupdate{}.
@@ -560,8 +559,17 @@
                     sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
 -type db_verify() :: #db_verify{}.
 
+-record(sasl2_success, {jid :: jid:jid(),
+                        additional_data :: 'undefined' | binary(),
+                        sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
+-type sasl2_success() :: #sasl2_success{}.
+
 -record(sm_r, {xmlns = <<>> :: binary()}).
 -type sm_r() :: #sm_r{}.
+
+-record(sasl2_abort, {text :: 'undefined' | binary(),
+                      sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
+-type sasl2_abort() :: #sasl2_abort{}.
 
 -record(markable, {}).
 -type markable() :: #markable{}.
@@ -578,6 +586,11 @@
 
 -record(mark_displayed, {id = <<>> :: binary()}).
 -type mark_displayed() :: #mark_displayed{}.
+
+-record(sasl2_user_agent, {id = <<>> :: binary(),
+                           software :: 'undefined' | binary(),
+                           device :: 'undefined' | binary()}).
+-type sasl2_user_agent() :: #sasl2_user_agent{}.
 
 -record(jingle_ft_file, {date :: undefined | erlang:timestamp(),
                          desc = [] :: [#text{}],
@@ -717,11 +730,6 @@
                       extval :: 'undefined' | binary()}).
 -type vcard_photo() :: #vcard_photo{}.
 
--record(vcard_logo, {type :: 'undefined' | binary(),
-                     binval :: 'undefined' | binary(),
-                     extval :: 'undefined' | binary()}).
--type vcard_logo() :: #vcard_logo{}.
-
 -record(muc_history, {maxchars :: 'undefined' | non_neg_integer(),
                       maxstanzas :: 'undefined' | non_neg_integer(),
                       seconds :: 'undefined' | non_neg_integer(),
@@ -753,6 +761,12 @@
                            'content-type' = <<>> :: binary(),
                            xmlns = <<>> :: binary()}).
 -type upload_request_0() :: #upload_request_0{}.
+
+-record(sasl2_continue, {additional_data :: 'undefined' | binary(),
+                         text :: 'undefined' | binary(),
+                         tasks :: 'undefined' | [binary()],
+                         sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
+-type sasl2_continue() :: #sasl2_continue{}.
 
 -record(xdata_field, {label = <<>> :: binary(),
                       type :: 'boolean' | 'fixed' | 'hidden' | 'jid-multi' | 'jid-single' | 'list-multi' | 'list-single' | 'text-multi' | 'text-private' | 'text-single' | 'undefined',
@@ -866,6 +880,12 @@
                      xmlns = <<>> :: binary()}).
 -type sm_enabled() :: #sm_enabled{}.
 
+-record(sasl2_authenticate, {mechanism = <<>> :: binary(),
+                             initial_response :: 'undefined' | binary(),
+                             user_agent :: 'undefined' | #sasl2_user_agent{},
+                             sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
+-type sasl2_authenticate() :: #sasl2_authenticate{}.
+
 -record(x509_revoke, {cert :: binary(),
                       signature :: binary()}).
 -type x509_revoke() :: #x509_revoke{}.
@@ -907,6 +927,10 @@
 
 -record(block, {items = [] :: [#block_item{}]}).
 -type block() :: #block{}.
+
+-record(sasl2_authenticaton, {mechanisms = [] :: [binary()],
+                              inline :: 'undefined' | [xmpp_element() | fxml:xmlel()]}).
+-type sasl2_authenticaton() :: #sasl2_authenticaton{}.
 
 -record(muc_hats, {hats = [] :: [#muc_hat{}]}).
 -type muc_hats() :: #muc_hats{}.
@@ -1085,37 +1109,6 @@
                       line = [] :: [binary()]}).
 -type vcard_label() :: #vcard_label{}.
 
--record(vcard_name, {family :: 'undefined' | binary(),
-                     given :: 'undefined' | binary(),
-                     middle :: 'undefined' | binary(),
-                     prefix :: 'undefined' | binary(),
-                     suffix :: 'undefined' | binary()}).
--type vcard_name() :: #vcard_name{}.
-
--record(register, {registered = false :: boolean(),
-                   remove = false :: boolean(),
-                   instructions :: 'undefined' | binary(),
-                   username :: 'undefined' | binary(),
-                   nick :: 'undefined' | binary(),
-                   password :: 'undefined' | binary(),
-                   name :: 'undefined' | binary(),
-                   first :: 'undefined' | binary(),
-                   last :: 'undefined' | binary(),
-                   email :: 'undefined' | binary(),
-                   address :: 'undefined' | binary(),
-                   city :: 'undefined' | binary(),
-                   state :: 'undefined' | binary(),
-                   zip :: 'undefined' | binary(),
-                   phone :: 'undefined' | binary(),
-                   url :: 'undefined' | binary(),
-                   date :: 'undefined' | binary(),
-                   misc :: 'undefined' | binary(),
-                   text :: 'undefined' | binary(),
-                   key :: 'undefined' | binary(),
-                   xdata :: 'undefined' | #xdata{},
-                   sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
--type register() :: #register{}.
-
 -record(sm_failed, {reason :: atom() | #gone{} | #redirect{},
                     text = [] :: [#text{}],
                     h :: 'undefined' | non_neg_integer(),
@@ -1218,38 +1211,6 @@
                         xdata :: 'undefined' | #xdata{}}).
 -type adhoc_command() :: #adhoc_command{}.
 
--record(vcard_temp, {version :: 'undefined' | binary(),
-                     fn :: 'undefined' | binary(),
-                     n :: 'undefined' | #vcard_name{},
-                     nickname :: 'undefined' | binary(),
-                     photo :: 'undefined' | #vcard_photo{},
-                     bday :: 'undefined' | binary(),
-                     adr = [] :: [#vcard_adr{}],
-                     label = [] :: [#vcard_label{}],
-                     tel = [] :: [#vcard_tel{}],
-                     email = [] :: [#vcard_email{}],
-                     jabberid :: 'undefined' | binary(),
-                     mailer :: 'undefined' | binary(),
-                     tz :: 'undefined' | binary(),
-                     geo :: 'undefined' | #vcard_geo{},
-                     title :: 'undefined' | binary(),
-                     role :: 'undefined' | binary(),
-                     logo :: 'undefined' | #vcard_logo{},
-                     org :: 'undefined' | #vcard_org{},
-                     categories = [] :: [binary()],
-                     note :: 'undefined' | binary(),
-                     prodid :: 'undefined' | binary(),
-                     rev :: 'undefined' | binary(),
-                     sort_string :: 'undefined' | binary(),
-                     sound :: 'undefined' | #vcard_sound{},
-                     uid :: 'undefined' | binary(),
-                     url :: 'undefined' | binary(),
-                     class :: 'confidential' | 'private' | 'public' | 'undefined',
-                     key :: 'undefined' | #vcard_key{},
-                     desc :: 'undefined' | binary(),
-                     sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
--type vcard_temp() :: #vcard_temp{}.
-
 -record(stream_error, {reason :: atom() | #'see-other-host'{},
                        text = [] :: [#text{}]}).
 -type stream_error() :: #stream_error{}.
@@ -1293,6 +1254,85 @@
                           join :: #mix_join{},
                           xmlns = <<>> :: binary()}).
 -type mix_client_join() :: #mix_client_join{}.
+
+-record(vcard_logo, {type :: 'undefined' | binary(),
+                     binval :: 'undefined' | binary(),
+                     extval :: 'undefined' | binary()}).
+-type vcard_logo() :: #vcard_logo{}.
+
+-record(register, {registered = false :: boolean(),
+                   remove = false :: boolean(),
+                   instructions :: 'undefined' | binary(),
+                   username :: 'undefined' | binary(),
+                   nick :: 'undefined' | binary(),
+                   password :: 'undefined' | binary(),
+                   name :: 'undefined' | binary(),
+                   first :: 'undefined' | binary(),
+                   last :: 'undefined' | binary(),
+                   email :: 'undefined' | binary(),
+                   address :: 'undefined' | binary(),
+                   city :: 'undefined' | binary(),
+                   state :: 'undefined' | binary(),
+                   zip :: 'undefined' | binary(),
+                   phone :: 'undefined' | binary(),
+                   url :: 'undefined' | binary(),
+                   date :: 'undefined' | binary(),
+                   misc :: 'undefined' | binary(),
+                   text :: 'undefined' | binary(),
+                   key :: 'undefined' | binary(),
+                   xdata :: 'undefined' | #xdata{},
+                   sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
+-type register() :: #register{}.
+
+-record(mark_received, {id = <<>> :: binary()}).
+-type mark_received() :: #mark_received{}.
+
+-record(carbons_private, {}).
+-type carbons_private() :: #carbons_private{}.
+
+-record(vcard_name, {family :: 'undefined' | binary(),
+                     given :: 'undefined' | binary(),
+                     middle :: 'undefined' | binary(),
+                     prefix :: 'undefined' | binary(),
+                     suffix :: 'undefined' | binary()}).
+-type vcard_name() :: #vcard_name{}.
+
+-record(vcard_temp, {version :: 'undefined' | binary(),
+                     fn :: 'undefined' | binary(),
+                     n :: 'undefined' | #vcard_name{},
+                     nickname :: 'undefined' | binary(),
+                     photo :: 'undefined' | #vcard_photo{},
+                     bday :: 'undefined' | binary(),
+                     adr = [] :: [#vcard_adr{}],
+                     label = [] :: [#vcard_label{}],
+                     tel = [] :: [#vcard_tel{}],
+                     email = [] :: [#vcard_email{}],
+                     jabberid :: 'undefined' | binary(),
+                     mailer :: 'undefined' | binary(),
+                     tz :: 'undefined' | binary(),
+                     geo :: 'undefined' | #vcard_geo{},
+                     title :: 'undefined' | binary(),
+                     role :: 'undefined' | binary(),
+                     logo :: 'undefined' | #vcard_logo{},
+                     org :: 'undefined' | #vcard_org{},
+                     categories = [] :: [binary()],
+                     note :: 'undefined' | binary(),
+                     prodid :: 'undefined' | binary(),
+                     rev :: 'undefined' | binary(),
+                     sort_string :: 'undefined' | binary(),
+                     sound :: 'undefined' | #vcard_sound{},
+                     uid :: 'undefined' | binary(),
+                     url :: 'undefined' | binary(),
+                     class :: 'confidential' | 'private' | 'public' | 'undefined',
+                     key :: 'undefined' | #vcard_key{},
+                     desc :: 'undefined' | binary(),
+                     sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
+-type vcard_temp() :: #vcard_temp{}.
+
+-record(ibb_data, {sid = <<>> :: binary(),
+                   seq :: non_neg_integer(),
+                   data = <<>> :: binary()}).
+-type ibb_data() :: #ibb_data{}.
 
 -type xmpp_element() :: address() |
                         addresses() |
@@ -1460,6 +1500,15 @@
                         rosterver_feature() |
                         rsm_first() |
                         rsm_set() |
+                        sasl2_abort() |
+                        sasl2_authenticate() |
+                        sasl2_authenticaton() |
+                        sasl2_challenge() |
+                        sasl2_continue() |
+                        sasl2_failure() |
+                        sasl2_response() |
+                        sasl2_success() |
+                        sasl2_user_agent() |
                         sasl_abort() |
                         sasl_auth() |
                         sasl_challenge() |

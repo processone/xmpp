@@ -5,6 +5,9 @@
 
 -compile(export_all).
 
+do_decode(<<"abort">>, <<"urn:xmpp:sasl:2">>, El,
+          Opts) ->
+    decode_sasl2_abort(<<"urn:xmpp:sasl:2">>, Opts, El);
 do_decode(<<"task">>, <<"urn:xmpp:sasl:2">>, El,
           Opts) ->
     decode_sasl2_task(<<"urn:xmpp:sasl:2">>, Opts, El);
@@ -81,7 +84,8 @@ do_decode(Name, XMLNS, _, _) ->
     erlang:error({xmpp_codec, {unknown_tag, Name, XMLNS}}).
 
 tags() ->
-    [{<<"task">>, <<"urn:xmpp:sasl:2">>},
+    [{<<"abort">>, <<"urn:xmpp:sasl:2">>},
+     {<<"task">>, <<"urn:xmpp:sasl:2">>},
      {<<"tasks">>, <<"urn:xmpp:sasl:2">>},
      {<<"continue">>, <<"urn:xmpp:sasl:2">>},
      {<<"text">>, <<"urn:xmpp:sasl:2">>},
@@ -121,8 +125,11 @@ do_encode({sasl2_failure, _, _} = Failure, TopXMLNS) ->
     encode_sasl2_failure(Failure, TopXMLNS);
 do_encode({sasl2_continue, _, _, _, _} = Continue,
           TopXMLNS) ->
-    encode_sasl2_continue(Continue, TopXMLNS).
+    encode_sasl2_continue(Continue, TopXMLNS);
+do_encode({sasl2_abort, _, _} = Abort, TopXMLNS) ->
+    encode_sasl2_abort(Abort, TopXMLNS).
 
+do_get_name({sasl2_abort, _, _}) -> <<"abort">>;
 do_get_name({sasl2_authenticate, _, _, _, _}) ->
     <<"authenticate">>;
 do_get_name({sasl2_authenticaton, _, _}) ->
@@ -136,6 +143,7 @@ do_get_name({sasl2_success, _, _, _}) -> <<"success">>;
 do_get_name({sasl2_user_agent, _, _, _}) ->
     <<"user-agent">>.
 
+do_get_ns({sasl2_abort, _, _}) -> <<"urn:xmpp:sasl:2">>;
 do_get_ns({sasl2_authenticate, _, _, _, _}) ->
     <<"urn:xmpp:sasl:2">>;
 do_get_ns({sasl2_authenticaton, _, _}) ->
@@ -169,7 +177,8 @@ get_els({sasl2_continue,
          _text,
          _tasks,
          _sub_els}) ->
-    _sub_els.
+    _sub_els;
+get_els({sasl2_abort, _text, _sub_els}) -> _sub_els.
 
 set_els({sasl2_authenticate,
          _mechanism,
@@ -197,7 +206,9 @@ set_els({sasl2_continue,
      _additional_data,
      _text,
      _tasks,
-     _sub_els}.
+     _sub_els};
+set_els({sasl2_abort, _text, _}, _sub_els) ->
+    {sasl2_abort, _text, _sub_els}.
 
 pp(sasl2_authenticaton, 2) -> [mechanisms, inline];
 pp(sasl2_authenticate, 4) ->
@@ -209,6 +220,7 @@ pp(sasl2_success, 3) -> [jid, additional_data, sub_els];
 pp(sasl2_failure, 2) -> [text, sub_els];
 pp(sasl2_continue, 4) ->
     [additional_data, text, tasks, sub_els];
+pp(sasl2_abort, 2) -> [text, sub_els];
 pp(_, _) -> no.
 
 records() ->
@@ -219,7 +231,105 @@ records() ->
      {sasl2_response, 1},
      {sasl2_success, 3},
      {sasl2_failure, 2},
-     {sasl2_continue, 4}].
+     {sasl2_continue, 4},
+     {sasl2_abort, 2}].
+
+decode_sasl2_abort(__TopXMLNS, __Opts,
+                   {xmlel, <<"abort">>, _attrs, _els}) ->
+    {Text, __Els} = decode_sasl2_abort_els(__TopXMLNS,
+                                           __Opts,
+                                           _els,
+                                           undefined,
+                                           []),
+    {sasl2_abort, Text, __Els}.
+
+decode_sasl2_abort_els(__TopXMLNS, __Opts, [], Text,
+                       __Els) ->
+    {Text, lists:reverse(__Els)};
+decode_sasl2_abort_els(__TopXMLNS, __Opts,
+                       [{xmlel, <<"text">>, _attrs, _} = _el | _els], Text,
+                       __Els) ->
+    case xmpp_codec:get_attr(<<"xmlns">>,
+                             _attrs,
+                             __TopXMLNS)
+        of
+        <<"urn:xmpp:sasl:2">> ->
+            decode_sasl2_abort_els(__TopXMLNS,
+                                   __Opts,
+                                   _els,
+                                   decode_sasl2_text(<<"urn:xmpp:sasl:2">>,
+                                                     __Opts,
+                                                     _el),
+                                   __Els);
+        _ ->
+            decode_sasl2_abort_els(__TopXMLNS,
+                                   __Opts,
+                                   _els,
+                                   Text,
+                                   [_el | __Els])
+    end;
+decode_sasl2_abort_els(__TopXMLNS, __Opts,
+                       [{xmlel, _name, _attrs, _} = _el | _els], Text,
+                       __Els) ->
+    case proplists:get_bool(ignore_els, __Opts) of
+        true ->
+            decode_sasl2_abort_els(__TopXMLNS,
+                                   __Opts,
+                                   _els,
+                                   Text,
+                                   [_el | __Els]);
+        false ->
+            __XMLNS = xmpp_codec:get_attr(<<"xmlns">>,
+                                          _attrs,
+                                          __TopXMLNS),
+            case xmpp_codec:get_mod(_name, __XMLNS) of
+                undefined ->
+                    decode_sasl2_abort_els(__TopXMLNS,
+                                           __Opts,
+                                           _els,
+                                           Text,
+                                           [_el | __Els]);
+                Mod ->
+                    decode_sasl2_abort_els(__TopXMLNS,
+                                           __Opts,
+                                           _els,
+                                           Text,
+                                           [Mod:do_decode(_name,
+                                                          __XMLNS,
+                                                          _el,
+                                                          __Opts)
+                                            | __Els])
+            end
+    end;
+decode_sasl2_abort_els(__TopXMLNS, __Opts, [_ | _els],
+                       Text, __Els) ->
+    decode_sasl2_abort_els(__TopXMLNS,
+                           __Opts,
+                           _els,
+                           Text,
+                           __Els).
+
+encode_sasl2_abort({sasl2_abort, Text, __Els},
+                   __TopXMLNS) ->
+    __NewTopXMLNS =
+        xmpp_codec:choose_top_xmlns(<<"urn:xmpp:sasl:2">>,
+                                    [],
+                                    __TopXMLNS),
+    _els = [xmpp_codec:encode(_el, __NewTopXMLNS)
+            || _el <- __Els]
+               ++
+               lists:reverse('encode_sasl2_abort_$text'(Text,
+                                                        __NewTopXMLNS,
+                                                        [])),
+    _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
+                                        __TopXMLNS),
+    {xmlel, <<"abort">>, _attrs, _els}.
+
+'encode_sasl2_abort_$text'(undefined, __TopXMLNS,
+                           _acc) ->
+    _acc;
+'encode_sasl2_abort_$text'(Text, __TopXMLNS, _acc) ->
+    [encode_sasl2_text(Text, __TopXMLNS) | _acc].
 
 decode_sasl2_task(__TopXMLNS, __Opts,
                   {xmlel, <<"task">>, _attrs, _els}) ->
