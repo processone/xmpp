@@ -4048,7 +4048,7 @@
      #elem{name = <<"x">>,
 	   xmlns = <<"jabber:x:oob">>,
 	   module = 'xep0066',
-	   result = {oob_x, '$url', '$desc', '$sid'},
+	   result = {oob_x, '$url', '$desc', '$sid', '$_els'},
 	   attrs = [#attr{name = <<"sid">>, default = <<"">>}],
 	   refs = [#ref{name = oob_url, min = 1, max = 1,
 			label = '$url'},
