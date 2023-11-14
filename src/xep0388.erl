@@ -121,7 +121,8 @@ do_encode({sasl2_response, _} = Response, TopXMLNS) ->
 do_encode({sasl2_success, _, _, _} = Success,
           TopXMLNS) ->
     encode_sasl2_success(Success, TopXMLNS);
-do_encode({sasl2_failure, _, _} = Failure, TopXMLNS) ->
+do_encode({sasl2_failure, _, _, _} = Failure,
+          TopXMLNS) ->
     encode_sasl2_failure(Failure, TopXMLNS);
 do_encode({sasl2_continue, _, _, _, _} = Continue,
           TopXMLNS) ->
@@ -137,7 +138,7 @@ do_get_name({sasl2_authenticaton, _, _}) ->
 do_get_name({sasl2_challenge, _}) -> <<"challenge">>;
 do_get_name({sasl2_continue, _, _, _, _}) ->
     <<"continue">>;
-do_get_name({sasl2_failure, _, _}) -> <<"failure">>;
+do_get_name({sasl2_failure, _, _, _}) -> <<"failure">>;
 do_get_name({sasl2_response, _}) -> <<"response">>;
 do_get_name({sasl2_success, _, _, _}) -> <<"success">>;
 do_get_name({sasl2_user_agent, _, _, _}) ->
@@ -152,7 +153,7 @@ do_get_ns({sasl2_challenge, _}) ->
     <<"urn:xmpp:sasl:2">>;
 do_get_ns({sasl2_continue, _, _, _, _}) ->
     <<"urn:xmpp:sasl:2">>;
-do_get_ns({sasl2_failure, _, _}) ->
+do_get_ns({sasl2_failure, _, _, _}) ->
     <<"urn:xmpp:sasl:2">>;
 do_get_ns({sasl2_response, _}) -> <<"urn:xmpp:sasl:2">>;
 do_get_ns({sasl2_success, _, _, _}) ->
@@ -171,7 +172,8 @@ get_els({sasl2_success,
          _additional_data,
          _sub_els}) ->
     _sub_els;
-get_els({sasl2_failure, _text, _sub_els}) -> _sub_els;
+get_els({sasl2_failure, _reason, _text, _sub_els}) ->
+    _sub_els;
 get_els({sasl2_continue,
          _additional_data,
          _text,
@@ -194,8 +196,8 @@ set_els({sasl2_authenticate,
 set_els({sasl2_success, _jid, _additional_data, _},
         _sub_els) ->
     {sasl2_success, _jid, _additional_data, _sub_els};
-set_els({sasl2_failure, _text, _}, _sub_els) ->
-    {sasl2_failure, _text, _sub_els};
+set_els({sasl2_failure, _reason, _text, _}, _sub_els) ->
+    {sasl2_failure, _reason, _text, _sub_els};
 set_els({sasl2_continue,
          _additional_data,
          _text,
@@ -217,7 +219,7 @@ pp(sasl2_user_agent, 3) -> [id, software, device];
 pp(sasl2_challenge, 1) -> [text];
 pp(sasl2_response, 1) -> [text];
 pp(sasl2_success, 3) -> [jid, additional_data, sub_els];
-pp(sasl2_failure, 2) -> [text, sub_els];
+pp(sasl2_failure, 3) -> [reason, text, sub_els];
 pp(sasl2_continue, 4) ->
     [additional_data, text, tasks, sub_els];
 pp(sasl2_abort, 2) -> [text, sub_els];
@@ -230,7 +232,7 @@ records() ->
      {sasl2_challenge, 1},
      {sasl2_response, 1},
      {sasl2_success, 3},
-     {sasl2_failure, 2},
+     {sasl2_failure, 3},
      {sasl2_continue, 4},
      {sasl2_abort, 2}].
 
@@ -653,19 +655,21 @@ encode_sasl2_text_cdata(_val, _acc) ->
 
 decode_sasl2_failure(__TopXMLNS, __Opts,
                      {xmlel, <<"failure">>, _attrs, _els}) ->
-    {Text, __Els} = decode_sasl2_failure_els(__TopXMLNS,
-                                             __Opts,
-                                             _els,
-                                             undefined,
-                                             []),
-    {sasl2_failure, Text, __Els}.
+    {Text, Reason, __Els} =
+        decode_sasl2_failure_els(__TopXMLNS,
+                                 __Opts,
+                                 _els,
+                                 undefined,
+                                 undefined,
+                                 []),
+    {sasl2_failure, Reason, Text, __Els}.
 
 decode_sasl2_failure_els(__TopXMLNS, __Opts, [], Text,
-                         __Els) ->
-    {Text, lists:reverse(__Els)};
+                         Reason, __Els) ->
+    {Text, Reason, lists:reverse(__Els)};
 decode_sasl2_failure_els(__TopXMLNS, __Opts,
                          [{xmlel, <<"text">>, _attrs, _} = _el | _els], Text,
-                         __Els) ->
+                         Reason, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -677,16 +681,316 @@ decode_sasl2_failure_els(__TopXMLNS, __Opts,
                                      decode_sasl2_text(<<"urn:xmpp:sasl:2">>,
                                                        __Opts,
                                                        _el),
+                                     Reason,
                                      __Els);
         _ ->
             decode_sasl2_failure_els(__TopXMLNS,
                                      __Opts,
                                      _els,
                                      Text,
+                                     Reason,
                                      [_el | __Els])
     end;
 decode_sasl2_failure_els(__TopXMLNS, __Opts,
-                         [{xmlel, _name, _attrs, _} = _el | _els], Text,
+                         [{xmlel, <<"aborted">>, _attrs, _} = _el | _els], Text,
+                         Reason, __Els) ->
+    case xmpp_codec:get_attr(<<"xmlns">>,
+                             _attrs,
+                             __TopXMLNS)
+        of
+        <<"urn:ietf:params:xml:ns:xmpp-sasl">> ->
+            decode_sasl2_failure_els(__TopXMLNS,
+                                     __Opts,
+                                     _els,
+                                     Text,
+                                     rfc6120:decode_sasl_failure_aborted(<<"urn:ietf:params:xml:ns:xmpp-sasl">>,
+                                                                         __Opts,
+                                                                         _el),
+                                     __Els);
+        _ ->
+            decode_sasl2_failure_els(__TopXMLNS,
+                                     __Opts,
+                                     _els,
+                                     Text,
+                                     Reason,
+                                     [_el | __Els])
+    end;
+decode_sasl2_failure_els(__TopXMLNS, __Opts,
+                         [{xmlel, <<"account-disabled">>, _attrs, _} = _el
+                          | _els],
+                         Text, Reason, __Els) ->
+    case xmpp_codec:get_attr(<<"xmlns">>,
+                             _attrs,
+                             __TopXMLNS)
+        of
+        <<"urn:ietf:params:xml:ns:xmpp-sasl">> ->
+            decode_sasl2_failure_els(__TopXMLNS,
+                                     __Opts,
+                                     _els,
+                                     Text,
+                                     rfc6120:decode_sasl_failure_account_disabled(<<"urn:ietf:params:xml:ns:xmpp-sasl">>,
+                                                                                  __Opts,
+                                                                                  _el),
+                                     __Els);
+        _ ->
+            decode_sasl2_failure_els(__TopXMLNS,
+                                     __Opts,
+                                     _els,
+                                     Text,
+                                     Reason,
+                                     [_el | __Els])
+    end;
+decode_sasl2_failure_els(__TopXMLNS, __Opts,
+                         [{xmlel, <<"credentials-expired">>, _attrs, _} = _el
+                          | _els],
+                         Text, Reason, __Els) ->
+    case xmpp_codec:get_attr(<<"xmlns">>,
+                             _attrs,
+                             __TopXMLNS)
+        of
+        <<"urn:ietf:params:xml:ns:xmpp-sasl">> ->
+            decode_sasl2_failure_els(__TopXMLNS,
+                                     __Opts,
+                                     _els,
+                                     Text,
+                                     rfc6120:decode_sasl_failure_credentials_expired(<<"urn:ietf:params:xml:ns:xmpp-sasl">>,
+                                                                                     __Opts,
+                                                                                     _el),
+                                     __Els);
+        _ ->
+            decode_sasl2_failure_els(__TopXMLNS,
+                                     __Opts,
+                                     _els,
+                                     Text,
+                                     Reason,
+                                     [_el | __Els])
+    end;
+decode_sasl2_failure_els(__TopXMLNS, __Opts,
+                         [{xmlel, <<"encryption-required">>, _attrs, _} = _el
+                          | _els],
+                         Text, Reason, __Els) ->
+    case xmpp_codec:get_attr(<<"xmlns">>,
+                             _attrs,
+                             __TopXMLNS)
+        of
+        <<"urn:ietf:params:xml:ns:xmpp-sasl">> ->
+            decode_sasl2_failure_els(__TopXMLNS,
+                                     __Opts,
+                                     _els,
+                                     Text,
+                                     rfc6120:decode_sasl_failure_encryption_required(<<"urn:ietf:params:xml:ns:xmpp-sasl">>,
+                                                                                     __Opts,
+                                                                                     _el),
+                                     __Els);
+        _ ->
+            decode_sasl2_failure_els(__TopXMLNS,
+                                     __Opts,
+                                     _els,
+                                     Text,
+                                     Reason,
+                                     [_el | __Els])
+    end;
+decode_sasl2_failure_els(__TopXMLNS, __Opts,
+                         [{xmlel, <<"incorrect-encoding">>, _attrs, _} = _el
+                          | _els],
+                         Text, Reason, __Els) ->
+    case xmpp_codec:get_attr(<<"xmlns">>,
+                             _attrs,
+                             __TopXMLNS)
+        of
+        <<"urn:ietf:params:xml:ns:xmpp-sasl">> ->
+            decode_sasl2_failure_els(__TopXMLNS,
+                                     __Opts,
+                                     _els,
+                                     Text,
+                                     rfc6120:decode_sasl_failure_incorrect_encoding(<<"urn:ietf:params:xml:ns:xmpp-sasl">>,
+                                                                                    __Opts,
+                                                                                    _el),
+                                     __Els);
+        _ ->
+            decode_sasl2_failure_els(__TopXMLNS,
+                                     __Opts,
+                                     _els,
+                                     Text,
+                                     Reason,
+                                     [_el | __Els])
+    end;
+decode_sasl2_failure_els(__TopXMLNS, __Opts,
+                         [{xmlel, <<"invalid-authzid">>, _attrs, _} = _el
+                          | _els],
+                         Text, Reason, __Els) ->
+    case xmpp_codec:get_attr(<<"xmlns">>,
+                             _attrs,
+                             __TopXMLNS)
+        of
+        <<"urn:ietf:params:xml:ns:xmpp-sasl">> ->
+            decode_sasl2_failure_els(__TopXMLNS,
+                                     __Opts,
+                                     _els,
+                                     Text,
+                                     rfc6120:decode_sasl_failure_invalid_authzid(<<"urn:ietf:params:xml:ns:xmpp-sasl">>,
+                                                                                 __Opts,
+                                                                                 _el),
+                                     __Els);
+        _ ->
+            decode_sasl2_failure_els(__TopXMLNS,
+                                     __Opts,
+                                     _els,
+                                     Text,
+                                     Reason,
+                                     [_el | __Els])
+    end;
+decode_sasl2_failure_els(__TopXMLNS, __Opts,
+                         [{xmlel, <<"invalid-mechanism">>, _attrs, _} = _el
+                          | _els],
+                         Text, Reason, __Els) ->
+    case xmpp_codec:get_attr(<<"xmlns">>,
+                             _attrs,
+                             __TopXMLNS)
+        of
+        <<"urn:ietf:params:xml:ns:xmpp-sasl">> ->
+            decode_sasl2_failure_els(__TopXMLNS,
+                                     __Opts,
+                                     _els,
+                                     Text,
+                                     rfc6120:decode_sasl_failure_invalid_mechanism(<<"urn:ietf:params:xml:ns:xmpp-sasl">>,
+                                                                                   __Opts,
+                                                                                   _el),
+                                     __Els);
+        _ ->
+            decode_sasl2_failure_els(__TopXMLNS,
+                                     __Opts,
+                                     _els,
+                                     Text,
+                                     Reason,
+                                     [_el | __Els])
+    end;
+decode_sasl2_failure_els(__TopXMLNS, __Opts,
+                         [{xmlel, <<"malformed-request">>, _attrs, _} = _el
+                          | _els],
+                         Text, Reason, __Els) ->
+    case xmpp_codec:get_attr(<<"xmlns">>,
+                             _attrs,
+                             __TopXMLNS)
+        of
+        <<"urn:ietf:params:xml:ns:xmpp-sasl">> ->
+            decode_sasl2_failure_els(__TopXMLNS,
+                                     __Opts,
+                                     _els,
+                                     Text,
+                                     rfc6120:decode_sasl_failure_malformed_request(<<"urn:ietf:params:xml:ns:xmpp-sasl">>,
+                                                                                   __Opts,
+                                                                                   _el),
+                                     __Els);
+        _ ->
+            decode_sasl2_failure_els(__TopXMLNS,
+                                     __Opts,
+                                     _els,
+                                     Text,
+                                     Reason,
+                                     [_el | __Els])
+    end;
+decode_sasl2_failure_els(__TopXMLNS, __Opts,
+                         [{xmlel, <<"mechanism-too-weak">>, _attrs, _} = _el
+                          | _els],
+                         Text, Reason, __Els) ->
+    case xmpp_codec:get_attr(<<"xmlns">>,
+                             _attrs,
+                             __TopXMLNS)
+        of
+        <<"urn:ietf:params:xml:ns:xmpp-sasl">> ->
+            decode_sasl2_failure_els(__TopXMLNS,
+                                     __Opts,
+                                     _els,
+                                     Text,
+                                     rfc6120:decode_sasl_failure_mechanism_too_weak(<<"urn:ietf:params:xml:ns:xmpp-sasl">>,
+                                                                                    __Opts,
+                                                                                    _el),
+                                     __Els);
+        _ ->
+            decode_sasl2_failure_els(__TopXMLNS,
+                                     __Opts,
+                                     _els,
+                                     Text,
+                                     Reason,
+                                     [_el | __Els])
+    end;
+decode_sasl2_failure_els(__TopXMLNS, __Opts,
+                         [{xmlel, <<"not-authorized">>, _attrs, _} = _el
+                          | _els],
+                         Text, Reason, __Els) ->
+    case xmpp_codec:get_attr(<<"xmlns">>,
+                             _attrs,
+                             __TopXMLNS)
+        of
+        <<"urn:ietf:params:xml:ns:xmpp-sasl">> ->
+            decode_sasl2_failure_els(__TopXMLNS,
+                                     __Opts,
+                                     _els,
+                                     Text,
+                                     rfc6120:decode_sasl_failure_not_authorized(<<"urn:ietf:params:xml:ns:xmpp-sasl">>,
+                                                                                __Opts,
+                                                                                _el),
+                                     __Els);
+        _ ->
+            decode_sasl2_failure_els(__TopXMLNS,
+                                     __Opts,
+                                     _els,
+                                     Text,
+                                     Reason,
+                                     [_el | __Els])
+    end;
+decode_sasl2_failure_els(__TopXMLNS, __Opts,
+                         [{xmlel, <<"bad-protocol">>, _attrs, _} = _el | _els],
+                         Text, Reason, __Els) ->
+    case xmpp_codec:get_attr(<<"xmlns">>,
+                             _attrs,
+                             __TopXMLNS)
+        of
+        <<"urn:ietf:params:xml:ns:xmpp-sasl">> ->
+            decode_sasl2_failure_els(__TopXMLNS,
+                                     __Opts,
+                                     _els,
+                                     Text,
+                                     rfc6120:decode_sasl_failure_bad_protocol(<<"urn:ietf:params:xml:ns:xmpp-sasl">>,
+                                                                              __Opts,
+                                                                              _el),
+                                     __Els);
+        _ ->
+            decode_sasl2_failure_els(__TopXMLNS,
+                                     __Opts,
+                                     _els,
+                                     Text,
+                                     Reason,
+                                     [_el | __Els])
+    end;
+decode_sasl2_failure_els(__TopXMLNS, __Opts,
+                         [{xmlel, <<"temporary-auth-failure">>, _attrs, _} = _el
+                          | _els],
+                         Text, Reason, __Els) ->
+    case xmpp_codec:get_attr(<<"xmlns">>,
+                             _attrs,
+                             __TopXMLNS)
+        of
+        <<"urn:ietf:params:xml:ns:xmpp-sasl">> ->
+            decode_sasl2_failure_els(__TopXMLNS,
+                                     __Opts,
+                                     _els,
+                                     Text,
+                                     rfc6120:decode_sasl_failure_temporary_auth_failure(<<"urn:ietf:params:xml:ns:xmpp-sasl">>,
+                                                                                        __Opts,
+                                                                                        _el),
+                                     __Els);
+        _ ->
+            decode_sasl2_failure_els(__TopXMLNS,
+                                     __Opts,
+                                     _els,
+                                     Text,
+                                     Reason,
+                                     [_el | __Els])
+    end;
+decode_sasl2_failure_els(__TopXMLNS, __Opts,
+                         [{xmlel, _name, _attrs, _} = _el | _els], Text, Reason,
                          __Els) ->
     case proplists:get_bool(ignore_els, __Opts) of
         true ->
@@ -694,6 +998,7 @@ decode_sasl2_failure_els(__TopXMLNS, __Opts,
                                      __Opts,
                                      _els,
                                      Text,
+                                     Reason,
                                      [_el | __Els]);
         false ->
             __XMLNS = xmpp_codec:get_attr(<<"xmlns">>,
@@ -705,12 +1010,14 @@ decode_sasl2_failure_els(__TopXMLNS, __Opts,
                                              __Opts,
                                              _els,
                                              Text,
+                                             Reason,
                                              [_el | __Els]);
                 Mod ->
                     decode_sasl2_failure_els(__TopXMLNS,
                                              __Opts,
                                              _els,
                                              Text,
+                                             Reason,
                                              [Mod:do_decode(_name,
                                                             __XMLNS,
                                                             _el,
@@ -719,14 +1026,18 @@ decode_sasl2_failure_els(__TopXMLNS, __Opts,
             end
     end;
 decode_sasl2_failure_els(__TopXMLNS, __Opts, [_ | _els],
-                         Text, __Els) ->
+                         Text, Reason, __Els) ->
     decode_sasl2_failure_els(__TopXMLNS,
                              __Opts,
                              _els,
                              Text,
+                             Reason,
                              __Els).
 
-encode_sasl2_failure({sasl2_failure, Text, __Els},
+encode_sasl2_failure({sasl2_failure,
+                      Reason,
+                      Text,
+                      __Els},
                      __TopXMLNS) ->
     __NewTopXMLNS =
         xmpp_codec:choose_top_xmlns(<<"urn:xmpp:sasl:2">>,
@@ -737,7 +1048,9 @@ encode_sasl2_failure({sasl2_failure, Text, __Els},
                ++
                lists:reverse('encode_sasl2_failure_$text'(Text,
                                                           __NewTopXMLNS,
-                                                          [])),
+                                                          'encode_sasl2_failure_$reason'(Reason,
+                                                                                         __NewTopXMLNS,
+                                                                                         []))),
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
                                         __TopXMLNS),
     {xmlel, <<"failure">>, _attrs, _els}.
@@ -747,6 +1060,79 @@ encode_sasl2_failure({sasl2_failure, Text, __Els},
     _acc;
 'encode_sasl2_failure_$text'(Text, __TopXMLNS, _acc) ->
     [encode_sasl2_text(Text, __TopXMLNS) | _acc].
+
+'encode_sasl2_failure_$reason'(undefined, __TopXMLNS,
+                               _acc) ->
+    _acc;
+'encode_sasl2_failure_$reason'(aborted = Reason,
+                               __TopXMLNS, _acc) ->
+    [rfc6120:encode_sasl_failure_aborted(Reason, __TopXMLNS)
+     | _acc];
+'encode_sasl2_failure_$reason'('account-disabled' =
+                                   Reason,
+                               __TopXMLNS, _acc) ->
+    [rfc6120:encode_sasl_failure_account_disabled(Reason,
+                                                  __TopXMLNS)
+     | _acc];
+'encode_sasl2_failure_$reason'('credentials-expired' =
+                                   Reason,
+                               __TopXMLNS, _acc) ->
+    [rfc6120:encode_sasl_failure_credentials_expired(Reason,
+                                                     __TopXMLNS)
+     | _acc];
+'encode_sasl2_failure_$reason'('encryption-required' =
+                                   Reason,
+                               __TopXMLNS, _acc) ->
+    [rfc6120:encode_sasl_failure_encryption_required(Reason,
+                                                     __TopXMLNS)
+     | _acc];
+'encode_sasl2_failure_$reason'('incorrect-encoding' =
+                                   Reason,
+                               __TopXMLNS, _acc) ->
+    [rfc6120:encode_sasl_failure_incorrect_encoding(Reason,
+                                                    __TopXMLNS)
+     | _acc];
+'encode_sasl2_failure_$reason'('invalid-authzid' =
+                                   Reason,
+                               __TopXMLNS, _acc) ->
+    [rfc6120:encode_sasl_failure_invalid_authzid(Reason,
+                                                 __TopXMLNS)
+     | _acc];
+'encode_sasl2_failure_$reason'('invalid-mechanism' =
+                                   Reason,
+                               __TopXMLNS, _acc) ->
+    [rfc6120:encode_sasl_failure_invalid_mechanism(Reason,
+                                                   __TopXMLNS)
+     | _acc];
+'encode_sasl2_failure_$reason'('malformed-request' =
+                                   Reason,
+                               __TopXMLNS, _acc) ->
+    [rfc6120:encode_sasl_failure_malformed_request(Reason,
+                                                   __TopXMLNS)
+     | _acc];
+'encode_sasl2_failure_$reason'('mechanism-too-weak' =
+                                   Reason,
+                               __TopXMLNS, _acc) ->
+    [rfc6120:encode_sasl_failure_mechanism_too_weak(Reason,
+                                                    __TopXMLNS)
+     | _acc];
+'encode_sasl2_failure_$reason'('not-authorized' =
+                                   Reason,
+                               __TopXMLNS, _acc) ->
+    [rfc6120:encode_sasl_failure_not_authorized(Reason,
+                                                __TopXMLNS)
+     | _acc];
+'encode_sasl2_failure_$reason'('bad-protocol' = Reason,
+                               __TopXMLNS, _acc) ->
+    [rfc6120:encode_sasl_failure_bad_protocol(Reason,
+                                              __TopXMLNS)
+     | _acc];
+'encode_sasl2_failure_$reason'('temporary-auth-failure' =
+                                   Reason,
+                               __TopXMLNS, _acc) ->
+    [rfc6120:encode_sasl_failure_temporary_auth_failure(Reason,
+                                                        __TopXMLNS)
+     | _acc].
 
 decode_sasl2_authorization_identifier(__TopXMLNS,
                                       __Opts,
