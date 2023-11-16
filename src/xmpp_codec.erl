@@ -304,17 +304,12 @@ get_mod(<<"gone">>,
 get_mod(<<"response">>,
         <<"urn:ietf:params:xml:ns:xmpp-sasl">>) ->
     rfc6120;
-get_mod(<<"REGION">>, <<"vcard-temp">>) -> xep0054;
 get_mod(<<"create">>,
         <<"http://jabber.org/protocol/pubsub#event">>) ->
     xep0060;
 get_mod(<<"offline">>,
         <<"http://jabber.org/protocol/offline">>) ->
     xep0013;
-get_mod(<<"nick">>, <<"urn:xmpp:mix:presence:0">>) ->
-    xep0369;
-get_mod(<<"leave">>, <<"urn:xmpp:mix:core:1">>) ->
-    xep0369;
 get_mod(<<"actions">>,
         <<"http://jabber.org/protocol/commands">>) ->
     xep0050;
@@ -567,6 +562,7 @@ get_mod(<<"stream:stream">>, <<"jabber:client">>) ->
 get_mod(<<"data">>, <<"urn:xmpp:bob">>) -> xep0231;
 get_mod(<<"success">>, <<"urn:xmpp:jingle:1">>) ->
     xep0166;
+get_mod(<<"bound">>, <<"urn:xmpp:bind:0">>) -> xep0386;
 get_mod(<<"method">>,
         <<"http://jabber.org/protocol/compress">>) ->
     xep0138;
@@ -783,6 +779,7 @@ get_mod(<<"method">>,
 get_mod(<<"invalid-jid">>,
         <<"http://jabber.org/protocol/pubsub#errors">>) ->
     xep0060;
+get_mod(<<"tag">>, <<"urn:xmpp:bind:0">>) -> xep0386;
 get_mod(<<"iq">>, <<"jabber:client">>) -> rfc6120;
 get_mod(<<"LOCALITY">>, <<"vcard-temp">>) -> xep0054;
 get_mod(<<"inactive">>,
@@ -1066,6 +1063,7 @@ get_mod(<<"response">>, <<"urn:xmpp:sasl:2">>) ->
 get_mod(<<"authorization-identifier">>,
         <<"urn:xmpp:sasl:2">>) ->
     xep0388;
+get_mod(<<"bind">>, <<"urn:xmpp:bind:0">>) -> xep0386;
 get_mod(<<"MODEM">>, <<"vcard-temp">>) -> xep0054;
 get_mod(<<"ORGUNIT">>, <<"vcard-temp">>) -> xep0054;
 get_mod(<<"UID">>, <<"vcard-temp">>) -> xep0054;
@@ -1628,6 +1626,7 @@ get_mod(<<"received">>, <<"urn:xmpp:receipts">>) ->
     xep0184;
 get_mod(<<"software">>, <<"urn:xmpp:sasl:2">>) ->
     xep0388;
+get_mod(<<"inline">>, <<"urn:xmpp:bind:0">>) -> xep0386;
 get_mod(<<"report">>, <<"urn:xmpp:reporting:0">>) ->
     xep0377;
 get_mod(<<"item-not-found">>,
@@ -1703,6 +1702,11 @@ get_mod(<<"active">>, <<"urn:xmpp:csi:0">>) -> xep0352;
 get_mod(<<"slot">>, <<"urn:xmpp:http:upload">>) ->
     xep0363;
 get_mod(<<"digest">>, <<"jabber:iq:auth">>) -> xep0078;
+get_mod(<<"REGION">>, <<"vcard-temp">>) -> xep0054;
+get_mod(<<"nick">>, <<"urn:xmpp:mix:presence:0">>) ->
+    xep0369;
+get_mod(<<"leave">>, <<"urn:xmpp:mix:core:1">>) ->
+    xep0369;
 get_mod(Name, XMLNS) ->
     xmpp_codec_external:lookup(Name, XMLNS).
 
@@ -1736,6 +1740,7 @@ get_mod({origin_id, _}) -> xep0359;
 get_mod({hash_used, _}) -> xep0300;
 get_mod({x509_ca_list, _}) -> xep0417;
 get_mod({occupant_id, _}) -> xep0421;
+get_mod({bind2_bound, _}) -> xep0386;
 get_mod({disco_items, _, _, _}) -> xep0030;
 get_mod({vcard_xupdate, _}) -> xep0153;
 get_mod({sasl2_challenge, _}) -> xep0388;
@@ -2020,6 +2025,7 @@ get_mod({vcard_sound, _, _, _}) -> xep0054;
 get_mod({ps_retract, _, _, _}) -> xep0060;
 get_mod({privilege_perm, _, _}) -> xep0356;
 get_mod({sasl2_user_agent, _, _, _}) -> xep0388;
+get_mod({bind2_bind, _, _, _}) -> xep0386;
 get_mod({vcard_adr,
          _,
          _,

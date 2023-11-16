@@ -5413,6 +5413,38 @@
                         min = 0, max = 1}],
            result = {sasl2_abort, '$text', '$_els'}}).
 
+-xml(bind2_bind,
+     #elem{name = <<"bind">>,
+           xmlns = <<"urn:xmpp:bind:0">>,
+	   module = 'xep0386',
+	   refs = [#ref{name = bind2_inline,
+	                label = '$inline',
+	                min = 0, max = 1},
+                   #ref{name = bind2_tag,
+                        label = '$tag',
+                        min = 0, max = 1}],
+           result = {bind2_bind, '$tag', '$inline', '$_els'}}).
+
+-xml(bind2_inline,
+     #elem{name = <<"inline">>,
+           xmlns = <<"urn:xmpp:bind:0">>,
+	   module = 'xep0386',
+           result = '$_els'}).
+
+-xml(bind2_tag,
+     #elem{name = <<"tag">>,
+           xmlns = <<"urn:xmpp:bind:0">>,
+	   module = 'xep0386',
+	   cdata = #cdata{label = '$tag',
+	                  required = true},
+           result = '$tag'}).
+
+-xml(bind2_bound,
+     #elem{name = <<"bound">>,
+           xmlns = <<"urn:xmpp:bind:0">>,
+	   module = 'xep0386',
+           result = {bind2_bound, '$_els'}}).
+
 -spec dec_tzo(_) -> {integer(), integer()}.
 dec_tzo(Val) ->
     [H1, M1] = binary:split(Val, <<":">>),
