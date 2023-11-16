@@ -171,65 +171,51 @@ mech_step(#state{step = 2, algo = Algo} = State, ClientIn) ->
     end;
 mech_step(#state{step = 4, algo = Algo} = State, ClientIn) ->
     case tokens(ClientIn, <<",">>) of
-      [GS2ChannelBindingAttribute, NonceAttribute,
-       ClientProofAttribute] ->
-	  case parse_attribute(GS2ChannelBindingAttribute) of
-	    {$c, CVal} ->
-		ChannelBindingSupport = try base64:decode(CVal)
-					catch _:badarg -> <<>>
-					end,
-		case cbind_verify(State, ChannelBindingSupport) of
-	          true ->
+	#{$c := ClientBinding, $r := ClientNonce, $p := ClientProofB64} ->
+	    ChannelBindingSupport = try base64:decode(ClientBinding)
+				    catch _:badarg -> <<>>
+				    end,
+	    case cbind_verify(State, ChannelBindingSupport) of
+		true ->
 		    Nonce = <<(State#state.client_nonce)/binary,
-				(State#state.server_nonce)/binary>>,
-		    case parse_attribute(NonceAttribute) of
-			{$r, CompareNonce} when CompareNonce == Nonce ->
-			    case parse_attribute(ClientProofAttribute) of
-			    {$p, ClientProofB64} ->
-				  ClientProof = try base64:decode(ClientProofB64)
-						catch _:badarg -> <<>>
-						end,
-				  AuthMessage = iolist_to_binary(
-						    [State#state.auth_message,
-						     ",",
-						     substr(ClientIn, 1,
-								    str(ClientIn, <<",p=">>)
-								    - 1)]),
-				  ClientSignature =
-				    scram:client_signature(Algo, State#state.stored_key,
-							     AuthMessage),
-				  if
-                                      size(ClientProof) /= size(ClientSignature) ->
-                                          {error, bad_attribute};
-                                      true ->
-                                          ClientKey = scram:client_key_xor(ClientProof,
-                                                                           ClientSignature),
-                                          CompareStoredKey = scram:stored_key(Algo, ClientKey),
-                                          if
-                                              CompareStoredKey == State#state.stored_key ->
-                                                  ServerSignature =
-                                                  scram:server_signature(Algo,
-                                                                         State#state.server_key,
-                                                                         AuthMessage),
-                                                  {ok, [{username, State#state.username},
-                                                        {auth_module, State#state.auth_module},
-                                                        {authzid, State#state.username}],
-                                                   <<"v=",
-                                                     (base64:encode(ServerSignature))/binary>>};
-                                              true ->
-                                                  {error, not_authorized, State#state.username}
-                                          end
-				  end;
-			    _ -> {error, bad_attribute}
+			      (State#state.server_nonce)/binary>>,
+		    if
+			ClientNonce == Nonce ->
+			    ClientProof = try base64:decode(ClientProofB64)
+					  catch _:badarg -> <<>>
+					  end,
+			    AuthMessage = iolist_to_binary(
+				[State#state.auth_message, ",",
+				 substr(ClientIn, 1, str(ClientIn, <<",p=">>) - 1)]),
+			    ClientSignature = scram:client_signature(Algo, State#state.stored_key,
+								     AuthMessage),
+			    if
+				size(ClientProof) /= size(ClientSignature) ->
+				    {error, bad_attribute};
+				true ->
+				    ClientKey =
+				    scram:client_key_xor(ClientProof, ClientSignature),
+				    CompareStoredKey = scram:stored_key(Algo, ClientKey),
+				    if
+					CompareStoredKey == State#state.stored_key ->
+					    ServerSignature =
+					    scram:server_signature(Algo,
+								   State#state.server_key,
+								   AuthMessage),
+					    {ok, [{username, State#state.username},
+						  {auth_module, State#state.auth_module},
+						  {authzid, State#state.username}],
+					     <<"v=", (base64:encode(ServerSignature))/binary>>};
+					true ->
+					    {error, not_authorized, State#state.username}
+				    end
 			    end;
-			{$r, _} -> {error, nonce_mismatch};
-			_ -> {error, bad_attribute}
+			true -> {error, nonce_mismatch}
 		    end;
-		  _ -> {error, bad_channel_binding}
-		end;
-	    _ -> {error, bad_attribute}
-	  end;
-      _ -> {error, parser_failed}
+		_ -> {error, bad_channel_binding}
+	    end;
+	_ ->
+	    {error, parser_failed}
     end.
 
 cbind_valid(#state{cb_socket = Sock}, <<"p=tls-unique">>) when Sock /= none ->
@@ -326,7 +312,10 @@ substr(B, N) ->
 substr(B, S, E) ->
     binary_part(B, S-1, E).
 
--spec tokens(binary(), binary()) -> [binary()].
+-spec tokens(binary(), binary()) -> map().
 tokens(B1, B2) ->
-    [iolist_to_binary(T) ||
-        T <- string:tokens(binary_to_list(B1), binary_to_list(B2))].
+    lists:foldl(
+	fun(<<Id, "=", Value/binary>>, Acc) when is_map(Acc) ->
+	    maps:put(Id, Value, Acc);
+	   (_, _) -> error
+	end, #{}, binary:split(B1, B2, [global])).
