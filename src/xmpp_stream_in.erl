@@ -1020,12 +1020,15 @@ process_sasl_failure(Err, User,
 process_sasl_abort(State) ->
     process_sasl_failure(aborted, <<"">>, State).
 
--spec process_sasl2_request(sasl_auth(), state()) -> state().
+-spec process_sasl2_request(sasl2_authenticate(), state()) -> state().
 process_sasl2_request(#sasl2_authenticate{mechanism = Mech, initial_response = ClientIn} = Pkt,
 		     #{lserver := LServer, socket := Socket} = State) ->
     State1 = State#{sasl_mech => Mech},
     Mechs = get_sasl_mechanisms(State1),
-    SaslInline = (xmpp:decode_els(Pkt))#sasl2_authenticate.sub_els,
+    SaslInline = try xmpp:decode_els(Pkt) of
+		     #sasl2_authenticate{sub_els = SubEls} -> SubEls
+		 catch _:{xmpp_codec, _} -> []
+		 end,
     case lists:member(Mech, Mechs) of
 	true when Mech == <<"EXTERNAL">> ->
 	    Res = case xmpp_stream_pkix:authenticate(State1, ClientIn) of
@@ -1047,7 +1050,7 @@ process_sasl2_request(#sasl2_authenticate{mechanism = Mech, initial_response = C
 	    process_sasl2_result({error, unsupported_mechanism, <<"">>}, State1)
     end.
 
--spec process_sasl2_response(sasl_response(), state()) -> state().
+-spec process_sasl2_response(sasl2_response(), state()) -> state().
 process_sasl2_response(#sasl2_response{text = ClientIn},
 		      #{sasl_state := SASLState} = State) ->
     SASLResult = xmpp_sasl:server_step(SASLState, ClientIn),
@@ -1108,10 +1111,12 @@ process_sasl2_success(Props, ServerOut,
 	    end
     end.
 
+-spec process_bind2(state(), [xmpp_element()]) -> {state(), [xmpp_element()]}.
 process_bind2(State, Els) ->
     case lists:keyfind(bind2_bind, 1, Els) of
 	#bind2_bind{tag = Tag} ->
 	    Resource = case Tag of
+			   undefined -> <<>>;
 			   <<>> -> <<>>;
 			   _ -> <<Tag/binary, ".", (p1_rand:get_string())/binary>>
 		       end,
@@ -1119,12 +1124,13 @@ process_bind2(State, Els) ->
 		{ok, State1} ->
 		    {State1, [#bind2_bound{}]};
 		_ ->
-		    State
+		    {State, []}
 	    end;
 	_ ->
 	    {State, []}
     end.
 
+-spec process_bind2_post(state(), [xmpp_element()], [xmpp_element()]) -> state().
 process_bind2_post(State, Inline, Results) ->
     case lists:keyfind(bind2_bound, 1, Results) of
 	#bind2_bound{} ->
@@ -1140,10 +1146,10 @@ process_bind2_post(State, Inline, Results) ->
 	    send_features(State3);
 	_ ->
 	    case lists:keyfind(sm_resumed, 1, Inline) of
-		true ->
-		    State;
+		false ->
+		    send_features(State#{stream_state => wait_for_bind});
 		_ ->
-		    send_features(State#{stream_state => wait_for_bind})
+		    State
 	    end
     end.
 
@@ -1176,7 +1182,9 @@ process_sasl2_continue(ServerOut, NewSASLState, State) ->
 		    stream_state => wait_for_sasl2_response},
     send_pkt(State1, #sasl2_challenge{text = ServerOut}).
 
-process_sasl2_abort(A) -> A.
+-spec process_sasl2_abort(state()) -> state().
+process_sasl2_abort(State) ->
+    process_sasl2_failure(aborted, <<"">>, State).
 
 -spec disable_sasl2(state()) -> state().
 disable_sasl2(State) ->
@@ -1253,7 +1261,7 @@ get_sasl_mechanisms(#{stream_encrypted := Encrypted,
     catch _:{?MODULE, undef} -> Mechs1
     end.
 
--spec get_sasl_feature(state()) -> [sasl_mechanisms()].
+-spec get_sasl_feature(state()) -> [sasl_mechanisms() | sasl_channel_binding()].
 get_sasl_feature(#{stream_authenticated := false,
 		   stream_encrypted := Encrypted} = State) ->
     TLSRequired = is_starttls_required(State),
@@ -1272,7 +1280,7 @@ get_sasl_feature(#{stream_authenticated := false,
 get_sasl_feature(_) ->
     [].
 
--spec get_sasl2_feature(state()) -> [sasl2_authenticaton()].
+-spec get_sasl2_feature(state()) -> [sasl2_authenticaton() | sasl_channel_binding()].
 get_sasl2_feature(#{stream_authenticated := false,
 		    stream_encrypted := Encrypted} = State) when Encrypted ->
     Mechs = get_sasl_mechanisms(State),
@@ -1471,7 +1479,8 @@ send_trailer(State) ->
     socket_send(State, trailer),
     close_socket(State).
 
--spec socket_send(state(), xmpp_element() | xmlel() | trailer) -> ok | {error, inet:posix()}.
+-spec socket_send(state(), xmpp_element() | xmlel() | trailer) ->
+    ok | {error, inet:posix() | closed}.
 socket_send(#{socket := Sock,
 	      stream_state := StateName,
 	      xmlns := NS,
