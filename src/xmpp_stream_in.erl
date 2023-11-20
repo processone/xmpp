@@ -1128,12 +1128,8 @@ process_bind2(State, Els) ->
 		       end,
 	    case callback(bind, Resource, State) of
 		{ok, State1} ->
-		    SubEls2 = case SubEls of
-				  undefined -> [];
-				  _ -> SubEls
-			      end,
 		    {State2, _, ResultEls} =
-		    try callback(handle_bind2_inline, SubEls2, State1)
+		    try callback(handle_bind2_inline, SubEls, State1)
 		    catch _:{?MODULE, undef} -> {State1, []}
 		    end,
 		    {State2, [#bind2_bound{sub_els = ResultEls}]};
@@ -1152,11 +1148,7 @@ process_bind2_post(State, Inline, Results) ->
 	    State3 =
 	    case lists:keyfind(bind2_bind, 1, Inline) of
 		#bind2_bind{sub_els = SubEls} ->
-		    SubEls2 = case SubEls of
-				 undefined -> [];
-				 _ -> SubEls
-			     end,
-		    try callback(handle_bind2_inline_post, SubEls2, BoundInline, State2)
+		    try callback(handle_bind2_inline_post, SubEls, BoundInline, State2)
 		    catch _:{?MODULE, undef} -> State2
 		    end;
 		_ -> State2
