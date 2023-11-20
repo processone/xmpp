@@ -5445,6 +5445,15 @@
 	   module = 'xep0386',
            result = {bind2_bound, '$_els'}}).
 
+-xml(bind2_feature,
+     #elem{name = <<"feature">>,
+           xmlns = <<"urn:xmpp:bind:0">>,
+	   module = 'xep0386',
+	   attrs = [#attr{name = <<"var">>,
+	                  label = '$var',
+			  required = true}],
+           result = {bind2_feature, '$var'}}).
+
 -spec dec_tzo(_) -> {integer(), integer()}.
 dec_tzo(Val) ->
     [H1, M1] = binary:split(Val, <<":">>),

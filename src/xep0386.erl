@@ -5,6 +5,9 @@
 
 -compile(export_all).
 
+do_decode(<<"feature">>, <<"urn:xmpp:bind:0">>, El,
+          Opts) ->
+    decode_bind2_feature(<<"urn:xmpp:bind:0">>, Opts, El);
 do_decode(<<"bound">>, <<"urn:xmpp:bind:0">>, El,
           Opts) ->
     decode_bind2_bound(<<"urn:xmpp:bind:0">>, Opts, El);
@@ -22,7 +25,8 @@ do_decode(Name, XMLNS, _, _) ->
     erlang:error({xmpp_codec, {unknown_tag, Name, XMLNS}}).
 
 tags() ->
-    [{<<"bound">>, <<"urn:xmpp:bind:0">>},
+    [{<<"feature">>, <<"urn:xmpp:bind:0">>},
+     {<<"bound">>, <<"urn:xmpp:bind:0">>},
      {<<"tag">>, <<"urn:xmpp:bind:0">>},
      {<<"inline">>, <<"urn:xmpp:bind:0">>},
      {<<"bind">>, <<"urn:xmpp:bind:0">>}].
@@ -30,14 +34,18 @@ tags() ->
 do_encode({bind2_bind, _, _, _} = Bind, TopXMLNS) ->
     encode_bind2_bind(Bind, TopXMLNS);
 do_encode({bind2_bound, _} = Bound, TopXMLNS) ->
-    encode_bind2_bound(Bound, TopXMLNS).
+    encode_bind2_bound(Bound, TopXMLNS);
+do_encode({bind2_feature, _} = Feature, TopXMLNS) ->
+    encode_bind2_feature(Feature, TopXMLNS).
 
 do_get_name({bind2_bind, _, _, _}) -> <<"bind">>;
-do_get_name({bind2_bound, _}) -> <<"bound">>.
+do_get_name({bind2_bound, _}) -> <<"bound">>;
+do_get_name({bind2_feature, _}) -> <<"feature">>.
 
 do_get_ns({bind2_bind, _, _, _}) ->
     <<"urn:xmpp:bind:0">>;
-do_get_ns({bind2_bound, _}) -> <<"urn:xmpp:bind:0">>.
+do_get_ns({bind2_bound, _}) -> <<"urn:xmpp:bind:0">>;
+do_get_ns({bind2_feature, _}) -> <<"urn:xmpp:bind:0">>.
 
 get_els({bind2_bind, _tag, _inline, _sub_els}) ->
     _sub_els;
@@ -50,9 +58,47 @@ set_els({bind2_bound, _}, _sub_els) ->
 
 pp(bind2_bind, 3) -> [tag, inline, sub_els];
 pp(bind2_bound, 1) -> [sub_els];
+pp(bind2_feature, 1) -> [var];
 pp(_, _) -> no.
 
-records() -> [{bind2_bind, 3}, {bind2_bound, 1}].
+records() ->
+    [{bind2_bind, 3}, {bind2_bound, 1}, {bind2_feature, 1}].
+
+decode_bind2_feature(__TopXMLNS, __Opts,
+                     {xmlel, <<"feature">>, _attrs, _els}) ->
+    Var = decode_bind2_feature_attrs(__TopXMLNS,
+                                     _attrs,
+                                     undefined),
+    {bind2_feature, Var}.
+
+decode_bind2_feature_attrs(__TopXMLNS,
+                           [{<<"var">>, _val} | _attrs], _Var) ->
+    decode_bind2_feature_attrs(__TopXMLNS, _attrs, _val);
+decode_bind2_feature_attrs(__TopXMLNS, [_ | _attrs],
+                           Var) ->
+    decode_bind2_feature_attrs(__TopXMLNS, _attrs, Var);
+decode_bind2_feature_attrs(__TopXMLNS, [], Var) ->
+    decode_bind2_feature_attr_var(__TopXMLNS, Var).
+
+encode_bind2_feature({bind2_feature, Var},
+                     __TopXMLNS) ->
+    __NewTopXMLNS =
+        xmpp_codec:choose_top_xmlns(<<"urn:xmpp:bind:0">>,
+                                    [],
+                                    __TopXMLNS),
+    _els = [],
+    _attrs = encode_bind2_feature_attr_var(Var,
+                                           xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
+                                                                      __TopXMLNS)),
+    {xmlel, <<"feature">>, _attrs, _els}.
+
+decode_bind2_feature_attr_var(__TopXMLNS, undefined) ->
+    erlang:error({xmpp_codec,
+                  {missing_attr, <<"var">>, <<"feature">>, __TopXMLNS}});
+decode_bind2_feature_attr_var(__TopXMLNS, _val) -> _val.
+
+encode_bind2_feature_attr_var(_val, _acc) ->
+    [{<<"var">>, _val} | _acc].
 
 decode_bind2_bound(__TopXMLNS, __Opts,
                    {xmlel, <<"bound">>, _attrs, _els}) ->

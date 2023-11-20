@@ -254,6 +254,9 @@
                     sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
 -type db_result() :: #db_result{}.
 
+-record(bind2_feature, {var = <<>> :: binary()}).
+-type bind2_feature() :: #bind2_feature{}.
+
 -record(sasl2_challenge, {text = <<>> :: binary()}).
 -type sasl2_challenge() :: #sasl2_challenge{}.
 
@@ -1356,6 +1359,7 @@
                         bind() |
                         bind2_bind() |
                         bind2_bound() |
+                        bind2_feature() |
                         block() |
                         block_item() |
                         block_list() |

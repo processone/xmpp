@@ -936,6 +936,8 @@ get_mod(<<"bind">>,
     rfc6120;
 get_mod(<<"enable">>, <<"urn:xmpp:carbons:2">>) ->
     xep0280;
+get_mod(<<"feature">>, <<"urn:xmpp:bind:0">>) ->
+    xep0386;
 get_mod(<<"block">>, <<"urn:xmpp:blocking">>) ->
     xep0191;
 get_mod(<<"delete">>,
@@ -1744,6 +1746,7 @@ get_mod({bind2_bound, _}) -> xep0386;
 get_mod({disco_items, _, _, _}) -> xep0030;
 get_mod({vcard_xupdate, _}) -> xep0153;
 get_mod({sasl2_challenge, _}) -> xep0388;
+get_mod({bind2_feature, _}) -> xep0386;
 get_mod({block_item, _, _}) -> xep0191;
 get_mod({message, _, _, _, _, _, _, _, _, _, _}) ->
     rfc6120;
@@ -1796,14 +1799,11 @@ get_mod({mam_archived, _, _}) -> xep0313;
 get_mod({delegated, _, _}) -> xep0355;
 get_mod({text, _, _}) -> xep0234;
 get_mod({muc_hat, _, _}) -> xep0317;
-get_mod({bookmark_storage, _, _}) -> xep0048;
-get_mod({sasl_failure, _, _}) -> rfc6120;
 get_mod({xmpp_session, _}) -> rfc3921;
 get_mod({ping}) -> xep0199;
 get_mod({time, _, _}) -> xep0202;
 get_mod({ps_subscribe, _, _}) -> xep0060;
 get_mod({adhoc_actions, _, _, _, _}) -> xep0050;
-get_mod({adhoc_note, _, _}) -> xep0050;
 get_mod({push_disable, _, _}) -> xep0357;
 get_mod({push_notification, _}) -> xep0357;
 get_mod({disco_item, _, _, _}) -> xep0030;
@@ -2076,4 +2076,7 @@ get_mod({forwarded, _, _}) -> xep0297;
 get_mod({feature_sm, _}) -> xep0198;
 get_mod({stanza_id, _, _}) -> xep0359;
 get_mod({jingle_ft_received, _, _}) -> xep0234;
+get_mod({bookmark_storage, _, _}) -> xep0048;
+get_mod({sasl_failure, _, _}) -> rfc6120;
+get_mod({adhoc_note, _, _}) -> xep0050;
 get_mod(Record) -> xmpp_codec_external:lookup(Record).

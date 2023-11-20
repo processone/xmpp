@@ -1120,7 +1120,7 @@ process_sasl2_success(Props, ServerOut,
 -spec process_bind2(state(), [xmpp_element()]) -> {state(), [xmpp_element()]}.
 process_bind2(State, Els) ->
     case lists:keyfind(bind2_bind, 1, Els) of
-	#bind2_bind{tag = Tag} ->
+	#bind2_bind{tag = Tag, sub_els = SubEls} = T ->
 	    Resource = case Tag of
 			   undefined -> <<>>;
 			   <<>> -> <<>>;
@@ -1128,7 +1128,15 @@ process_bind2(State, Els) ->
 		       end,
 	    case callback(bind, Resource, State) of
 		{ok, State1} ->
-		    {State1, [#bind2_bound{}]};
+		    SubEls2 = case SubEls of
+				  undefined -> [];
+				  _ -> SubEls
+			      end,
+		    {State2, _, ResultEls} =
+		    try callback(handle_bind2_inline, SubEls2, State1)
+		    catch _:{?MODULE, undef} -> {State1, []}
+		    end,
+		    {State2, [#bind2_bound{sub_els = ResultEls}]};
 		_ ->
 		    {State, []}
 	    end;
@@ -1139,12 +1147,16 @@ process_bind2(State, Els) ->
 -spec process_bind2_post(state(), [xmpp_element()], [xmpp_element()]) -> state().
 process_bind2_post(State, Inline, Results) ->
     case lists:keyfind(bind2_bound, 1, Results) of
-	#bind2_bound{} ->
+	#bind2_bound{sub_els = BoundInline} ->
 	    State2 = process_stream_established(State),
 	    State3 =
 	    case lists:keyfind(bind2_bind, 1, Inline) of
-		#bind2_bind{inline = BindInline} ->
-		    try callback(handle_bind2_inline, BindInline, State2)
+		#bind2_bind{sub_els = SubEls} ->
+		    SubEls2 = case SubEls of
+				 undefined -> [];
+				 _ -> SubEls
+			     end,
+		    try callback(handle_bind2_inline_post, SubEls2, BoundInline, State2)
 		    catch _:{?MODULE, undef} -> State2
 		    end;
 		_ -> State2
