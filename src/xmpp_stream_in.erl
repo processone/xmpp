@@ -1069,44 +1069,50 @@ process_sasl2_result({error, Reason, User}, State) ->
 -spec process_sasl2_success([xmpp_sasl:sasl_property()], binary(), state()) -> state().
 process_sasl2_success(Props, ServerOut,
 		     #{sasl_mech := Mech, server := Server,
-		       sasl_inline_els := InlineEls} = State) ->
+		       sasl_inline_els := InlineEls,
+		       client_stream_from := #jid{luser = InitUser}} = State) ->
     User = identity(Props),
-    AuthModule = proplists:get_value(auth_module, Props),
-    State1 = try callback(handle_auth_success, User, Mech, AuthModule, State)
-	     catch _:{?MODULE, undef} -> State
-	     end,
-    case is_disconnected(State1) of
-	true -> State1;
-	false ->
-	    State2 = State1#{stream_id => xmpp_stream:new_id(),
-			     stream_authenticated => true,
-			     user => User},
-	    {State3, NewEls, Results} =
-	    try callback(handle_sasl2_inline, InlineEls, State2)
-	    catch _:{?MODULE, undef} -> {State2, InlineEls, []}
-	    end,
+    if InitUser /= User ->
+	process_sasl2_failure(not_authorized, User, State);
+	true ->
+	    AuthModule = proplists:get_value(auth_module, Props),
+	    State1 = try callback(handle_auth_success, User, Mech, AuthModule, State)
+		     catch _:{?MODULE, undef} -> State
+		     end,
+	    case is_disconnected(State1) of
+		true -> State1;
+		false ->
+		    State2 = State1#{stream_id => xmpp_stream:new_id(),
+				     stream_authenticated => true,
+				     user => User},
+		    {State3, NewEls, Results} =
+		    try callback(handle_sasl2_inline, InlineEls, State2)
+		    catch _:{?MODULE, undef} -> {State2, InlineEls, []}
+		    end,
 
-	    {State4, BindResults} = process_bind2(State3, NewEls),
-	    Results2 = Results ++ BindResults,
+		    {State4, BindResults} = process_bind2(State3, NewEls),
+		    Results2 = Results ++ BindResults,
 
-	    NewJid = jid:make(User, Server, maps:get(resource, State4, <<>>)),
-	    State5 = send_pkt(State4, #sasl2_success{additional_data = ServerOut,
-						     sub_els = Results2,
-						     jid = NewJid}),
-	    case is_disconnected(State5) of
-		true -> State5;
-		_ ->
-		    State6 = try callback(handle_sasl2_inline_post, InlineEls, Results2, State5)
-			     catch _:{?MODULE, undef} -> State5
-			     end,
-		    State7 = process_bind2_post(State6, NewEls, Results2),
-		    case is_disconnected(State7) of
-			true -> State7;
-			false ->
-			    maps:remove(client_stream_from,
-				maps:remove(sasl_inline_els,
-				maps:remove(sasl_state,
-				maps:remove(sasl_mech, State7))))
+		    NewJid = jid:make(User, Server, maps:get(resource, State4, <<>>)),
+		    State5 = send_pkt(State4, #sasl2_success{additional_data = ServerOut,
+							     sub_els = Results2,
+							     jid = NewJid}),
+		    case is_disconnected(State5) of
+			true -> State5;
+			_ ->
+			    State6 = try callback(handle_sasl2_inline_post, InlineEls,
+						  Results2, State5)
+				     catch _:{?MODULE, undef} -> State5
+				     end,
+			    State7 = process_bind2_post(State6, NewEls, Results2),
+			    case is_disconnected(State7) of
+				true -> State7;
+				false ->
+				    maps:remove(client_stream_from,
+					maps:remove(sasl_inline_els,
+					maps:remove(sasl_state,
+					maps:remove(sasl_mech, State7))))
+			    end
 		    end
 	    end
     end.
