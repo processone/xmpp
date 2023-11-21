@@ -1155,7 +1155,7 @@ process_bind2_post(State, Inline, Results) ->
 	    end,
 	    send_features(State3);
 	_ ->
-	    case lists:keyfind(sm_resumed, 1, Inline) of
+	    case lists:keyfind(sm_resumed, 1, Results) of
 		false ->
 		    send_features(State#{stream_state => wait_for_bind});
 		_ ->
