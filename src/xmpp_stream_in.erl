@@ -1120,13 +1120,13 @@ process_sasl2_success(Props, ServerOut,
 -spec process_bind2(state(), [xmpp_element()]) -> {state(), [xmpp_element()]}.
 process_bind2(State, Els) ->
     case lists:keyfind(bind2_bind, 1, Els) of
-	#bind2_bind{tag = Tag, sub_els = SubEls} = T ->
+	#bind2_bind{tag = Tag, sub_els = SubEls} ->
 	    Resource = case Tag of
 			   undefined -> <<>>;
 			   <<>> -> <<>>;
 			   _ -> <<Tag/binary, ".", (p1_rand:get_string())/binary>>
 		       end,
-	    case callback(bind, Resource, State) of
+	    case callback(bind, Resource, State#{bind2_tag => Tag}) of
 		{ok, State1} ->
 		    {State2, _, ResultEls} =
 		    try callback(handle_bind2_inline, SubEls, State1)
