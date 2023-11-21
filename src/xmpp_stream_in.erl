@@ -1124,7 +1124,7 @@ process_bind2(State, Els) ->
 	    Resource = case Tag of
 			   undefined -> <<>>;
 			   <<>> -> <<>>;
-			   _ -> <<Tag/binary, ".", (p1_rand:get_string())/binary>>
+			   _ -> <<Tag/binary, ".", (p1_rand:get_alphanum_string(6))/binary>>
 		       end,
 	    case callback(bind, Resource, State#{bind2_tag => Tag}) of
 		{ok, State1} ->
