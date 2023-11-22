@@ -664,6 +664,7 @@ process_stream(#stream_start{to = #jid{server = Server, lserver = LServer},
 -spec process_element(xmpp_element(), state()) -> state().
 process_element(Pkt, #{stream_state := StateName, lang := Lang,
 		       stream_encrypted := Encrypted} = State) ->
+    Sasl2 = maps:is_key(sasl2_stream_from, State),
     case Pkt of
 	#starttls{} when StateName == wait_for_starttls;
 			 StateName == wait_for_sasl_request ->
@@ -696,8 +697,7 @@ process_element(Pkt, #{stream_state := StateName, lang := Lang,
 	    State;
 	#sasl2_authenticate{} when StateName == wait_for_starttls; (not Encrypted) ->
 	    send_pkt(State, #sasl2_failure{reason = 'encryption-required'});
-	#sasl2_authenticate{} when StateName == wait_for_sasl_request,
-				   is_map_key(sasl2_stream_from, State) ->
+	#sasl2_authenticate{} when StateName == wait_for_sasl_request, Sasl2 ->
 	    process_sasl2_request(Pkt, maps:remove(sasl_state, State));
 	#sasl2_authenticate{} ->
 	    Txt = <<"SASL negotiation is not allowed in this state">>,
