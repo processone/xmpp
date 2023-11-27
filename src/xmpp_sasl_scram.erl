@@ -92,16 +92,17 @@ mech_new(Mech, Socket, _Host, GetPassword, _CheckPassword, _CheckPasswordDigest)
 
 mech_step(#state{step = 2, algo = Algo} = State, ClientIn) ->
     case re:split(ClientIn, <<",">>, [{return, binary}]) of
-      [_CBind, _AuthorizationIdentity, _UserNameAttribute, _ClientNonceAttribute, ExtensionAttribute | _]
-	  when ExtensionAttribute /= <<"">> ->
-	  {error, unsupported_extension};
-      [CBind, _AuthorizationIdentity, UserNameAttribute, ClientNonceAttribute | _] ->
-          case {cbind_valid(State, CBind), parse_attribute(UserNameAttribute)} of
-              {false, _} ->
+      [CBind, _AuthorizationIdentity, UserNameAttribute, ClientNonceAttribute | Extensions] ->
+          case {cbind_valid(State, CBind),
+		extensions_valid(State, Extensions),
+		parse_attribute(UserNameAttribute)} of
+              {false, _, _} ->
                   {error, bad_channel_binding};
-              {_, {error, Reason}} ->
+	      {_, false, _} ->
+                  {error, unsupported_extension};
+              {_, _, {error, Reason}} ->
                   {error, Reason};
-              {_, {_, EscapedUserName}} ->
+              {_, _, {_, EscapedUserName}} ->
 		case unescape_username(EscapedUserName) of
 		  error -> {error, bad_username};
 		  UserName ->
@@ -232,6 +233,12 @@ cbind_valid(_, <<"n", _/binary>>) ->
     true;
 cbind_valid(_, _) ->
     false.
+
+extensions_valid(_State, Ext) ->
+    lists:all(
+	fun(<<"m=", _/binary>>) -> false;
+	   (_) -> true
+	end, Ext).
 
 cbind_verify(#state{cb_socket = Socket}, <<"p=tls-unique,,", Data/binary>>) when Socket /= none ->
   case xmpp_socket:get_tls_last_message(Socket, peer) of
