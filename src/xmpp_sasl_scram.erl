@@ -172,6 +172,8 @@ mech_step(#state{step = 2, algo = Algo} = State, ClientIn) ->
     end;
 mech_step(#state{step = 4, algo = Algo} = State, ClientIn) ->
     case tokens(ClientIn, <<",">>) of
+	#{$m := _} ->
+	    {error, unsupported_extension};
 	#{$c := ClientBinding, $r := ClientNonce, $p := ClientProofB64} ->
 	    ChannelBindingSupport = try base64:decode(ClientBinding)
 				    catch _:badarg -> <<>>
