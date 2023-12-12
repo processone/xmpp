@@ -29,17 +29,17 @@
 -type get_password_fun() :: fun((binary()) -> {false | password(), module()}).
 
 -record(state,
-	{step = 2              :: 2 | 4,
-	 algo = sha            :: sha | sha256 | sha512,
-	 cb_socket = none      :: none | xmpp_socket:socket(),
-	 stored_key = <<"">>   :: binary(),
-	 server_key = <<"">>   :: binary(),
-	 username = <<"">>     :: binary(),
-	 auth_module           :: module(),
-	 get_password          :: get_password_fun(),
-	 auth_message = <<"">> :: binary(),
-	 client_nonce = <<"">> :: binary(),
-	 server_nonce = <<"">> :: binary()}).
+	{step = 2                :: 2 | 4,
+	 algo = sha              :: sha | sha256 | sha512,
+	 channel_bindings = none :: none | #{atom() => binary()},
+	 stored_key = <<"">>     :: binary(),
+	 server_key = <<"">>     :: binary(),
+	 username = <<"">>       :: binary(),
+	 auth_module             :: module(),
+	 get_password            :: get_password_fun(),
+	 auth_message = <<"">>   :: binary(),
+	 client_nonce = <<"">>   :: binary(),
+	 server_nonce = <<"">>   :: binary()}).
 
 -define(SALT_LENGTH, 16).
 -define(NONCE_LENGTH, 16).
@@ -72,23 +72,17 @@ format_error(bad_channel_binding) ->
 format_error(incompatible_mechs) ->
     {'not-authorized', <<"Incompatible SCRAM methods">>}.
 
-mech_new(Mech, Socket, _Host, GetPassword, _CheckPassword, _CheckPasswordDigest) ->
-    {Algo, UseCB} =
+mech_new(Mech, ChannelBindings, _Host, GetPassword, _CheckPassword, _CheckPasswordDigest) ->
+    {Algo, CB} =
     case Mech of
-	<<"SCRAM-SHA-1">> -> {sha, false};
-	<<"SCRAM-SHA-1-PLUS">> -> {sha, true};
-	<<"SCRAM-SHA-256">> -> {sha256, false};
-	<<"SCRAM-SHA-256-PLUS">> -> {sha256, true};
-	<<"SCRAM-SHA-512">> -> {sha512, false};
-	<<"SCRAM-SHA-512-PLUS">> -> {sha512, true}
+	<<"SCRAM-SHA-1">> -> {sha, none};
+	<<"SCRAM-SHA-1-PLUS">> -> {sha, ChannelBindings};
+	<<"SCRAM-SHA-256">> -> {sha256, none};
+	<<"SCRAM-SHA-256-PLUS">> -> {sha256, ChannelBindings};
+	<<"SCRAM-SHA-512">> -> {sha512, none};
+	<<"SCRAM-SHA-512-PLUS">> -> {sha512, ChannelBindings}
     end,
-    CBSocket = case UseCB of
-		 true ->
-		     Socket;
-		 _ ->
-		     none
-	     end,
-    #state{step = 2, get_password = GetPassword, algo = Algo, cb_socket = CBSocket}.
+    #state{step = 2, get_password = GetPassword, algo = Algo, channel_bindings = CB}.
 
 mech_step(#state{step = 2, algo = Algo} = State, ClientIn) ->
     case re:split(ClientIn, <<",">>, [{return, binary}]) of
@@ -221,13 +215,9 @@ mech_step(#state{step = 4, algo = Algo} = State, ClientIn) ->
 	    {error, parser_failed}
     end.
 
-cbind_valid(#state{cb_socket = Sock}, <<"p=tls-unique">>) when Sock /= none ->
-    true;
-cbind_valid(#state{cb_socket = Sock}, <<"p=tls-exporter">>) when Sock /= none  ->
-    true;
-cbind_valid(#state{cb_socket = Sock}, <<"p=tls-server-end-point">>) when Sock /= none  ->
-    true;
-cbind_valid(#state{cb_socket = Sock}, _) when Sock /= none ->
+cbind_valid(#state{channel_bindings = #{} = Bindings}, <<"p=", Binding/binary>>) ->
+    maps:is_key(Binding, Bindings);
+cbind_valid(#state{channel_bindings = Bindings}, _) when Bindings /= none ->
     false;
 cbind_valid(_, <<"y", _/binary>>) ->
     true;
@@ -242,28 +232,14 @@ extensions_valid(_State, Ext) ->
 	   (_) -> true
 	end, Ext).
 
-cbind_verify(#state{cb_socket = Socket}, <<"p=tls-unique,,", Data/binary>>) when Socket /= none ->
-  case xmpp_socket:get_tls_last_message(Socket, peer) of
-      {ok, Data2} ->
-	  Data == Data2;
-      _ ->
-	  false
-  end;
-cbind_verify(#state{cb_socket = Socket}, <<"p=tls-exporter,,", Data/binary>>) when Socket /= none ->
-    case xmpp_socket:get_tls_cb_exporter(Socket) of
-	{ok, Data2} ->
-	    Data == Data2;
+cbind_verify(#state{channel_bindings = Bindings}, <<"p=", Binding/binary>>) when Bindings /= none ->
+    case re:split(Binding, <<",">>, [{parts, 3}, {return, binary}]) of
+	[Type, _, Data] ->
+	    maps:get(Type, Bindings, none) == Data;
 	_ ->
 	    false
     end;
-cbind_verify(#state{cb_socket = Socket}, <<"p=tls-server-end-point,,", Data/binary>>) when Socket /= none ->
-    case xmpp_socket:get_tls_cert_hash(Socket) of
-	{ok, Data2} ->
-	    Data == Data2;
-	_ ->
-	    false
-    end;
-cbind_verify(#state{cb_socket = Socket}, _) when Socket /= none->
+cbind_verify(#state{channel_bindings = CB}, _) when CB /= none->
     false;
 cbind_verify(_, <<"y", _/binary>>) ->
     false;

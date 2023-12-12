@@ -912,9 +912,33 @@ process_starttls_failure(Why, State) ->
 	false -> process_stream_end({tls, Why}, State1)
     end.
 
+-spec init_channel_bindings(state()) -> state().
+init_channel_bindings(#{sasl_channel_bindings := _} = State) ->
+    State;
+init_channel_bindings(#{socket := Socket} = State) ->
+	R1 = case xmpp_socket:get_tls_last_message(Socket, peer) of
+		 {ok, Data} ->
+		     #{<<"tls-unique">> => Data};
+		 _ ->
+		     #{}
+	     end,
+	R2 = case xmpp_socket:get_tls_cb_exporter(Socket) of
+		 {ok, Data2} ->
+		     R1#{<<"tls-exporter">> => Data2};
+		 _ ->
+		     R1
+	     end,
+	R3 = case xmpp_socket:get_tls_cert_hash(Socket) of
+	    {ok, Data3} ->
+		R2#{<<"tls-server-end-point">> => Data3};
+	    _ ->
+		R2
+	end,
+    State#{sasl_channel_bindings => R3}.
+
 -spec process_sasl_request(sasl_auth(), state()) -> state().
 process_sasl_request(#sasl_auth{mechanism = Mech, text = ClientIn},
-		     #{lserver := LServer, socket := Socket} = State) ->
+		     #{lserver := LServer} = State) ->
     State1 = State#{sasl_mech => Mech},
     Mechs = get_sasl_mechanisms(State1),
     case lists:member(Mech, Mechs) of
@@ -931,7 +955,8 @@ process_sasl_request(#sasl_auth{mechanism = Mech, text = ClientIn},
 	    CheckPW = check_password_fun(Mech, State1),
 	    CheckPWDigest = check_password_digest_fun(Mech, State1),
 	    SASLState = xmpp_sasl:server_new(LServer, GetPW, CheckPW, CheckPWDigest),
-	    Res = xmpp_sasl:server_start(SASLState, Mech, ClientIn, Socket),
+	    CB = maps:get(sasl_channel_bindings, State1, none),
+	    Res = xmpp_sasl:server_start(SASLState, Mech, ClientIn, CB),
 	    process_sasl_result(Res, disable_sasl2(State1#{sasl_state => SASLState}));
 	false ->
 	    process_sasl_result({error, unsupported_mechanism, <<"">>}, disable_sasl2(State1))
@@ -971,7 +996,7 @@ process_sasl_success(Props, ServerOut,
 	    case is_disconnected(State2) of
 		true -> State2;
 		false ->
-		    State3 = map_remove_keys(State2, [sasl_state, sasl_mech]),
+		    State3 = map_remove_keys(State2, [sasl_state, sasl_mech, sasl_channel_bindings]),
 		    State3#{stream_id => xmpp_stream:new_id(),
 			    stream_authenticated => true,
 			    stream_header_sent => false,
@@ -1015,7 +1040,7 @@ process_sasl_abort(State) ->
 -spec process_sasl2_request(sasl2_authenticate(), state()) -> state().
 process_sasl2_request(#sasl2_authenticate{mechanism = Mech, initial_response = ClientIn,
 					  user_agent = UA} = Pkt,
-		     #{lserver := LServer, socket := Socket} = State) ->
+		     #{lserver := LServer} = State) ->
     State1 = State#{sasl_mech => Mech},
     Mechs = get_sasl_mechanisms(State1),
     UAId = case UA of
@@ -1043,7 +1068,8 @@ process_sasl2_request(#sasl2_authenticate{mechanism = Mech, initial_response = C
 	    CheckPW = check_password_fun(Mech, State1),
 	    CheckPWDigest = check_password_digest_fun(Mech, State1),
 	    SASLState = xmpp_sasl:server_new(LServer, GetPW, CheckPW, CheckPWDigest),
-	    Res = xmpp_sasl:server_start(SASLState, Mech, ClientIn, Socket),
+	    CB = maps:get(sasl_channel_bindings, State1, none),
+	    Res = xmpp_sasl:server_start(SASLState, Mech, ClientIn, CB),
 	    process_sasl2_result(Res, State1#{sasl_state => SASLState,
 					      sasl2_inline_els => SaslInline,
 					      sasl2_ua_id => UAId});
@@ -1110,7 +1136,8 @@ process_sasl2_success(Props, ServerOut,
 				true -> State7;
 				false ->
 				    map_remove_keys(State7, [sasl2_stream_from, sasl2_inline_els,
-							     sasl2_ua_id, sasl_state, sasl_mech])
+							     sasl2_ua_id, sasl_state, sasl_mech,
+							     sasl_channel_bindings])
 			    end
 		    end
 	    end
@@ -1221,9 +1248,10 @@ send_features(#{stream_version := {1,0},
 	true ->
 	    {Features, State2} =
 	    case {Encrypted, Sasl2, TLSAvailable} of
-		{true, true, _} -> {get_sasl2_feature(State), State};
+		{true, true, _} -> {get_sasl2_feature(State), init_channel_bindings(State)};
 		{false, true, false} -> {[], disable_sasl2(State)};
 		{false, _, true} -> {get_tls_feature(State), State};
+		{true, _, _} -> {[], init_channel_bindings(State)};
 		_ -> {[], State}
 	    end,
 	    Features2 =
@@ -1278,18 +1306,17 @@ get_sasl_mechanisms(#{stream_encrypted := Encrypted,
 
 -spec get_sasl_feature(state()) -> [sasl_mechanisms() | sasl_channel_binding()].
 get_sasl_feature(#{stream_authenticated := false,
-		   stream_encrypted := Encrypted} = State) ->
+    stream_encrypted := Encrypted} = State) ->
     TLSRequired = is_starttls_required(State),
-    if Encrypted or not TLSRequired ->
+    if
+	Encrypted or not TLSRequired ->
 	    Mechs = get_sasl_mechanisms(State),
 	    [#sasl_mechanisms{list = Mechs}] ++
-	    if Encrypted ->
-		[#sasl_channel_binding{bindings = [<<"tls-server-end-point">>,
-						   <<"tls-unique">>,
-						   <<"tls-exporter">>]}];
-		true -> []
+	    case maps:get(sasl_channel_bindings, State, none) of
+		none -> [];
+		Bindings -> [#sasl_channel_binding{bindings = maps:keys(Bindings)}]
 	    end;
-       true ->
+	true ->
 	    []
     end;
 get_sasl_feature(_) ->

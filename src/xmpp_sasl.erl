@@ -54,10 +54,12 @@
 			unsupported_mechanism | nodeprep_failed |
 			empty_username | aborted.
 
+-type channel_bindings() :: none | #{binary() => binary()}.
+
 -export_type([mechanism/0, error_reason/0,
 	      sasl_state/0, sasl_return/0, sasl_property/0]).
 
--callback mech_new(binary(), xmpp_socket:socket(),
+-callback mech_new(binary(), channel_bindings(),
 		   binary(),
 		   get_password_fun(),
 		   check_password_fun(),
@@ -102,13 +104,13 @@ server_new(ServerHost, GetPassword, CheckPassword, CheckPasswordDigest) ->
 		check_password = CheckPassword,
 		check_password_digest = CheckPasswordDigest}.
 
--spec server_start(sasl_state(), mechanism(), binary(), xmpp_socket:socket()) -> sasl_return().
-server_start(State, Mech, ClientIn, Socket) ->
+-spec server_start(sasl_state(), mechanism(), binary(), channel_bindings()) -> sasl_return().
+server_start(State, Mech, ClientIn, ChannelBindings) ->
     case get_mod(Mech) of
 	undefined ->
 	    {error, unsupported_mechanism, <<"">>};
 	Module ->
-	    MechState = Module:mech_new(Mech, Socket,
+	    MechState = Module:mech_new(Mech, ChannelBindings,
 					State#sasl_state.server_host,
 					State#sasl_state.get_password,
 					State#sasl_state.check_password,
