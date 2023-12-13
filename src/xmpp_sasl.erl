@@ -18,7 +18,7 @@
 -module(xmpp_sasl).
 -author('alexey@process-one.net').
 
--export([server_new/4, server_start/4, server_step/2,
+-export([server_new/4, server_start/5, server_step/2,
 	 listmech/0, format_error/2]).
 
 %% TODO: write correct types for these callbacks
@@ -59,7 +59,7 @@
 -export_type([mechanism/0, error_reason/0,
 	      sasl_state/0, sasl_return/0, sasl_property/0]).
 
--callback mech_new(binary(), channel_bindings(),
+-callback mech_new(binary(), channel_bindings(), list(binary()),
 		   binary(),
 		   get_password_fun(),
 		   check_password_fun(),
@@ -104,13 +104,14 @@ server_new(ServerHost, GetPassword, CheckPassword, CheckPasswordDigest) ->
 		check_password = CheckPassword,
 		check_password_digest = CheckPasswordDigest}.
 
--spec server_start(sasl_state(), mechanism(), binary(), channel_bindings()) -> sasl_return().
-server_start(State, Mech, ClientIn, ChannelBindings) ->
+-spec server_start(sasl_state(), mechanism(), binary(), channel_bindings(),
+  list(binary())) -> sasl_return().
+server_start(State, Mech, ClientIn, ChannelBindings, Mechs) ->
     case get_mod(Mech) of
 	undefined ->
 	    {error, unsupported_mechanism, <<"">>};
 	Module ->
-	    MechState = Module:mech_new(Mech, ChannelBindings,
+	    MechState = Module:mech_new(Mech, ChannelBindings, Mechs,
 					State#sasl_state.server_host,
 					State#sasl_state.get_password,
 					State#sasl_state.check_password,

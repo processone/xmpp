@@ -21,6 +21,7 @@
 
 -protocol({rfc, 6120}).
 -protocol({xep, 114, '1.6'}).
+-protocol({xep, 440, '0.4.0'}).
 
 %% API
 -export([start/3, start_link/3, call/3, cast/2, reply/2, stop/1, stop_async/1,
@@ -956,7 +957,7 @@ process_sasl_request(#sasl_auth{mechanism = Mech, text = ClientIn},
 	    CheckPWDigest = check_password_digest_fun(Mech, State1),
 	    SASLState = xmpp_sasl:server_new(LServer, GetPW, CheckPW, CheckPWDigest),
 	    CB = maps:get(sasl_channel_bindings, State1, none),
-	    Res = xmpp_sasl:server_start(SASLState, Mech, ClientIn, CB),
+	    Res = xmpp_sasl:server_start(SASLState, Mech, ClientIn, CB, Mechs),
 	    process_sasl_result(Res, disable_sasl2(State1#{sasl_state => SASLState}));
 	false ->
 	    process_sasl_result({error, unsupported_mechanism, <<"">>}, disable_sasl2(State1))
@@ -1069,7 +1070,7 @@ process_sasl2_request(#sasl2_authenticate{mechanism = Mech, initial_response = C
 	    CheckPWDigest = check_password_digest_fun(Mech, State1),
 	    SASLState = xmpp_sasl:server_new(LServer, GetPW, CheckPW, CheckPWDigest),
 	    CB = maps:get(sasl_channel_bindings, State1, none),
-	    Res = xmpp_sasl:server_start(SASLState, Mech, ClientIn, CB),
+	    Res = xmpp_sasl:server_start(SASLState, Mech, ClientIn, CB, Mechs),
 	    process_sasl2_result(Res, State1#{sasl_state => SASLState,
 					      sasl2_inline_els => SaslInline,
 					      sasl2_ua_id => UAId});

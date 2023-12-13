@@ -20,8 +20,9 @@
 -behaviour(xmpp_sasl).
 -author('stephen.roettger@googlemail.com').
 -protocol({rfc, 5802}).
+-protocol({xep, 474, '0.3.0'}).
 
--export([mech_new/6, mech_step/2, format_error/1]).
+-export([mech_new/7, mech_step/2, format_error/1]).
 
 -include("scram.hrl").
 
@@ -32,6 +33,7 @@
 	{step = 2                :: 2 | 4,
 	 algo = sha              :: sha | sha256 | sha512,
 	 channel_bindings = none :: none | #{atom() => binary()},
+	 ssdp                    :: binary(),
 	 stored_key = <<"">>     :: binary(),
 	 server_key = <<"">>     :: binary(),
 	 username = <<"">>       :: binary(),
@@ -72,7 +74,7 @@ format_error(bad_channel_binding) ->
 format_error(incompatible_mechs) ->
     {'not-authorized', <<"Incompatible SCRAM methods">>}.
 
-mech_new(Mech, ChannelBindings, _Host, GetPassword, _CheckPassword, _CheckPasswordDigest) ->
+mech_new(Mech, ChannelBindings, Mechs, _Host, GetPassword, _CheckPassword, _CheckPasswordDigest) ->
     {Algo, CB} =
     case Mech of
 	<<"SCRAM-SHA-1">> -> {sha, none};
@@ -82,9 +84,16 @@ mech_new(Mech, ChannelBindings, _Host, GetPassword, _CheckPassword, _CheckPasswo
 	<<"SCRAM-SHA-512">> -> {sha512, none};
 	<<"SCRAM-SHA-512-PLUS">> -> {sha512, ChannelBindings}
     end,
-    #state{step = 2, get_password = GetPassword, algo = Algo, channel_bindings = CB}.
+    Ssdp = base64:encode(crypto:hash(Algo, [
+	lists:join(<<",">>, lists:sort(Mechs)),
+	case maps:keys(CB) of
+	    [] -> [];
+	    V -> [<<"|">>, lists:join(<<",">>, lists:sort(V))]
+	end])),
+    #state{step = 2, get_password = GetPassword, algo = Algo,
+	channel_bindings = CB, ssdp = Ssdp}.
 
-mech_step(#state{step = 2, algo = Algo} = State, ClientIn) ->
+mech_step(#state{step = 2, algo = Algo, ssdp = Ssdp} = State, ClientIn) ->
     case re:split(ClientIn, <<",">>, [{return, binary}]) of
       [CBind, _AuthorizationIdentity, UserNameAttribute, ClientNonceAttribute | Extensions] ->
           case {cbind_valid(State, CBind),
@@ -146,7 +155,8 @@ mech_step(#state{step = 2, algo = Algo} = State, ClientIn) ->
                                            ",", "s=",
                                            base64:encode(Salt),
                                            ",", "i=",
-                                           integer_to_list(IterationCount)]),
+                                           integer_to_list(IterationCount),
+					   ",d=", Ssdp]),
 				  {continue, ServerFirstMessage,
 				   State#state{step = 4, stored_key = StoredKey,
 					       server_key = ServerKey,
