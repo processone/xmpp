@@ -86,9 +86,10 @@ mech_new(Mech, ChannelBindings, Mechs, _Host, GetPassword, _CheckPassword, _Chec
     end,
     Ssdp = base64:encode(crypto:hash(Algo, [
 	lists:join(<<",">>, lists:sort(Mechs)),
-	case maps:keys(CB) of
-	    [] -> [];
-	    V -> [<<"|">>, lists:join(<<",">>, lists:sort(V))]
+	case CB of
+	    none -> [];
+	    _ when map_size(CB) == 0 -> [];
+	    _ -> [<<"|">>, lists:join(<<",">>, lists:sort(maps:keys(CB)))]
 	end])),
     #state{step = 2, get_password = GetPassword, algo = Algo,
 	channel_bindings = CB, ssdp = Ssdp}.
