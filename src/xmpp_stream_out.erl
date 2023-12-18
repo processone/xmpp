@@ -80,7 +80,7 @@
 -type stream_state() :: connecting | wait_for_stream | wait_for_features |
 			wait_for_starttls_response | wait_for_sasl_response |
 			wait_for_bind_response | wait_for_session_response |
-			downgraded | established | disconnected.
+			downgraded | established | disconnected | wait_for_handshake.
 -type noreply() :: {noreply, state(), timeout()}.
 -type next_state() :: noreply() | {stop, term(), state()}.
 -type host_port() :: {inet:hostname(), inet:port_number(), boolean()} | ip_port().
@@ -315,6 +315,7 @@ init([Mod, From, To, Opts]) ->
 	      stream_direction => out,
 	      stream_timeout => current_time() + ?NEGOTIATION_TIMEOUT,
 	      stream_id => xmpp_stream:new_id(),
+	      stream_version => {1,0},
 	      stream_encrypted => false,
 	      stream_verified => false,
 	      stream_authenticated => false,
@@ -547,7 +548,7 @@ process_stream(#stream_start{version = {N, _}}, State) when N > 1 ->
     send_pkt(State, xmpp:serr_unsupported_version());
 process_stream(#stream_start{lang = Lang, id = ID,
 			     version = Version} = StreamStart,
-	       State) ->
+	       #{xmlns := NS} = State) ->
     State1 = State#{stream_remote_id => ID, lang => Lang},
     State2 = try callback(handle_stream_start, StreamStart, State1)
 	     catch _:{?MODULE, undef} -> State1
@@ -558,6 +559,10 @@ process_stream(#stream_start{lang = Lang, id = ID,
 	    case Version of
 		{1, _} ->
 		    State2#{stream_state => wait_for_features};
+		_ when NS == ?NS_COMPONENT ->
+		    Handshake = maps:get(handshake, State2, <<>>),
+		    send_pkt(State2#{stream_state => wait_for_handshake},
+			#handshake{data = Handshake});
 		_ ->
 		    process_stream_downgrade(StreamStart, State2)
 	    end
@@ -576,6 +581,8 @@ process_element(Pkt, #{stream_state := StateName} = State) ->
 	    process_sasl_failure(Pkt, State);
 	#stream_error{} ->
 	    process_stream_end({stream, {in, Pkt}}, State);
+	#handshake{} when StateName == wait_for_handshake ->
+	    process_stream_established(State);
 	_ when is_record(Pkt, stream_features);
 	       is_record(Pkt, starttls_proceed);
 	       is_record(Pkt, starttls);
@@ -908,6 +915,7 @@ sasl_mechanisms(#{stream_encrypted := Encrypted} = State) ->
 -spec send_header(state()) -> state().
 send_header(#{remote_server := RemoteServer,
 	      stream_encrypted := Encrypted,
+	      stream_version := Version,
 	      lang := Lang,
 	      xmlns := NS,
 	      user := User,
@@ -929,7 +937,7 @@ send_header(#{remote_server := RemoteServer,
 				db_xmlns = NS_DB,
 				from = From,
 				to = jid:make(RemoteServer),
-				version = {1,0}},
+				version = Version},
     case socket_send(State, StreamStart) of
 	ok -> State;
 	{error, Why} -> process_stream_end({socket, Why}, State)
