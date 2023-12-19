@@ -88,8 +88,8 @@ mech_new(Mech, ChannelBindings, Mechs, _Host, GetPassword, _CheckPassword, _Chec
 	lists:join(<<",">>, lists:sort(Mechs)),
 	case ChannelBindings of
 	    none -> [];
-	    _ when map_size(CB) == 0 -> [];
-	    _ -> [<<"|">>, lists:join(<<",">>, lists:sort(maps:keys(CB)))]
+	    _ when map_size(ChannelBindings) == 0 -> [];
+	    _ -> [<<"|">>, lists:join(<<",">>, lists:sort(maps:keys(ChannelBindings)))]
 	end])),
     #state{step = 2, get_password = GetPassword, algo = Algo,
 	channel_bindings = CB, ssdp = Ssdp}.
