@@ -5109,16 +5109,20 @@
 
 -xml(message_retract,
      #elem{name = <<"retract">>,
-	   xmlns = <<"urn:xmpp:message-retract:0">>,
+	   xmlns = <<"urn:xmpp:message-retract:1">>,
 	   module = 'xep0424',
-	   result = {message_retract}}).
+	   result = {message_retract, '$id'},
+	   attrs = [#attr{name = <<"id">>,
+	                  required = true}]}).
 
 -xml(message_retracted,
      #elem{name = <<"retracted">>,
-	   xmlns = <<"urn:xmpp:message-retract:0">>,
+	   xmlns = <<"urn:xmpp:message-retract:1">>,
 	   module = 'xep0424',
-	   result = {message_retracted, '$by', '$from', '$stamp', '$_els'},
-           attrs = [#attr{name = <<"by">>,
+	   result = {message_retracted, '$id', '$by', '$from', '$stamp', '$_els'},
+           attrs = [#attr{name = <<"id">>,
+	                  required = true},
+                    #attr{name = <<"by">>,
                           enc = {jid, encode, []},
                           dec = {jid, decode, []}},
                     #attr{name = <<"from">>},

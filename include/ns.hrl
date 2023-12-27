@@ -212,5 +212,5 @@
 -define(NS_X509_0, <<"urn:xmpp:x509:0">>).
 -define(NS_HATS, <<"xmpp:prosody.im/protocol/hats:1">>).
 -define(NS_MESSAGE_MODERATE, <<"urn:xmpp:message-moderate:0">>).
--define(NS_MESSAGE_RETRACT, <<"urn:xmpp:message-retract:0">>).
+-define(NS_MESSAGE_RETRACT, <<"urn:xmpp:message-retract:1">>).
 -define(NS_OCCUPANT_ID, <<"urn:xmpp:occupant-id:0">>).

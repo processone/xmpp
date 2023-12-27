@@ -328,7 +328,8 @@
 -record(private, {sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
 -type private() :: #private{}.
 
--record(message_retracted, {by :: undefined | jid:jid(),
+-record(message_retracted, {id = <<>> :: binary(),
+                            by :: undefined | jid:jid(),
                             from = <<>> :: binary(),
                             stamp :: erlang:timestamp(),
                             sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
@@ -371,7 +372,7 @@
                       id = <<>> :: binary()}).
 -type inbox_entry() :: #inbox_entry{}.
 
--record(message_retract, {}).
+-record(message_retract, {id = <<>> :: binary()}).
 -type message_retract() :: #message_retract{}.
 
 -record(x509_challenge_failed, {}).

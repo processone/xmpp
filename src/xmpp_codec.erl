@@ -295,9 +295,6 @@ get_mod(<<"query">>, <<"jabber:iq:roster">>) -> rfc6121;
 get_mod(<<"NUMBER">>, <<"vcard-temp">>) -> xep0054;
 get_mod(<<"notification">>, <<"urn:xmpp:push:0">>) ->
     xep0357;
-get_mod(<<"retracted">>,
-        <<"urn:xmpp:message-retract:0">>) ->
-    xep0424;
 get_mod(<<"gone">>,
         <<"urn:ietf:params:xml:ns:xmpp-stanzas">>) ->
     rfc6120;
@@ -403,6 +400,9 @@ get_mod(<<"next">>,
     xep0050;
 get_mod(<<"x509-signature">>, <<"urn:xmpp:x509:0">>) ->
     xep0417;
+get_mod(<<"retract">>,
+        <<"urn:xmpp:message-retract:1">>) ->
+    xep0424;
 get_mod(<<"subscription">>,
         <<"http://jabber.org/protocol/pubsub">>) ->
     xep0060;
@@ -869,6 +869,9 @@ get_mod(<<"open">>,
 get_mod(<<"connectivity-error">>,
         <<"urn:xmpp:jingle:1">>) ->
     xep0166;
+get_mod(<<"retracted">>,
+        <<"urn:xmpp:message-retract:1">>) ->
+    xep0424;
 get_mod(<<"stream:features">>, <<"jabber:server">>) ->
     rfc6120;
 get_mod(<<"request">>,
@@ -1291,9 +1294,6 @@ get_mod(<<"CRED">>, <<"vcard-temp">>) -> xep0054;
 get_mod(<<"KEY">>, <<"vcard-temp">>) -> xep0054;
 get_mod(<<"nick">>, <<"urn:xmpp:mix:core:0">>) ->
     xep0369;
-get_mod(<<"retract">>,
-        <<"urn:xmpp:message-retract:0">>) ->
-    xep0424;
 get_mod(<<"password">>, <<"urn:xmpp:bookmarks:1">>) ->
     xep0402;
 get_mod(<<"LABEL">>, <<"vcard-temp">>) -> xep0054;
@@ -1787,7 +1787,6 @@ get_mod({disco_info, _, _, _, _}) -> xep0030;
 get_mod({vcard_label, _, _, _, _, _, _, _, _}) ->
     xep0054;
 get_mod({x509_challenge_failed}) -> xep0417;
-get_mod({message_retract}) -> xep0424;
 get_mod({stats, _, _}) -> xep0039;
 get_mod({muc, _, _}) -> xep0045;
 get_mod({carbons_enable}) -> xep0280;
@@ -1840,7 +1839,6 @@ get_mod({service, _, _, _, _, _, _, _, _, _, _, _}) ->
     xep0215;
 get_mod({jingle_ft_checksum, _, _, _}) -> xep0234;
 get_mod({x509_request, _, _, _, _}) -> xep0417;
-get_mod({message_retracted, _, _, _, _}) -> xep0424;
 get_mod({version, _, _, _}) -> xep0092;
 get_mod({vcard_org, _, _}) -> xep0054;
 get_mod({ps_items, _, _, _, _, _, _}) -> xep0060;
@@ -1907,6 +1905,7 @@ get_mod({mark_displayed, _}) -> xep0333;
 get_mod({mark_acknowledged, _}) -> xep0333;
 get_mod({jingle_ft_file, _, _, _, _, _, _, _, _}) ->
     xep0234;
+get_mod({message_retract, _}) -> xep0424;
 get_mod({bookmark_url, _, _}) -> xep0048;
 get_mod({gone, _}) -> rfc6120;
 get_mod({sasl_response, _}) -> rfc6120;
@@ -1965,6 +1964,7 @@ get_mod({thumbnail, _, _, _, _}) -> xep0264;
 get_mod({delegation, _, _}) -> xep0355;
 get_mod({x509_challenge, _, _, _}) -> xep0417;
 get_mod({sm_enabled, _, _, _, _, _}) -> xep0198;
+get_mod({message_retracted, _, _, _, _, _}) -> xep0424;
 get_mod({vcard_email, _, _, _, _, _, _}) -> xep0054;
 get_mod({ps_affiliation, _, _, _, _}) -> xep0060;
 get_mod({mix_update_subscription, _, _, _, _}) ->
