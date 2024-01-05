@@ -248,6 +248,7 @@ function. By default, no translation is performed.
 XMPP elements from the following documents are supported:
 - [RFC 6120](https://tools.ietf.org/html/rfc6120): XMPP Core
 - [RFC 6121](https://tools.ietf.org/html/rfc6121): XMPP Instant Messaging and Presence
+- [RFC 9266](https://tools.ietf.org/html/rfc9266): Channel Bindings for TLS 1.3
 - [XEP-0004](https://xmpp.org/extensions/xep-0004.html):  Data Forms
 - [XEP-0012](https://xmpp.org/extensions/xep-0012.html):  Last Activity
 - [XEP-0013](https://xmpp.org/extensions/xep-0013.html):  Flexible Offline Message Retrieval
@@ -313,10 +314,19 @@ XMPP elements from the following documents are supported:
 - [XEP-0363](https://xmpp.org/extensions/xep-0363.html):  HTTP File Upload
 - [XEP-0369](https://xmpp.org/extensions/xep-0369.html):  Mediated Information eXchange (MIX)
 - [XEP-0377](https://xmpp.org/extensions/xep-0377.html):  Spam Reporting
+- [XEP-0386](https://xmpp.org/extensions/xep-0386.html):  Bind 2
+- [XEP-0388](https://xmpp.org/extensions/xep-0388.html):  Extensible SASL Profile
+- [XEP-0402](https://xmpp.org/extensions/xep-0402.html):  PEP Native Bookmarks
 - [XEP-0403](https://xmpp.org/extensions/xep-0403.html):  MIX: Presence Support
 - [XEP-0405](https://xmpp.org/extensions/xep-0405.html):  MIX: Participant Server Requirements
 - [XEP-0417](https://xmpp.org/extensions/xep-0417.html):  E2E Authentication in XMPP: Certificate Issuance and Revocation
+- [XEP-0421](https://xmpp.org/extensions/xep-0421.html):  Anonymous unique occupant identifiers for MUCs
+- [XEP-0422](https://xmpp.org/extensions/xep-0422.html):  Message Fastening
+- [XEP-0424](https://xmpp.org/extensions/xep-0424.html):  Message Retraction
+- [XEP-0425](https://xmpp.org/extensions/xep-0425.html):  Message Moderation
 - [XEP-0430](https://xmpp.org/extensions/xep-0430.html):  Inbox
+- [XEP-0440](https://xmpp.org/extensions/xep-0440.html):  SASL Channel-Binding Type Capability
+- [XEP-0474](https://xmpp.org/extensions/xep-0474.html):  SASL SCRAM Downgrade Protection
 - [draft-cridland-xmpp-session-01](https://tools.ietf.org/html/draft-cridland-xmpp-session-01): XMPP Session Establishment
 
 As well as some proprietary extensions from [ProcessOne](https://www.process-one.net)
