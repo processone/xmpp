@@ -245,7 +245,10 @@ function. By default, no translation is performed.
 
 # Supported XMPP elements
 
-XMPP elements from the following documents are supported:
+XMPP elements from the following documents are supported.
+For more details check the file [xmpp.doap](xmpp.doap)
+and its nice display in [Erlang/Elixir XMPP at xmpp.org](https://xmpp.org/software/erlang-elixir-xmpp/).
+
 - [RFC 6120](https://tools.ietf.org/html/rfc6120): XMPP Core
 - [RFC 6121](https://tools.ietf.org/html/rfc6121): XMPP Instant Messaging and Presence
 - [RFC 9266](https://tools.ietf.org/html/rfc9266): Channel Bindings for TLS 1.3
