@@ -33,7 +33,7 @@
 	{step = 2                :: 2 | 4,
 	 algo = sha              :: sha | sha256 | sha512,
 	 channel_bindings = none :: none | #{atom() => binary()},
-	 ssdp                    :: binary(),
+	 ssdp                    :: undefined | binary(),
 	 stored_key = <<"">>     :: binary(),
 	 server_key = <<"">>     :: binary(),
 	 username = <<"">>       :: binary(),
@@ -84,13 +84,17 @@ mech_new(Mech, ChannelBindings, Mechs, _Host, GetPassword, _CheckPassword, _Chec
 	<<"SCRAM-SHA-512">> -> {sha512, none};
 	<<"SCRAM-SHA-512-PLUS">> -> {sha512, ChannelBindings}
     end,
-    Ssdp = base64:encode(crypto:hash(Algo, [
-	lists:join(<<",">>, lists:sort(Mechs)),
-	case ChannelBindings of
-	    none -> [];
-	    _ when map_size(ChannelBindings) == 0 -> [];
-	    _ -> [<<"|">>, lists:join(<<",">>, lists:sort(maps:keys(ChannelBindings)))]
-	end])),
+    Ssdp = case Mechs of
+	       undefined -> undefined;
+	       _ ->
+		   base64:encode(crypto:hash(Algo, [
+		       lists:join(<<",">>, lists:sort(Mechs)),
+		       case ChannelBindings of
+			   none -> [];
+			   _ when map_size(ChannelBindings) == 0 -> [];
+			   _ -> [<<"|">>, lists:join(<<",">>, lists:sort(maps:keys(ChannelBindings)))]
+		       end]))
+	   end,
     #state{step = 2, get_password = GetPassword, algo = Algo,
 	channel_bindings = CB, ssdp = Ssdp}.
 
@@ -148,6 +152,10 @@ mech_step(#state{step = 2, algo = Algo, ssdp = Ssdp} = State, ClientIn) ->
                                                  str(ClientIn, <<"n=">>)),
 				  ServerNonce =
 				      base64:encode(p1_rand:bytes(?NONCE_LENGTH)),
+				  SsdpPart = case Ssdp of
+						 undefined -> [];
+						 _ -> [",d=", Ssdp]
+					     end,
 				  ServerFirstMessage =
                                         iolist_to_binary(
                                           ["r=",
@@ -157,7 +165,7 @@ mech_step(#state{step = 2, algo = Algo, ssdp = Ssdp} = State, ClientIn) ->
                                            base64:encode(Salt),
                                            ",", "i=",
                                            integer_to_list(IterationCount),
-					   ",d=", Ssdp]),
+					   SsdpPart]),
 				  {continue, ServerFirstMessage,
 				   State#state{step = 4, stored_key = StoredKey,
 					       server_key = ServerKey,

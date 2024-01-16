@@ -110,6 +110,7 @@
 -callback tls_required(state()) -> boolean().
 -callback tls_enabled(state()) -> boolean().
 -callback sasl_mechanisms([xmpp_sasl:mechanism()], state()) -> [xmpp_sasl:mechanism()].
+-callback sasl_options(state()) -> [tuple()].
 -callback unauthenticated_stream_features(state()) -> [xmpp_element()].
 -callback authenticated_stream_features(state()) -> [xmpp_element()].
 
@@ -142,6 +143,7 @@
 		     tls_required/1,
 		     tls_enabled/1,
 		     sasl_mechanisms/2,
+		     sasl_options/1,
 		     unauthenticated_stream_features/1,
 		     authenticated_stream_features/1]).
 
@@ -955,9 +957,17 @@ process_sasl_request(#sasl_auth{mechanism = Mech, text = ClientIn},
 	    GetPW = get_password_fun(Mech, State1),
 	    CheckPW = check_password_fun(Mech, State1),
 	    CheckPWDigest = check_password_digest_fun(Mech, State1),
+	    Mechs2 = try callback(sasl_options, State) of
+			 Opts ->
+			     case lists:keyfind(scram_downgrade_protection, 1, Opts) of
+				 {_, false} -> undefined;
+				 _ -> Mechs
+			     end
+		     catch _:{?MODULE, undef} -> Mechs
+		     end,
 	    SASLState = xmpp_sasl:server_new(LServer, GetPW, CheckPW, CheckPWDigest),
 	    CB = maps:get(sasl_channel_bindings, State1, none),
-	    Res = xmpp_sasl:server_start(SASLState, Mech, ClientIn, CB, Mechs),
+	    Res = xmpp_sasl:server_start(SASLState, Mech, ClientIn, CB, Mechs2),
 	    process_sasl_result(Res, disable_sasl2(State1#{sasl_state => SASLState}));
 	false ->
 	    process_sasl_result({error, unsupported_mechanism, <<"">>}, disable_sasl2(State1))
@@ -1068,9 +1078,17 @@ process_sasl2_request(#sasl2_authenticate{mechanism = Mech, initial_response = C
 	    GetPW = get_password_fun(Mech, State1),
 	    CheckPW = check_password_fun(Mech, State1),
 	    CheckPWDigest = check_password_digest_fun(Mech, State1),
+	    Mechs2 = try callback(sasl_options, State) of
+			 Opts ->
+			     case lists:keyfind(scram_downgrade_protection, 1, Opts) of
+				 {_, false} -> undefined;
+				 _ -> Mechs
+			     end
+		     catch _:{?MODULE, undef} -> Mechs
+		     end,
 	    SASLState = xmpp_sasl:server_new(LServer, GetPW, CheckPW, CheckPWDigest),
 	    CB = maps:get(sasl_channel_bindings, State1, none),
-	    Res = xmpp_sasl:server_start(SASLState, Mech, ClientIn, CB, Mechs),
+	    Res = xmpp_sasl:server_start(SASLState, Mech, ClientIn, CB, Mechs2),
 	    process_sasl2_result(Res, State1#{sasl_state => SASLState,
 					      sasl2_inline_els => SaslInline,
 					      sasl2_ua_id => UAId});
