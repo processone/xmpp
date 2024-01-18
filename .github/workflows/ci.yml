@@ -15,6 +15,9 @@ jobs:
       image: erlang:${{ matrix.otp }}
     steps:
     - uses: actions/checkout@v3
+      if: matrix.otp < '20.3'
+    - uses: actions/checkout@v4
+      if: matrix.otp >= '20.3'
     - run: sed -i 's|applications, \[|applications, \[erl_tidy, |g' src/xmpp.app.src
       if: matrix.otp >= '26'
     - run: make
