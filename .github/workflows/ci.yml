@@ -53,7 +53,7 @@ jobs:
     - run: REBAR=rebar3 make xdata
     - run: REBAR=rebar3 make
     - run: rebar3 eunit -v
-    - run: pip install --user cpp-coveralls
+    #- run: pip install --user cpp-coveralls
     #- run: cpp-coveralls -b `pwd` --verbose --gcov-options '\-lp' --dump c.json
     - name: Send to Coveralls
       env:
