@@ -1,3 +1,16 @@
+# Version 1.8.0
+
+* Add support for xep-0474 - SASL SCRAM Downgrade Protection
+* Add support for xep-0388 - SASL2
+* Add support for xep-0386 - Bind 2
+* Add support for xep-0440 - SASL Channel-Binding Type Capability
+* Update support for xep-0424 to versuib 0.4.0
+* Allow disabling scram downgrade protection
+* Extend xmpp_stream_out to allow use as component implementation
+* Make handling of extra attributes in scram exchange better follow spec
+* Add support for tls-unique and tls-server-end-point channel binding
+* Fix compilation on arch where char is unsigned
+
 # 1.7.0
 
 * Add support for  xep-0421 - MUC Occupant Id
