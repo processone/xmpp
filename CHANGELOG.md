@@ -1,5 +1,7 @@
 # Version 1.8.0
 
+* Updating fast_tls to version 1.1.17.
+* Updating fast_xml to version 1.1.50.
 * Add support for xep-0474 - SASL SCRAM Downgrade Protection
 * Add support for xep-0388 - SASL2
 * Add support for xep-0386 - Bind 2
