@@ -136,16 +136,19 @@ mech_step(#state{step = 2, algo = Algo, ssdp = Ssdp} = State, ClientIn) ->
 					   base64:decode(SEK),
 					   base64:decode(Slt), IC};
 				      _ ->
+					  Iterations = if Algo =:= sha512 -> ?SCRAM_SHA512_ITERATION_COUNT;
+							   true -> ?SCRAM_DEFAULT_ITERATION_COUNT
+						       end,
 					  TempSalt =
 					  p1_rand:bytes(?SALT_LENGTH),
 					  SaltedPassword =
 					  scram:salted_password(Algo, Pass,
 								TempSalt,
-								?SCRAM_DEFAULT_ITERATION_COUNT),
+								Iterations),
 					  {scram:stored_key(Algo, scram:client_key(Algo, SaltedPassword)),
 					   scram:server_key(Algo, SaltedPassword),
 					   TempSalt,
-					   ?SCRAM_DEFAULT_ITERATION_COUNT}
+					   Iterations}
 				  end,
 				  ClientFirstMessageBare =
 				      substr(ClientIn,
