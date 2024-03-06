@@ -1168,8 +1168,9 @@ process_bind2(#{sasl2_ua_id := UAId, user := User, server := Server} = State, El
 	#bind2_bind{tag = Tag, sub_els = SubEls} ->
 	    {Resource, SessionId} =
 	    case {Tag, UAId} of
-		{undefined, undefined} -> {<<>>, undefined};
-		{<<>>, undefined} -> {<<>>, undefined};
+		{undefined, _} -> {<<>>, undefined};
+		{_, undefined} -> {<<>>, undefined};
+		{<<>>, _} -> {<<>>, undefined};
 		_ ->
 		    Hash = crypto:hash(sha, <<"salt", User/binary, Server/binary, UAId/binary>>),
 		    B64Hash = base64:encode(Hash),
