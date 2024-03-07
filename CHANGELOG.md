@@ -3,6 +3,10 @@
 * Increase the iteration count for SCRAM-SHA-512 
 [see spec](https://datatracker.ietf.org/doc/html/draft-melnikov-scram-sha-512#name-security-considerations-3)
 
+# Version 1.8.1
+
+* Updating fast_tls to version 1.1.19.
+
 # Version 1.8.0
 
 * Updating fast_tls to version 1.1.17.
