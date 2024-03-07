@@ -24,3 +24,5 @@
 -type scram() :: #scram{}.
 
 -define(SCRAM_DEFAULT_ITERATION_COUNT, 4096).
+% see https://datatracker.ietf.org/doc/html/draft-melnikov-scram-sha-512#name-security-considerations-3
+-define(SCRAM_SHA512_ITERATION_COUNT, 10000).
