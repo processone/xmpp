@@ -1187,7 +1187,7 @@ process_bind2(#{sasl2_ua_id := UAId, user := User, server := Server} = State, El
 		{ok, State1} ->
 		    {State2, _, ResultEls} =
 		    try callback(handle_bind2_inline, SubEls, State1)
-		    catch _:{?MODULE, undef} -> {State1, []}
+		    catch _:{?MODULE, undef} -> {State1, SubEls, []}
 		    end,
 		    {State2, [#bind2_bound{sub_els = ResultEls}]};
 		_ ->
