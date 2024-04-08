@@ -1055,7 +1055,7 @@ process_sasl2_request(#sasl2_authenticate{mechanism = Mech, initial_response = C
     State1 = State#{sasl_mech => Mech},
     Mechs = get_sasl_mechanisms(State1),
     UAId = case UA of
-	       #sasl2_user_agent{id = ID} when id /= <<>> ->
+	       #sasl2_user_agent{id = ID} when ID /= <<>> ->
 		   ID;
 	       _ ->
 		   undefined
