@@ -29,9 +29,6 @@ Cfg = case file:consult(filename:join([filename:dirname(SCRIPT),"vars.config"]))
 {ldflags, CfgLDFlags} = lists:keyfind(ldflags, 1, Cfg),
 {with_gcov, CfgWithGCov} = lists:keyfind(with_gcov, 1, Cfg),
 
-SysVersion = lists:map(fun erlang:list_to_integer/1,
-		       string:tokens(erlang:system_info(version), ".")),
-
 IsRebar3 = case application:get_key(rebar, vsn) of
 	       {ok, VSN} ->
 		   [VSN1 | _] = string:tokens(VSN, "-"),
@@ -145,8 +142,6 @@ GithubConfig = case {os:getenv("GITHUB_ACTIONS"), os:getenv("GITHUB_TOKEN")} of
 end,
 
 Rules = [
-	 {[port_env, "CFLAGS"], SysVersion >= [7, 3],
-	  AppendStr("-DHAS_ERTS_EXIT"), "$CFLAGS"},
 	 {[port_env, "CFLAGS"], true,
 	  AppendStr(CfgCFlags), "$CFLAGS"},
 	 {[port_env, "LDFLAGS"], true,
