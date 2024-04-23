@@ -78,13 +78,31 @@ AppendList = fun(Append) ->
 		     end
 	     end,
 
-Rebar3DepsFilter = fun(DepsList) ->
-			   lists:map(fun({DepName,_, {git,_, {tag,Version}}}) ->
-					     {DepName, Version};
-					(Dep) ->
-					     Dep
-				     end, DepsList)
-		   end,
+% Convert our rich deps syntax to rebar2 format:
+% https://github.com/rebar/rebar/wiki/Dependency-management
+Rebar2DepsFilter =
+fun(DepsList) ->
+	lists:map(fun({DepName, _HexVersion, Source}) ->
+	              {DepName, ".*", Source}
+		  end, DepsList)
+end,
+
+% Convert our rich deps syntax to rebar3 version definition format:
+% https://rebar3.org/docs/configuration/dependencies/#dependency-version-handling
+% https://hexdocs.pm/elixir/Version.html
+Rebar3DepsFilter =
+fun(DepsList) ->
+	lists:map(fun({DepName, HexVersion, {git, _, {tag, GitVersion}} = Source}) ->
+			  case HexVersion == ".*" of
+                              true ->
+                                  {DepName, GitVersion};
+                              false ->
+                                  {DepName, HexVersion}
+                          end;
+		     ({DepName, _HexVersion, Source}) ->
+	              {DepName, ".*", Source}
+		  end, DepsList)
+end,
 
 GlobalDepsFilter = fun(Deps) ->
 			   DepNames = lists:map(fun({DepName, _, _}) -> DepName;
@@ -156,6 +174,8 @@ Rules = [
 	  AppendStr("--coverage"), ""},
 	 {[port_env, "CFLAGS"], CfgWithGCov == "true",
 	  AppendStr("--coverage"), ""},
+	 {[deps], (not IsRebar3),
+	  Rebar2DepsFilter, []},
 	 {[deps], IsRebar3,
 	  Rebar3DepsFilter, []},
 	 {[plugins], IsRebar3,
