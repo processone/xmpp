@@ -24,10 +24,12 @@
 -export([parse/1]).
 
 -record(state, {check_password}).
--type error_reason() :: parser_failed | not_authorized.
+-type error_reason() :: parser_failed | not_authorized | {atom(), binary()}.
 -export_type([error_reason/0]).
 
 -spec format_error(error_reason()) -> {atom(), binary()}.
+format_error({Condition, Text}) ->
+    {Condition, Text};
 format_error(parser_failed) ->
     {'not-authorized', <<"Response decoding failed">>};
 format_error(not_authorized) ->
@@ -44,6 +46,8 @@ mech_step(State, ClientIn) ->
 		    {ok, [{username, User},
 			  {authzid, AuthzId},
 			  {auth_module, AuthModule}]};
+		{false, Condition, Text} ->
+		    {error, {Condition, Text}, User};
 		_ ->
 		    {error, not_authorized, User}
 	    end;

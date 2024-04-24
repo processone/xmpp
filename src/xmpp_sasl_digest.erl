@@ -29,9 +29,10 @@
 -type check_password_fun() :: fun((binary(), binary(), binary(), binary(),
                                    fun((binary()) -> binary())) ->
                                            {boolean(), any()} |
+                                           {false, atom(), binary()} |
                                            false).
 -type error_reason() :: parser_failed | invalid_digest_uri |
-			not_authorized | unexpected_response.
+			not_authorized | unexpected_response | {atom(), binary()}.
 -export_type([error_reason/0]).
 
 -record(state, {step = 1 :: 1 | 3 | 5,
@@ -45,6 +46,8 @@
                 hostfqdn = [] :: [binary()]}).
 
 -spec format_error(error_reason()) -> {atom(), binary()}.
+format_error({Condition, Text}) ->
+    {Condition, Text};
 format_error(parser_failed) ->
     {'not-authorized', <<"Response decoding failed">>};
 format_error(invalid_digest_uri) ->
@@ -101,6 +104,7 @@ mech_step(#state{step = 3, nonce = Nonce} = State,
 					 username = UserName,
 					 authzid = AuthzId}};
 			false -> {error, not_authorized, UserName};
+			{false, Condition, Text} -> {error, {Condition, Text}, UserName};
 			{false, _} -> {error, not_authorized, UserName}
 		      end
 		end

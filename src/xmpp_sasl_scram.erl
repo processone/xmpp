@@ -27,7 +27,7 @@
 -include("scram.hrl").
 
 -type password() :: binary() | #scram{}.
--type get_password_fun() :: fun((binary()) -> {false | password(), module()}).
+-type get_password_fun() :: fun((binary()) -> {false | {false, atom(), binary()} | password(), module()}).
 
 -record(state,
 	{step = 2                :: 2 | 4,
@@ -50,11 +50,13 @@
 			not_authorized | saslprep_failed |
 			parser_failed | bad_attribute |
 			nonce_mismatch | bad_channel_binding |
-                        incompatible_mechs.
+                        incompatible_mechs | {atom(), binary()}.
 
 -export_type([error_reason/0]).
 
 -spec format_error(error_reason()) -> {atom(), binary()}.
+format_error({Condition, Text}) ->
+    {Condition, Text};
 format_error(unsupported_extension) ->
     {'not-authorized', <<"Unsupported extension">>};
 format_error(bad_username) ->
@@ -121,6 +123,8 @@ mech_step(#state{step = 2, algo = Algo, ssdp = Ssdp} = State, ClientIn) ->
 				       true -> Pass
 				    end,
 			    case Pass of
+				{false, Condition, Text} ->
+				  {error, {Condition, Text}, UserName};
 				false ->
 				  {error, not_authorized, UserName};
 				#scram{hash = Hash } when Algo /= Hash ->
