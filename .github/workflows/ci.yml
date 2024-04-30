@@ -9,19 +9,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        otp: ['19.3', '25.3', 26]
+        otp: [19, 25, 26]
     runs-on: ubuntu-22.04
     container:
       image: erlang:${{ matrix.otp }}
     steps:
     - uses: actions/checkout@v3
-      if: matrix.otp < '20.3'
+      if: matrix.otp < 20
     - uses: actions/checkout@v4
-      if: matrix.otp >= '20.3'
+      if: matrix.otp >= 20
     - run: sed -i 's|applications, \[|applications, \[erl_tidy, |g' src/xmpp.app.src
-      if: matrix.otp >= '26'
+      if: matrix.otp >= 26
     - run: make
-      if: matrix.otp >= '22.0'
+      if: matrix.otp >= 22
     - run: REBAR=rebar3 ERLTIDY=true make
     - run: REBAR=rebar3 make spec
     - run: REBAR=rebar3 make xdata
@@ -31,9 +31,9 @@ jobs:
     - run: rebar3 eunit -v
     - run: make doap
     - run: git config --global --add safe.directory /__w/xmpp/xmpp
-      if: matrix.otp == '25.3' && github.event_name == 'push'
+      if: matrix.otp == 25 && github.event_name == 'push'
     - uses: stefanzweifel/git-auto-commit-action@v4
-      if: matrix.otp == '25.3' && github.event_name == 'push'
+      if: matrix.otp == 25 && github.event_name == 'push'
       with:
         add_options: '-u'
         commit_message: Automatic changes "make spec xdata"
