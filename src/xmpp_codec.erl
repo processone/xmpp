@@ -312,11 +312,6 @@ get_mod(<<"actions">>,
     xep0050;
 get_mod(<<"continue">>, <<"urn:xmpp:sasl:2">>) ->
     xep0388;
-get_mod(<<"thread">>, <<"jabber:component:accept">>) ->
-    rfc6120;
-get_mod(<<"bad-protocol">>,
-        <<"urn:ietf:params:xml:ns:xmpp-sasl">>) ->
-    rfc6120;
 get_mod(<<"mechanisms">>,
         <<"urn:ietf:params:xml:ns:xmpp-sasl">>) ->
     rfc6120;
@@ -325,8 +320,6 @@ get_mod(<<"query">>,
     xep0065;
 get_mod(<<"displayed">>, <<"jabber:x:event">>) ->
     xep0022;
-get_mod(<<"apply-to">>, <<"urn:xmpp:fasten:0">>) ->
-    xep0422;
 get_mod(<<"start">>, <<"urn:xmpp:mam:tmp">>) -> xep0313;
 get_mod(<<"received">>, <<"urn:xmpp:carbons:2">>) ->
     xep0280;
@@ -523,6 +516,9 @@ get_mod(<<"unsupported-transports">>,
 get_mod(<<"file-not-available">>,
         <<"urn:xmpp:jingle:apps:file-transfer:errors:0">>) ->
     xep0234;
+get_mod(<<"moderated">>,
+        <<"urn:xmpp:message-moderate:1">>) ->
+    xep0425;
 get_mod(<<"c">>,
         <<"http://jabber.org/protocol/caps">>) ->
     xep0115;
@@ -779,6 +775,9 @@ get_mod(<<"method">>,
 get_mod(<<"invalid-jid">>,
         <<"http://jabber.org/protocol/pubsub#errors">>) ->
     xep0060;
+get_mod(<<"reason">>,
+        <<"urn:xmpp:message-moderate:1">>) ->
+    xep0425;
 get_mod(<<"tag">>, <<"urn:xmpp:bind:0">>) -> xep0386;
 get_mod(<<"iq">>, <<"jabber:client">>) -> rfc6120;
 get_mod(<<"LOCALITY">>, <<"vcard-temp">>) -> xep0054;
@@ -1151,6 +1150,9 @@ get_mod(<<"stream:error">>,
     rfc6120;
 get_mod(<<"mix">>, <<"urn:xmpp:mix:core:1">>) ->
     xep0369;
+get_mod(<<"moderate">>,
+        <<"urn:xmpp:message-moderate:1">>) ->
+    xep0425;
 get_mod(<<"subject">>, <<"jabber:component:accept">>) ->
     rfc6120;
 get_mod(<<"text">>,
@@ -1709,6 +1711,13 @@ get_mod(<<"nick">>, <<"urn:xmpp:mix:presence:0">>) ->
     xep0369;
 get_mod(<<"leave">>, <<"urn:xmpp:mix:core:1">>) ->
     xep0369;
+get_mod(<<"thread">>, <<"jabber:component:accept">>) ->
+    rfc6120;
+get_mod(<<"bad-protocol">>,
+        <<"urn:ietf:params:xml:ns:xmpp-sasl">>) ->
+    rfc6120;
+get_mod(<<"apply-to">>, <<"urn:xmpp:fasten:0">>) ->
+    xep0422;
 get_mod(Name, XMLNS) ->
     xmpp_codec_external:lookup(Name, XMLNS).
 
@@ -1846,6 +1855,7 @@ get_mod({muc_subscription, _, _, _}) -> p1_mucsub;
 get_mod({muc_subscribe, _, _, _, _}) -> p1_mucsub;
 get_mod({feature_csi}) -> xep0352;
 get_mod({ibb_open, _, _, _}) -> xep0047;
+get_mod({message_moderate, _, _, _, _}) -> xep0425;
 get_mod({sasl2_authenticate, _, _, _, _}) -> xep0388;
 get_mod({sasl2_continue, _, _, _, _}) -> xep0388;
 get_mod({vcard_tel,
@@ -1905,7 +1915,6 @@ get_mod({mark_displayed, _}) -> xep0333;
 get_mod({mark_acknowledged, _}) -> xep0333;
 get_mod({jingle_ft_file, _, _, _, _, _, _, _, _}) ->
     xep0234;
-get_mod({message_retract, _}) -> xep0424;
 get_mod({bookmark_url, _, _}) -> xep0048;
 get_mod({gone, _}) -> rfc6120;
 get_mod({sasl_response, _}) -> rfc6120;
@@ -1956,6 +1965,7 @@ get_mod({mix_participant, _, _, _}) -> xep0369;
 get_mod({db_verify, _, _, _, _, _, _}) -> xep0220;
 get_mod({upload_slot, _, _, _}) -> xep0363;
 get_mod({jingle_ibb_transport, _, _, _}) -> xep0261;
+get_mod({message_moderated, _, _, _}) -> xep0425;
 get_mod({muc_decline, _, _, _}) -> xep0045;
 get_mod({sm_enable, _, _, _}) -> xep0198;
 get_mod({offline, _, _, _}) -> xep0013;
@@ -2000,9 +2010,7 @@ get_mod({mix_create, _, _}) -> xep0369;
 get_mod({search, _, _, _, _, _, _, _}) -> xep0055;
 get_mod({expire, _, _}) -> xep0023;
 get_mod({privilege, _, _}) -> xep0356;
-get_mod({message_moderate, _, _}) -> xep0425;
 get_mod({avatar_pointer, _, _, _, _, _, _}) -> xep0084;
-get_mod({message_moderated, _, _, _, _}) -> xep0425;
 get_mod({muc_invite, _, _, _, _}) -> xep0045;
 get_mod({mix_client_join, _, _, _}) -> xep0405;
 get_mod({jingle_reason, _, _, _}) -> xep0166;
@@ -2024,6 +2032,7 @@ get_mod({ibb_close, _}) -> xep0047;
 get_mod({vcard_sound, _, _, _}) -> xep0054;
 get_mod({ps_retract, _, _, _}) -> xep0060;
 get_mod({privilege_perm, _, _}) -> xep0356;
+get_mod({message_retract, _, _, _}) -> xep0424;
 get_mod({sasl2_user_agent, _, _, _}) -> xep0388;
 get_mod({bind2_bind, _, _, _}) -> xep0386;
 get_mod({vcard_adr,

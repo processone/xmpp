@@ -24,18 +24,20 @@ tags() ->
     [{<<"retracted">>, <<"urn:xmpp:message-retract:1">>},
      {<<"retract">>, <<"urn:xmpp:message-retract:1">>}].
 
-do_encode({message_retract, _} = Retract, TopXMLNS) ->
+do_encode({message_retract, _, _, _} = Retract,
+          TopXMLNS) ->
     encode_message_retract(Retract, TopXMLNS);
 do_encode({message_retracted, _, _, _, _, _} =
               Retracted,
           TopXMLNS) ->
     encode_message_retracted(Retracted, TopXMLNS).
 
-do_get_name({message_retract, _}) -> <<"retract">>;
+do_get_name({message_retract, _, _, _}) ->
+    <<"retract">>;
 do_get_name({message_retracted, _, _, _, _, _}) ->
     <<"retracted">>.
 
-do_get_ns({message_retract, _}) ->
+do_get_ns({message_retract, _, _, _}) ->
     <<"urn:xmpp:message-retract:1">>;
 do_get_ns({message_retracted, _, _, _, _, _}) ->
     <<"urn:xmpp:message-retract:1">>.
@@ -52,13 +54,13 @@ set_els({message_retracted, _id, _by, _from, _stamp, _},
         _sub_els) ->
     {message_retracted, _id, _by, _from, _stamp, _sub_els}.
 
-pp(message_retract, 1) -> [id];
+pp(message_retract, 3) -> [id, reason, moderated];
 pp(message_retracted, 5) ->
     [id, by, from, stamp, sub_els];
 pp(_, _) -> no.
 
 records() ->
-    [{message_retract, 1}, {message_retracted, 5}].
+    [{message_retract, 3}, {message_retracted, 5}].
 
 dec_utc(Val) -> xmpp_util:decode_timestamp(Val).
 
@@ -231,11 +233,7 @@ encode_message_retracted_attr_from(_val, _acc) ->
 
 decode_message_retracted_attr_stamp(__TopXMLNS,
                                     undefined) ->
-    erlang:error({xmpp_codec,
-                  {missing_attr,
-                   <<"stamp">>,
-                   <<"retracted">>,
-                   __TopXMLNS}});
+    undefined;
 decode_message_retracted_attr_stamp(__TopXMLNS, _val) ->
     case catch dec_utc(_val) of
         {'EXIT', _} ->
@@ -247,15 +245,94 @@ decode_message_retracted_attr_stamp(__TopXMLNS, _val) ->
         _res -> _res
     end.
 
+encode_message_retracted_attr_stamp(undefined, _acc) ->
+    _acc;
 encode_message_retracted_attr_stamp(_val, _acc) ->
     [{<<"stamp">>, enc_utc(_val)} | _acc].
 
 decode_message_retract(__TopXMLNS, __Opts,
                        {xmlel, <<"retract">>, _attrs, _els}) ->
+    {Moderated, Reason} =
+        decode_message_retract_els(__TopXMLNS,
+                                   __Opts,
+                                   _els,
+                                   undefined,
+                                   undefined),
     Id = decode_message_retract_attrs(__TopXMLNS,
                                       _attrs,
                                       undefined),
-    {message_retract, Id}.
+    {message_retract, Id, Reason, Moderated}.
+
+decode_message_retract_els(__TopXMLNS, __Opts, [],
+                           Moderated, Reason) ->
+    {Moderated, Reason};
+decode_message_retract_els(__TopXMLNS, __Opts,
+                           [{xmlel, <<"reason">>, _attrs, _} = _el | _els],
+                           Moderated, Reason) ->
+    case xmpp_codec:get_attr(<<"xmlns">>,
+                             _attrs,
+                             __TopXMLNS)
+        of
+        <<"urn:xmpp:message-moderate:0">> ->
+            decode_message_retract_els(__TopXMLNS,
+                                       __Opts,
+                                       _els,
+                                       Moderated,
+                                       xep0425:decode_message_moderate_reason(<<"urn:xmpp:message-moderate:0">>,
+                                                                              __Opts,
+                                                                              _el));
+        <<"urn:xmpp:message-moderate:1">> ->
+            decode_message_retract_els(__TopXMLNS,
+                                       __Opts,
+                                       _els,
+                                       Moderated,
+                                       xep0425:decode_message_moderate_reason(<<"urn:xmpp:message-moderate:1">>,
+                                                                              __Opts,
+                                                                              _el));
+        _ ->
+            decode_message_retract_els(__TopXMLNS,
+                                       __Opts,
+                                       _els,
+                                       Moderated,
+                                       Reason)
+    end;
+decode_message_retract_els(__TopXMLNS, __Opts,
+                           [{xmlel, <<"moderated">>, _attrs, _} = _el | _els],
+                           Moderated, Reason) ->
+    case xmpp_codec:get_attr(<<"xmlns">>,
+                             _attrs,
+                             __TopXMLNS)
+        of
+        <<"urn:xmpp:message-moderate:0">> ->
+            decode_message_retract_els(__TopXMLNS,
+                                       __Opts,
+                                       _els,
+                                       xep0425:decode_message_moderated(<<"urn:xmpp:message-moderate:0">>,
+                                                                        __Opts,
+                                                                        _el),
+                                       Reason);
+        <<"urn:xmpp:message-moderate:1">> ->
+            decode_message_retract_els(__TopXMLNS,
+                                       __Opts,
+                                       _els,
+                                       xep0425:decode_message_moderated(<<"urn:xmpp:message-moderate:1">>,
+                                                                        __Opts,
+                                                                        _el),
+                                       Reason);
+        _ ->
+            decode_message_retract_els(__TopXMLNS,
+                                       __Opts,
+                                       _els,
+                                       Moderated,
+                                       Reason)
+    end;
+decode_message_retract_els(__TopXMLNS, __Opts,
+                           [_ | _els], Moderated, Reason) ->
+    decode_message_retract_els(__TopXMLNS,
+                               __Opts,
+                               _els,
+                               Moderated,
+                               Reason).
 
 decode_message_retract_attrs(__TopXMLNS,
                              [{<<"id">>, _val} | _attrs], _Id) ->
@@ -266,23 +343,48 @@ decode_message_retract_attrs(__TopXMLNS, [_ | _attrs],
 decode_message_retract_attrs(__TopXMLNS, [], Id) ->
     decode_message_retract_attr_id(__TopXMLNS, Id).
 
-encode_message_retract({message_retract, Id},
+encode_message_retract({message_retract,
+                        Id,
+                        Reason,
+                        Moderated},
                        __TopXMLNS) ->
     __NewTopXMLNS =
         xmpp_codec:choose_top_xmlns(<<"urn:xmpp:message-retract:1">>,
                                     [],
                                     __TopXMLNS),
-    _els = [],
+    _els =
+        lists:reverse('encode_message_retract_$moderated'(Moderated,
+                                                          __NewTopXMLNS,
+                                                          'encode_message_retract_$reason'(Reason,
+                                                                                           __NewTopXMLNS,
+                                                                                           []))),
     _attrs = encode_message_retract_attr_id(Id,
                                             xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
                                                                        __TopXMLNS)),
     {xmlel, <<"retract">>, _attrs, _els}.
 
+'encode_message_retract_$moderated'(undefined,
+                                    __TopXMLNS, _acc) ->
+    _acc;
+'encode_message_retract_$moderated'(Moderated,
+                                    __TopXMLNS, _acc) ->
+    [xep0425:encode_message_moderated(Moderated, __TopXMLNS)
+     | _acc].
+
+'encode_message_retract_$reason'(undefined, __TopXMLNS,
+                                 _acc) ->
+    _acc;
+'encode_message_retract_$reason'(Reason, __TopXMLNS,
+                                 _acc) ->
+    [xep0425:encode_message_moderate_reason(Reason,
+                                            __TopXMLNS)
+     | _acc].
+
 decode_message_retract_attr_id(__TopXMLNS, undefined) ->
-    erlang:error({xmpp_codec,
-                  {missing_attr, <<"id">>, <<"retract">>, __TopXMLNS}});
+    <<>>;
 decode_message_retract_attr_id(__TopXMLNS, _val) ->
     _val.
 
+encode_message_retract_attr_id(<<>>, _acc) -> _acc;
 encode_message_retract_attr_id(_val, _acc) ->
     [{<<"id">>, _val} | _acc].

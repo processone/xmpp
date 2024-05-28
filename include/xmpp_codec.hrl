@@ -331,7 +331,7 @@
 -record(message_retracted, {id = <<>> :: binary(),
                             by :: undefined | jid:jid(),
                             from = <<>> :: binary(),
-                            stamp :: erlang:timestamp(),
+                            stamp :: undefined | erlang:timestamp(),
                             sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
 -type message_retracted() :: #message_retracted{}.
 
@@ -371,9 +371,6 @@
                       jid :: undefined | jid:jid(),
                       id = <<>> :: binary()}).
 -type inbox_entry() :: #inbox_entry{}.
-
--record(message_retract, {id = <<>> :: binary()}).
--type message_retract() :: #message_retract{}.
 
 -record(x509_challenge_failed, {}).
 -type x509_challenge_failed() :: #x509_challenge_failed{}.
@@ -467,6 +464,11 @@
 
 -record(occupant_id, {id = <<>> :: binary()}).
 -type occupant_id() :: #occupant_id{}.
+
+-record(message_moderated, {by :: undefined | jid:jid(),
+                            sub_els = [] :: [xmpp_element() | fxml:xmlel()],
+                            occupant_id :: 'undefined' | #occupant_id{}}).
+-type message_moderated() :: #message_moderated{}.
 
 -record(hash_used, {algo = <<>> :: binary()}).
 -type hash_used() :: #hash_used{}.
@@ -1139,13 +1141,14 @@
                       rsm :: 'undefined' | #rsm_set{}}).
 -type disco_items() :: #disco_items{}.
 
--record(message_moderated, {by :: undefined | jid:jid(),
-                            reason :: 'undefined' | binary(),
-                            retract :: 'undefined' | #message_retract{},
-                            sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
--type message_moderated() :: #message_moderated{}.
+-record(message_retract, {id = <<>> :: binary(),
+                          reason :: 'undefined' | binary(),
+                          moderated :: 'undefined' | #message_moderated{}}).
+-type message_retract() :: #message_retract{}.
 
--record(message_moderate, {reason :: 'undefined' | binary(),
+-record(message_moderate, {xmlns = <<>> :: binary(),
+                           id = <<>> :: binary(),
+                           reason :: 'undefined' | binary(),
                            retract :: 'undefined' | #message_retract{}}).
 -type message_moderate() :: #message_moderate{}.
 
