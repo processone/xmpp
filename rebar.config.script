@@ -179,7 +179,7 @@ Rules = [
 	 {[deps], IsRebar3,
 	  Rebar3DepsFilter, []},
 	 {[plugins], IsRebar3,
-	  AppendList([pc, provider_asn1]), []},
+	  AppendList([{pc, "~> 1.15.0"}, provider_asn1]), []},
 	 {[provider_hooks], IsRebar3,
 	  AppendList([{pre, [
 			     {compile, {pc, compile}},
