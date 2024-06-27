@@ -1,5 +1,10 @@
 # Version 1.8.2
 
+* Updating fast_tls to version 1.1.20.
+* Updating fast_xml to version 1.1.52.
+* Updating ezlib to version 1.0.13.
+* Updating stringprep to version 1.0.30.
+* Updating p1_utils to version 1.0.26.
 * Add support for xep-0425 (0.3.0)
 * Fix auth error when using sasl2 with empty id in user-agent
 * Fix crash when using older ejabberd without handle_bind2_inline hook
