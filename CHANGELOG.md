@@ -1,3 +1,10 @@
+# Version 1.8.2
+
+* Add support for xep-0425 (0.3.0)
+* Fix auth error when using sasl2 with empty id in user-agent
+* Fix crash when using older ejabberd without handle_bind2_inline hook
+* Don't use stable resources when client didn't provide user-agent
+
 # Version 1.8.1
 
 * Updating fast_tls to version 1.1.19.
@@ -74,7 +81,7 @@
 * Change internal representation of markable element
 * Add MUC hats support
 * Generate documentation before publishing to hex
-* 
+*
 
 # Version 1.5.4
 
