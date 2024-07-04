@@ -244,6 +244,12 @@
                        jid :: jid:jid()}).
 -type ps_subscribe() :: #ps_subscribe{}.
 
+-record(message_retracted_30, {by :: undefined | jid:jid(),
+                               from = <<>> :: binary(),
+                               stamp :: undefined | erlang:timestamp(),
+                               sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
+-type message_retracted_30() :: #message_retracted_30{}.
+
 -record(jidprep, {jid :: jid:jid()}).
 -type jidprep() :: #jidprep{}.
 
@@ -312,11 +318,6 @@
 
 -record(db_feature, {errors = false :: boolean()}).
 -type db_feature() :: #db_feature{}.
-
--record(roster_query, {items = [] :: [#roster_item{}],
-                       ver :: 'undefined' | binary(),
-                       mix_annotate = false :: boolean()}).
--type roster_query() :: #roster_query{}.
 
 -record(x_conference, {jid :: jid:jid(),
                        password = <<>> :: binary(),
@@ -464,6 +465,12 @@
 
 -record(occupant_id, {id = <<>> :: binary()}).
 -type occupant_id() :: #occupant_id{}.
+
+-record(message_moderated_21, {by :: undefined | jid:jid(),
+                               reason :: 'undefined' | binary(),
+                               sub_els = [] :: [xmpp_element() | fxml:xmlel()],
+                               occupant_id :: 'undefined' | #occupant_id{}}).
+-type message_moderated_21() :: #message_moderated_21{}.
 
 -record(message_moderated, {by :: undefined | jid:jid(),
                             sub_els = [] :: [xmpp_element() | fxml:xmlel()],
@@ -638,14 +645,8 @@
 -record(nick, {name = <<>> :: binary()}).
 -type nick() :: #nick{}.
 
--record(sasl2_failure, {reason :: 'aborted' | 'account-disabled' | 'bad-protocol' | 'credentials-expired' | 'encryption-required' | 'incorrect-encoding' | 'invalid-authzid' | 'invalid-mechanism' | 'malformed-request' | 'mechanism-too-weak' | 'not-authorized' | 'temporary-auth-failure' | 'undefined',
-                        text :: 'undefined' | binary(),
-                        sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
--type sasl2_failure() :: #sasl2_failure{}.
-
--record(sasl_failure, {reason :: 'aborted' | 'account-disabled' | 'bad-protocol' | 'credentials-expired' | 'encryption-required' | 'incorrect-encoding' | 'invalid-authzid' | 'invalid-mechanism' | 'malformed-request' | 'mechanism-too-weak' | 'not-authorized' | 'temporary-auth-failure' | 'undefined',
-                       text = [] :: [#text{}]}).
--type sasl_failure() :: #sasl_failure{}.
+-record(message_retract_30, {}).
+-type message_retract_30() :: #message_retract_30{}.
 
 -record(muc_subscriptions, {list = [] :: [#muc_subscription{}]}).
 -type muc_subscriptions() :: #muc_subscriptions{}.
@@ -1146,8 +1147,11 @@
                           moderated :: 'undefined' | #message_moderated{}}).
 -type message_retract() :: #message_retract{}.
 
--record(message_moderate, {xmlns = <<>> :: binary(),
-                           id = <<>> :: binary(),
+-record(message_moderate_21, {reason :: 'undefined' | binary(),
+                              retract :: 'undefined' | #message_retract{}}).
+-type message_moderate_21() :: #message_moderate_21{}.
+
+-record(message_moderate, {id = <<>> :: binary(),
                            reason :: 'undefined' | binary(),
                            retract :: 'undefined' | #message_retract{}}).
 -type message_moderate() :: #message_moderate{}.
@@ -1351,6 +1355,20 @@
 -record(sasl_challenge, {text = <<>> :: binary()}).
 -type sasl_challenge() :: #sasl_challenge{}.
 
+-record(sasl2_failure, {reason :: 'aborted' | 'account-disabled' | 'bad-protocol' | 'credentials-expired' | 'encryption-required' | 'incorrect-encoding' | 'invalid-authzid' | 'invalid-mechanism' | 'malformed-request' | 'mechanism-too-weak' | 'not-authorized' | 'temporary-auth-failure' | 'undefined',
+                        text :: 'undefined' | binary(),
+                        sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
+-type sasl2_failure() :: #sasl2_failure{}.
+
+-record(sasl_failure, {reason :: 'aborted' | 'account-disabled' | 'bad-protocol' | 'credentials-expired' | 'encryption-required' | 'incorrect-encoding' | 'invalid-authzid' | 'invalid-mechanism' | 'malformed-request' | 'mechanism-too-weak' | 'not-authorized' | 'temporary-auth-failure' | 'undefined',
+                       text = [] :: [#text{}]}).
+-type sasl_failure() :: #sasl_failure{}.
+
+-record(roster_query, {items = [] :: [#roster_item{}],
+                       ver :: 'undefined' | binary(),
+                       mix_annotate = false :: boolean()}).
+-type roster_query() :: #roster_query{}.
+
 -type xmpp_element() :: address() |
                         addresses() |
                         adhoc_actions() |
@@ -1446,9 +1464,13 @@
                         media_uri() |
                         message() |
                         message_moderate() |
+                        message_moderate_21() |
                         message_moderated() |
+                        message_moderated_21() |
                         message_retract() |
+                        message_retract_30() |
                         message_retracted() |
+                        message_retracted_30() |
                         message_thread() |
                         mix() |
                         mix_client_join() |

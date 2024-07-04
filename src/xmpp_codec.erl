@@ -295,6 +295,9 @@ get_mod(<<"query">>, <<"jabber:iq:roster">>) -> rfc6121;
 get_mod(<<"NUMBER">>, <<"vcard-temp">>) -> xep0054;
 get_mod(<<"notification">>, <<"urn:xmpp:push:0">>) ->
     xep0357;
+get_mod(<<"retracted">>,
+        <<"urn:xmpp:message-retract:0">>) ->
+    xep0424;
 get_mod(<<"gone">>,
         <<"urn:ietf:params:xml:ns:xmpp-stanzas">>) ->
     rfc6120;
@@ -1296,6 +1299,9 @@ get_mod(<<"CRED">>, <<"vcard-temp">>) -> xep0054;
 get_mod(<<"KEY">>, <<"vcard-temp">>) -> xep0054;
 get_mod(<<"nick">>, <<"urn:xmpp:mix:core:0">>) ->
     xep0369;
+get_mod(<<"retract">>,
+        <<"urn:xmpp:message-retract:0">>) ->
+    xep0424;
 get_mod(<<"password">>, <<"urn:xmpp:bookmarks:1">>) ->
     xep0402;
 get_mod(<<"LABEL">>, <<"vcard-temp">>) -> xep0054;
@@ -1793,6 +1799,7 @@ get_mod({pubsub,
 get_mod({x_conference, _, _, _, _, _}) -> xep0249;
 get_mod({inbox_query, _}) -> xep0430;
 get_mod({disco_info, _, _, _, _}) -> xep0030;
+get_mod({message_moderate_21, _, _}) -> xep0425;
 get_mod({vcard_label, _, _, _, _, _, _, _, _}) ->
     xep0054;
 get_mod({x509_challenge_failed}) -> xep0417;
@@ -1855,7 +1862,6 @@ get_mod({muc_subscription, _, _, _}) -> p1_mucsub;
 get_mod({muc_subscribe, _, _, _, _}) -> p1_mucsub;
 get_mod({feature_csi}) -> xep0352;
 get_mod({ibb_open, _, _, _}) -> xep0047;
-get_mod({message_moderate, _, _, _, _}) -> xep0425;
 get_mod({sasl2_authenticate, _, _, _, _}) -> xep0388;
 get_mod({sasl2_continue, _, _, _, _}) -> xep0388;
 get_mod({vcard_tel,
@@ -1994,11 +2000,13 @@ get_mod({stream_error, _, _}) -> rfc6120;
 get_mod({inbox_entry, _, _, _}) -> xep0430;
 get_mod({receipt_request}) -> xep0184;
 get_mod({upload_request_0, _, _, _, _}) -> xep0363;
+get_mod({message_retracted_30, _, _, _, _}) -> xep0424;
 get_mod({privacy_item, _, _, _, _, _, _, _, _}) ->
     xep0016;
 get_mod({starttls_failure}) -> rfc6120;
 get_mod({bob_data, _, _, _, _}) -> xep0231;
 get_mod({markable}) -> xep0333;
+get_mod({message_moderated_21, _, _, _, _}) -> xep0425;
 get_mod({bind, _, _}) -> rfc6120;
 get_mod({rsm_first, _, _}) -> xep0059;
 get_mod({caps, _, _, _, _}) -> xep0115;
@@ -2055,6 +2063,8 @@ get_mod({ps_unsubscribe, _, _, _}) -> xep0060;
 get_mod({sm_resume, _, _, _}) -> xep0198;
 get_mod({push_enable, _, _, _}) -> xep0357;
 get_mod({jingle_ft_range, _, _, _}) -> xep0234;
+get_mod({message_retract_30}) -> xep0424;
+get_mod({message_moderate, _, _, _}) -> xep0425;
 get_mod({sasl_channel_binding, _}) -> xep0440;
 get_mod({db_result, _, _, _, _, _}) -> xep0220;
 get_mod({bookmark_conference, _, _, _, _, _}) ->

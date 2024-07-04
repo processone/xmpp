@@ -5133,14 +5133,31 @@
                           dec = {dec_utc, []},
                           enc = {enc_utc, []}}]}).
 
+-xml(message_retract_30,
+     #elem{name = <<"retract">>,
+	   xmlns = <<"urn:xmpp:message-retract:0">>,
+	   module = 'xep0424',
+	   result = {message_retract_30}}).
+
+-xml(message_retracted_30,
+     #elem{name = <<"retracted">>,
+	   xmlns = <<"urn:xmpp:message-retract:0">>,
+	   module = 'xep0424',
+	   result = {message_retracted_30, '$by', '$from', '$stamp', '$_els'},
+           attrs = [#attr{name = <<"by">>,
+                          enc = {jid, encode, []},
+                          dec = {jid, decode, []}},
+                    #attr{name = <<"from">>},
+                    #attr{name = <<"stamp">>,
+                          dec = {dec_utc, []},
+                          enc = {enc_utc, []}}]}).
+
 -xml(message_moderate,
      #elem{name = <<"moderate">>,
-	   xmlns = [<<"urn:xmpp:message-moderate:0">>,
-                    <<"urn:xmpp:message-moderate:1">>],
+	   xmlns = <<"urn:xmpp:message-moderate:1">>,
 	   module = 'xep0425',
-	   result = {message_moderate, '$xmlns', '$id', '$reason', '$retract'},
-           attrs = [#attr{name = <<"xmlns">>},
-                    #attr{name = <<"id">>,
+	   result = {message_moderate, '$id', '$reason', '$retract'},
+           attrs = [#attr{name = <<"id">>,
 	                  required = true}],
 	   refs = [#ref{name = message_moderate_reason, min = 0, max = 1,
 	                label = '$reason'},
@@ -5149,8 +5166,7 @@
 
 -xml(message_moderated,
      #elem{name = <<"moderated">>,
-	   xmlns = [<<"urn:xmpp:message-moderate:0">>,
-                    <<"urn:xmpp:message-moderate:1">>],
+	   xmlns = <<"urn:xmpp:message-moderate:1">>,
 	   module = 'xep0425',
 	   result = {message_moderated, '$by', '$_els', '$occupant_id'},
            attrs = [#attr{name = <<"by">>,
@@ -5159,10 +5175,38 @@
 	   refs = [#ref{name = occupant_id, min = 0, max = 1,
                        label = '$occupant_id'}]}).
 
+-xml(message_moderate_21,
+     #elem{name = <<"moderate">>,
+	   xmlns = <<"urn:xmpp:message-moderate:0">>,
+	   module = 'xep0425',
+	   result = {message_moderate_21, '$reason', '$retract'},
+	   refs = [#ref{name = message_moderate_reason_21, min = 0, max = 1,
+	                label = '$reason'},
+	           #ref{name = message_retract, min = 0, max = 1,
+	                label = '$retract'}]}).
+
+-xml(message_moderated_21,
+     #elem{name = <<"moderated">>,
+	   xmlns = <<"urn:xmpp:message-moderate:0">>,
+	   module = 'xep0425',
+	   result = {message_moderated_21, '$by', '$reason', '$_els', '$occupant_id'},
+       attrs = [#attr{name = <<"by">>,
+                      enc = {jid, encode, []},
+                      dec = {jid, decode, []}}],
+	   refs = [#ref{name = message_moderate_reason_21, min = 0, max = 1,
+                    label = '$reason'},
+               #ref{name = occupant_id, min = 0, max = 1,
+                    label = '$occupant_id'}]}).
+
 -xml(message_moderate_reason,
      #elem{name = <<"reason">>,
-	   xmlns = [<<"urn:xmpp:message-moderate:0">>,
-                    <<"urn:xmpp:message-moderate:1">>],
+	   xmlns = <<"urn:xmpp:message-moderate:1">>,
+	   module = 'xep0425',
+	   result = '$cdata'}).
+
+-xml(message_moderate_reason_21,
+     #elem{name = <<"reason">>,
+	   xmlns = <<"urn:xmpp:message-moderate:0">>,
 	   module = 'xep0425',
 	   result = '$cdata'}).
 
