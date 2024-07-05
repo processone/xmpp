@@ -9,15 +9,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        otp: [19, 20, 25, 26, 27]
+        otp: [20, 25, 26, 27]
     runs-on: ubuntu-22.04
     container:
       image: erlang:${{ matrix.otp }}
     steps:
-    - uses: actions/checkout@v3
-      if: matrix.otp < 20
     - uses: actions/checkout@v4
-      if: matrix.otp >= 20
+      if: matrix.otp
     - run: sed -i 's|applications, \[|applications, \[erl_tidy, |g' src/xmpp.app.src
       if: matrix.otp >= 26
     - run: make
