@@ -49,11 +49,11 @@
   <field
       var='muc#roominfo_ldapgroup'
       type='text-single'
-      label='An associated LDAP group that defines 
-             room membership; this should be an LDAP 
-             Distinguished Name according to an 
-             implementation-specific or 
-             deployment-specific definition of a 
+      label='An associated LDAP group that defines
+             room membership; this should be an LDAP
+             Distinguished Name according to an
+             implementation-specific or
+             deployment-specific definition of a
              group.'/>
   <field
       var='muc#roominfo_logs'
@@ -84,6 +84,10 @@
       type='boolean'
       label='Occupants May Change the Subject'>
   </field>
+  <field
+      var='muc#roominfo_avatarhash'
+      type='text-multi'
+      label='Hash of the vCard-temp avatar of this room'/>
 </form_type>
 
 <!--

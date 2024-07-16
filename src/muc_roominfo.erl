@@ -81,7 +81,8 @@
               subject |
               subjectmod |
               pubsub |
-              changesubject]) -> [xdata_field()].
+              changesubject |
+              avatarhash]) -> [xdata_field()].
 
 dec_int(Val) -> dec_int(Val, infinity, infinity).
 
@@ -266,6 +267,10 @@ encode(List, Lang, Required) ->
                   [encode_changesubject(Val,
                                         Lang,
                                         lists:member(changesubject, Required))];
+              {avatarhash, Val} ->
+                  [encode_avatarhash(Val,
+                                     Lang,
+                                     lists:member(avatarhash, Required))];
               #xdata_field{} -> [Opt]
           end
           || Opt <- List],
@@ -818,6 +823,24 @@ do_decode([#xdata_field{var =
                   {too_many_values,
                    <<"muc#roomconfig_changesubject">>,
                    XMLNS}});
+do_decode([#xdata_field{var =
+                            <<"muc#roominfo_avatarhash">>,
+                        values = Values}
+           | Fs],
+          XMLNS, Required, Acc) ->
+    try [Value || Value <- Values] of
+        Result ->
+            do_decode(Fs,
+                      XMLNS,
+                      lists:delete(<<"muc#roominfo_avatarhash">>, Required),
+                      [{avatarhash, Result} | Acc])
+    catch
+        _:_ ->
+            erlang:error({?MODULE,
+                          {bad_var_value,
+                           <<"muc#roominfo_avatarhash">>,
+                           XMLNS}})
+    end;
 do_decode([#xdata_field{var = Var} | Fs], XMLNS,
           Required, Acc) ->
     if Var /= <<"FORM_TYPE">> ->
@@ -1088,3 +1111,20 @@ encode_changesubject(Value, Lang, IsRequired) ->
                  label =
                      xmpp_tr:tr(Lang,
                                 ?T("Occupants May Change the Subject"))}.
+
+-spec encode_avatarhash([binary()], binary(),
+                        boolean()) -> xdata_field().
+
+encode_avatarhash(Value, Lang, IsRequired) ->
+    Values = case Value of
+                 [] -> [];
+                 Value -> Value
+             end,
+    Opts = [],
+    #xdata_field{var = <<"muc#roominfo_avatarhash">>,
+                 values = Values, required = IsRequired,
+                 type = 'text-multi', options = Opts, desc = <<>>,
+                 label =
+                     xmpp_tr:tr(Lang,
+                                ?T("Hash of the vCard-temp avatar of this "
+                                   "room"))}.
