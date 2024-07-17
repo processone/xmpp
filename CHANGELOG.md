@@ -1,5 +1,6 @@
 # Version 1.8.3
 
+* Updating fast_tls to version 1.1.21.
 * Improve handling of muc retracions
 * Add support for muc#roominfo_avatarhash field
 
