@@ -959,8 +959,7 @@
 -type x509_ca_list() :: #x509_ca_list{}.
 
 -record(mix_participant, {jid :: jid:jid(),
-                          nick = <<>> :: binary(),
-                          xmlns = <<>> :: binary()}).
+                          nick = <<>> :: binary()}).
 -type mix_participant() :: #mix_participant{}.
 
 -record(compressed, {}).
