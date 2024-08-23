@@ -1417,7 +1417,7 @@ connect(AddrPorts, State) ->
 
 -ifndef(USE_GETHOSTBYNAME).
 -spec connect([addr_info()], state(), network_error()) ->
-		     {ok, term(), ip_port()} | network_error().
+		     {ok, term(), ip_port(), [addr_info()]} | network_error().
 connect([{#{family := Type, addr := SockAddr}, TLS}|AddressInfos], State, _) ->
     #{addr := Addr, port := Port} = SockAddr,
     Opts = [binary, {packet, 0},
@@ -1440,7 +1440,7 @@ connect([], _State, Err) ->
     Err.
 -else.
 -spec connect([ip_port()], state(), network_error()) ->
-		     {ok, term(), ip_port()} | network_error().
+		     {ok, term(), ip_port(), [ip_port()]} | network_error().
 connect([{Addr, Port, TLS}|AddrPorts], State, _) ->
     Type = get_addr_type(Addr),
     Opts = [binary, {packet, 0},
