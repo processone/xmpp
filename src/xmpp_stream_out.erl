@@ -1406,7 +1406,7 @@ connect(AddrPorts, State) ->
             case starttls(Socket, State) of
                 {ok, TLSSocket} ->
                     {ok, TLSSocket, {Addr, Port, TLS}};
-                {error, Why} ->
+                {error, _Why} ->
                     connect(Rest, State)
             end;
         {ok, Socket, {Addr, Port, TLS = false}, _Rest} ->
