@@ -176,9 +176,9 @@ starttls(#socket_state{sockmod = gen_tcp,
 						  sockmod = fast_tls,
 						  tls_certfile = proplists:get_value(certfile, TLSOpts, none)},
 	    SocketData2 = reset_stream(SocketData1),
-	    case fast_tls:recv_data(TLSSocket, <<>>) of
-		{ok, TLSData} ->
-		    parse(SocketData2, TLSData);
+	    case fast_tls:finish_handshake(TLSSocket, 10000) of
+		ok ->
+		    parse(SocketData2, <<>>);
 		{error, _} = Err ->
 		    Err
 	    end;

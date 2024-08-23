@@ -1402,15 +1402,17 @@ h_addr_list_to_host_ports(AddrList) ->
 				       {error, {tls, tls_error_reason()}}.
 connect(AddrPorts, State) ->
     case connect(AddrPorts, State, {error, nxdomain}) of
-	{ok, Socket, {Addr, Port, TLS = true}} ->
-	    case starttls(Socket, State) of
-		{ok, TLSSocket} -> {ok, TLSSocket, {Addr, Port, TLS}};
-		{error, Why} -> {error, {tls, Why}}
-	    end;
-	{ok, Socket, {Addr, Port, TLS = false}} ->
-	    {ok, Socket, {Addr, Port, TLS}};
-	{error, Why} ->
-	    {error, {socket, Why}}
+        {ok, Socket, {Addr, Port, TLS = true}, Rest} ->
+            case starttls(Socket, State) of
+                {ok, TLSSocket} ->
+                    {ok, TLSSocket, {Addr, Port, TLS}};
+                {error, Why} ->
+                    connect(Rest, State)
+            end;
+        {ok, Socket, {Addr, Port, TLS = false}, _Rest} ->
+            {ok, Socket, {Addr, Port, TLS}};
+        {error, Why} ->
+            {error, {socket, Why}}
     end.
 
 -ifndef(USE_GETHOSTBYNAME).
@@ -1428,7 +1430,7 @@ connect([{#{family := Type, addr := SockAddr}, TLS}|AddressInfos], State, _) ->
     Timeout = get_connect_timeout(State),
     try xmpp_socket:connect(SockAddr, Port, Opts1, Timeout) of
 	{ok, Socket} ->
-	    {ok, Socket, {Addr, Port, TLS}};
+	    {ok, Socket, {Addr, Port, TLS}, AddressInfos};
 	Err ->
 	    connect(AddressInfos, State, Err)
     catch _:badarg ->
@@ -1451,7 +1453,7 @@ connect([{Addr, Port, TLS}|AddrPorts], State, _) ->
     Timeout = get_connect_timeout(State),
     try xmpp_socket:connect(Addr, Port, Opts1, Timeout) of
 	{ok, Socket} ->
-	    {ok, Socket, {Addr, Port, TLS}};
+	    {ok, Socket, {Addr, Port, TLS}, AddrPorts};
 	Err ->
 	    connect(AddrPorts, State, Err)
     catch _:badarg ->
