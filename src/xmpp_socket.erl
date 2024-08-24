@@ -193,13 +193,15 @@ starttls(_, _) ->
 		      {error, inet:posix() | atom() | binary()}.
  finish_tls_handshake(#socket_state{sockmod = fast_tls,
 		       socket = Socket} = SocketData) ->
-		fast_tls:setopts(Socket, [{active, false}]),
-	    case fast_tls:finish_handshake(Socket, 5000) of
-			ok ->
-			    {ok, SocketData};
-			{error, _} = Err ->
-			    Err
-	    end.
+    fast_tls:setopts(Socket, [{active, false}]),
+    case fast_tls:finish_handshake(Socket, 5000) of
+	ok ->
+	    {ok, SocketData};
+	{error, _} = Err ->
+	    Err
+    end;
+finish_tls_handshake(SocketData) ->
+    {ok, SocketData}.
 
 compress(SocketData) -> compress(SocketData, undefined).
 
