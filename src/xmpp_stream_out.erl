@@ -1405,7 +1405,7 @@ connect(AddrPorts, State) ->
         {ok, Socket, {Addr, Port, TLS = true}, Rest} ->
             case starttls(Socket, State) of
                 {ok, TLSSocket} ->
-                    case xmpp_socket:finish_tls_handshake(Socket) of
+                    case xmpp_socket:finish_tls_handshake(TLSSocket) of
                         {ok, _TLSSock} ->
                             {ok, TLSSocket, {Addr, Port, TLS}};
                         {error, _Why} ->
