@@ -5238,6 +5238,7 @@
      #elem{name = <<"nick">>,
            xmlns = <<"urn:xmpp:bookmarks:1">>,
 	   module = 'xep0402',
+	   cdata = #cdata{required = true},
            result = '$cdata'}).
 
 -xml(pep_conference_password,
