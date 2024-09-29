@@ -109,6 +109,7 @@
 -callback tls_options(state()) -> [proplists:property()].
 -callback tls_required(state()) -> boolean().
 -callback tls_enabled(state()) -> boolean().
+-callback allow_unencrypted_sasl2(state()) -> boolean().
 -callback sasl_mechanisms([xmpp_sasl:mechanism()], state()) -> [xmpp_sasl:mechanism()].
 -callback sasl_options(state()) -> [tuple()].
 -callback unauthenticated_stream_features(state()) -> [xmpp_element()].
@@ -142,6 +143,7 @@
 		     tls_options/1,
 		     tls_required/1,
 		     tls_enabled/1,
+		     allow_unencrypted_sasl2/1,
 		     sasl_mechanisms/2,
 		     sasl_options/1,
 		     unauthenticated_stream_features/1,
@@ -668,6 +670,7 @@ process_stream(#stream_start{to = #jid{server = Server, lserver = LServer},
 process_element(Pkt, #{stream_state := StateName, lang := Lang,
 		       stream_encrypted := Encrypted} = State) ->
     Sasl2 = maps:is_key(sasl2_stream_from, State),
+    AllowUnencryptedSasl2 = allow_unencrypted_sasl2(State),
     case Pkt of
 	#starttls{} when StateName == wait_for_starttls;
 			 StateName == wait_for_sasl_request ->
@@ -698,7 +701,8 @@ process_element(Pkt, #{stream_state := StateName, lang := Lang,
 	    send_pkt(State, #sasl_failure{reason = 'aborted'});
 	#sasl_success{} ->
 	    State;
-	#sasl2_authenticate{} when StateName == wait_for_starttls; (not Encrypted) ->
+	#sasl2_authenticate{} when StateName == wait_for_starttls;
+				   not (Encrypted or AllowUnencryptedSasl2) ->
 	    send_pkt(State, #sasl2_failure{reason = 'encryption-required'});
 	#sasl2_authenticate{} when StateName == wait_for_sasl_request, Sasl2 ->
 	    process_sasl2_request(Pkt, maps:remove(sasl_state, State));
@@ -1418,6 +1422,12 @@ is_starttls_available(State) ->
 -spec is_starttls_required(state()) -> boolean().
 is_starttls_required(State) ->
     try callback(tls_required, State)
+    catch _:{?MODULE, undef} -> false
+    end.
+
+-spec allow_unencrypted_sasl2(state()) -> boolean().
+allow_unencrypted_sasl2(State) ->
+    try callback(allow_unencrypted_sasl2, State)
     catch _:{?MODULE, undef} -> false
     end.
 
