@@ -1266,17 +1266,26 @@ send_features(#{stream_version := {1,0},
     TLSAvailable = is_starttls_available(State),
     TLSRequired = is_starttls_required(State),
     Sasl2 = maps:is_key(sasl2_stream_from, State),
+    AllowUnencryptedSasl2 = allow_unencrypted_sasl2(State),
     if
 	(not Encrypted) andalso TLSRequired ->
 	    send_pkt(State, #stream_features{sub_els = get_tls_feature(State)});
 	true ->
 	    {Features, State2} =
-	    case {Encrypted, Sasl2, TLSAvailable} of
-		{true, true, _} -> {get_sasl2_feature(State), init_channel_bindings(State)};
-		{false, true, false} -> {[], disable_sasl2(State)};
-		{false, _, true} -> {get_tls_feature(State), State};
-		{true, _, _} -> {[], init_channel_bindings(State)};
-		_ -> {[], State}
+	    case {Encrypted, Sasl2, AllowUnencryptedSasl2, TLSAvailable} of
+		{false, true, true, true} ->
+		    {get_tls_feature(State) ++ get_sasl2_feature(State),
+		     init_channel_bindings(State)};
+		{_, true, _, _} when Encrypted; AllowUnencryptedSasl2 ->
+		    {get_sasl2_feature(State), init_channel_bindings(State)};
+		{false, true, false, false} ->
+		    {[], disable_sasl2(State)};
+		{false, _, _, true} ->
+		    {get_tls_feature(State), State};
+		{true, _, _, _} ->
+		    {[], init_channel_bindings(State)};
+		_ ->
+		    {[], State}
 	    end,
 	    Features2 =
 		get_sasl_feature(State2) ++
@@ -1347,8 +1356,7 @@ get_sasl_feature(_) ->
     [].
 
 -spec get_sasl2_feature(state()) -> [sasl2_authenticaton() | sasl_channel_binding()].
-get_sasl2_feature(#{stream_authenticated := false,
-		    stream_encrypted := Encrypted} = State) when Encrypted ->
+get_sasl2_feature(#{stream_authenticated := false} = State) ->
     Mechs = get_sasl_mechanisms(State),
 
     {SASL2Features, Bind2Features} =
