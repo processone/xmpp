@@ -535,10 +535,6 @@
                         events = [] :: [binary()]}).
 -type muc_subscribe() :: #muc_subscribe{}.
 
--record(privilege_perm, {access :: 'message' | 'presence' | 'roster',
-                         type :: 'both' | 'get' | 'managed_entity' | 'none' | 'outgoing' | 'roster' | 'set'}).
--type privilege_perm() :: #privilege_perm{}.
-
 -record(sm_a, {h :: non_neg_integer(),
                xmlns = <<>> :: binary()}).
 -type sm_a() :: #sm_a{}.
@@ -653,6 +649,16 @@
 
 -record('see-other-host', {host :: binary() | inet:ip_address() | {binary() | inet:ip_address(),inet:port_number()}}).
 -type 'see-other-host'() :: #'see-other-host'{}.
+
+-record(privilege_namespace, {ns = <<>> :: binary(),
+                              type :: 'both' | 'get' | 'none' | 'set'}).
+-type privilege_namespace() :: #privilege_namespace{}.
+
+-record(privilege_perm, {access :: 'iq' | 'message' | 'presence' | 'roster',
+                         type :: 'both' | 'get' | 'managed_entity' | 'none' | 'outgoing' | 'roster' | 'set' | 'undefined',
+                         push = true :: boolean(),
+                         namespaces = [] :: [#privilege_namespace{}]}).
+-type privilege_perm() :: #privilege_perm{}.
 
 -record(vcard_geo, {lat :: 'undefined' | binary(),
                     lon :: 'undefined' | binary()}).
@@ -856,15 +862,6 @@
 -record(muc_actor, {jid :: undefined | jid:jid(),
                     nick = <<>> :: binary()}).
 -type muc_actor() :: #muc_actor{}.
-
--record(muc_item, {actor :: 'undefined' | #muc_actor{},
-                   continue :: 'undefined' | binary(),
-                   reason = <<>> :: binary(),
-                   affiliation :: 'admin' | 'member' | 'none' | 'outcast' | 'owner' | 'undefined',
-                   role :: 'moderator' | 'none' | 'participant' | 'undefined' | 'visitor',
-                   jid :: undefined | jid:jid(),
-                   nick = <<>> :: binary()}).
--type muc_item() :: #muc_item{}.
 
 -record(stat_error, {code :: integer(),
                      reason = <<>> :: binary()}).
@@ -1162,6 +1159,15 @@
                    data = <<>> :: binary()}).
 -type bob_data() :: #bob_data{}.
 
+-record(muc_item, {actor :: 'undefined' | #muc_actor{},
+                   continue :: 'undefined' | binary(),
+                   reason = <<>> :: binary(),
+                   affiliation :: 'admin' | 'member' | 'none' | 'outcast' | 'owner' | 'undefined',
+                   role :: 'moderator' | 'none' | 'participant' | 'undefined' | 'visitor',
+                   jid :: undefined | jid:jid(),
+                   nick = <<>> :: binary()}).
+-type muc_item() :: #muc_item{}.
+
 -record(muc_admin, {items = [] :: [#muc_item{}]}).
 -type muc_admin() :: #muc_admin{}.
 
@@ -1236,14 +1242,6 @@
                     config :: 'undefined' | #xdata{},
                     items = [] :: [#muc_item{}]}).
 -type muc_owner() :: #muc_owner{}.
-
--record(muc_user, {decline :: 'undefined' | #muc_decline{},
-                   destroy :: 'undefined' | #muc_destroy{},
-                   invites = [] :: [#muc_invite{}],
-                   items = [] :: [#muc_item{}],
-                   status_codes = [] :: [pos_integer()],
-                   password :: 'undefined' | binary()}).
--type muc_user() :: #muc_user{}.
 
 -record(search_item, {jid :: jid:jid(),
                       first :: 'undefined' | binary(),
@@ -1345,6 +1343,9 @@
                    data = <<>> :: binary()}).
 -type ibb_data() :: #ibb_data{}.
 
+-record(privileged_iq, {iq :: 'undefined' | #iq{}}).
+-type privileged_iq() :: #privileged_iq{}.
+
 -record(services, {type :: 'stun' | 'stuns' | 'turn' | 'turns' | 'undefined',
                    list = [] :: [#service{}]}).
 -type services() :: #services{}.
@@ -1368,6 +1369,14 @@
                        ver :: 'undefined' | binary(),
                        mix_annotate = false :: boolean()}).
 -type roster_query() :: #roster_query{}.
+
+-record(muc_user, {decline :: 'undefined' | #muc_decline{},
+                   destroy :: 'undefined' | #muc_destroy{},
+                   invites = [] :: [#muc_invite{}],
+                   items = [] :: [#muc_item{}],
+                   status_codes = [] :: [pos_integer()],
+                   password :: 'undefined' | binary()}).
+-type muc_user() :: #muc_user{}.
 
 -type xmpp_element() :: address() |
                         addresses() |
@@ -1515,7 +1524,9 @@
                         privacy_query() |
                         private() |
                         privilege() |
+                        privilege_namespace() |
                         privilege_perm() |
+                        privileged_iq() |
                         ps_affiliation() |
                         ps_error() |
                         ps_event() |
