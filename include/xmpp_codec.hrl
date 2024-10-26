@@ -955,9 +955,8 @@
 -record(x509_ca_list, {certs = [] :: [binary()]}).
 -type x509_ca_list() :: #x509_ca_list{}.
 
--record(mix_participant, {jid :: jid:jid(),
-                          nick = <<>> :: binary(),
-                          xmlns = <<>> :: binary()}).
+-record(mix_participant, {jid :: undefined | jid:jid(),
+                          nick :: 'undefined' | binary()}).
 -type mix_participant() :: #mix_participant{}.
 
 -record(compressed, {}).
