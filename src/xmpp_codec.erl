@@ -262,6 +262,8 @@ get_mod(<<"message">>, <<"jabber:iq:privacy">>) ->
 get_mod(<<"configuration-required">>,
         <<"http://jabber.org/protocol/pubsub#errors">>) ->
     xep0060;
+get_mod(<<"bidi">>, <<"urn:xmpp:features:bidi">>) ->
+    xep0288;
 get_mod(<<"gone">>, <<"urn:xmpp:jingle:1">>) -> xep0166;
 get_mod(<<"error">>, <<"jabber:component:accept">>) ->
     rfc6120;
@@ -1863,6 +1865,7 @@ get_mod({feature_csi}) -> xep0352;
 get_mod({ibb_open, _, _, _}) -> xep0047;
 get_mod({sasl2_authenticate, _, _, _, _}) -> xep0388;
 get_mod({sasl2_continue, _, _, _, _}) -> xep0388;
+get_mod({s2s_bidi}) -> xep0288;
 get_mod({vcard_tel,
          _,
          _,

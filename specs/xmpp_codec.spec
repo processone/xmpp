@@ -5532,6 +5532,12 @@
 	                  label = '$var',
 			  required = true}],
            result = {bind2_feature, '$var'}}).
+		
+-xml(s2s_bidi,
+     #elem{name = <<"bidi">>,
+           xmlns = <<"urn:xmpp:features:bidi">>,
+	   module = 'xep0288',
+           result = {s2s_bidi}}).
 
 -spec dec_tzo(_) -> {integer(), integer()}.
 dec_tzo(Val) ->

@@ -311,6 +311,9 @@
                            xmlns = <<>> :: binary()}).
 -type mix_client_leave() :: #mix_client_leave{}.
 
+-record(s2s_bidi, {}).
+-type s2s_bidi() :: #s2s_bidi{}.
+
 -record(sm_resumed, {h :: non_neg_integer(),
                      previd = <<>> :: binary(),
                      xmlns = <<>> :: binary()}).
@@ -1228,10 +1231,6 @@
                         xdata :: 'undefined' | #xdata{}}).
 -type adhoc_command() :: #adhoc_command{}.
 
--record(stream_error, {reason :: atom() | #'see-other-host'{},
-                       text = [] :: [#text{}]}).
--type stream_error() :: #stream_error{}.
-
 -record(muc_destroy, {xmlns = <<>> :: binary(),
                       jid :: undefined | jid:jid(),
                       reason = <<>> :: binary(),
@@ -1377,6 +1376,10 @@
                    status_codes = [] :: [pos_integer()],
                    password :: 'undefined' | binary()}).
 -type muc_user() :: #muc_user{}.
+
+-record(stream_error, {reason :: atom() | #'see-other-host'{},
+                       text = [] :: [#text{}]}).
+-type stream_error() :: #stream_error{}.
 
 -type xmpp_element() :: address() |
                         addresses() |
@@ -1553,6 +1556,7 @@
                         rosterver_feature() |
                         rsm_first() |
                         rsm_set() |
+                        s2s_bidi() |
                         sasl2_abort() |
                         sasl2_authenticate() |
                         sasl2_authenticaton() |
