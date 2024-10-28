@@ -157,6 +157,10 @@
 -record(starttls_proceed, {}).
 -type starttls_proceed() :: #starttls_proceed{}.
 
+-record(sasl2_next, {task = <<>> :: binary(),
+                     sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
+-type sasl2_next() :: #sasl2_next{}.
+
 -record(upload_file_too_large, {'max-file-size' :: 'undefined' | integer(),
                                 xmlns = <<>> :: binary()}).
 -type upload_file_too_large() :: #upload_file_too_large{}.
@@ -178,6 +182,10 @@
                hash = <<>> :: binary(),
                exts = [] :: [binary()]}).
 -type caps() :: #caps{}.
+
+-record(scram_upgrade_salt, {iterations :: pos_integer(),
+                             cdata = <<>> :: binary()}).
+-type scram_upgrade_salt() :: #scram_upgrade_salt{}.
 
 -record(receipt_request, {}).
 -type receipt_request() :: #receipt_request{}.
@@ -287,9 +295,6 @@
                   sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
 -type address() :: #address{}.
 
--record(addresses, {list = [] :: [#address{}]}).
--type addresses() :: #addresses{}.
-
 -record(sasl_success, {text = <<>> :: binary()}).
 -type sasl_success() :: #sasl_success{}.
 
@@ -331,6 +336,9 @@
 
 -record(private, {sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
 -type private() :: #private{}.
+
+-record(scram_upgrade_hash, {data = <<>> :: binary()}).
+-type scram_upgrade_hash() :: #scram_upgrade_hash{}.
 
 -record(message_retracted, {id = <<>> :: binary(),
                             by :: undefined | jid:jid(),
@@ -647,6 +655,9 @@
 -record(message_retract_30, {}).
 -type message_retract_30() :: #message_retract_30{}.
 
+-record(sasl2_task_data, {sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
+-type sasl2_task_data() :: #sasl2_task_data{}.
+
 -record(muc_subscriptions, {list = [] :: [#muc_subscription{}]}).
 -type muc_subscriptions() :: #muc_subscriptions{}.
 
@@ -734,6 +745,9 @@
 
 -record(mark_acknowledged, {id = <<>> :: binary()}).
 -type mark_acknowledged() :: #mark_acknowledged{}.
+
+-record(sasl_upgrade, {cdata = <<>> :: binary()}).
+-type sasl_upgrade() :: #sasl_upgrade{}.
 
 -record(bind2_bind, {tag :: 'undefined' | binary(),
                      inline :: 'undefined' | [xmpp_element() | fxml:xmlel()],
@@ -935,7 +949,8 @@
 -type block() :: #block{}.
 
 -record(sasl2_authenticaton, {mechanisms = [] :: [binary()],
-                              inline :: 'undefined' | [xmpp_element() | fxml:xmlel()]}).
+                              inline :: 'undefined' | [xmpp_element() | fxml:xmlel()],
+                              sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
 -type sasl2_authenticaton() :: #sasl2_authenticaton{}.
 
 -record(muc_hats, {hats = [] :: [#muc_hat{}]}).
@@ -1381,6 +1396,9 @@
                        text = [] :: [#text{}]}).
 -type stream_error() :: #stream_error{}.
 
+-record(addresses, {list = [] :: [#address{}]}).
+-type addresses() :: #addresses{}.
+
 -type xmpp_element() :: address() |
                         addresses() |
                         adhoc_actions() |
@@ -1563,8 +1581,10 @@
                         sasl2_challenge() |
                         sasl2_continue() |
                         sasl2_failure() |
+                        sasl2_next() |
                         sasl2_response() |
                         sasl2_success() |
+                        sasl2_task_data() |
                         sasl2_user_agent() |
                         sasl_abort() |
                         sasl_auth() |
@@ -1574,6 +1594,9 @@
                         sasl_mechanisms() |
                         sasl_response() |
                         sasl_success() |
+                        sasl_upgrade() |
+                        scram_upgrade_hash() |
+                        scram_upgrade_salt() |
                         search() |
                         search_item() |
                         'see-other-host'() |

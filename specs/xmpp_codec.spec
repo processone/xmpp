@@ -5301,7 +5301,7 @@
 		   #ref{name = sasl2_inline,
 		        label = '$inline',
 		        min = 0, max = 1}],
-           result = {sasl2_authenticaton, '$mechanisms', '$inline'}}).
+           result = {sasl2_authenticaton, '$mechanisms', '$inline', '$_els'}}).
 
 -xml(sasl2_mechanism,
      #elem{name = <<"mechanism">>,
@@ -5477,12 +5477,22 @@
 -xml(sasl2_task,
      #elem{name = <<"task">>,
            xmlns = <<"urn:xmpp:sasl:2">>,
-	   module = 'xep0388',
-           cdata = #cdata{label = '$text',
-                          dec = {base64, mime_decode, []},
-                          enc = {base64, encode, []}},
-           result = '$text'}).
+	       module = 'xep0388',
+           result = '$cdata'}).
 
+-xml(sasl2_task_data,
+     #elem{name = <<"task-data">>,
+           xmlns = <<"urn:xmpp:sasl:2">>,
+	       module = 'xep0388',
+           result = {sasl2_task_data, '$_els'}}).
+		
+-xml(sasl2_next,
+     #elem{name = <<"next">>,
+           xmlns = <<"urn:xmpp:sasl:2">>,
+           attrs = [#attr{name = <<"task">>}],
+	       module = 'xep0388',
+           result = {sasl2_next, '$task', '$_els'}}).
+		
 -xml(sasl2_abort,
      #elem{name = <<"abort">>,
            xmlns = <<"urn:xmpp:sasl:2">>,
@@ -5539,6 +5549,32 @@
 	   module = 'xep0288',
            result = {s2s_bidi}}).
 
+-xml(sasl_upgrade,
+     #elem{name = <<"upgrade">>,
+           xmlns = <<"urn:xmpp:sasl:upgrade:0">>,
+	       module = 'xep0480',
+           result = {sasl_upgrade, '$cdata'}}).
+
+-xml(scram_upgrade_salt,
+     #elem{name = <<"salt">>,
+           xmlns = <<"urn:xmpp:scram-upgrade:0">>,
+           module = 'xep0480',
+           attrs = [#attr{name = <<"iterations">>,
+	                      label = '$iterations',
+                          enc = {enc_int, []},
+                          dec = {dec_int, [1, infinity]},
+                          required = true}],
+           result = {scram_upgrade_salt, '$iterations', '$cdata'}}).
+
+-xml(scram_upgrade_hash,
+     #elem{name = <<"hash">>,
+           xmlns = <<"urn:xmpp:scram-upgrade:0">>,
+           module = 'xep0480',
+           cdata = #cdata{label = '$data',
+                          enc = {base64, encode, []},
+                          dec = {base64, decode, []}},
+           result = {scram_upgrade_hash, '$data'}}).
+		
 -spec dec_tzo(_) -> {integer(), integer()}.
 dec_tzo(Val) ->
     [H1, M1] = binary:split(Val, <<":">>),

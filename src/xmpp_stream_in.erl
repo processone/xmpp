@@ -74,7 +74,8 @@
 -type stream_state() :: accepting | wait_for_stream | wait_for_handshake |
 			wait_for_starttls | wait_for_sasl_request |
 			wait_for_sasl_response | wait_for_bind |
-			established | disconnected | wait_for_sasl2_response.
+			established | disconnected | wait_for_sasl2_response |
+			wait_for_sasl2_task_data | wait_for_sasl2_task_data.
 -type stop_reason() :: {stream, reset | {in | out, stream_error()}} |
 		       {tls, inet:posix() | atom() | binary()} |
 		       {socket, inet:posix() | atom()} |
@@ -730,10 +731,16 @@ process_element(Pkt, #{stream_state := StateName, lang := Lang,
 	    State;
 	#stream_error{} ->
 	    process_stream_end({stream, {in, Pkt}}, State);
+	#sasl2_next{} when StateName == wait_for_sasl2_next ->
+	    process_sasl2_next(Pkt, State);
+	#sasl2_task_data{} when StateName == wait_for_sasl2_task_data ->
+	    process_sasl2_task_data(Pkt, State);
 	_ when StateName == wait_for_sasl_request;
 	       StateName == wait_for_handshake;
 	       StateName == wait_for_sasl_response;
-	       StateName == wait_for_sasl2_response ->
+	       StateName == wait_for_sasl2_response;
+	       StateName == wait_for_sasl2_next;
+	       StateName == wait_for_sasl2_task_data ->
 	    process_unauthenticated_packet(Pkt, State);
 	_ when StateName == wait_for_starttls ->
 	    Txt = <<"Use of STARTTLS required">>,
@@ -1118,7 +1125,7 @@ process_sasl2_result({error, Reason, User}, State) ->
 
 -spec process_sasl2_success([xmpp_sasl:sasl_property()], binary(), state()) -> state().
 process_sasl2_success(Props, ServerOut,
-		     #{sasl_mech := Mech, server := Server,
+		     #{sasl_mech := Mech,
 		       sasl2_inline_els := InlineEls,
 		       sasl2_stream_from := #jid{luser = InitUser}} = State) ->
     User = identity(Props),
@@ -1140,29 +1147,69 @@ process_sasl2_success(Props, ServerOut,
 		    catch _:{?MODULE, undef} -> {State2, InlineEls, []}
 		    end,
 
-		    {State4, BindResults} = process_bind2(State3, NewEls),
-		    Results2 = Results ++ BindResults,
-
-		    NewJid = jid:make(User, Server, maps:get(resource, State4, <<>>)),
-		    State5 = send_pkt(State4, #sasl2_success{additional_data = ServerOut,
-							     sub_els = Results2,
-							     jid = NewJid}),
-		    case is_disconnected(State5) of
-			true -> State5;
+		    case NewEls of
+			{continue, Tasks} ->
+			    send_pkt(State3#{stream_state => wait_for_sasl2_next},
+				     #sasl2_continue{additional_data = ServerOut,
+						     tasks = Tasks});
 			_ ->
-			    State6 = try callback(handle_sasl2_inline_post, InlineEls,
-						  Results2, State5)
-				     catch _:{?MODULE, undef} -> State5
-				     end,
-			    State7 = process_bind2_post(State6, NewEls, Results2),
-			    case is_disconnected(State7) of
-				true -> State7;
-				false ->
-				    map_remove_keys(State7, [sasl2_stream_from, sasl2_inline_els,
-							     sasl2_ua_id, sasl_state, sasl_mech,
-							     sasl_channel_bindings])
-			    end
+			    process_sasl2_post_success(NewEls, Results, User, ServerOut, State3)
 		    end
+	    end
+    end.
+
+process_sasl2_next(#sasl2_next{task = Task, sub_els = Els},
+		   #{sasl2_inline_els := InlineEls} = State) ->
+    Res = try callback(handle_sasl2_task_next, Task, Els, InlineEls, State)
+	  catch _:{?MODULE, undef} -> []
+	  end,
+    case Res of
+	{task_data, Els2, State2} ->
+	    send_pkt(State2#{stream_state => wait_for_sasl2_task_data},
+		     #sasl2_task_data{sub_els = Els2});
+	{abort, State2} ->
+	    process_sasl_failure(aborted, <<"">>, State2)
+    end.
+
+process_sasl2_task_data(#sasl2_task_data{sub_els = Els},
+			#{sasl2_inline_els := InlineEls, user := User} = State) ->
+    Res = try callback(handle_sasl2_task_data, Els, InlineEls, State)
+	  catch _:{?MODULE, undef} -> []
+	  end,
+    case Res of
+	{task_data, Els2, State2} ->
+	    send_pkt(State2, #sasl2_task_data{sub_els = Els2});
+	{success, Els2, Results, State2} ->
+	    process_sasl2_post_success(Els2, Results, User, undefined, State2);
+	{abort, State2} ->
+	    process_sasl_failure(aborted, <<"">>, State2)
+    end.
+
+-spec process_sasl2_post_success([xmpp_element()], [xmpp_element()], binary(), binary() | undefined, state()) -> state().
+process_sasl2_post_success(NewEls, Results, User, ServerOut,
+			   #{server := Server,
+			     sasl2_inline_els := InlineEls} = State) ->
+    {State2, BindResults} = process_bind2(State, NewEls),
+    Results2 = Results ++ BindResults,
+
+    NewJid = jid:make(User, Server, maps:get(resource, State2, <<>>)),
+    State3 = send_pkt(State2, #sasl2_success{additional_data = ServerOut,
+					     sub_els = Results2,
+					     jid = NewJid}),
+    case is_disconnected(State3) of
+	true -> State3;
+	_ ->
+	    State4 = try callback(handle_sasl2_inline_post, InlineEls,
+				  Results2, State3)
+		     catch _:{?MODULE, undef} -> State3
+		     end,
+	    State5 = process_bind2_post(State4, NewEls, Results2),
+	    case is_disconnected(State5) of
+		true -> State5;
+		false ->
+		    map_remove_keys(State5, [sasl2_stream_from, sasl2_inline_els,
+					     sasl2_ua_id, sasl_state, sasl_mech,
+					     sasl_channel_bindings])
 	    end
     end.
 
@@ -1359,14 +1406,14 @@ get_sasl_feature(_) ->
 get_sasl2_feature(#{stream_authenticated := false} = State) ->
     Mechs = get_sasl_mechanisms(State),
 
-    {SASL2Features, Bind2Features} =
+    {SASL2Features, Bind2Features, ExtraFeatures} =
     try callback(inline_stream_features, State)
     catch _:{?MODULE, undef} ->
-	{[], []}
+	{[], [], []}
     end,
 
     BindFeature = #bind2_bind{inline = Bind2Features},
-    [#sasl2_authenticaton{mechanisms = Mechs, inline = [BindFeature | SASL2Features]}];
+    [#sasl2_authenticaton{mechanisms = Mechs, inline = [BindFeature | SASL2Features], sub_els = ExtraFeatures}];
 get_sasl2_feature(_) ->
     [].
 
