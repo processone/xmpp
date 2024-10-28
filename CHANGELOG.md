@@ -1,5 +1,7 @@
 # Version 1.9.0
 
+* Updating fast_tls to version 1.1.22.
+* Updating fast_xml to version 1.1.53.
 * Add support for XEP-0480 SASL Upgrade Tasks
 * Add support for XEP-0288 Bidirectional Server-to-Server Connections
 * Improve failback handling for S2S connections using direct tls
