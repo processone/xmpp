@@ -1,3 +1,12 @@
+# Version 1.9.0
+
+* Add support for XEP-0480 SASL Upgrade Tasks
+* Add support for XEP-0288 Bidirectional Server-to-Server Connections
+* Improve failback handling for S2S connections using direct tls
+* Add option for allowing SASL2 on unencrypted connections
+* Update spec of XEP-0356 Privileged Entity to version 0.4.1
+* Automatic "make spec xdata"
+
 # Version 1.8.3
 
 * Updating fast_tls to version 1.1.21.
