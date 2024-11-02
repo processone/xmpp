@@ -41,10 +41,12 @@ clean:
 xref: all
 	$(REBAR) xref
 
+ifeq ($(MAKECMDGOALS),doap)
 xep_files := $(wildcard src/xep*.erl)
 xep_numbers := $(foreach i,$(xep_files),$(shell echo $(i) | sed 's|.*p\([0-9]*\).*|\1|g' | sort -u))
 xeps_missing := $(foreach i,$(xep_numbers),$(shell grep -q $(i) xmpp.doap || echo $(i)))
 xeps_missing2 := $(foreach i,$(xeps_missing),$(strip $(i)))
+endif
 
 doap:
 	@[ -z "$(xeps_missing2)" ] \
@@ -103,4 +105,4 @@ deps/fast_xml/ebin/fxml_gen.beam:
 ebin/xdata_codec.beam:
 	$(REBAR) get-deps compile
 
-.PHONY: clean src all spec xdata dialyzer erlang_plt deps_plt xmpp_plt
+.PHONY: clean src all spec xdata dialyzer erlang_plt deps_plt xmpp_plt doap
