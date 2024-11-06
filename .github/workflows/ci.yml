@@ -15,7 +15,6 @@ jobs:
       image: erlang:${{ matrix.otp }}
     steps:
     - uses: actions/checkout@v4
-      if: matrix.otp
     - run: sed -i 's|applications, \[|applications, \[erl_tidy, |g' src/xmpp.app.src
       if: matrix.otp >= 26
     - run: make
@@ -30,7 +29,7 @@ jobs:
     - run: make doap
     - run: git config --global --add safe.directory /__w/xmpp/xmpp
       if: matrix.otp == 26 && github.event_name == 'push'
-    - uses: stefanzweifel/git-auto-commit-action@v4
+    - uses: stefanzweifel/git-auto-commit-action@v5
       if: matrix.otp == 26 && github.event_name == 'push'
       with:
         add_options: '-u'
@@ -43,7 +42,7 @@ jobs:
     container:
       image: erlang:26
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - run: ./configure --enable-gcov
     - run: REBAR=rebar3 make
     - run: REBAR=rebar3 make spec
