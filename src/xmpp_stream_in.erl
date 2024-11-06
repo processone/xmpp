@@ -75,7 +75,7 @@
 			wait_for_starttls | wait_for_sasl_request |
 			wait_for_sasl_response | wait_for_bind |
 			established | disconnected | wait_for_sasl2_response |
-			wait_for_sasl2_task_data | wait_for_sasl2_task_data.
+			wait_for_sasl2_next | wait_for_sasl2_task_data.
 -type stop_reason() :: {stream, reset | {in | out, stream_error()}} |
 		       {tls, inet:posix() | atom() | binary()} |
 		       {socket, inet:posix() | atom()} |
