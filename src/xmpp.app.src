@@ -27,7 +27,7 @@
   {vsn,          "1.9.0"},
   {modules,      []},
   {registered,   []},
-  {applications, [erl_tidy, asn1, compiler, kernel, public_key, stdlib, syntax_tools,
+  {applications, [erl_tidy, erl_tidy, asn1, compiler, kernel, public_key, stdlib, syntax_tools,
                   idna,
                   ezlib, fast_tls, fast_xml, p1_utils, stringprep]},
   {mod,          {xmpp, []}},
