@@ -29,9 +29,9 @@ jobs:
     - run: rebar3 eunit -v
     - run: make doap
     - run: git config --global --add safe.directory /__w/xmpp/xmpp
-      if: matrix.otp == 25 && github.event_name == 'push'
+      if: matrix.otp == 26 && github.event_name == 'push'
     - uses: stefanzweifel/git-auto-commit-action@v4
-      if: matrix.otp == 25 && github.event_name == 'push'
+      if: matrix.otp == 26 && github.event_name == 'push'
       with:
         add_options: '-u'
         commit_message: Automatic changes "make spec xdata"
