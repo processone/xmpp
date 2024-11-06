@@ -33,6 +33,7 @@ jobs:
       if: matrix.otp == 26 && github.event_name == 'push'
       with:
         add_options: '-u'
+        file_pattern: 'include/*.hrl src/*.erl'
         commit_message: Automatic changes "make spec xdata"
 
   cover:
