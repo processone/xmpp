@@ -5564,6 +5564,9 @@
                           enc = {enc_int, []},
                           dec = {dec_int, [1, infinity]},
                           required = true}],
+           cdata = #cdata{label = '$cdata',
+                          enc = {base64, encode, []},
+                          dec = {base64, decode, []}},
            result = {scram_upgrade_salt, '$iterations', '$cdata'}}).
 
 -xml(scram_upgrade_hash,
