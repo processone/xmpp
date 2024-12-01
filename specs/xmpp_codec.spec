@@ -5552,7 +5552,9 @@
 -xml(sasl_upgrade,
      #elem{name = <<"upgrade">>,
            xmlns = <<"urn:xmpp:sasl:upgrade:0">>,
-	       module = 'xep0480',
+           module = 'xep0480',
+           cdata = #cdata{label = '$cdata',
+                          required = true},
            result = {sasl_upgrade, '$cdata'}}).
 
 -xml(scram_upgrade_salt,
@@ -5560,11 +5562,12 @@
            xmlns = <<"urn:xmpp:scram-upgrade:0">>,
            module = 'xep0480',
            attrs = [#attr{name = <<"iterations">>,
-	                      label = '$iterations',
+                          label = '$iterations',
                           enc = {enc_int, []},
                           dec = {dec_int, [1, infinity]},
                           required = true}],
            cdata = #cdata{label = '$cdata',
+                          required = true,
                           enc = {base64, encode, []},
                           dec = {base64, decode, []}},
            result = {scram_upgrade_salt, '$iterations', '$cdata'}}).
@@ -5574,6 +5577,7 @@
            xmlns = <<"urn:xmpp:scram-upgrade:0">>,
            module = 'xep0480',
            cdata = #cdata{label = '$data',
+                          required = true,
                           enc = {base64, encode, []},
                           dec = {base64, decode, []}},
            result = {scram_upgrade_hash, '$data'}}).
