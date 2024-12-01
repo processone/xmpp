@@ -103,7 +103,8 @@ encode_scram_upgrade_hash({scram_upgrade_hash, Data},
     {xmlel, <<"hash">>, _attrs, _els}.
 
 decode_scram_upgrade_hash_cdata(__TopXMLNS, <<>>) ->
-    <<>>;
+    erlang:error({xmpp_codec,
+                  {missing_cdata, <<>>, <<"hash">>, __TopXMLNS}});
 decode_scram_upgrade_hash_cdata(__TopXMLNS, _val) ->
     case catch base64:decode(_val) of
         {'EXIT', _} ->
@@ -112,7 +113,6 @@ decode_scram_upgrade_hash_cdata(__TopXMLNS, _val) ->
         _res -> _res
     end.
 
-encode_scram_upgrade_hash_cdata(<<>>, _acc) -> _acc;
 encode_scram_upgrade_hash_cdata(_val, _acc) ->
     [{xmlcdata, base64:encode(_val)} | _acc].
 
@@ -197,13 +197,18 @@ encode_scram_upgrade_salt_attr_iterations(_val, _acc) ->
     [{<<"iterations">>, enc_int(_val)} | _acc].
 
 decode_scram_upgrade_salt_cdata(__TopXMLNS, <<>>) ->
-    <<>>;
+    erlang:error({xmpp_codec,
+                  {missing_cdata, <<>>, <<"salt">>, __TopXMLNS}});
 decode_scram_upgrade_salt_cdata(__TopXMLNS, _val) ->
-    _val.
+    case catch base64:decode(_val) of
+        {'EXIT', _} ->
+            erlang:error({xmpp_codec,
+                          {bad_cdata_value, <<>>, <<"salt">>, __TopXMLNS}});
+        _res -> _res
+    end.
 
-encode_scram_upgrade_salt_cdata(<<>>, _acc) -> _acc;
 encode_scram_upgrade_salt_cdata(_val, _acc) ->
-    [{xmlcdata, _val} | _acc].
+    [{xmlcdata, base64:encode(_val)} | _acc].
 
 decode_sasl_upgrade(__TopXMLNS, __Opts,
                     {xmlel, <<"upgrade">>, _attrs, _els}) ->
@@ -240,9 +245,10 @@ encode_sasl_upgrade({sasl_upgrade, Cdata},
                                         __TopXMLNS),
     {xmlel, <<"upgrade">>, _attrs, _els}.
 
-decode_sasl_upgrade_cdata(__TopXMLNS, <<>>) -> <<>>;
+decode_sasl_upgrade_cdata(__TopXMLNS, <<>>) ->
+    erlang:error({xmpp_codec,
+                  {missing_cdata, <<>>, <<"upgrade">>, __TopXMLNS}});
 decode_sasl_upgrade_cdata(__TopXMLNS, _val) -> _val.
 
-encode_sasl_upgrade_cdata(<<>>, _acc) -> _acc;
 encode_sasl_upgrade_cdata(_val, _acc) ->
     [{xmlcdata, _val} | _acc].
