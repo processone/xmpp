@@ -22,7 +22,7 @@
 -protocol({rfc, 5802}).
 -protocol({xep, 474, '0.3.0'}).
 
--export([mech_new/7, mech_step/2, format_error/1]).
+-export([mech_new/6, mech_step/2, format_error/1]).
 
 -include("scram.hrl").
 
@@ -76,7 +76,7 @@ format_error(bad_channel_binding) ->
 format_error(incompatible_mechs) ->
     {'not-authorized', <<"Incompatible SCRAM methods">>}.
 
-mech_new(Mech, ChannelBindings, Mechs, _Host, GetPassword, _CheckPassword, _CheckPasswordDigest) ->
+mech_new(Mech, ChannelBindings, Mechs, _UAId, _Host, #{get_password := GetPassword}) ->
     {Algo, CB} =
     case Mech of
 	<<"SCRAM-SHA-1">> -> {sha, none};

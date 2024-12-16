@@ -20,11 +20,11 @@
 -behaviour(xmpp_sasl).
 -protocol({xep, 175, '1.2'}).
 
--export([mech_new/7, mech_step/2]).
+-export([mech_new/6, mech_step/2]).
 
 -record(state, {server = <<"">> :: binary()}).
 
-mech_new(_Mech, _CB, _Mechs, Host, _GetPassword, _CheckPassword, _CheckPasswordDigest) ->
+mech_new(_Mech, _CB, _Mechs, _UAId, Host, _Callbacks) ->
     #state{server = Host}.
 
 mech_step(#state{}, _ClientIn) ->

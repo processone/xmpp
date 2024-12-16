@@ -193,10 +193,6 @@
 -record(legacy_auth_feature, {}).
 -type legacy_auth_feature() :: #legacy_auth_feature{}.
 
--record(bind, {jid :: undefined | jid:jid(),
-               resource = <<>> :: binary()}).
--type bind() :: #bind{}.
-
 -record(rosterver_feature, {}).
 -type rosterver_feature() :: #rosterver_feature{}.
 
@@ -441,6 +437,12 @@
                     xmlns = <<>> :: binary()}).
 -type sm_enable() :: #sm_enable{}.
 
+-record(fast, {zero_rtt :: 'false' | 'true' | 'undefined',
+               count :: 'undefined' | integer(),
+               invalidate :: 'false' | 'true' | 'undefined',
+               mechs = [] :: [binary()]}).
+-type fast() :: #fast{}.
+
 -record(feature_sm, {xmlns = <<>> :: binary()}).
 -type feature_sm() :: #feature_sm{}.
 
@@ -463,6 +465,10 @@
                    subid = <<>> :: binary(),
                    retract :: 'undefined' | binary()}).
 -type ps_items() :: #ps_items{}.
+
+-record(fast_token, {expiry :: undefined | erlang:timestamp(),
+                     token = <<>> :: binary()}).
+-type fast_token() :: #fast_token{}.
 
 -record(idle, {since :: erlang:timestamp()}).
 -type idle() :: #idle{}.
@@ -600,6 +606,9 @@
                        node = <<>> :: binary()}).
 -type push_disable() :: #push_disable{}.
 
+-record(fast_request_token, {mech = <<>> :: binary()}).
+-type fast_request_token() :: #fast_request_token{}.
+
 -record(mark_displayed, {id = <<>> :: binary()}).
 -type mark_displayed() :: #mark_displayed{}.
 
@@ -607,24 +616,6 @@
                            software :: 'undefined' | binary(),
                            device :: 'undefined' | binary()}).
 -type sasl2_user_agent() :: #sasl2_user_agent{}.
-
--record(jingle_ft_file, {date :: undefined | erlang:timestamp(),
-                         desc = [] :: [#text{}],
-                         hash = [] :: [#hash{}],
-                         'hash-used' :: 'undefined' | #hash_used{},
-                         'media-type' :: 'undefined' | binary(),
-                         name :: 'undefined' | binary(),
-                         size :: 'undefined' | non_neg_integer(),
-                         range :: 'undefined' | #jingle_ft_range{}}).
--type jingle_ft_file() :: #jingle_ft_file{}.
-
--record(jingle_ft_checksum, {creator :: 'initiator' | 'responder' | 'undefined',
-                             name = <<>> :: binary(),
-                             file :: #jingle_ft_file{}}).
--type jingle_ft_checksum() :: #jingle_ft_checksum{}.
-
--record(jingle_ft_description, {file :: 'undefined' | #jingle_ft_file{}}).
--type jingle_ft_description() :: #jingle_ft_description{}.
 
 -record(upload_request, {filename :: binary(),
                          size :: non_neg_integer(),
@@ -850,14 +841,6 @@
                      xdata :: 'undefined' | #xdata{}}).
 -type ps_options() :: #ps_options{}.
 
--record(ps_event, {items :: 'undefined' | #ps_items{},
-                   purge :: 'undefined' | binary(),
-                   subscription :: 'undefined' | #ps_subscription{},
-                   delete :: 'undefined' | {binary(),binary()},
-                   create :: 'undefined' | binary(),
-                   configuration :: 'undefined' | {binary(),'undefined' | #xdata{}}}).
--type ps_event() :: #ps_event{}.
-
 -record(message_thread, {parent = <<>> :: binary(),
                          data = <<>> :: binary()}).
 -type message_thread() :: #message_thread{}.
@@ -962,14 +945,6 @@
                 sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
 -type oob_x() :: #oob_x{}.
 
--record(pubsub_owner, {affiliations :: 'undefined' | {binary(),[#ps_affiliation{}]},
-                       configure :: 'undefined' | {binary(),'undefined' | #xdata{}},
-                       default :: 'undefined' | {binary(),'undefined' | #xdata{}},
-                       delete :: 'undefined' | {binary(),binary()},
-                       purge :: 'undefined' | binary(),
-                       subscriptions :: 'undefined' | {binary(),[#ps_subscription{}]}}).
--type pubsub_owner() :: #pubsub_owner{}.
-
 -record(x509_ca_list, {certs = [] :: [binary()]}).
 -type x509_ca_list() :: #x509_ca_list{}.
 
@@ -1068,24 +1043,6 @@
                     pcode :: 'undefined' | binary(),
                     ctry :: 'undefined' | binary()}).
 -type vcard_adr() :: #vcard_adr{}.
-
--record(pubsub, {subscriptions :: 'undefined' | {binary(),[#ps_subscription{}]},
-                 subscription :: 'undefined' | #ps_subscription{},
-                 affiliations :: 'undefined' | {binary(),[#ps_affiliation{}]},
-                 publish :: 'undefined' | #ps_publish{},
-                 publish_options :: 'undefined' | #xdata{},
-                 subscribe :: 'undefined' | #ps_subscribe{},
-                 unsubscribe :: 'undefined' | #ps_unsubscribe{},
-                 options :: 'undefined' | #ps_options{},
-                 items :: 'undefined' | #ps_items{},
-                 retract :: 'undefined' | #ps_retract{},
-                 create :: 'undefined' | binary(),
-                 configure :: 'undefined' | {binary(),'undefined' | #xdata{}},
-                 default :: 'undefined' | {binary(),'undefined' | #xdata{}},
-                 delete :: 'undefined' | {binary(),binary()},
-                 purge :: 'undefined' | binary(),
-                 rsm :: 'undefined' | #rsm_set{}}).
--type pubsub() :: #pubsub{}.
 
 -record(vcard_tel, {home = false :: boolean(),
                     work = false :: boolean(),
@@ -1370,15 +1327,6 @@
 -record(sasl_challenge, {text = <<>> :: binary()}).
 -type sasl_challenge() :: #sasl_challenge{}.
 
--record(sasl2_failure, {reason :: 'aborted' | 'account-disabled' | 'bad-protocol' | 'credentials-expired' | 'encryption-required' | 'incorrect-encoding' | 'invalid-authzid' | 'invalid-mechanism' | 'malformed-request' | 'mechanism-too-weak' | 'not-authorized' | 'temporary-auth-failure' | 'undefined',
-                        text :: 'undefined' | binary(),
-                        sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
--type sasl2_failure() :: #sasl2_failure{}.
-
--record(sasl_failure, {reason :: 'aborted' | 'account-disabled' | 'bad-protocol' | 'credentials-expired' | 'encryption-required' | 'incorrect-encoding' | 'invalid-authzid' | 'invalid-mechanism' | 'malformed-request' | 'mechanism-too-weak' | 'not-authorized' | 'temporary-auth-failure' | 'undefined',
-                       text = [] :: [#text{}]}).
--type sasl_failure() :: #sasl_failure{}.
-
 -record(roster_query, {items = [] :: [#roster_item{}],
                        ver :: 'undefined' | binary(),
                        mix_annotate = false :: boolean()}).
@@ -1398,6 +1346,71 @@
 
 -record(addresses, {list = [] :: [#address{}]}).
 -type addresses() :: #addresses{}.
+
+-record(sasl2_failure, {reason :: 'aborted' | 'account-disabled' | 'bad-protocol' | 'credentials-expired' | 'encryption-required' | 'incorrect-encoding' | 'invalid-authzid' | 'invalid-mechanism' | 'malformed-request' | 'mechanism-too-weak' | 'not-authorized' | 'temporary-auth-failure' | 'undefined',
+                        text :: 'undefined' | binary(),
+                        sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
+-type sasl2_failure() :: #sasl2_failure{}.
+
+-record(sasl_failure, {reason :: 'aborted' | 'account-disabled' | 'bad-protocol' | 'credentials-expired' | 'encryption-required' | 'incorrect-encoding' | 'invalid-authzid' | 'invalid-mechanism' | 'malformed-request' | 'mechanism-too-weak' | 'not-authorized' | 'temporary-auth-failure' | 'undefined',
+                       text = [] :: [#text{}]}).
+-type sasl_failure() :: #sasl_failure{}.
+
+-record(bind, {jid :: undefined | jid:jid(),
+               resource = <<>> :: binary()}).
+-type bind() :: #bind{}.
+
+-record(jingle_ft_file, {date :: undefined | erlang:timestamp(),
+                         desc = [] :: [#text{}],
+                         hash = [] :: [#hash{}],
+                         'hash-used' :: 'undefined' | #hash_used{},
+                         'media-type' :: 'undefined' | binary(),
+                         name :: 'undefined' | binary(),
+                         size :: 'undefined' | non_neg_integer(),
+                         range :: 'undefined' | #jingle_ft_range{}}).
+-type jingle_ft_file() :: #jingle_ft_file{}.
+
+-record(jingle_ft_checksum, {creator :: 'initiator' | 'responder' | 'undefined',
+                             name = <<>> :: binary(),
+                             file :: #jingle_ft_file{}}).
+-type jingle_ft_checksum() :: #jingle_ft_checksum{}.
+
+-record(jingle_ft_description, {file :: 'undefined' | #jingle_ft_file{}}).
+-type jingle_ft_description() :: #jingle_ft_description{}.
+
+-record(pubsub_owner, {affiliations :: 'undefined' | {binary(),[#ps_affiliation{}]},
+                       configure :: 'undefined' | {binary(),'undefined' | #xdata{}},
+                       default :: 'undefined' | {binary(),'undefined' | #xdata{}},
+                       delete :: 'undefined' | {binary(),binary()},
+                       purge :: 'undefined' | binary(),
+                       subscriptions :: 'undefined' | {binary(),[#ps_subscription{}]}}).
+-type pubsub_owner() :: #pubsub_owner{}.
+
+-record(pubsub, {subscriptions :: 'undefined' | {binary(),[#ps_subscription{}]},
+                 subscription :: 'undefined' | #ps_subscription{},
+                 affiliations :: 'undefined' | {binary(),[#ps_affiliation{}]},
+                 publish :: 'undefined' | #ps_publish{},
+                 publish_options :: 'undefined' | #xdata{},
+                 subscribe :: 'undefined' | #ps_subscribe{},
+                 unsubscribe :: 'undefined' | #ps_unsubscribe{},
+                 options :: 'undefined' | #ps_options{},
+                 items :: 'undefined' | #ps_items{},
+                 retract :: 'undefined' | #ps_retract{},
+                 create :: 'undefined' | binary(),
+                 configure :: 'undefined' | {binary(),'undefined' | #xdata{}},
+                 default :: 'undefined' | {binary(),'undefined' | #xdata{}},
+                 delete :: 'undefined' | {binary(),binary()},
+                 purge :: 'undefined' | binary(),
+                 rsm :: 'undefined' | #rsm_set{}}).
+-type pubsub() :: #pubsub{}.
+
+-record(ps_event, {items :: 'undefined' | #ps_items{},
+                   purge :: 'undefined' | binary(),
+                   subscription :: 'undefined' | #ps_subscription{},
+                   delete :: 'undefined' | {binary(),binary()},
+                   create :: 'undefined' | binary(),
+                   configuration :: 'undefined' | {binary(),'undefined' | #xdata{}}}).
+-type ps_event() :: #ps_event{}.
 
 -type xmpp_element() :: address() |
                         addresses() |
@@ -1444,6 +1457,9 @@
                         disco_item() |
                         disco_items() |
                         expire() |
+                        fast() |
+                        fast_request_token() |
+                        fast_token() |
                         fasten_apply_to() |
                         fasten_external() |
                         feature_csi() |

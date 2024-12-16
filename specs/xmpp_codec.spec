@@ -5485,14 +5485,14 @@
            xmlns = <<"urn:xmpp:sasl:2">>,
 	       module = 'xep0388',
            result = {sasl2_task_data, '$_els'}}).
-		
+
 -xml(sasl2_next,
      #elem{name = <<"next">>,
            xmlns = <<"urn:xmpp:sasl:2">>,
            attrs = [#attr{name = <<"task">>}],
 	       module = 'xep0388',
            result = {sasl2_next, '$task', '$_els'}}).
-		
+
 -xml(sasl2_abort,
      #elem{name = <<"abort">>,
            xmlns = <<"urn:xmpp:sasl:2">>,
@@ -5542,7 +5542,7 @@
 	                  label = '$var',
 			  required = true}],
            result = {bind2_feature, '$var'}}).
-		
+
 -xml(s2s_bidi,
      #elem{name = <<"bidi">>,
            xmlns = <<"urn:xmpp:features:bidi">>,
@@ -5581,7 +5581,57 @@
                           enc = {base64, encode, []},
                           dec = {base64, decode, []}},
            result = {scram_upgrade_hash, '$data'}}).
-		
+
+-xml(fast,
+     #elem{name = <<"fast">>,
+           xmlns = <<"urn:xmpp:fast:0">>,
+           module = 'xep0484',
+           attrs = [#attr{name = <<"tls-0rtt">>,
+                          label = '$zero_rtt',
+                          enc = {enc_bool, []},
+                          dec = {dec_bool, []}},
+                    #attr{name = <<"count">>,
+                          label = '$count',
+                          enc = {enc_int, []},
+                          dec = {dec_int, []}},
+                    #attr{name = <<"invalidate">>,
+                          label = '$invalidate',
+                          enc = {enc_bool, []},
+                          dec = {dec_bool, []}}],
+           refs = [#ref{name = fast_mech,
+                       label = '$mechs',
+                       min = 0}],
+           result = {fast, '$zero_rtt', '$count', '$invalidate', '$mechs'}}).
+
+-xml(fast_mech,
+     #elem{name = <<"mechanism">>,
+           xmlns = <<"urn:xmpp:fast:0">>,
+           module = 'xep0484',
+           result = '$cdata'}).
+
+-xml(fast_request_token,
+     #elem{name = <<"request-token">>,
+           xmlns = <<"urn:xmpp:fast:0">>,
+           module = 'xep0484',
+           attrs = [#attr{name = <<"mechanism">>,
+                          label = '$mech',
+						  required = true}],
+		   result = {fast_request_token, '$mech'}
+		}).
+
+-xml(fast_token,
+     #elem{name = <<"token">>,
+           xmlns = <<"urn:xmpp:fast:0">>,
+           module = 'xep0484',
+           attrs = [#attr{name = <<"expiry">>,
+                          label = '$expiry',
+						  enc = {enc_utc, []},
+						  dec = {dec_utc, []}},
+                    #attr{name = <<"token">>,
+                          label = '$token'}],
+		   result = {fast_token, '$expiry', '$token'}
+		}).
+
 -spec dec_tzo(_) -> {integer(), integer()}.
 dec_tzo(Val) ->
     [H1, M1] = binary:split(Val, <<":">>),

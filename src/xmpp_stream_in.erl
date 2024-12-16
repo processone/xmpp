@@ -105,6 +105,7 @@
 -callback get_password_fun(xmpp_sasl:mechanism(), state()) -> fun().
 -callback check_password_fun(xmpp_sasl:mechanism(), state()) -> fun().
 -callback check_password_digest_fun(xmpp_sasl:mechanism(), state()) -> fun().
+-callback get_fast_tokens_fun(xmpp_sasl:mechanism(), state()) -> fun().
 -callback bind(binary(), state()) -> {ok, state()} | {error, stanza_error(), state()}.
 -callback compress_methods(state()) -> [binary()].
 -callback tls_options(state()) -> [proplists:property()].
@@ -139,6 +140,7 @@
 		     get_password_fun/2,
 		     check_password_fun/2,
 		     check_password_digest_fun/2,
+		     get_fast_tokens_fun/2,
 		     bind/2,
 		     compress_methods/1,
 		     tls_options/1,
@@ -976,9 +978,9 @@ process_sasl_request(#sasl_auth{mechanism = Mech, text = ClientIn},
 			     end
 		     catch _:{?MODULE, undef} -> Mechs
 		     end,
-	    SASLState = xmpp_sasl:server_new(LServer, GetPW, CheckPW, CheckPWDigest),
+	    SASLState = xmpp_sasl:server_new(LServer, GetPW, CheckPW, CheckPWDigest, undefined),
 	    CB = maps:get(sasl_channel_bindings, State1, none),
-	    Res = xmpp_sasl:server_start(SASLState, Mech, ClientIn, CB, Mechs2),
+	    Res = xmpp_sasl:server_start(SASLState, Mech, ClientIn, CB, Mechs2, undefined),
 	    process_sasl_result(Res, disable_sasl2(State1#{sasl_state => SASLState}));
 	false ->
 	    process_sasl_result({error, unsupported_mechanism, <<"">>}, disable_sasl2(State1))
@@ -1064,7 +1066,10 @@ process_sasl2_request(#sasl2_authenticate{mechanism = Mech, initial_response = C
 					  user_agent = UA} = Pkt,
 		     #{lserver := LServer} = State) ->
     State1 = State#{sasl_mech => Mech},
-    Mechs = get_sasl_mechanisms(State1),
+    FastMechs = try callback(fast_mechanisms, State)
+		catch _:{?MODULE, undef} -> []
+		end,
+    Mechs = get_sasl_mechanisms(State1) ++ FastMechs,
     UAId = case UA of
 	       #sasl2_user_agent{id = ID} when ID /= <<>> ->
 		   ID;
@@ -1089,6 +1094,7 @@ process_sasl2_request(#sasl2_authenticate{mechanism = Mech, initial_response = C
 	    GetPW = get_password_fun(Mech, State1),
 	    CheckPW = check_password_fun(Mech, State1),
 	    CheckPWDigest = check_password_digest_fun(Mech, State1),
+	    GetFastTokens = get_fast_tokens_fun(Mech, State1),
 	    Mechs2 = try callback(sasl_options, State) of
 			 Opts ->
 			     case lists:keyfind(scram_downgrade_protection, 1, Opts) of
@@ -1097,9 +1103,10 @@ process_sasl2_request(#sasl2_authenticate{mechanism = Mech, initial_response = C
 			     end
 		     catch _:{?MODULE, undef} -> Mechs
 		     end,
-	    SASLState = xmpp_sasl:server_new(LServer, GetPW, CheckPW, CheckPWDigest),
+	    SASLState = xmpp_sasl:server_new(LServer, GetPW, CheckPW,
+					     CheckPWDigest, GetFastTokens),
 	    CB = maps:get(sasl_channel_bindings, State1, none),
-	    Res = xmpp_sasl:server_start(SASLState, Mech, ClientIn, CB, Mechs2),
+	    Res = xmpp_sasl:server_start(SASLState, Mech, ClientIn, CB, Mechs2, UAId),
 	    process_sasl2_result(Res, State1#{sasl_state => SASLState,
 					      sasl2_inline_els => SaslInline,
 					      sasl2_ua_id => UAId});
@@ -1133,8 +1140,10 @@ process_sasl2_success(Props, ServerOut,
 	process_sasl2_failure(not_authorized, User, State);
 	true ->
 	    AuthModule = proplists:get_value(auth_module, Props),
-	    State1 = try callback(handle_auth_success, User, Mech, AuthModule, State)
-		     catch _:{?MODULE, undef} -> State
+	    ExtraAuthInfo = proplists:get_value(extra_info, Props),
+	    State0 = State#{sasl2_axtra_auth_info => ExtraAuthInfo},
+	    State1 = try callback(handle_auth_success, User, Mech, AuthModule, State0)
+		     catch _:{?MODULE, undef} -> State0
 		     end,
 	    case is_disconnected(State1) of
 		true -> State1;
@@ -1209,7 +1218,7 @@ process_sasl2_post_success(NewEls, Results, User, ServerOut,
 		false ->
 		    map_remove_keys(State5, [sasl2_stream_from, sasl2_inline_els,
 					     sasl2_ua_id, sasl_state, sasl_mech,
-					     sasl_channel_bindings])
+					     sasl_channel_bindings, sasl2_extra_auth_info])
 	    end
     end.
 
@@ -1369,6 +1378,12 @@ check_password_fun(Mech, State) ->
 check_password_digest_fun(Mech, State) ->
     try callback(check_password_digest_fun, Mech, State)
     catch _:{?MODULE, undef} -> fun(_, _, _, _, _) -> {false, undefined} end
+    end.
+
+-spec get_fast_tokens_fun(xmpp_sasl:mechanism(), state()) -> fun().
+get_fast_tokens_fun(Mech, State) ->
+    try callback(get_fast_tokens_fun, Mech, State)
+    catch _:{?MODULE, undef} -> fun(_, _) -> [] end
     end.
 
 -spec get_sasl_mechanisms(state()) -> [xmpp_sasl:mechanism()].
