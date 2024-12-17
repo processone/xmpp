@@ -77,13 +77,17 @@ format_error(incompatible_mechs) ->
     {'not-authorized', <<"Incompatible SCRAM methods">>}.
 
 mech_new(Mech, ChannelBindings, Mechs, _UAId, _Host, #{get_password := GetPassword}) ->
+    NCB = case ChannelBindings of
+	      #{} -> none;
+	      _ -> ChannelBindings
+	  end,
     {Algo, CB} =
     case Mech of
-	<<"SCRAM-SHA-1">> -> {sha, none};
+	<<"SCRAM-SHA-1">> -> {sha, NCB};
 	<<"SCRAM-SHA-1-PLUS">> -> {sha, ChannelBindings};
-	<<"SCRAM-SHA-256">> -> {sha256, none};
+	<<"SCRAM-SHA-256">> -> {sha256, NCB};
 	<<"SCRAM-SHA-256-PLUS">> -> {sha256, ChannelBindings};
-	<<"SCRAM-SHA-512">> -> {sha512, none};
+	<<"SCRAM-SHA-512">> -> {sha512, NCB};
 	<<"SCRAM-SHA-512-PLUS">> -> {sha512, ChannelBindings}
     end,
     Ssdp = case Mechs of
