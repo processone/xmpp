@@ -25,7 +25,7 @@
 
 -record(state, {mech, cb, ua, get_fast_tokens}).
 -type error_reason() :: incompatible_mechs | missing_ua | bad_channel_binding |
-parser_failed | not_authorized | {atom(), binary()}.
+                        parser_failed | not_authorized | {atom(), binary()}.
 -export_type([error_reason/0]).
 
 -spec format_error(error_reason()) -> {atom(), binary()}.
@@ -101,7 +101,7 @@ mech_step(State, ClientIn) ->
 	    {error, parser_failed}
     end.
 
--spec prepare(binary()) -> {binary(), binary(), binary()} | error.
+-spec prepare(binary()) -> {binary(), binary()} | error.
 prepare(ClientIn) ->
     case parse(ClientIn) of
 	[User, Hash] ->

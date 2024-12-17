@@ -30,7 +30,7 @@
 -record(sasl_state, {server_host           :: binary(),
 		     mech_name = <<"">>    :: mechanism(),
 		     mech_state            :: mech_state(),
-		     callbacks             :: #{ atom => fun() | undefined }}).
+		     callbacks             :: map()}).
 
 -type mechanism() :: binary().
 -type mech_state() :: term().
@@ -45,11 +45,13 @@
 -type sasl_return() :: {ok, [sasl_property()]} |
 		       {ok, [sasl_property()], binary()} |
 		       {continue, binary(), sasl_state()} |
-		       {error, error_reason(), binary()}.
+		       {error, error_reason(), binary()} |
+		       {error, error_reason()}.
 -type error_reason() :: xmpp_sasl_digest:error_reason() |
 			xmpp_sasl_oauth:error_reason() |
 			xmpp_sasl_plain:error_reason() |
 			xmpp_sasl_scram:error_reason() |
+			xmpp_sasl_fast:error_reason() |
 			unsupported_mechanism | nodeprep_failed |
 			empty_username | aborted.
 
