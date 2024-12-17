@@ -78,7 +78,7 @@ validate_token(User, Mech, CB, [{TokenId, Token} | Tokens], Hash) ->
 			  {extra_info, {token, TokenId}},
 			  {authzid, User}],
 		     sha_mac(Hmac, Token, <<"Responder", CB2/binary>>)};
-		V ->
+		_ ->
 		    validate_token(User, Mech, CB, Tokens, Hash)
 	    end
     end.
