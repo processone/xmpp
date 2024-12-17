@@ -764,6 +764,15 @@
         <xmpp:note></xmpp:note>
       </xmpp:SupportedXep>
     </implements>
+    <implements>
+      <xmpp:SupportedXep>
+        <xmpp:xep rdf:resource="https://xmpp.org/extensions/xep-0484.html"/>
+        <xmpp:version>0.2.0</xmpp:version>
+        <xmpp:since>1.9.1</xmpp:since>
+        <xmpp:status></xmpp:status>
+        <xmpp:note></xmpp:note>
+      </xmpp:SupportedXep>
+    </implements>
 
   </Project>
 </rdf:RDF>
