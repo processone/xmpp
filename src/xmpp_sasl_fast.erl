@@ -63,10 +63,10 @@ validate_token(User, Mech, CB, [{TokenId, Token} | Tokens], Hash) ->
 			 <<"HT-SHA-256-EXPR">> -> {sha256, <<"tls-exporter">>};
 			 <<"HT-SHA-256-ENDP">> -> {sha256, <<"tls-server-end-point">>}
 		     end,
-    CB2 = case maps:get(CBName, CB, missing) of
-	      missing when CBName == none -> <<>>;
-	      missing -> error;
-	      Val -> Val
+    CB2 = case CBName of
+	      none -> <<>>;
+	      _ when is_map(CB) -> maps:get(CBName, CB, error);
+	      _ -> error
 	  end,
     case CB2 of
 	error -> {error, bad_channel_binding};

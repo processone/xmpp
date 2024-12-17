@@ -32,7 +32,7 @@
 -record(state,
 	{step = 2                :: 2 | 4,
 	 algo = sha              :: sha | sha256 | sha512,
-	 channel_bindings = none :: none | #{atom() => binary()},
+	 channel_bindings = none :: none | not_available | #{atom() => binary()},
 	 ssdp                    :: undefined | binary(),
 	 stored_key = <<"">>     :: binary(),
 	 server_key = <<"">>     :: binary(),
@@ -93,6 +93,7 @@ mech_new(Mech, ChannelBindings, Mechs, _UAId, _Host, #{get_password := GetPasswo
 		       lists:join(<<",">>, lists:sort(Mechs)),
 		       case ChannelBindings of
 			   none -> [];
+			   not_available -> [];
 			   _ when map_size(ChannelBindings) == 0 -> [];
 			   _ -> [<<"|">>, lists:join(<<",">>, lists:sort(maps:keys(ChannelBindings)))]
 		       end]))
@@ -240,7 +241,7 @@ mech_step(#state{step = 4, algo = Algo} = State, ClientIn) ->
 
 cbind_valid(#state{channel_bindings = #{} = Bindings}, <<"p=", Binding/binary>>) ->
     maps:is_key(Binding, Bindings);
-cbind_valid(#state{channel_bindings = Bindings}, _) when Bindings /= none ->
+cbind_valid(#state{channel_bindings = #{}}, _) ->
     false;
 cbind_valid(_, <<"y", _/binary>>) ->
     true;
@@ -255,15 +256,17 @@ extensions_valid(_State, Ext) ->
 	   (_) -> true
 	end, Ext).
 
-cbind_verify(#state{channel_bindings = Bindings}, <<"p=", Binding/binary>>) when Bindings /= none ->
+cbind_verify(#state{channel_bindings = #{} = Bindings}, <<"p=", Binding/binary>>) ->
     case re:split(Binding, <<",">>, [{parts, 3}, {return, binary}]) of
 	[Type, _, Data] ->
 	    maps:get(Type, Bindings, none) == Data;
 	_ ->
 	    false
     end;
-cbind_verify(#state{channel_bindings = CB}, _) when CB /= none->
+cbind_verify(#state{channel_bindings = #{}}, _) ->
     false;
+cbind_verify(#state{channel_bindings = not_available}, <<"y", _/binary>>) ->
+    true;
 cbind_verify(_, <<"y", _/binary>>) ->
     false;
 cbind_verify(_, <<"n", _/binary>>) ->

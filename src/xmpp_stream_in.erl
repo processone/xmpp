@@ -931,6 +931,8 @@ process_starttls_failure(Why, State) ->
 -spec init_channel_bindings(state()) -> state().
 init_channel_bindings(#{sasl_channel_bindings := _} = State) ->
     State;
+init_channel_bindings(#{stream_encrypted := false} = State) ->
+    State#{sasl_channel_bindings => not_available};
 init_channel_bindings(#{socket := Socket} = State) ->
 	R1 = case xmpp_socket:get_tls_last_message(Socket, peer) of
 		 {ok, Data} ->
@@ -1409,6 +1411,7 @@ get_sasl_feature(#{stream_authenticated := false,
 	    [#sasl_mechanisms{list = Mechs}] ++
 	    case maps:get(sasl_channel_bindings, State, none) of
 		none -> [];
+		not_available -> [];
 		Bindings -> [#sasl_channel_binding{bindings = maps:keys(Bindings)}]
 	    end;
 	true ->

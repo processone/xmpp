@@ -106,7 +106,7 @@ server_new(ServerHost, GetPassword, CheckPassword, CheckPasswordDigest, GetFastT
 		    check_password_digest => CheckPasswordDigest}}.
 
 -spec server_start(sasl_state(), mechanism(), binary(), channel_bindings(),
-  list(binary()) | undefined, binary() | undefined) -> sasl_return().
+  list(binary()) | undefined | not_available, binary() | undefined) -> sasl_return().
 server_start(State, Mech, ClientIn, ChannelBindings, Mechs, UAId) ->
     case get_mod(Mech) of
 	undefined ->
