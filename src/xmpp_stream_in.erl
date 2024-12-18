@@ -929,7 +929,7 @@ process_starttls_failure(Why, State) ->
     end.
 
 -spec init_channel_bindings(state()) -> state().
-init_channel_bindings(#{sasl_channel_bindings := _} = State) ->
+init_channel_bindings(#{sasl_channel_bindings := #{}} = State) ->
     State;
 init_channel_bindings(#{stream_encrypted := false} = State) ->
     State#{sasl_channel_bindings => not_available};
@@ -1329,30 +1329,31 @@ send_features(#{stream_version := {1,0},
 	(not Encrypted) andalso TLSRequired ->
 	    send_pkt(State, #stream_features{sub_els = get_tls_feature(State)});
 	true ->
-	    {Features, State2} =
+	    State2 = case AllowUnencryptedSasl2 orelse Encrypted of
+			 true -> init_channel_bindings(State);
+			 _ -> State
+		     end,
+	    {Features, State3} =
 	    case {Encrypted, Sasl2, AllowUnencryptedSasl2, TLSAvailable} of
 		{false, true, true, true} ->
-		    {get_tls_feature(State) ++ get_sasl2_feature(State),
-		     init_channel_bindings(State)};
+		    {get_tls_feature(State2) ++ get_sasl2_feature(State2), State2};
 		{_, true, _, _} when Encrypted; AllowUnencryptedSasl2 ->
-		    {get_sasl2_feature(State), init_channel_bindings(State)};
+		    {get_sasl2_feature(State2), State2};
 		{false, true, false, false} ->
-		    {[], disable_sasl2(State)};
+		    {[], disable_sasl2(State2)};
 		{false, _, _, true} ->
-		    {get_tls_feature(State), State};
-		{true, _, _, _} ->
-		    {[], init_channel_bindings(State)};
+		    {get_tls_feature(State2), State2};
 		_ ->
-		    {[], State}
+		    {[], State2}
 	    end,
 	    Features2 =
-		get_sasl_feature(State2) ++
+		get_sasl_feature(State3) ++
 		Features ++
-		get_compress_feature(State2) ++
-		get_bind_feature(State2) ++
-		get_session_feature(State2) ++
-		get_other_features(State2),
-	    send_pkt(State2, #stream_features{sub_els = Features2})
+		get_compress_feature(State3) ++
+		get_bind_feature(State3) ++
+		get_session_feature(State3) ++
+		get_other_features(State3),
+	    send_pkt(State3, #stream_features{sub_els = Features2})
     end;
 send_features(State) ->
     %% clients and servers from stone age
