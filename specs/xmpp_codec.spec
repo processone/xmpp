@@ -3559,17 +3559,11 @@
 
 -xml(mix_participant,
      #elem{name = <<"participant">>,
-	   xmlns = [<<"urn:xmpp:mix:core:0">>, <<"urn:xmpp:mix:core:1">>],
+	   xmlns = <<"urn:xmpp:mix:core:1">>,
 	   module = 'xep0369',
-	   result = {mix_participant, '$jid', '$nick', '$xmlns'},
-	   attrs = [#attr{name = <<"jid">>,
-			  required = true,
-			  label = '$jid',
-			  dec = {jid, decode, []},
-                          enc = {jid, encode, []}},
-		    #attr{name = <<"nick">>,
-			  label = '$nick'},
-		    #attr{name = <<"xmlns">>}]}).
+	   result = {mix_participant, '$jid', '$nick'},
+           refs = [#ref{name = mix_jid, min = 0, max = 1, label = '$jid'},
+                   #ref{name = mix_nick, min = 0, max = 1, label = '$nick'}]}).
 
 -xml(mix_create,
      #elem{name = <<"create">>,
