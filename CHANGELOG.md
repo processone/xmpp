@@ -1,5 +1,6 @@
 # Version 1.9.1
 
+* Updating fast_xml to version 1.1.55.
 * Make `allow_unencrypted_sasl2` option also allow connection
   for clients that tell us they wanted to use but didn't find
   channel bindings
