@@ -1,3 +1,12 @@
+# Version 1.9.1
+
+* Make `allow_unencrypted_sasl2` option also allow connection
+  for clients that tell us they wanted to use but didn't find
+  channel bindings
+* Implement XEP-0484 Fast Authentication Streamlining Tokens
+* Improvements to XEP-0480 parsing
+* Improve `make spec` and `make xdata` commands
+
 # Version 1.9.0
 
 * Updating fast_tls to version 1.1.22.
