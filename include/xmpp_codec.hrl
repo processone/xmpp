@@ -142,6 +142,9 @@
 -record(bind2_bound, {sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
 -type bind2_bound() :: #bind2_bound{}.
 
+-record(s2s_bidi_feature, {}).
+-type s2s_bidi_feature() :: #s2s_bidi_feature{}.
+
 -record(mix_create, {channel = <<>> :: binary(),
                      xmlns = <<>> :: binary()}).
 -type mix_create() :: #mix_create{}.
@@ -1591,6 +1594,7 @@
                         rsm_first() |
                         rsm_set() |
                         s2s_bidi() |
+                        s2s_bidi_feature() |
                         sasl2_abort() |
                         sasl2_authenticate() |
                         sasl2_authenticaton() |

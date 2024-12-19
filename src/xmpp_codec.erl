@@ -1062,6 +1062,7 @@ get_mod(<<"authorization-identifier">>,
         <<"urn:xmpp:sasl:2">>) ->
     xep0388;
 get_mod(<<"bind">>, <<"urn:xmpp:bind:0">>) -> xep0386;
+get_mod(<<"bidi">>, <<"urn:xmpp:bidi">>) -> xep0288;
 get_mod(<<"MODEM">>, <<"vcard-temp">>) -> xep0054;
 get_mod(<<"ORGUNIT">>, <<"vcard-temp">>) -> xep0054;
 get_mod(<<"UID">>, <<"vcard-temp">>) -> xep0054;
@@ -1832,6 +1833,7 @@ get_mod({carbons_enable}) -> xep0280;
 get_mod({carbons_private}) -> xep0280;
 get_mod({mix_roster_channel, _}) -> xep0405;
 get_mod({fasten_external, _}) -> xep0422;
+get_mod({s2s_bidi_feature}) -> xep0288;
 get_mod({shim, _}) -> xep0131;
 get_mod({mam_archived, _, _}) -> xep0313;
 get_mod({delegated, _, _}) -> xep0355;

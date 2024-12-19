@@ -5545,9 +5545,15 @@
 
 -xml(s2s_bidi,
      #elem{name = <<"bidi">>,
-           xmlns = <<"urn:xmpp:features:bidi">>,
+           xmlns = <<"urn:xmpp:bidi">>,
 	   module = 'xep0288',
            result = {s2s_bidi}}).
+
+-xml(s2s_bidi_feature,
+     #elem{name = <<"bidi">>,
+           xmlns = <<"urn:xmpp:features:bidi">>,
+	   module = 'xep0288',
+           result = {s2s_bidi_feature}}).
 
 -xml(sasl_upgrade,
      #elem{name = <<"upgrade">>,
