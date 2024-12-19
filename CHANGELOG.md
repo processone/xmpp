@@ -1,3 +1,7 @@
+# Version 1.9.2
+
+* Add separate element for bidi feature
+
 # Version 1.9.1
 
 * Updating fast_xml to version 1.1.55.
