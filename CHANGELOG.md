@@ -1,3 +1,7 @@
+# Version 1.9.3
+
+* Make ssdp hash calculation don't account fast mechanisms
+
 # Version 1.9.2
 
 * Add separate element for bidi feature
