@@ -106,6 +106,7 @@
 -callback check_password_fun(xmpp_sasl:mechanism(), state()) -> fun().
 -callback check_password_digest_fun(xmpp_sasl:mechanism(), state()) -> fun().
 -callback get_fast_tokens_fun(xmpp_sasl:mechanism(), state()) -> fun().
+-callback fast_mechanisms(state()) -> [xmpp_sasl:mechanism()].
 -callback bind(binary(), state()) -> {ok, state()} | {error, stanza_error(), state()}.
 -callback compress_methods(state()) -> [binary()].
 -callback tls_options(state()) -> [proplists:property()].
@@ -141,6 +142,7 @@
 		     check_password_fun/2,
 		     check_password_digest_fun/2,
 		     get_fast_tokens_fun/2,
+		     fast_mechanisms/1,
 		     bind/2,
 		     compress_methods/1,
 		     tls_options/1,
@@ -1071,7 +1073,8 @@ process_sasl2_request(#sasl2_authenticate{mechanism = Mech, initial_response = C
     FastMechs = try callback(fast_mechanisms, State)
 		catch _:{?MODULE, undef} -> []
 		end,
-    Mechs = get_sasl_mechanisms(State1) ++ FastMechs,
+    Mechs = get_sasl_mechanisms(State1),
+    MechsAll = Mechs ++ FastMechs,
     UAId = case UA of
 	       #sasl2_user_agent{id = ID} when ID /= <<>> ->
 		   ID;
@@ -1082,7 +1085,7 @@ process_sasl2_request(#sasl2_authenticate{mechanism = Mech, initial_response = C
 		     #sasl2_authenticate{sub_els = SubEls} -> SubEls
 		 catch _:{xmpp_codec, _} -> []
 		 end,
-    case lists:member(Mech, Mechs) of
+    case lists:member(Mech, MechsAll) of
 	true when Mech == <<"EXTERNAL">> ->
 	    Res = case xmpp_stream_pkix:authenticate(State1, ClientIn) of
 		      {ok, Peer} ->
