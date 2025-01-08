@@ -940,8 +940,6 @@ get_mod(<<"sm">>, <<"urn:xmpp:sm:3">>) -> xep0198;
 get_mod(<<"fetch">>,
         <<"http://jabber.org/protocol/offline">>) ->
     xep0013;
-get_mod(<<"participant">>, <<"urn:xmpp:mix:core:0">>) ->
-    xep0369;
 get_mod(<<"failed-transport">>,
         <<"urn:xmpp:jingle:1">>) ->
     xep0166;
@@ -1836,6 +1834,7 @@ get_mod({fasten_external, _}) -> xep0422;
 get_mod({s2s_bidi_feature}) -> xep0288;
 get_mod({shim, _}) -> xep0131;
 get_mod({mam_archived, _, _}) -> xep0313;
+get_mod({mix_participant, _, _}) -> xep0369;
 get_mod({delegated, _, _}) -> xep0355;
 get_mod({text, _, _}) -> xep0234;
 get_mod({muc_hat, _, _}) -> xep0317;
@@ -1966,7 +1965,6 @@ get_mod({sasl_upgrade, _}) -> xep0480;
 get_mod({stanza_error, _, _, _, _, _}) -> rfc6120;
 get_mod({sm_resumed, _, _, _}) -> xep0198;
 get_mod({offline_item, _, _}) -> xep0013;
-get_mod({mix_participant, _, _, _}) -> xep0369;
 get_mod({db_verify, _, _, _, _, _, _}) -> xep0220;
 get_mod({upload_slot, _, _, _}) -> xep0363;
 get_mod({jingle_ibb_transport, _, _, _}) -> xep0261;
