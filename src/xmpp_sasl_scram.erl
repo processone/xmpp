@@ -94,12 +94,12 @@ mech_new(Mech, ChannelBindings, Mechs, _UAId, _Host, #{get_password := GetPasswo
 	       undefined -> undefined;
 	       _ ->
 		   base64:encode(crypto:hash(Algo, [
-		       lists:join(<<0x1E>>, lists:sort(Mechs)),
+		       lists:join(<<16#1E>>, lists:sort(Mechs)),
 		       case ChannelBindings of
 			   none -> [];
 			   not_available -> [];
 			   _ when map_size(ChannelBindings) == 0 -> [];
-			   _ -> [<<0x1F>>, lists:join(<<0x1E>>, lists:sort(maps:keys(ChannelBindings)))]
+			   _ -> [<<16#1F>>, lists:join(<<16#1E>>, lists:sort(maps:keys(ChannelBindings)))]
 		       end]))
 	   end,
     #state{step = 2, get_password = GetPassword, algo = Algo,
