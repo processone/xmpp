@@ -20,7 +20,7 @@
 -behaviour(xmpp_sasl).
 -author('stephen.roettger@googlemail.com').
 -protocol({rfc, 5802}).
--protocol({xep, 474, '0.3.0'}).
+-protocol({xep, 474, '0.4.0'}).
 
 -export([mech_new/6, mech_step/2, format_error/1]).
 
@@ -94,12 +94,12 @@ mech_new(Mech, ChannelBindings, Mechs, _UAId, _Host, #{get_password := GetPasswo
 	       undefined -> undefined;
 	       _ ->
 		   base64:encode(crypto:hash(Algo, [
-		       lists:join(<<",">>, lists:sort(Mechs)),
+		       lists:join(<<0x1E>>, lists:sort(Mechs)),
 		       case ChannelBindings of
 			   none -> [];
 			   not_available -> [];
 			   _ when map_size(ChannelBindings) == 0 -> [];
-			   _ -> [<<"|">>, lists:join(<<",">>, lists:sort(maps:keys(ChannelBindings)))]
+			   _ -> [<<0x1F>>, lists:join(<<0x1E>>, lists:sort(maps:keys(ChannelBindings)))]
 		       end]))
 	   end,
     #state{step = 2, get_password = GetPassword, algo = Algo,
@@ -163,7 +163,7 @@ mech_step(#state{step = 2, algo = Algo, ssdp = Ssdp} = State, ClientIn) ->
 				      base64:encode(p1_rand:bytes(?NONCE_LENGTH)),
 				  SsdpPart = case Ssdp of
 						 undefined -> [];
-						 _ -> [",d=", Ssdp]
+						 _ -> [",h=", Ssdp]
 					     end,
 				  ServerFirstMessage =
                                         iolist_to_binary(
