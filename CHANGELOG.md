@@ -1,3 +1,7 @@
+# Version 1.9.4
+
+* Update support for XEP-0474 to version 0.4
+
 # Version 1.9.3
 
 * Make ssdp hash calculation don't account fast mechanisms
