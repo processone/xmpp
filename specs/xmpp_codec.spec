@@ -5084,14 +5084,14 @@
 
 -xml(muc_hats,
      #elem{name = <<"hats">>,
-	   xmlns = <<"xmpp:prosody.im/protocol/hats:1">>,
+	   xmlns = <<"urn:xmpp:hats:0">>,
 	   module = 'xep0317',
 	   result = {muc_hats, '$hats'},
 	   refs = [#ref{name = muc_hat, label = '$hats'}]}).
 
 -xml(muc_hat,
      #elem{name = <<"hat">>,
-	   xmlns = <<"xmpp:prosody.im/protocol/hats:1">>,
+	   xmlns = <<"urn:xmpp:hats:0">>,
 	   module = 'xep0317',
 	   result = {muc_hat, '$title', '$uri'},
            attrs = [#attr{name = <<"title">>,
