@@ -644,9 +644,6 @@ get_mod(<<"no-store">>, <<"urn:xmpp:hints">>) ->
 get_mod(<<"nick">>,
         <<"http://jabber.org/protocol/nick">>) ->
     xep0172;
-get_mod(<<"hats">>,
-        <<"xmpp:prosody.im/protocol/hats:1">>) ->
-    xep0317;
 get_mod(<<"moderate">>,
         <<"urn:xmpp:message-moderate:0">>) ->
     xep0425;
@@ -751,6 +748,7 @@ get_mod(<<"metadata">>,
     xep0084;
 get_mod(<<"x509-cert">>, <<"urn:xmpp:x509:0">>) ->
     xep0417;
+get_mod(<<"hat">>, <<"urn:xmpp:hats:0">>) -> xep0317;
 get_mod(<<"jid">>, <<"urn:xmpp:jidprep:0">>) -> xep0328;
 get_mod(<<"password">>,
         <<"http://jabber.org/protocol/muc#owner">>) ->
@@ -1313,6 +1311,7 @@ get_mod(<<"delegation">>,
     xep0355;
 get_mod(<<"expired">>, <<"urn:xmpp:jingle:1">>) ->
     xep0166;
+get_mod(<<"hats">>, <<"urn:xmpp:hats:0">>) -> xep0317;
 get_mod(<<"user-agent">>, <<"urn:xmpp:sasl:2">>) ->
     xep0388;
 get_mod(<<"bad-request">>,
@@ -1450,9 +1449,6 @@ get_mod(<<"destroy">>,
 get_mod(<<"participant">>, <<"urn:xmpp:mix:core:1">>) ->
     xep0369;
 get_mod(<<"id">>, <<"jabber:x:event">>) -> xep0022;
-get_mod(<<"hat">>,
-        <<"xmpp:prosody.im/protocol/hats:1">>) ->
-    xep0317;
 get_mod(<<"occupant-id">>,
         <<"urn:xmpp:occupant-id:0">>) ->
     xep0421;

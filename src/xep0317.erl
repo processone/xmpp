@@ -5,24 +5,19 @@
 
 -compile(export_all).
 
-do_decode(<<"hat">>,
-          <<"xmpp:prosody.im/protocol/hats:1">>, El, Opts) ->
-    decode_muc_hat(<<"xmpp:prosody.im/protocol/hats:1">>,
-                   Opts,
-                   El);
-do_decode(<<"hats">>,
-          <<"xmpp:prosody.im/protocol/hats:1">>, El, Opts) ->
-    decode_muc_hats(<<"xmpp:prosody.im/protocol/hats:1">>,
-                    Opts,
-                    El);
+do_decode(<<"hat">>, <<"urn:xmpp:hats:0">>, El, Opts) ->
+    decode_muc_hat(<<"urn:xmpp:hats:0">>, Opts, El);
+do_decode(<<"hats">>, <<"urn:xmpp:hats:0">>, El,
+          Opts) ->
+    decode_muc_hats(<<"urn:xmpp:hats:0">>, Opts, El);
 do_decode(Name, <<>>, _, _) ->
     erlang:error({xmpp_codec, {missing_tag_xmlns, Name}});
 do_decode(Name, XMLNS, _, _) ->
     erlang:error({xmpp_codec, {unknown_tag, Name, XMLNS}}).
 
 tags() ->
-    [{<<"hat">>, <<"xmpp:prosody.im/protocol/hats:1">>},
-     {<<"hats">>, <<"xmpp:prosody.im/protocol/hats:1">>}].
+    [{<<"hat">>, <<"urn:xmpp:hats:0">>},
+     {<<"hats">>, <<"urn:xmpp:hats:0">>}].
 
 do_encode({muc_hats, _} = Hats, TopXMLNS) ->
     encode_muc_hats(Hats, TopXMLNS);
@@ -32,10 +27,8 @@ do_encode({muc_hat, _, _} = Hat, TopXMLNS) ->
 do_get_name({muc_hat, _, _}) -> <<"hat">>;
 do_get_name({muc_hats, _}) -> <<"hats">>.
 
-do_get_ns({muc_hat, _, _}) ->
-    <<"xmpp:prosody.im/protocol/hats:1">>;
-do_get_ns({muc_hats, _}) ->
-    <<"xmpp:prosody.im/protocol/hats:1">>.
+do_get_ns({muc_hat, _, _}) -> <<"urn:xmpp:hats:0">>;
+do_get_ns({muc_hats, _}) -> <<"urn:xmpp:hats:0">>.
 
 pp(muc_hats, 1) -> [hats];
 pp(muc_hat, 2) -> [title, uri];
@@ -66,7 +59,7 @@ decode_muc_hat_attrs(__TopXMLNS, [], Title, Uri) ->
 
 encode_muc_hat({muc_hat, Title, Uri}, __TopXMLNS) ->
     __NewTopXMLNS =
-        xmpp_codec:choose_top_xmlns(<<"xmpp:prosody.im/protocol/hats:1">>,
+        xmpp_codec:choose_top_xmlns(<<"urn:xmpp:hats:0">>,
                                     [],
                                     __TopXMLNS),
     _els = [],
@@ -108,11 +101,11 @@ decode_muc_hats_els(__TopXMLNS, __Opts,
                              _attrs,
                              __TopXMLNS)
         of
-        <<"xmpp:prosody.im/protocol/hats:1">> ->
+        <<"urn:xmpp:hats:0">> ->
             decode_muc_hats_els(__TopXMLNS,
                                 __Opts,
                                 _els,
-                                [decode_muc_hat(<<"xmpp:prosody.im/protocol/hats:1">>,
+                                [decode_muc_hat(<<"urn:xmpp:hats:0">>,
                                                 __Opts,
                                                 _el)
                                  | Hats]);
@@ -124,7 +117,7 @@ decode_muc_hats_els(__TopXMLNS, __Opts, [_ | _els],
 
 encode_muc_hats({muc_hats, Hats}, __TopXMLNS) ->
     __NewTopXMLNS =
-        xmpp_codec:choose_top_xmlns(<<"xmpp:prosody.im/protocol/hats:1">>,
+        xmpp_codec:choose_top_xmlns(<<"urn:xmpp:hats:0">>,
                                     [],
                                     __TopXMLNS),
     _els = lists:reverse('encode_muc_hats_$hats'(Hats,
