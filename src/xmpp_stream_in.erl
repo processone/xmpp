@@ -213,8 +213,8 @@ send_ws_ping(#{owner := Owner, socket := Sock,
     case xmpp_socket:send_ws_ping(Sock) of
 	ok ->
 	    State;
-	{error, Why} ->
-	    process_stream_end({socket, Why}, State)
+	{error, _} = Err ->
+	    process_stream_end(convert_socket_error(Err), State)
     end;
 send_ws_ping(State) ->
     State.
@@ -449,11 +449,8 @@ handle_info({tcp, _, Data}, #{socket := Socket} = State) ->
       case xmpp_socket:recv(Socket, Data) of
 	  {ok, NewSocket} ->
 	      State#{socket => NewSocket};
-	  {error, Reason} when is_atom(Reason) ->
-	      process_stream_end({socket, Reason}, State);
-	  {error, Reason} ->
-	      %% TODO: make fast_tls return atoms
-	      process_stream_end({tls, Reason}, State)
+	  {error, _} = Err ->
+	      process_stream_end(convert_socket_error(Err), State)
       end);
 % Skip new tcp messages after socket get removed from state
 handle_info({tcp, _, _}, State) ->
@@ -543,6 +540,12 @@ noreply(#{stream_timeout := {MSecs, StartTime}} = State) ->
 -spec is_disconnected(state()) -> boolean().
 is_disconnected(#{stream_state := StreamState}) ->
     StreamState == disconnected.
+
+convert_socket_error({error, Reason}) when is_atom(Reason) ->
+	{socket, Reason};
+convert_socket_error({error, Reason}) ->
+	%% TODO: make fast_tls return atoms
+	{tls, Reason}.
 
 -spec process_invalid_xml(state(), fxml:xmlel(), term()) -> state().
 process_invalid_xml(#{lang := MyLang} = State, El, Reason) ->
@@ -1579,7 +1582,7 @@ send_header(#{stream_id := StreamID,
 		    stream_header_sent => true},
     case socket_send(State1, StreamStart) of
 	ok -> State1;
-	{error, Why} -> process_stream_end({socket, Why}, State1)
+	{error, _} = Err -> process_stream_end(convert_socket_error(Err), State1)
     end;
 send_header(State, _) ->
     State.
