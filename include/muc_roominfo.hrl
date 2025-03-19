@@ -18,6 +18,7 @@
                     {'occupants', non_neg_integer()} |
                     {'subject', binary()} |
                     {'subjectmod', boolean()} |
+                    {'webchat_url', binary()} |
                     {'pubsub', binary()} |
                     {'changesubject', boolean()} |
                     {'avatarhash', [binary()]}.
@@ -39,6 +40,7 @@
       {'occupants', non_neg_integer() | undefined} |
       {'subject', binary()} |
       {'subjectmod', boolean() | undefined} |
+      {'webchat_url', binary()} |
       {'pubsub', binary() | undefined} |
       {'changesubject', boolean() | undefined} |
       {'avatarhash', [binary()]}.

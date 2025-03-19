@@ -80,6 +80,7 @@
               occupants |
               subject |
               subjectmod |
+              webchat_url |
               pubsub |
               changesubject |
               avatarhash]) -> [xdata_field()].
@@ -259,6 +260,10 @@ encode(List, Lang, Required) ->
                   [encode_subjectmod(Val,
                                      Lang,
                                      lists:member(subjectmod, Required))];
+              {webchat_url, Val} ->
+                  [encode_webchat_url(Val,
+                                      Lang,
+                                      lists:member(webchat_url, Required))];
               {pubsub, Val} ->
                   [encode_pubsub(Val,
                                  Lang,
@@ -751,6 +756,45 @@ do_decode([#xdata_field{var =
                   {too_many_values,
                    <<"muc#roominfo_subjectmod">>,
                    XMLNS}});
+do_decode([#xdata_field{var =
+                            <<"muc#roominfo_webchat_url">>,
+                        values = [Value]}
+           | Fs],
+          XMLNS, Required, Acc) ->
+    try Value of
+        Result ->
+            do_decode(Fs,
+                      XMLNS,
+                      lists:delete(<<"muc#roominfo_webchat_url">>, Required),
+                      [{webchat_url, Result} | Acc])
+    catch
+        _:_ ->
+            erlang:error({?MODULE,
+                          {bad_var_value,
+                           <<"muc#roominfo_webchat_url">>,
+                           XMLNS}})
+    end;
+do_decode([#xdata_field{var =
+                            <<"muc#roominfo_webchat_url">>,
+                        values = []} =
+               F
+           | Fs],
+          XMLNS, Required, Acc) ->
+    do_decode([F#xdata_field{var =
+                                 <<"muc#roominfo_webchat_url">>,
+                             values = [<<>>]}
+               | Fs],
+              XMLNS,
+              Required,
+              Acc);
+do_decode([#xdata_field{var =
+                            <<"muc#roominfo_webchat_url">>}
+           | _],
+          XMLNS, _, _) ->
+    erlang:error({?MODULE,
+                  {too_many_values,
+                   <<"muc#roominfo_webchat_url">>,
+                   XMLNS}});
 do_decode([#xdata_field{var = <<"muc#roominfo_pubsub">>,
                         values = [Value]}
            | Fs],
@@ -1078,6 +1122,23 @@ encode_subjectmod(Value, Lang, IsRequired) ->
                      xmpp_tr:tr(Lang,
                                 ?T("The room subject can be modified by "
                                    "participants"))}.
+
+-spec encode_webchat_url(binary(), binary(),
+                         boolean()) -> xdata_field().
+
+encode_webchat_url(Value, Lang, IsRequired) ->
+    Values = case Value of
+                 <<>> -> [];
+                 Value -> [Value]
+             end,
+    Opts = [],
+    #xdata_field{var = <<"muc#roominfo_webchat_url">>,
+                 values = Values, required = IsRequired,
+                 type = 'text-single', options = Opts, desc = <<>>,
+                 label =
+                     xmpp_tr:tr(Lang,
+                                ?T("Web client which allows to join the "
+                                   "room anonymously"))}.
 
 -spec encode_pubsub(binary() | undefined, binary(),
                     boolean()) -> xdata_field().
