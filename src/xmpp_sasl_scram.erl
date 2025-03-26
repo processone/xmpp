@@ -27,7 +27,7 @@
 -include("scram.hrl").
 
 -type password() :: binary() | #scram{}.
--type get_password_fun() :: fun((binary()) -> {false | {false, atom(), binary()} | password(), module()}).
+-type get_password_fun() :: fun((binary()) -> {false | {false, atom(), binary()} | password() | [password()], module()}).
 
 -record(state,
 	{step = 2                :: 2 | 4,
@@ -124,10 +124,21 @@ mech_step(#state{step = 2, algo = Algo, ssdp = Ssdp} = State, ClientIn) ->
 		      case parse_attribute(ClientNonceAttribute) of
 			{$r, ClientNonce} ->
 			    {Pass, AuthModule} = (State#state.get_password)(UserName),
-			    LPass = if is_binary(Pass) -> jid:resourceprep(Pass);
-				       true -> Pass
+			    Pass2 = case Pass of
+					Bin when is_binary(Bin) -> Bin;
+					List when is_list(List) ->
+					    lists:foldl(
+						fun(#scram{hash = Hash} = S, _) when Algo == Hash ->
+						    S;
+						   (Bin2, false) when is_binary(Bin2) -> Bin2;
+						   (_, Acc) -> Acc
+						end, false, List);
+					Other -> Other
 				    end,
-			    case Pass of
+			    LPass = if is_binary(Pass2) -> jid:resourceprep(Pass2);
+				       true -> Pass2
+				    end,
+			    case Pass2 of
 				{false, Condition, Text} ->
 				  {error, {Condition, Text}, UserName};
 				false ->
@@ -138,7 +149,7 @@ mech_step(#state{step = 2, algo = Algo, ssdp = Ssdp} = State, ClientIn) ->
 				  {error, saslprep_failed, UserName};
 				_ ->
 				  {StoredKey, ServerKey, Salt, IterationCount} =
-				  case Pass of
+				  case Pass2 of
 				      #scram{storedkey = STK, serverkey = SEK, salt = Slt,
 					     iterationcount = IC} ->
 					  {base64:decode(STK),
@@ -148,7 +159,7 @@ mech_step(#state{step = 2, algo = Algo, ssdp = Ssdp} = State, ClientIn) ->
 					  TempSalt =
 					  p1_rand:bytes(?SALT_LENGTH),
 					  SaltedPassword =
-					  scram:salted_password(Algo, Pass,
+					  scram:salted_password(Algo, Pass2,
 								TempSalt,
 								?SCRAM_DEFAULT_ITERATION_COUNT),
 					  {scram:stored_key(Algo, scram:client_key(Algo, SaltedPassword)),

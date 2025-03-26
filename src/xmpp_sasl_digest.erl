@@ -25,7 +25,8 @@
 -export([parse/1]).
 
 -type get_password_fun() :: fun((binary()) -> {false, any()} |
-                                              {binary(), atom()}).
+                                              {binary(), atom()} |
+                                              {[any()], atom()}).
 -type check_password_fun() :: fun((binary(), binary(), binary(), binary(),
                                    fun((binary()) -> binary())) ->
                                            {boolean(), any()} |
@@ -85,7 +86,14 @@ mech_step(#state{step = 3, nonce = Nonce} = State,
 		AuthzId = proplists:get_value(<<"authzid">>, KeyVals, <<>>),
 		case (State#state.get_password)(UserName) of
 		  {false, _} -> {error, not_authorized, UserName};
-		  {Passwd, AuthModule} ->
+		  {Passwds, AuthModule} ->
+		      Passwd = case Passwds of
+				   Bin when is_binary(Bin) -> Bin;
+				   List -> lists:foldl(
+				       fun(Bin, false) when is_binary(Bin) -> Bin;
+					  (_, Acc) -> Acc
+				       end, false, List)
+			       end,
 		      case (State#state.check_password)(UserName, UserName, <<"">>,
 							proplists:get_value(<<"response">>, KeyVals, <<>>),
 							fun (PW) ->
