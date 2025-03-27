@@ -1,3 +1,10 @@
+# Version 1.10.0
+
+* Update XEP-0317 Hats to version 0.2.0
+* Improve reporting of tls errors
+* Add webchat_url field in MUC config
+* Support for multiple password formats in get_password hook 
+
 # Version 1.9.4
 
 * Update support for XEP-0474 to version 0.4
