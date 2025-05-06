@@ -181,9 +181,14 @@ get_domains_from_san(Extensions) when is_list(Extensions) ->
 get_domains_from_san(_) ->
     [].
 
--spec decode_xmpp_addr(#'AnotherName'{}) -> {ok, jid()} | error.
-decode_xmpp_addr(#'AnotherName'{'type-id' = ?'id-on-xmppAddr',
-				value = XmppAddr}) ->
+%% OTP-28.0-rc4 in commit b230e26c4f6530563919b19e76f2d2e96e436048
+%% moved the record definition
+%%   -record('AnotherName', {'type-id', value}).
+%% to the file
+%%   /lib/public_key/src/public_key_internal.hrl
+
+-spec decode_xmpp_addr({'AnotherName', any(), any()}) -> {ok, jid()} | error.
+decode_xmpp_addr({'AnotherName', ?'id-on-xmppAddr', XmppAddr}) ->
     try 'XmppAddr':decode('XmppAddr', XmppAddr) of
 	{ok, JIDStr} ->
 	    try {ok, jid:decode(iolist_to_binary(JIDStr))}
