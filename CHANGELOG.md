@@ -1,3 +1,7 @@
+# Version 1.10.1
+
+* Fix bug in spec for retracted pubsub items. Needs to be of type [binary()].
+
 # Version 1.10.0
 
 * Update XEP-0317 Hats to version 0.2.0
