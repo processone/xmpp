@@ -1,3 +1,11 @@
+# Version 1.10.1
+
+* Updating fast_tls to version 1.1.23.
+* Updating fast_xml to version 1.1.56.
+* Updating ezlib to version 1.0.14.
+* Updating stringprep to version 1.0.31.
+* Updating p1_utils to version 1.0.27.
+
 # Version 1.10.0
 
 * Update XEP-0317 Hats to version 0.2.0
