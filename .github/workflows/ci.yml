@@ -12,11 +12,12 @@ jobs:
         otp: [20, 25, 26, 27, 28]
     runs-on: ubuntu-24.04
     container:
-      image: erlang:${{ matrix.otp }}
+      image: public.ecr.aws/docker/library/erlang:${{ matrix.otp }}
     steps:
     - uses: actions/checkout@v4
     - run: sed -i 's|applications, \[|applications, \[erl_tidy, |g' src/xmpp.app.src
       if: matrix.otp >= 26
+    - run: ./configure --enable-gcov
     - run: make
       if: matrix.otp >= 22
     - run: REBAR=rebar3 ERLTIDY=true make
@@ -36,29 +37,11 @@ jobs:
         add_options: '-u'
         file_pattern: 'include/*.hrl src/*.erl'
         commit_message: Automatic changes "make spec xdata"
-
-  cover:
-    name: Cover
-    needs: [tests]
-    runs-on: ubuntu-24.04
-    container:
-      image: erlang:26
-    steps:
-    - uses: actions/checkout@v4
-    - run: ./configure --enable-gcov
-    - run: REBAR=rebar3 make
-    - run: REBAR=rebar3 make spec
-    - run: REBAR=rebar3 make xdata
-    - run: REBAR=rebar3 make
     - run: rebar3 eunit -v
-    #- run: pip install --user cpp-coveralls
-    #- run: cpp-coveralls -b `pwd` --verbose --gcov-options '\-lp' --dump c.json
     - name: Send to Coveralls
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        #ADDJSONFILE=c.json COVERALLS=true rebar3 as test coveralls send
-        COVERALLS=true rebar3 as test coveralls send
         curl -v -k https://coveralls.io/webhook \
              --header "Content-Type: application/json" \
              --data '{"repo_name":"$GITHUB_REPOSITORY",
