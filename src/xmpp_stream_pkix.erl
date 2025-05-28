@@ -188,7 +188,7 @@ get_domains_from_san(_) ->
 %%   /lib/public_key/src/public_key_internal.hrl
 
 -spec decode_xmpp_addr({atom(), any(), any()}) -> {ok, jid()} | error.
-decode_xmpp_addr({Record, ?'id-on-xmppAddr', XmppAddr} = AA)
+decode_xmpp_addr({Record, ?'id-on-xmppAddr', XmppAddr})
   when (Record == 'AnotherName') or (Record == 'INSTANCE OF') ->
     try 'XmppAddr':decode('XmppAddr', XmppAddr) of
 	{ok, JIDStr} ->
