@@ -22,7 +22,6 @@ jobs:
       if: matrix.otp >= 22
     - run: REBAR=rebar3 ERLTIDY=true make
     - run: REBAR=rebar3 make spec
-      if: matrix.otp < 28
     - run: REBAR=rebar3 make xdata
     - run: REBAR=rebar3 make
     - run: REBAR=rebar3 make xref
