@@ -3581,7 +3581,7 @@
 	   module = 'xep0369',
 	   result = {mix_destroy, '$channel', '$xmlns'},
 	   attrs = [#attr{name = <<"channel">>,
-			  dec = {jid, nodeprep, []},
+			  dec = {nodeprep, []},
 			  required = true},
 		    #attr{name = <<"xmlns">>}]}).
 
