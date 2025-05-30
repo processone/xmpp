@@ -429,7 +429,7 @@ decode_mix_destroy_attr_channel(__TopXMLNS,
                    <<"destroy">>,
                    __TopXMLNS}});
 decode_mix_destroy_attr_channel(__TopXMLNS, _val) ->
-    case catch jid:nodeprep(_val) of
+    case catch nodeprep(_val) of
         {'EXIT', _} ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,

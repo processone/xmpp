@@ -523,7 +523,7 @@
                 uri = [] :: [#media_uri{}]}).
 -type media() :: #media{}.
 
--record(mix_destroy, {channel :: any(),
+-record(mix_destroy, {channel = <<>> :: binary(),
                       xmlns = <<>> :: binary()}).
 -type mix_destroy() :: #mix_destroy{}.
 
