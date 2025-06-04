@@ -2128,7 +2128,7 @@
                           required = true},
                     #attr{name = <<"subid">>}],
            refs = [#ref{name = pubsub_event_retract, label = '$retract',
-			min = 0, max = 1},
+			min = 0},
 		   #ref{name = pubsub_item, label = '$items'}]}).
 
 -xml(pubsub_event,
