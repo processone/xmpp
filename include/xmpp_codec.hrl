@@ -466,7 +466,7 @@
                    items = [] :: [#ps_item{}],
                    max_items :: 'undefined' | non_neg_integer(),
                    subid = <<>> :: binary(),
-                   retract :: 'undefined' | binary()}).
+                   retract = [] :: [binary()]}).
 -type ps_items() :: #ps_items{}.
 
 -record(fast_token, {expiry :: undefined | erlang:timestamp(),

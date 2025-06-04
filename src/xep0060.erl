@@ -4910,7 +4910,7 @@ decode_pubsub_items(__TopXMLNS, __Opts,
                                                __Opts,
                                                _els,
                                                [],
-                                               undefined),
+                                               []),
     {Xmlns, Max_items, Node, Subid} =
         decode_pubsub_items_attrs(__TopXMLNS,
                                   _attrs,
@@ -4928,7 +4928,7 @@ decode_pubsub_items(__TopXMLNS, __Opts,
 
 decode_pubsub_items_els(__TopXMLNS, __Opts, [], Items,
                         Retract) ->
-    {lists:reverse(Items), Retract};
+    {lists:reverse(Items), lists:reverse(Retract)};
 decode_pubsub_items_els(__TopXMLNS, __Opts,
                         [{xmlel, <<"retract">>, _attrs, _} = _el | _els], Items,
                         Retract) ->
@@ -4941,9 +4941,10 @@ decode_pubsub_items_els(__TopXMLNS, __Opts,
                                     __Opts,
                                     _els,
                                     Items,
-                                    decode_pubsub_event_retract(<<"http://jabber.org/protocol/pubsub#event">>,
-                                                                __Opts,
-                                                                _el));
+                                    [decode_pubsub_event_retract(<<"http://jabber.org/protocol/pubsub#event">>,
+                                                                 __Opts,
+                                                                 _el)
+                                     | Retract]);
         _ ->
             decode_pubsub_items_els(__TopXMLNS,
                                     __Opts,
@@ -5076,13 +5077,15 @@ encode_pubsub_items({ps_items,
                                  [encode_pubsub_item(Items, __TopXMLNS)
                                   | _acc]).
 
-'encode_pubsub_items_$retract'(undefined, __TopXMLNS,
-                               _acc) ->
+'encode_pubsub_items_$retract'([], __TopXMLNS, _acc) ->
     _acc;
-'encode_pubsub_items_$retract'(Retract, __TopXMLNS,
-                               _acc) ->
-    [encode_pubsub_event_retract(Retract, __TopXMLNS)
-     | _acc].
+'encode_pubsub_items_$retract'([Retract | _els],
+                               __TopXMLNS, _acc) ->
+    'encode_pubsub_items_$retract'(_els,
+                                   __TopXMLNS,
+                                   [encode_pubsub_event_retract(Retract,
+                                                                __TopXMLNS)
+                                    | _acc]).
 
 decode_pubsub_items_attr_xmlns(__TopXMLNS, undefined) ->
     <<>>;
