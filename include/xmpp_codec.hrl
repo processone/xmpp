@@ -240,6 +240,11 @@
                           hash = [] :: [#hash{}]}).
 -type jingle_ft_range() :: #jingle_ft_range{}.
 
+-record(unified_push_push, {application = <<>> :: binary(),
+                            instance = <<>> :: binary(),
+                            data = <<>> :: binary()}).
+-type unified_push_push() :: #unified_push_push{}.
+
 -record(starttls, {required = false :: boolean()}).
 -type starttls() :: #starttls{}.
 
@@ -572,6 +577,10 @@
 -record(stanza_id, {by :: jid:jid(),
                     id = <<>> :: binary()}).
 -type stanza_id() :: #stanza_id{}.
+
+-record(unified_push_registered, {expiration :: erlang:timestamp(),
+                                  endpoint = <<>> :: binary()}).
+-type unified_push_registered() :: #unified_push_registered{}.
 
 -record(starttls_failure, {}).
 -type starttls_failure() :: #starttls_failure{}.
@@ -1346,6 +1355,10 @@
                        text = [] :: [#text{}]}).
 -type stream_error() :: #stream_error{}.
 
+-record(unified_push_register, {application = <<>> :: binary(),
+                                instance = <<>> :: binary()}).
+-type unified_push_register() :: #unified_push_register{}.
+
 -record(addresses, {list = [] :: [#address{}]}).
 -type addresses() :: #addresses{}.
 
@@ -1646,6 +1659,9 @@
                         thumbnail() |
                         time() |
                         unblock() |
+                        unified_push_push() |
+                        unified_push_register() |
+                        unified_push_registered() |
                         upload_file_too_large() |
                         upload_request() |
                         upload_request_0() |
