@@ -611,6 +611,9 @@ get_mod(<<"fast">>, <<"urn:xmpp:fast:0">>) -> xep0484;
 get_mod(<<"query">>,
         <<"http://jabber.org/protocol/stats">>) ->
     xep0039;
+get_mod(<<"push">>,
+        <<"http://gultsch.de/xmpp/drafts/unified-push">>) ->
+    unifiedpush;
 get_mod(<<"body">>, <<"jabber:component:accept">>) ->
     rfc6120;
 get_mod(<<"payment-required">>,
@@ -1381,6 +1384,9 @@ get_mod(<<"delete">>,
 get_mod(<<"fin">>, <<"urn:xmpp:inbox:1">>) -> xep0430;
 get_mod(<<"nick">>, <<"jabber:iq:search">>) -> xep0055;
 get_mod(<<"port">>, <<"urn:xmpp:sic:1">>) -> xep0279;
+get_mod(<<"registered">>,
+        <<"http://gultsch.de/xmpp/drafts/unified-push">>) ->
+    unifiedpush;
 get_mod(<<"desc">>, <<"jabber:x:data">>) -> xep0004;
 get_mod(<<"destroy">>, <<"urn:xmpp:mix:core:1">>) ->
     xep0369;
@@ -1495,6 +1501,9 @@ get_mod(<<"jingle">>, <<"urn:xmpp:jingle:1">>) ->
     xep0166;
 get_mod(<<"extensions">>, <<"urn:xmpp:bookmarks:1">>) ->
     xep0402;
+get_mod(<<"register">>,
+        <<"http://gultsch.de/xmpp/drafts/unified-push">>) ->
+    unifiedpush;
 get_mod(<<"conflict">>,
         <<"urn:ietf:params:xml:ns:xmpp-streams">>) ->
     rfc6120;
@@ -1983,11 +1992,13 @@ get_mod({mix_update_subscription, _, _, _, _}) ->
 get_mod({upload_retry, _}) -> xep0363;
 get_mod({x509_register}) -> xep0417;
 get_mod({roster_item, _, _, _, _, _, _}) -> rfc6121;
+get_mod({unified_push_push, _, _, _}) -> unifiedpush;
 get_mod({rsm_set, _, _, _, _, _, _, _}) -> xep0059;
 get_mod({avatar_meta, _, _}) -> xep0084;
 get_mod({roster_query, _, _, _}) -> rfc6121;
 get_mod({unblock, _}) -> xep0191;
 get_mod({stat_error, _, _}) -> xep0039;
+get_mod({unified_push_register, _, _}) -> unifiedpush;
 get_mod({sasl_abort}) -> rfc6120;
 get_mod({starttls_proceed}) -> rfc6120;
 get_mod({compressed}) -> xep0138;
@@ -2086,6 +2097,7 @@ get_mod({services, _, _}) -> xep0215;
 get_mod({avatar_info, _, _, _, _, _, _}) -> xep0084;
 get_mod({privacy_list, _, _}) -> xep0016;
 get_mod({report, _, _}) -> xep0377;
+get_mod({unified_push_registered, _, _}) -> unifiedpush;
 get_mod({message_thread, _, _}) -> rfc6120;
 get_mod({forwarded, _, _}) -> xep0297;
 get_mod({feature_sm, _}) -> xep0198;

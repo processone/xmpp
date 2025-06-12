@@ -240,6 +240,11 @@
                           hash = [] :: [#hash{}]}).
 -type jingle_ft_range() :: #jingle_ft_range{}.
 
+-record(unified_push_push, {application = <<>> :: binary(),
+                            instance = <<>> :: binary(),
+                            data = <<>> :: binary()}).
+-type unified_push_push() :: #unified_push_push{}.
+
 -record(starttls, {required = false :: boolean()}).
 -type starttls() :: #starttls{}.
 
@@ -572,6 +577,10 @@
 -record(stanza_id, {by :: jid:jid(),
                     id = <<>> :: binary()}).
 -type stanza_id() :: #stanza_id{}.
+
+-record(unified_push_registered, {expiration :: erlang:timestamp(),
+                                  endpoint = <<>> :: binary()}).
+-type unified_push_registered() :: #unified_push_registered{}.
 
 -record(starttls_failure, {}).
 -type starttls_failure() :: #starttls_failure{}.
@@ -1155,20 +1164,6 @@
                                    extensions :: 'undefined' | [xmpp_element() | fxml:xmlel()]}).
 -type pep_bookmarks_conference() :: #pep_bookmarks_conference{}.
 
--record(jingle_reason, {reason :: atom(),
-                        text = [] :: [#text{}],
-                        sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
--type jingle_reason() :: #jingle_reason{}.
-
--record(jingle, {action :: 'content-accept' | 'content-add' | 'content-modify' | 'content-reject' | 'content-remove' | 'description-info' | 'security-info' | 'session-accept' | 'session-info' | 'session-initiate' | 'session-terminate' | 'transport-accept' | 'transport-info' | 'transport-reject' | 'transport-replace',
-                 sid = <<>> :: binary(),
-                 initiator :: undefined | jid:jid(),
-                 responder :: undefined | jid:jid(),
-                 content = [] :: [#jingle_content{}],
-                 reason :: 'undefined' | #jingle_reason{},
-                 sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
--type jingle() :: #jingle{}.
-
 -record(upload_slot, {get :: 'undefined' | binary(),
                       put :: 'undefined' | binary(),
                       xmlns = <<>> :: binary()}).
@@ -1241,30 +1236,6 @@
                      binval :: 'undefined' | binary(),
                      extval :: 'undefined' | binary()}).
 -type vcard_logo() :: #vcard_logo{}.
-
--record(register, {registered = false :: boolean(),
-                   remove = false :: boolean(),
-                   instructions :: 'undefined' | binary(),
-                   username :: 'undefined' | binary(),
-                   nick :: 'undefined' | binary(),
-                   password :: 'undefined' | binary(),
-                   name :: 'undefined' | binary(),
-                   first :: 'undefined' | binary(),
-                   last :: 'undefined' | binary(),
-                   email :: 'undefined' | binary(),
-                   address :: 'undefined' | binary(),
-                   city :: 'undefined' | binary(),
-                   state :: 'undefined' | binary(),
-                   zip :: 'undefined' | binary(),
-                   phone :: 'undefined' | binary(),
-                   url :: 'undefined' | binary(),
-                   date :: 'undefined' | binary(),
-                   misc :: 'undefined' | binary(),
-                   text :: 'undefined' | binary(),
-                   key :: 'undefined' | binary(),
-                   xdata :: 'undefined' | #xdata{},
-                   sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
--type register() :: #register{}.
 
 -record(mark_received, {id = <<>> :: binary()}).
 -type mark_received() :: #mark_received{}.
@@ -1346,6 +1317,10 @@
                        text = [] :: [#text{}]}).
 -type stream_error() :: #stream_error{}.
 
+-record(unified_push_register, {application = <<>> :: binary(),
+                                instance = <<>> :: binary()}).
+-type unified_push_register() :: #unified_push_register{}.
+
 -record(addresses, {list = [] :: [#address{}]}).
 -type addresses() :: #addresses{}.
 
@@ -1413,6 +1388,44 @@
                    create :: 'undefined' | binary(),
                    configuration :: 'undefined' | {binary(),'undefined' | #xdata{}}}).
 -type ps_event() :: #ps_event{}.
+
+-record(jingle_reason, {reason :: atom(),
+                        text = [] :: [#text{}],
+                        sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
+-type jingle_reason() :: #jingle_reason{}.
+
+-record(jingle, {action :: 'content-accept' | 'content-add' | 'content-modify' | 'content-reject' | 'content-remove' | 'description-info' | 'security-info' | 'session-accept' | 'session-info' | 'session-initiate' | 'session-terminate' | 'transport-accept' | 'transport-info' | 'transport-reject' | 'transport-replace',
+                 sid = <<>> :: binary(),
+                 initiator :: undefined | jid:jid(),
+                 responder :: undefined | jid:jid(),
+                 content = [] :: [#jingle_content{}],
+                 reason :: 'undefined' | #jingle_reason{},
+                 sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
+-type jingle() :: #jingle{}.
+
+-record(register, {registered = false :: boolean(),
+                   remove = false :: boolean(),
+                   instructions :: 'undefined' | binary(),
+                   username :: 'undefined' | binary(),
+                   nick :: 'undefined' | binary(),
+                   password :: 'undefined' | binary(),
+                   name :: 'undefined' | binary(),
+                   first :: 'undefined' | binary(),
+                   last :: 'undefined' | binary(),
+                   email :: 'undefined' | binary(),
+                   address :: 'undefined' | binary(),
+                   city :: 'undefined' | binary(),
+                   state :: 'undefined' | binary(),
+                   zip :: 'undefined' | binary(),
+                   phone :: 'undefined' | binary(),
+                   url :: 'undefined' | binary(),
+                   date :: 'undefined' | binary(),
+                   misc :: 'undefined' | binary(),
+                   text :: 'undefined' | binary(),
+                   key :: 'undefined' | binary(),
+                   xdata :: 'undefined' | #xdata{},
+                   sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
+-type register() :: #register{}.
 
 -type xmpp_element() :: address() |
                         addresses() |
@@ -1646,6 +1659,9 @@
                         thumbnail() |
                         time() |
                         unblock() |
+                        unified_push_push() |
+                        unified_push_register() |
+                        unified_push_registered() |
                         upload_file_too_large() |
                         upload_request() |
                         upload_request_0() |
