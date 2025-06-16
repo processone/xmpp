@@ -30,7 +30,7 @@ jobs:
     - run: make doap
     - run: git config --global --add safe.directory /__w/xmpp/xmpp
       if: matrix.otp == 26 && github.event_name == 'push'
-    - uses: stefanzweifel/git-auto-commit-action@v5
+    - uses: stefanzweifel/git-auto-commit-action@v6
       if: matrix.otp == 26 && github.event_name == 'push'
       with:
         add_options: '-u'
