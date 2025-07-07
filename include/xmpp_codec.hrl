@@ -432,11 +432,6 @@
                        lang = <<>> :: binary()}).
 -type stream_start() :: #stream_start{}.
 
--record(muc_subscription, {jid :: undefined | jid:jid(),
-                           nick = <<>> :: binary(),
-                           events = [] :: [binary()]}).
--type muc_subscription() :: #muc_subscription{}.
-
 -record(ibb_close, {sid = <<>> :: binary()}).
 -type ibb_close() :: #ibb_close{}.
 
@@ -661,9 +656,6 @@
 -record(sasl2_task_data, {sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
 -type sasl2_task_data() :: #sasl2_task_data{}.
 
--record(muc_subscriptions, {list = [] :: [#muc_subscription{}]}).
--type muc_subscriptions() :: #muc_subscriptions{}.
-
 -record('see-other-host', {host :: binary() | inet:ip_address() | {binary() | inet:ip_address(),inet:port_number()}}).
 -type 'see-other-host'() :: #'see-other-host'{}.
 
@@ -871,6 +863,14 @@
                         active :: 'none' | 'undefined' | binary()}).
 -type privacy_query() :: #privacy_query{}.
 
+-record(pubsub_serverinfo_remote_domain, {name = <<>> :: binary(),
+                                          type = [] :: ['bidi' | 'incoming' | 'outgoing']}).
+-type pubsub_serverinfo_remote_domain() :: #pubsub_serverinfo_remote_domain{}.
+
+-record(pubsub_serverinfo_domain, {name = <<>> :: binary(),
+                                   remote_domain :: 'undefined' | [#pubsub_serverinfo_remote_domain{}]}).
+-type pubsub_serverinfo_domain() :: #pubsub_serverinfo_domain{}.
+
 -record(muc_actor, {jid :: undefined | jid:jid(),
                     nick = <<>> :: binary()}).
 -type muc_actor() :: #muc_actor{}.
@@ -1021,6 +1021,9 @@
 -record(mix_setnick, {nick :: binary(),
                       xmlns = <<>> :: binary()}).
 -type mix_setnick() :: #mix_setnick{}.
+
+-record(pubsub_serverinfo, {domain = [] :: [#pubsub_serverinfo_domain{}]}).
+-type pubsub_serverinfo() :: #pubsub_serverinfo{}.
 
 -record(sic, {ip :: undefined | inet:ip_address(),
               port :: 'undefined' | non_neg_integer(),
@@ -1427,6 +1430,14 @@
                    sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
 -type register() :: #register{}.
 
+-record(muc_subscription, {jid :: undefined | jid:jid(),
+                           nick = <<>> :: binary(),
+                           events = [] :: [binary()]}).
+-type muc_subscription() :: #muc_subscription{}.
+
+-record(muc_subscriptions, {list = [] :: [#muc_subscription{}]}).
+-type muc_subscriptions() :: #muc_subscriptions{}.
+
 -type xmpp_element() :: address() |
                         addresses() |
                         adhoc_actions() |
@@ -1592,6 +1603,9 @@
                         ps_unsubscribe() |
                         pubsub() |
                         pubsub_owner() |
+                        pubsub_serverinfo() |
+                        pubsub_serverinfo_domain() |
+                        pubsub_serverinfo_remote_domain() |
                         push_disable() |
                         push_enable() |
                         push_notification() |
