@@ -1423,7 +1423,10 @@ get_sasl_mechanisms(#{stream_encrypted := Encrypted,
     Mechs1 = if Encrypted -> [<<"EXTERNAL">> | Mechs];
 		 true -> Mechs
 	     end,
-    Mechs2 = try callback(sasl_mechanisms, Mechs1, State)
+    Mechs2 = try callback(sasl_mechanisms, Mechs1, State) of
+		 {Sasl1, _} when Type == sasl -> Sasl1;
+		 {_, Sasl2} when Type == sasl2 -> Sasl2;
+		 Common -> Common
 	     catch _:{?MODULE, undef} -> Mechs1
 	     end,
     if Type == sasl2 ->
