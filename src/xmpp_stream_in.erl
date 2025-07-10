@@ -1414,7 +1414,7 @@ get_fast_tokens_fun(Mech, State) ->
     catch _:{?MODULE, undef} -> fun(_, _) -> [] end
     end.
 
--spec get_sasl_mechanisms(state(), sasl | sasl2) -> {[xmpp_sasl:mechanism()], state()}.
+-spec get_sasl_mechanisms(state(), sasl | sasl2) -> [xmpp_sasl:mechanism()].
 get_sasl_mechanisms(#{stream_encrypted := Encrypted,
 		      xmlns := NS} = State, Type) ->
     Mechs = if NS == ?NS_CLIENT -> xmpp_sasl:listmech();
