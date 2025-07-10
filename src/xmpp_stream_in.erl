@@ -35,6 +35,8 @@
 
 -deprecated([{stop, 1}]).
 
+-include("scram.hrl").
+
 %%-define(DBGFSM, true).
 -ifdef(DBGFSM).
 -define(FSMOPTS, [{debug, [trace]}]).
@@ -963,7 +965,7 @@ init_channel_bindings(#{socket := Socket} = State) ->
 process_sasl_request(#sasl_auth{mechanism = Mech, text = ClientIn},
 		     #{lserver := LServer} = State) ->
     State1 = State#{sasl_mech => Mech},
-    Mechs = get_sasl_mechanisms(State1),
+    Mechs = get_sasl_mechanisms(State1, sasl),
     case lists:member(Mech, Mechs) of
 	true when Mech == <<"EXTERNAL">> ->
 	    Res = case xmpp_stream_pkix:authenticate(State1, ClientIn) of
@@ -1076,7 +1078,7 @@ process_sasl2_request(#sasl2_authenticate{mechanism = Mech, initial_response = C
     FastMechs = try callback(fast_mechanisms, State)
 		catch _:{?MODULE, undef} -> []
 		end,
-    Mechs = get_sasl_mechanisms(State1),
+    Mechs = get_sasl_mechanisms(State1, sasl2),
     MechsAll = Mechs ++ FastMechs,
     UAId = case UA of
 	       #sasl2_user_agent{id = ID} when ID /= <<>> ->
@@ -1099,7 +1101,7 @@ process_sasl2_request(#sasl2_authenticate{mechanism = Mech, initial_response = C
 	    process_sasl2_result(Res, State1#{sasl2_inline_els => SaslInline,
 					      sasl2_ua_id => UAId});
 	true ->
-	    GetPW = get_password_fun(Mech, State1),
+	    GetPW = get_password_fun_sasl2(Mech, State1),
 	    CheckPW = check_password_fun(Mech, State1),
 	    CheckPWDigest = check_password_digest_fun(Mech, State1),
 	    GetFastTokens = get_fast_tokens_fun(Mech, State1),
@@ -1342,9 +1344,11 @@ send_features(#{stream_version := {1,0},
 	    {Features, State3} =
 	    case {Encrypted, Sasl2, AllowUnencryptedSasl2, TLSAvailable} of
 		{false, true, true, true} ->
-		    {get_tls_feature(State2) ++ get_sasl2_feature(State2), State2};
+		    St = prepare_password_fun_sasl2(State2),
+		    {get_tls_feature(St) ++ get_sasl2_feature(St), St};
 		{_, true, _, _} when Encrypted; AllowUnencryptedSasl2 ->
-		    {get_sasl2_feature(State2), State2};
+		    St = prepare_password_fun_sasl2(State2),
+		    {get_sasl2_feature(St), St};
 		{false, true, false, false} ->
 		    {[], disable_sasl2(State2)};
 		{false, _, _, true} ->
@@ -1377,6 +1381,21 @@ get_password_fun(Mech, State) ->
     catch _:{?MODULE, undef} -> fun(_) -> {false, undefined} end
     end.
 
+
+-spec prepare_password_fun_sasl2(state()) -> state().
+prepare_password_fun_sasl2(#{sasl2_stream_from := #jid{luser = User}} = State) ->
+    Fun = try callback(get_password_fun, <<>>, State) of
+	      F ->
+		  Res = F(User),
+		  fun(_) -> Res end
+	  catch _:{?MODULE, undef} -> fun(_) -> {false, undefined} end
+	  end,
+    State#{sasl2_password_fun => Fun}.
+
+-spec get_password_fun_sasl2(xmpp_sasl:mechanism(), state()) -> fun().
+get_password_fun_sasl2(_Mech, #{sasl2_password_fun := Fun}) ->
+    Fun.
+
 -spec check_password_fun(xmpp_sasl:mechanism(), state()) -> fun().
 check_password_fun(Mech, State) ->
     try callback(check_password_fun, Mech, State)
@@ -1395,26 +1414,53 @@ get_fast_tokens_fun(Mech, State) ->
     catch _:{?MODULE, undef} -> fun(_, _) -> [] end
     end.
 
--spec get_sasl_mechanisms(state()) -> [xmpp_sasl:mechanism()].
+-spec get_sasl_mechanisms(state(), sasl | sasl2) -> {[xmpp_sasl:mechanism()], state()}.
 get_sasl_mechanisms(#{stream_encrypted := Encrypted,
-		      xmlns := NS} = State) ->
+		      xmlns := NS} = State, Type) ->
     Mechs = if NS == ?NS_CLIENT -> xmpp_sasl:listmech();
-	       true -> []
+		true -> []
 	    end,
-    Mechs1 = if Encrypted -> [<<"EXTERNAL">>|Mechs];
-		true -> Mechs
+    Mechs1 = if Encrypted -> [<<"EXTERNAL">> | Mechs];
+		 true -> Mechs
 	     end,
-    try callback(sasl_mechanisms, Mechs1, State)
-    catch _:{?MODULE, undef} -> Mechs1
+    Mechs2 = try callback(sasl_mechanisms, Mechs1, State)
+	     catch _:{?MODULE, undef} -> Mechs1
+	     end,
+    if Type == sasl2 ->
+	filter_sasl2_user_mechs(Mechs2, State);
+	true -> Mechs2
     end.
+
+pass_to_mech(_, all)                     -> all;
+pass_to_mech(false, _)                   -> all;
+pass_to_mech({false, _, _}, _)           -> all;
+pass_to_mech(Bin, _) when is_binary(Bin) -> all;
+pass_to_mech(#scram{hash = sha}, Acc)    -> [<<"SCRAM-SHA-1">>, <<"SCRAM-SHA-1-PLUS">> | Acc];
+pass_to_mech(#scram{hash = sha256}, Acc) -> [<<"SCRAM-SHA-256">>, <<"SCRAM-SHA-256-PLUS">> | Acc];
+pass_to_mech(#scram{hash = sha512}, Acc) -> [<<"SCRAM-SHA-512">>, <<"SCRAM-SHA-512-PLUS">> | Acc];
+pass_to_mech(List, Acc) when is_list(List) ->
+    lists:foldl(fun pass_to_mech/2, Acc, List).
+
+filter_sasl2_user_mechs(Mechs, State) ->
+    {Pass, _} = (get_password_fun_sasl2(<<>>, State))(<<>>),
+    case pass_to_mech(Pass, []) of
+	all -> Mechs;
+	M ->
+	    OtherMechs = Mechs -- [<<"SCRAM-SHA-1">>, <<"SCRAM-SHA-1-PLUS">>,
+				   <<"SCRAM-SHA-256">>, <<"SCRAM-SHA-256-PLUS">>,
+				   <<"SCRAM-SHA-512">>, <<"SCRAM-SHA-512-PLUS">>],
+	    ScramMechs = Mechs -- OtherMechs,
+	    OtherMechs ++ (ScramMechs -- (ScramMechs -- M))
+    end.
+
 
 -spec get_sasl_feature(state()) -> [sasl_mechanisms() | sasl_channel_binding()].
 get_sasl_feature(#{stream_authenticated := false,
-    stream_encrypted := Encrypted} = State) ->
+		   stream_encrypted := Encrypted} = State) ->
     TLSRequired = is_starttls_required(State),
     if
 	Encrypted or not TLSRequired ->
-	    Mechs = get_sasl_mechanisms(State),
+	    Mechs = get_sasl_mechanisms(State, sasl),
 	    [#sasl_mechanisms{list = Mechs}] ++
 	    case maps:get(sasl_channel_bindings, State, none) of
 		none -> [];
@@ -1429,7 +1475,7 @@ get_sasl_feature(_) ->
 
 -spec get_sasl2_feature(state()) -> [sasl2_authenticaton() | sasl_channel_binding()].
 get_sasl2_feature(#{stream_authenticated := false} = State) ->
-    Mechs = get_sasl_mechanisms(State),
+    Mechs = get_sasl_mechanisms(State, sasl2),
 
     {SASL2Features, Bind2Features, ExtraFeatures} =
     try callback(inline_stream_features, State)
