@@ -1,3 +1,12 @@
+# Version 1.11.0
+
+* Update pubsub-item-retract to allow it accept list of ids
+* Fix decoding of mix_destroy
+* Add codec for unified push
+* Add codec for XEP-0485: PubSub Server Information
+* Filter mechanisms offered in SASL2 to those matching user passwords
+* Add ability to provide separate mechanisms in SASL1
+
 # Version 1.10.1
 
 * Updating fast_tls to version 1.1.23.
