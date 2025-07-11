@@ -1,5 +1,10 @@
 # Version 1.11.0
 
+* Updating fast_tls to version 1.1.24.
+* Updating fast_xml to version 1.1.57.
+* Updating ezlib to version 1.0.14.
+* Updating p1_utils to version 1.0.28.
+* Updating stringprep to version 1.0.33.
 * Update pubsub-item-retract to allow it accept list of ids
 * Fix decoding of mix_destroy
 * Add codec for unified push
