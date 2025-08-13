@@ -49,7 +49,7 @@ The library is considered as production ready and has been used in
 However, the API is quite unstable so far and incompatibilities may be introduced
 from release to release. The stable API will be denoted by `2.x` tag in the future.
 
-# Dependency
+# Requirements
 
 You need at least Erlang OTP 19.0.
 
@@ -61,6 +61,10 @@ $ git clone https://github.com/processone/xmpp.git
 $ cd xmpp
 $ make
 ```
+
+This automatically downloads the erlang libraries that `xmpp` depends on,
+which are specified in the file `rebar.config`, see syntax details in
+[ejabberd Docs: Dependencies](https://docs.ejabberd.im/developer/repositories/).
 
 # API
 
