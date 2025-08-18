@@ -346,22 +346,9 @@ get_mod(<<"pubsub">>,
         <<"http://jabber.org/protocol/pubsub">>) ->
     xep0060;
 get_mod(<<"tzo">>, <<"urn:xmpp:time">>) -> xep0202;
-get_mod(<<"presence-out">>, <<"jabber:iq:privacy">>) ->
-    xep0016;
-get_mod(<<"mechanism-too-weak">>,
-        <<"urn:ietf:params:xml:ns:xmpp-sasl">>) ->
-    rfc6120;
-get_mod(<<"improper-addressing">>,
-        <<"urn:ietf:params:xml:ns:xmpp-streams">>) ->
-    rfc6120;
-get_mod(<<"r">>, <<"urn:xmpp:sm:3">>) -> xep0198;
-get_mod(<<"submission-id">>,
-        <<"urn:xmpp:mix:core:0">>) ->
-    xep0369;
 get_mod(<<"unsupported-info">>,
         <<"urn:xmpp:jingle:errors:1">>) ->
     xep0166;
-get_mod(<<"text">>, <<"urn:xmpp:sasl:2">>) -> xep0388;
 get_mod(<<"query">>, <<"jabber:iq:version">>) ->
     xep0092;
 get_mod(<<"archived">>, <<"urn:xmpp:mam:tmp">>) ->
@@ -766,6 +753,9 @@ get_mod(<<"method">>,
 get_mod(<<"invalid-jid">>,
         <<"http://jabber.org/protocol/pubsub#errors">>) ->
     xep0060;
+get_mod(<<"message">>,
+        <<"urn:xmpp:http:upload:purpose:0">>) ->
+    xep0363;
 get_mod(<<"reason">>,
         <<"urn:xmpp:message-moderate:1">>) ->
     xep0425;
@@ -1277,6 +1267,9 @@ get_mod(<<"origin-id">>, <<"urn:xmpp:sid:0">>) ->
 get_mod(<<"note">>,
         <<"http://jabber.org/protocol/commands">>) ->
     xep0050;
+get_mod(<<"ephemeral">>,
+        <<"urn:xmpp:http:upload:purpose:0">>) ->
+    xep0363;
 get_mod(<<"message">>, <<"jabber:server">>) -> rfc6120;
 get_mod(<<"MIDDLE">>, <<"vcard-temp">>) -> xep0054;
 get_mod(<<"activate">>,
@@ -1554,6 +1547,9 @@ get_mod(<<"request">>, <<"urn:xmpp:receipts">>) ->
 get_mod(<<"markable">>,
         <<"urn:xmpp:chat-markers:0">>) ->
     xep0333;
+get_mod(<<"permanent">>,
+        <<"urn:xmpp:http:upload:purpose:0">>) ->
+    xep0363;
 get_mod(<<"domain">>, <<"urn:xmpp:serverinfo:0">>) ->
     xep0485;
 get_mod(<<"url">>, <<"storage:bookmarks">>) -> xep0048;
@@ -1684,6 +1680,9 @@ get_mod(<<"reason">>,
         <<"urn:xmpp:message-moderate:0">>) ->
     xep0425;
 get_mod(<<"presence">>, <<"jabber:client">>) -> rfc6120;
+get_mod(<<"profile">>,
+        <<"urn:xmpp:http:upload:purpose:0">>) ->
+    xep0363;
 get_mod(<<"INTL">>, <<"vcard-temp">>) -> xep0054;
 get_mod(<<"item">>,
         <<"http://jabber.org/protocol/muc#admin">>) ->
@@ -1764,6 +1763,19 @@ get_mod(<<"POSTAL">>, <<"vcard-temp">>) -> xep0054;
 get_mod(<<"payload-too-big">>,
         <<"http://jabber.org/protocol/pubsub#errors">>) ->
     xep0060;
+get_mod(<<"presence-out">>, <<"jabber:iq:privacy">>) ->
+    xep0016;
+get_mod(<<"mechanism-too-weak">>,
+        <<"urn:ietf:params:xml:ns:xmpp-sasl">>) ->
+    rfc6120;
+get_mod(<<"improper-addressing">>,
+        <<"urn:ietf:params:xml:ns:xmpp-streams">>) ->
+    rfc6120;
+get_mod(<<"r">>, <<"urn:xmpp:sm:3">>) -> xep0198;
+get_mod(<<"submission-id">>,
+        <<"urn:xmpp:mix:core:0">>) ->
+    xep0369;
+get_mod(<<"text">>, <<"urn:xmpp:sasl:2">>) -> xep0388;
 get_mod(Name, XMLNS) ->
     xmpp_codec_external:lookup(Name, XMLNS).
 
@@ -1796,6 +1808,7 @@ get_mod({block_list, _}) -> xep0191;
 get_mod({carbons_received, _}) -> xep0280;
 get_mod({carbons_sent, _}) -> xep0280;
 get_mod({origin_id, _}) -> xep0359;
+get_mod({upload_request_0, _, _, _, _, _}) -> xep0363;
 get_mod({hash_used, _}) -> xep0300;
 get_mod({x509_ca_list, _}) -> xep0417;
 get_mod({occupant_id, _}) -> xep0421;
@@ -2016,7 +2029,6 @@ get_mod({compressed}) -> xep0138;
 get_mod({stream_error, _, _}) -> rfc6120;
 get_mod({inbox_entry, _, _, _}) -> xep0430;
 get_mod({receipt_request}) -> xep0184;
-get_mod({upload_request_0, _, _, _, _}) -> xep0363;
 get_mod({message_retracted_30, _, _, _, _}) -> xep0424;
 get_mod({privacy_item, _, _, _, _, _, _, _, _}) ->
     xep0016;

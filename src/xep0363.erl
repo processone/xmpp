@@ -5,6 +5,26 @@
 
 -compile(export_all).
 
+do_decode(<<"permanent">>,
+          <<"urn:xmpp:http:upload:purpose:0">>, El, Opts) ->
+    decode_upload_purpose_permanent_0(<<"urn:xmpp:http:upload:purpose:0">>,
+                                      Opts,
+                                      El);
+do_decode(<<"ephemeral">>,
+          <<"urn:xmpp:http:upload:purpose:0">>, El, Opts) ->
+    decode_upload_purpose_ephemeral_0(<<"urn:xmpp:http:upload:purpose:0">>,
+                                      Opts,
+                                      El);
+do_decode(<<"profile">>,
+          <<"urn:xmpp:http:upload:purpose:0">>, El, Opts) ->
+    decode_upload_purpose_profile_0(<<"urn:xmpp:http:upload:purpose:0">>,
+                                    Opts,
+                                    El);
+do_decode(<<"message">>,
+          <<"urn:xmpp:http:upload:purpose:0">>, El, Opts) ->
+    decode_upload_purpose_message_0(<<"urn:xmpp:http:upload:purpose:0">>,
+                                    Opts,
+                                    El);
 do_decode(<<"retry">>, <<"urn:xmpp:http:upload:0">>, El,
           Opts) ->
     decode_upload_retry(<<"urn:xmpp:http:upload:0">>,
@@ -132,7 +152,12 @@ do_decode(Name, XMLNS, _, _) ->
     erlang:error({xmpp_codec, {unknown_tag, Name, XMLNS}}).
 
 tags() ->
-    [{<<"retry">>, <<"urn:xmpp:http:upload:0">>},
+    [{<<"permanent">>,
+      <<"urn:xmpp:http:upload:purpose:0">>},
+     {<<"ephemeral">>, <<"urn:xmpp:http:upload:purpose:0">>},
+     {<<"profile">>, <<"urn:xmpp:http:upload:purpose:0">>},
+     {<<"message">>, <<"urn:xmpp:http:upload:purpose:0">>},
+     {<<"retry">>, <<"urn:xmpp:http:upload:0">>},
      {<<"file-too-large">>, <<"urn:xmpp:http:upload:0">>},
      {<<"file-too-large">>, <<"urn:xmpp:http:upload">>},
      {<<"file-too-large">>,
@@ -172,11 +197,13 @@ do_encode({upload_request_0,
            _,
            _,
            _,
+           _,
            <<"urn:xmpp:http:upload:0">>} =
               Request,
           TopXMLNS) ->
     encode_upload_request_0(Request, TopXMLNS);
-do_encode({upload_request_0, _, _, _, <<>>} = Request,
+do_encode({upload_request_0, _, _, _, _, <<>>} =
+              Request,
           TopXMLNS = <<"urn:xmpp:http:upload:0">>) ->
     encode_upload_request_0(Request, TopXMLNS);
 do_encode({upload_slot_0,
@@ -200,7 +227,7 @@ do_get_name({upload_file_too_large, _, _}) ->
     <<"file-too-large">>;
 do_get_name({upload_request, _, _, _, _}) ->
     <<"request">>;
-do_get_name({upload_request_0, _, _, _, _}) ->
+do_get_name({upload_request_0, _, _, _, _, _}) ->
     <<"request">>;
 do_get_name({upload_retry, _}) -> <<"retry">>;
 do_get_name({upload_slot, _, _, _}) -> <<"slot">>;
@@ -208,7 +235,8 @@ do_get_name({upload_slot_0, _, _, _}) -> <<"slot">>.
 
 do_get_ns({upload_file_too_large, _, Xmlns}) -> Xmlns;
 do_get_ns({upload_request, _, _, _, Xmlns}) -> Xmlns;
-do_get_ns({upload_request_0, _, _, _, Xmlns}) -> Xmlns;
+do_get_ns({upload_request_0, _, _, _, _, Xmlns}) ->
+    Xmlns;
 do_get_ns({upload_retry, _}) ->
     <<"urn:xmpp:http:upload:0">>;
 do_get_ns({upload_slot, _, _, Xmlns}) -> Xmlns;
@@ -217,8 +245,8 @@ do_get_ns({upload_slot_0, _, _, Xmlns}) -> Xmlns.
 pp(upload_request, 4) ->
     [filename, size, 'content-type', xmlns];
 pp(upload_slot, 3) -> [get, put, xmlns];
-pp(upload_request_0, 4) ->
-    [filename, size, 'content-type', xmlns];
+pp(upload_request_0, 5) ->
+    [filename, size, 'content-type', purpose, xmlns];
 pp(upload_slot_0, 3) -> [get, put, xmlns];
 pp(upload_file_too_large, 2) ->
     ['max-file-size', xmlns];
@@ -228,7 +256,7 @@ pp(_, _) -> no.
 records() ->
     [{upload_request, 4},
      {upload_slot, 3},
-     {upload_request_0, 4},
+     {upload_request_0, 5},
      {upload_slot_0, 3},
      {upload_file_too_large, 2},
      {upload_retry, 1}].
@@ -246,6 +274,64 @@ dec_utc(Val) -> xmpp_util:decode_timestamp(Val).
 enc_int(Int) -> erlang:integer_to_binary(Int).
 
 enc_utc(Val) -> xmpp_util:encode_timestamp(Val).
+
+decode_upload_purpose_permanent_0(__TopXMLNS, __Opts,
+                                  {xmlel, <<"permanent">>, _attrs, _els}) ->
+    permanent.
+
+encode_upload_purpose_permanent_0(permanent,
+                                  __TopXMLNS) ->
+    __NewTopXMLNS =
+        xmpp_codec:choose_top_xmlns(<<"urn:xmpp:http:upload:purpose:0">>,
+                                    [],
+                                    __TopXMLNS),
+    _els = [],
+    _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
+                                        __TopXMLNS),
+    {xmlel, <<"permanent">>, _attrs, _els}.
+
+decode_upload_purpose_ephemeral_0(__TopXMLNS, __Opts,
+                                  {xmlel, <<"ephemeral">>, _attrs, _els}) ->
+    ephemeral.
+
+encode_upload_purpose_ephemeral_0(ephemeral,
+                                  __TopXMLNS) ->
+    __NewTopXMLNS =
+        xmpp_codec:choose_top_xmlns(<<"urn:xmpp:http:upload:purpose:0">>,
+                                    [],
+                                    __TopXMLNS),
+    _els = [],
+    _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
+                                        __TopXMLNS),
+    {xmlel, <<"ephemeral">>, _attrs, _els}.
+
+decode_upload_purpose_profile_0(__TopXMLNS, __Opts,
+                                {xmlel, <<"profile">>, _attrs, _els}) ->
+    profile.
+
+encode_upload_purpose_profile_0(profile, __TopXMLNS) ->
+    __NewTopXMLNS =
+        xmpp_codec:choose_top_xmlns(<<"urn:xmpp:http:upload:purpose:0">>,
+                                    [],
+                                    __TopXMLNS),
+    _els = [],
+    _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
+                                        __TopXMLNS),
+    {xmlel, <<"profile">>, _attrs, _els}.
+
+decode_upload_purpose_message_0(__TopXMLNS, __Opts,
+                                {xmlel, <<"message">>, _attrs, _els}) ->
+    message.
+
+encode_upload_purpose_message_0(message, __TopXMLNS) ->
+    __NewTopXMLNS =
+        xmpp_codec:choose_top_xmlns(<<"urn:xmpp:http:upload:purpose:0">>,
+                                    [],
+                                    __TopXMLNS),
+    _els = [],
+    _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
+                                        __TopXMLNS),
+    {xmlel, <<"message">>, _attrs, _els}.
 
 decode_upload_retry(__TopXMLNS, __Opts,
                     {xmlel, <<"retry">>, _attrs, _els}) ->
@@ -638,6 +724,10 @@ encode_upload_get_0_attr_url(_val, _acc) ->
 
 decode_upload_request_0(__TopXMLNS, __Opts,
                         {xmlel, <<"request">>, _attrs, _els}) ->
+    Purpose = decode_upload_request_0_els(__TopXMLNS,
+                                          __Opts,
+                                          _els,
+                                          undefined),
     {Xmlns, Filename, Size, Content_type} =
         decode_upload_request_0_attrs(__TopXMLNS,
                                       _attrs,
@@ -645,7 +735,102 @@ decode_upload_request_0(__TopXMLNS, __Opts,
                                       undefined,
                                       undefined,
                                       undefined),
-    {upload_request_0, Filename, Size, Content_type, Xmlns}.
+    {upload_request_0,
+     Filename,
+     Size,
+     Content_type,
+     Purpose,
+     Xmlns}.
+
+decode_upload_request_0_els(__TopXMLNS, __Opts, [],
+                            Purpose) ->
+    Purpose;
+decode_upload_request_0_els(__TopXMLNS, __Opts,
+                            [{xmlel, <<"message">>, _attrs, _} = _el | _els],
+                            Purpose) ->
+    case xmpp_codec:get_attr(<<"xmlns">>,
+                             _attrs,
+                             __TopXMLNS)
+        of
+        <<"urn:xmpp:http:upload:purpose:0">> ->
+            decode_upload_request_0_els(__TopXMLNS,
+                                        __Opts,
+                                        _els,
+                                        decode_upload_purpose_message_0(<<"urn:xmpp:http:upload:purpose:0">>,
+                                                                        __Opts,
+                                                                        _el));
+        _ ->
+            decode_upload_request_0_els(__TopXMLNS,
+                                        __Opts,
+                                        _els,
+                                        Purpose)
+    end;
+decode_upload_request_0_els(__TopXMLNS, __Opts,
+                            [{xmlel, <<"profile">>, _attrs, _} = _el | _els],
+                            Purpose) ->
+    case xmpp_codec:get_attr(<<"xmlns">>,
+                             _attrs,
+                             __TopXMLNS)
+        of
+        <<"urn:xmpp:http:upload:purpose:0">> ->
+            decode_upload_request_0_els(__TopXMLNS,
+                                        __Opts,
+                                        _els,
+                                        decode_upload_purpose_profile_0(<<"urn:xmpp:http:upload:purpose:0">>,
+                                                                        __Opts,
+                                                                        _el));
+        _ ->
+            decode_upload_request_0_els(__TopXMLNS,
+                                        __Opts,
+                                        _els,
+                                        Purpose)
+    end;
+decode_upload_request_0_els(__TopXMLNS, __Opts,
+                            [{xmlel, <<"ephemeral">>, _attrs, _} = _el | _els],
+                            Purpose) ->
+    case xmpp_codec:get_attr(<<"xmlns">>,
+                             _attrs,
+                             __TopXMLNS)
+        of
+        <<"urn:xmpp:http:upload:purpose:0">> ->
+            decode_upload_request_0_els(__TopXMLNS,
+                                        __Opts,
+                                        _els,
+                                        decode_upload_purpose_ephemeral_0(<<"urn:xmpp:http:upload:purpose:0">>,
+                                                                          __Opts,
+                                                                          _el));
+        _ ->
+            decode_upload_request_0_els(__TopXMLNS,
+                                        __Opts,
+                                        _els,
+                                        Purpose)
+    end;
+decode_upload_request_0_els(__TopXMLNS, __Opts,
+                            [{xmlel, <<"permanent">>, _attrs, _} = _el | _els],
+                            Purpose) ->
+    case xmpp_codec:get_attr(<<"xmlns">>,
+                             _attrs,
+                             __TopXMLNS)
+        of
+        <<"urn:xmpp:http:upload:purpose:0">> ->
+            decode_upload_request_0_els(__TopXMLNS,
+                                        __Opts,
+                                        _els,
+                                        decode_upload_purpose_permanent_0(<<"urn:xmpp:http:upload:purpose:0">>,
+                                                                          __Opts,
+                                                                          _el));
+        _ ->
+            decode_upload_request_0_els(__TopXMLNS,
+                                        __Opts,
+                                        _els,
+                                        Purpose)
+    end;
+decode_upload_request_0_els(__TopXMLNS, __Opts,
+                            [_ | _els], Purpose) ->
+    decode_upload_request_0_els(__TopXMLNS,
+                                __Opts,
+                                _els,
+                                Purpose).
 
 decode_upload_request_0_attrs(__TopXMLNS,
                               [{<<"xmlns">>, _val} | _attrs], _Xmlns, Filename,
@@ -704,12 +889,16 @@ encode_upload_request_0({upload_request_0,
                          Filename,
                          Size,
                          Content_type,
+                         Purpose,
                          Xmlns},
                         __TopXMLNS) ->
     __NewTopXMLNS = xmpp_codec:choose_top_xmlns(Xmlns,
                                                 [<<"urn:xmpp:http:upload:0">>],
                                                 __TopXMLNS),
-    _els = [],
+    _els =
+        lists:reverse('encode_upload_request_0_$purpose'(Purpose,
+                                                         __NewTopXMLNS,
+                                                         [])),
     _attrs =
         'encode_upload_request_0_attr_content-type'(Content_type,
                                                     encode_upload_request_0_attr_size(Size,
@@ -717,6 +906,26 @@ encode_upload_request_0({upload_request_0,
                                                                                                                             xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
                                                                                                                                                        __TopXMLNS)))),
     {xmlel, <<"request">>, _attrs, _els}.
+
+'encode_upload_request_0_$purpose'(undefined,
+                                   __TopXMLNS, _acc) ->
+    _acc;
+'encode_upload_request_0_$purpose'(message = Purpose,
+                                   __TopXMLNS, _acc) ->
+    [encode_upload_purpose_message_0(Purpose, __TopXMLNS)
+     | _acc];
+'encode_upload_request_0_$purpose'(profile = Purpose,
+                                   __TopXMLNS, _acc) ->
+    [encode_upload_purpose_profile_0(Purpose, __TopXMLNS)
+     | _acc];
+'encode_upload_request_0_$purpose'(ephemeral = Purpose,
+                                   __TopXMLNS, _acc) ->
+    [encode_upload_purpose_ephemeral_0(Purpose, __TopXMLNS)
+     | _acc];
+'encode_upload_request_0_$purpose'(permanent = Purpose,
+                                   __TopXMLNS, _acc) ->
+    [encode_upload_purpose_permanent_0(Purpose, __TopXMLNS)
+     | _acc].
 
 decode_upload_request_0_attr_xmlns(__TopXMLNS,
                                    undefined) ->
