@@ -4226,7 +4226,7 @@
 	   xmlns = <<"urn:xmpp:http:upload:0">>,
 	   module = 'xep0363',
 	   result = {upload_request_0, '$filename', '$size', '$content-type',
-		     '$xmlns'},
+		     '$purpose', '$xmlns'},
 	   attrs = [#attr{name = <<"xmlns">>},
 		    #attr{name = <<"filename">>,
 			  required = true},
@@ -4234,7 +4234,15 @@
 			  dec = {dec_int, [1, infinity]},
 			  enc = {enc_int, []},
 			  required = true},
-		    #attr{name = <<"content-type">>}]}).
+		    #attr{name = <<"content-type">>}],
+	   refs = [#ref{name = upload_purpose_message_0, label = '$purpose',
+			min = 0, max = 1},
+		   #ref{name = upload_purpose_profile_0, label = '$purpose',
+			min = 0, max = 1},
+		   #ref{name = upload_purpose_ephemeral_0, label = '$purpose',
+			min = 0, max = 1},
+		   #ref{name = upload_purpose_permanent_0, label = '$purpose',
+			min = 0, max = 1}]}).
 
 -xml(upload_get_0,
      #elem{name = <<"get">>,
@@ -4294,6 +4302,30 @@
 	   attrs = [#attr{name = <<"stamp">>,
 			  dec = {dec_utc, []},
 			  enc = {enc_utc, []}}]}).
+
+-xml(upload_purpose_message_0,
+     #elem{name = <<"message">>,
+	   xmlns = <<"urn:xmpp:http:upload:purpose:0">>,
+	   module = 'xep0363',
+	   result = 'message'}).
+
+-xml(upload_purpose_profile_0,
+     #elem{name = <<"profile">>,
+	   xmlns = <<"urn:xmpp:http:upload:purpose:0">>,
+	   module = 'xep0363',
+	   result = 'profile'}).
+
+-xml(upload_purpose_ephemeral_0,
+     #elem{name = <<"ephemeral">>,
+	   xmlns = <<"urn:xmpp:http:upload:purpose:0">>,
+	   module = 'xep0363',
+	   result = 'ephemeral'}).
+
+-xml(upload_purpose_permanent_0,
+     #elem{name = <<"permanent">>,
+	   xmlns = <<"urn:xmpp:http:upload:purpose:0">>,
+	   module = 'xep0363',
+	   result = 'permanent'}).
 
 -xml(push_enable,
      #elem{name = <<"enable">>,

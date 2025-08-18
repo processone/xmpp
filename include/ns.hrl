@@ -163,6 +163,11 @@
 -define(NS_STREAM_MGMT_3,  <<"urn:xmpp:sm:3">>).
 -define(NS_HTTP_UPLOAD, <<"urn:xmpp:http:upload">>).
 -define(NS_HTTP_UPLOAD_0, <<"urn:xmpp:http:upload:0">>).
+-define(NS_HTTP_UPLOAD_PURPOSE_0, <<"urn:xmpp:http:upload:purpose:0">>).
+-define(NS_HTTP_UPLOAD_PURPOSE_MESSAGE_0, <<"urn:xmpp:http:upload:purpose:0#message">>).
+-define(NS_HTTP_UPLOAD_PURPOSE_PROFILE_0, <<"urn:xmpp:http:upload:purpose:0#profile">>).
+-define(NS_HTTP_UPLOAD_PURPOSE_EPHEMERAL_0, <<"urn:xmpp:http:upload:purpose:0#ephemeral">>).
+-define(NS_HTTP_UPLOAD_PURPOSE_PERMANENT_0, <<"urn:xmpp:http:upload:purpose:0#permanent">>).
 -define(NS_HTTP_UPLOAD_OLD, <<"eu:siacs:conversations:http:upload">>).
 -define(NS_THUMBS_1, <<"urn:xmpp:thumbs:1">>).
 -define(NS_NICK,  <<"http://jabber.org/protocol/nick">>).
