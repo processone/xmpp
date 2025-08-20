@@ -1,3 +1,7 @@
+# Version 1.11.1
+
+* Add support for HTTP File Upload purposes
+
 # Version 1.11.0
 
 * Updating fast_tls to version 1.1.24.
