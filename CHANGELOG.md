@@ -1,5 +1,7 @@
 # Version 1.11.1
 
+* Updating fast_tls to version 1.1.25.
+* Updating ezlib to version 1.0.15.
 * Add support for HTTP File Upload purposes
 
 # Version 1.11.0
