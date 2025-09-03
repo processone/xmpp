@@ -5150,11 +5150,12 @@
      #elem{name = <<"hat">>,
 	   xmlns = <<"urn:xmpp:hats:0">>,
 	   module = 'xep0317',
-	   result = {muc_hat, '$title', '$uri'},
+	   result = {muc_hat, '$title', '$uri', '$hue'},
            attrs = [#attr{name = <<"title">>,
                           required = true},
                     #attr{name = <<"uri">>,
-                          required = true}]}).
+                          required = true},
+                    #attr{name = <<"hue">>}]}).
 
 -xml(occupant_id,
      #elem{name = <<"occupant-id">>,

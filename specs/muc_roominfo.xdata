@@ -86,12 +86,15 @@
   <field
       var='muc#roomconfig_changesubject'
       type='boolean'
-      label='Occupants May Change the Subject'>
-  </field>
+      label='Occupants May Change the Subject'/>
   <field
       var='muc#roominfo_avatarhash'
       type='text-multi'
       label='Hash of the vCard-temp avatar of this room'/>
+  <field
+      var='hats#hash'
+      type='text-single'
+      label='Hash computed from the list of hats available in a room'/>
 </form_type>
 
 <!--
