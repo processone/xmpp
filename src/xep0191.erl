@@ -227,11 +227,11 @@ decode_block_item_els(__TopXMLNS, __Opts,
                              _attrs,
                              __TopXMLNS)
         of
-        <<"urn:xmpp:reporting:0">> ->
+        <<"urn:xmpp:reporting:1">> ->
             decode_block_item_els(__TopXMLNS,
                                   __Opts,
                                   _els,
-                                  xep0377:decode_report(<<"urn:xmpp:reporting:0">>,
+                                  xep0377:decode_report(<<"urn:xmpp:reporting:1">>,
                                                         __Opts,
                                                         _el));
         _ ->
