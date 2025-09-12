@@ -466,8 +466,6 @@ get_mod(<<"no-permanent-storage">>,
 get_mod(<<"unsupported-applications">>,
         <<"urn:xmpp:jingle:1">>) ->
     xep0166;
-get_mod(<<"text">>, <<"urn:xmpp:reporting:0">>) ->
-    xep0377;
 get_mod(<<"credentials-expired">>,
         <<"urn:ietf:params:xml:ns:xmpp-sasl">>) ->
     rfc6120;
@@ -724,6 +722,8 @@ get_mod(<<"close">>,
     xep0047;
 get_mod(<<"x509-csr">>, <<"urn:xmpp:x509:0">>) ->
     xep0417;
+get_mod(<<"report">>, <<"urn:xmpp:reporting:1">>) ->
+    xep0377;
 get_mod(<<"internal-server-error">>,
         <<"urn:ietf:params:xml:ns:xmpp-stanzas">>) ->
     rfc6120;
@@ -936,8 +936,6 @@ get_mod(<<"fetch">>,
 get_mod(<<"failed-transport">>,
         <<"urn:xmpp:jingle:1">>) ->
     xep0166;
-get_mod(<<"abuse">>, <<"urn:xmpp:reporting:0">>) ->
-    xep0377;
 get_mod(<<"state">>, <<"jabber:iq:register">>) ->
     xep0077;
 get_mod(<<"utc">>, <<"urn:xmpp:time">>) -> xep0202;
@@ -1028,6 +1026,8 @@ get_mod(<<"enable">>, <<"urn:xmpp:sm:3">>) -> xep0198;
 get_mod(<<"size">>,
         <<"eu:siacs:conversations:http:upload">>) ->
     xep0363;
+get_mod(<<"text">>, <<"urn:xmpp:reporting:1">>) ->
+    xep0377;
 get_mod(<<"registration-required">>,
         <<"urn:ietf:params:xml:ns:xmpp-stanzas">>) ->
     rfc6120;
@@ -1075,8 +1075,6 @@ get_mod(<<"text">>, <<"jabber:iq:register">>) ->
     xep0077;
 get_mod(<<"private">>, <<"urn:xmpp:carbons:2">>) ->
     xep0280;
-get_mod(<<"spam">>, <<"urn:xmpp:reporting:0">>) ->
-    xep0377;
 get_mod(<<"show">>, <<"jabber:component:accept">>) ->
     rfc6120;
 get_mod(<<"PAGER">>, <<"vcard-temp">>) -> xep0054;
@@ -1645,8 +1643,6 @@ get_mod(<<"software">>, <<"urn:xmpp:sasl:2">>) ->
 get_mod(<<"task-data">>, <<"urn:xmpp:sasl:2">>) ->
     xep0388;
 get_mod(<<"inline">>, <<"urn:xmpp:bind:0">>) -> xep0386;
-get_mod(<<"report">>, <<"urn:xmpp:reporting:0">>) ->
-    xep0377;
 get_mod(<<"item-not-found">>,
         <<"urn:ietf:params:xml:ns:xmpp-stanzas">>) ->
     rfc6120;

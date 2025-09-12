@@ -190,6 +190,9 @@
                              cdata = <<>> :: binary()}).
 -type scram_upgrade_salt() :: #scram_upgrade_salt{}.
 
+-record(receipt_request, {}).
+-type receipt_request() :: #receipt_request{}.
+
 -record(legacy_auth_feature, {}).
 -type legacy_auth_feature() :: #legacy_auth_feature{}.
 
@@ -640,7 +643,7 @@
                      items = [] :: [#ps_item{}]}).
 -type ps_publish() :: #ps_publish{}.
 
--record(report, {reason :: 'abuse' | 'spam' | 'undefined',
+-record(report, {reason :: 'abuse' | 'spam',
                  text = [] :: [#text{}]}).
 -type report() :: #report{}.
 
@@ -856,6 +859,11 @@
                       resource :: 'undefined' | binary()}).
 -type legacy_auth() :: #legacy_auth{}.
 
+-record(privacy_query, {lists = [] :: [#privacy_list{}],
+                        default :: 'none' | 'undefined' | binary(),
+                        active :: 'none' | 'undefined' | binary()}).
+-type privacy_query() :: #privacy_query{}.
+
 -record(pubsub_serverinfo_remote_domain, {name = <<>> :: binary(),
                                           type = [] :: ['bidi' | 'incoming' | 'outgoing']}).
 -type pubsub_serverinfo_remote_domain() :: #pubsub_serverinfo_remote_domain{}.
@@ -917,6 +925,14 @@
 
 -record(credentials, {services = [] :: [#service{}]}).
 -type credentials() :: #credentials{}.
+
+-record(vcard_email, {home = false :: boolean(),
+                      work = false :: boolean(),
+                      internet = false :: boolean(),
+                      pref = false :: boolean(),
+                      x400 = false :: boolean(),
+                      userid :: 'undefined' | binary()}).
+-type vcard_email() :: #vcard_email{}.
 
 -record(block_item, {jid :: jid:jid(),
                      spam_report :: 'undefined' | #report{}}).
@@ -1238,6 +1254,38 @@
                      suffix :: 'undefined' | binary()}).
 -type vcard_name() :: #vcard_name{}.
 
+-record(vcard_temp, {version :: 'undefined' | binary(),
+                     fn :: 'undefined' | binary(),
+                     n :: 'undefined' | #vcard_name{},
+                     nickname :: 'undefined' | binary(),
+                     photo :: 'undefined' | #vcard_photo{},
+                     bday :: 'undefined' | binary(),
+                     adr = [] :: [#vcard_adr{}],
+                     label = [] :: [#vcard_label{}],
+                     tel = [] :: [#vcard_tel{}],
+                     email = [] :: [#vcard_email{}],
+                     jabberid :: 'undefined' | binary(),
+                     mailer :: 'undefined' | binary(),
+                     tz :: 'undefined' | binary(),
+                     geo :: 'undefined' | #vcard_geo{},
+                     title :: 'undefined' | binary(),
+                     role :: 'undefined' | binary(),
+                     logo :: 'undefined' | #vcard_logo{},
+                     org :: 'undefined' | #vcard_org{},
+                     categories = [] :: [binary()],
+                     note :: 'undefined' | binary(),
+                     prodid :: 'undefined' | binary(),
+                     rev :: 'undefined' | binary(),
+                     sort_string :: 'undefined' | binary(),
+                     sound :: 'undefined' | #vcard_sound{},
+                     uid :: 'undefined' | binary(),
+                     url :: 'undefined' | binary(),
+                     class :: 'confidential' | 'private' | 'public' | 'undefined',
+                     key :: 'undefined' | #vcard_key{},
+                     desc :: 'undefined' | binary(),
+                     sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
+-type vcard_temp() :: #vcard_temp{}.
+
 -record(ibb_data, {sid = <<>> :: binary(),
                    seq :: non_neg_integer(),
                    data = <<>> :: binary()}).
@@ -1351,65 +1399,6 @@
                  sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
 -type jingle() :: #jingle{}.
 
--record(muc_subscription, {jid :: undefined | jid:jid(),
-                           nick = <<>> :: binary(),
-                           events = [] :: [binary()]}).
--type muc_subscription() :: #muc_subscription{}.
-
--record(muc_subscriptions, {list = [] :: [#muc_subscription{}]}).
--type muc_subscriptions() :: #muc_subscriptions{}.
-
--record(pubsub_owner, {affiliations :: 'undefined' | {binary(),[#ps_affiliation{}]},
-                       configure :: 'undefined' | {binary(),'undefined' | #xdata{}},
-                       default :: 'undefined' | {binary(),'undefined' | #xdata{}},
-                       delete :: 'undefined' | {binary(),binary()},
-                       purge :: 'undefined' | binary(),
-                       subscriptions :: 'undefined' | {binary(),[#ps_subscription{}]}}).
--type pubsub_owner() :: #pubsub_owner{}.
-
--record(receipt_request, {}).
--type receipt_request() :: #receipt_request{}.
-
--record(vcard_email, {home = false :: boolean(),
-                      work = false :: boolean(),
-                      internet = false :: boolean(),
-                      pref = false :: boolean(),
-                      x400 = false :: boolean(),
-                      userid :: 'undefined' | binary()}).
--type vcard_email() :: #vcard_email{}.
-
--record(vcard_temp, {version :: 'undefined' | binary(),
-                     fn :: 'undefined' | binary(),
-                     n :: 'undefined' | #vcard_name{},
-                     nickname :: 'undefined' | binary(),
-                     photo :: 'undefined' | #vcard_photo{},
-                     bday :: 'undefined' | binary(),
-                     adr = [] :: [#vcard_adr{}],
-                     label = [] :: [#vcard_label{}],
-                     tel = [] :: [#vcard_tel{}],
-                     email = [] :: [#vcard_email{}],
-                     jabberid :: 'undefined' | binary(),
-                     mailer :: 'undefined' | binary(),
-                     tz :: 'undefined' | binary(),
-                     geo :: 'undefined' | #vcard_geo{},
-                     title :: 'undefined' | binary(),
-                     role :: 'undefined' | binary(),
-                     logo :: 'undefined' | #vcard_logo{},
-                     org :: 'undefined' | #vcard_org{},
-                     categories = [] :: [binary()],
-                     note :: 'undefined' | binary(),
-                     prodid :: 'undefined' | binary(),
-                     rev :: 'undefined' | binary(),
-                     sort_string :: 'undefined' | binary(),
-                     sound :: 'undefined' | #vcard_sound{},
-                     uid :: 'undefined' | binary(),
-                     url :: 'undefined' | binary(),
-                     class :: 'confidential' | 'private' | 'public' | 'undefined',
-                     key :: 'undefined' | #vcard_key{},
-                     desc :: 'undefined' | binary(),
-                     sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
--type vcard_temp() :: #vcard_temp{}.
-
 -record(register, {registered = false :: boolean(),
                    remove = false :: boolean(),
                    instructions :: 'undefined' | binary(),
@@ -1434,10 +1423,21 @@
                    sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
 -type register() :: #register{}.
 
--record(privacy_query, {lists = [] :: [#privacy_list{}],
-                        default :: 'none' | 'undefined' | binary(),
-                        active :: 'none' | 'undefined' | binary()}).
--type privacy_query() :: #privacy_query{}.
+-record(muc_subscription, {jid :: undefined | jid:jid(),
+                           nick = <<>> :: binary(),
+                           events = [] :: [binary()]}).
+-type muc_subscription() :: #muc_subscription{}.
+
+-record(muc_subscriptions, {list = [] :: [#muc_subscription{}]}).
+-type muc_subscriptions() :: #muc_subscriptions{}.
+
+-record(pubsub_owner, {affiliations :: 'undefined' | {binary(),[#ps_affiliation{}]},
+                       configure :: 'undefined' | {binary(),'undefined' | #xdata{}},
+                       default :: 'undefined' | {binary(),'undefined' | #xdata{}},
+                       delete :: 'undefined' | {binary(),binary()},
+                       purge :: 'undefined' | binary(),
+                       subscriptions :: 'undefined' | {binary(),[#ps_subscription{}]}}).
+-type pubsub_owner() :: #pubsub_owner{}.
 
 -type xmpp_element() :: address() |
                         addresses() |

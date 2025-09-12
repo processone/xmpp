@@ -230,21 +230,9 @@
 	   refs = [#ref{name = block_item,
                         label = '$items'}]}).
 
--xml(report_reason_abuse,
-     #elem{name = <<"abuse">>,
-	   xmlns = <<"urn:xmpp:reporting:0">>,
-	   module = 'xep0377',
-	   result = 'abuse'}).
-
--xml(report_reason_spam,
-     #elem{name = <<"spam">>,
-	   xmlns = <<"urn:xmpp:reporting:0">>,
-	   module = 'xep0377',
-	   result = 'spam'}).
-
 -xml(report_text,
      #elem{name = <<"text">>,
-	   xmlns = <<"urn:xmpp:reporting:0">>,
+	   xmlns = <<"urn:xmpp:reporting:1">>,
 	   module = 'xep0377',
 	   result = {text, '$lang', '$data'},
 	   cdata = #cdata{label = '$data'},
@@ -254,16 +242,14 @@
 
 -xml(report,
      #elem{name = <<"report">>,
-	   xmlns = <<"urn:xmpp:reporting:0">>,
+	   xmlns = <<"urn:xmpp:reporting:1">>,
 	   module = 'xep0377',
 	   result = {report, '$reason', '$text'},
-	   refs = [#ref{name = report_reason_abuse,
-			label = '$reason',
-			min = 0, max = 1},
-		   #ref{name = report_reason_spam,
-			label = '$reason',
-			min = 0, max = 1},
-		   #ref{name = report_text,
+           attrs = [#attr{name = <<"reason">>,
+                          required = true,
+                          enc = {enc_reporting_reason, []},
+                          dec = {dec_reporting_reason, []}}],
+	   refs = [#ref{name = report_text,
 			label = '$text'}]}).
 
 -xml(disco_identity,
@@ -5906,6 +5892,13 @@ dec_message_type(<<"groupchat">>) -> groupchat;
 dec_message_type(<<"headline">>) -> headline;
 dec_message_type(<<"error">>) -> error;
 dec_message_type(_) -> normal.
+
+enc_reporting_reason(abuse) -> <<"urn:xmpp:reporting:abuse">>;
+enc_reporting_reason(spam) -> <<"urn:xmpp:reporting:spam">>.
+
+-spec dec_reporting_reason(_) -> abuse | spam.
+dec_reporting_reason(<<"urn:xmpp:reporting:abuse">>) -> abuse;
+dec_reporting_reason(<<"urn:xmpp:reporting:spam">>) -> spam.
 
 %% Local Variables:
 %% mode: erlang
