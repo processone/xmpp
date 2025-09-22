@@ -731,7 +731,7 @@
     <implements>
       <xmpp:SupportedXep>
         <xmpp:xep rdf:resource="https://xmpp.org/extensions/xep-0430.html"/>
-        <xmpp:version></xmpp:version>
+        <xmpp:version>0.2.0</xmpp:version>
         <xmpp:since>1.5.2</xmpp:since>
         <xmpp:status></xmpp:status>
         <xmpp:note></xmpp:note>
