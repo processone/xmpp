@@ -21,7 +21,8 @@
                     {'webchat_url', binary()} |
                     {'pubsub', binary()} |
                     {'changesubject', boolean()} |
-                    {'avatarhash', [binary()]}.
+                    {'avatarhash', [binary()]} |
+                    {'hats#hash', binary()}.
 -type result() :: [property()].
 
 -type options(T) :: [{binary(), T}].
@@ -43,7 +44,8 @@
       {'webchat_url', binary()} |
       {'pubsub', binary() | undefined} |
       {'changesubject', boolean() | undefined} |
-      {'avatarhash', [binary()]}.
+      {'avatarhash', [binary()]} |
+      {'hats#hash', binary()}.
 -type form() :: [form_property() | xdata_field()].
 
 -type error_reason() :: {form_type_mismatch, binary()} |

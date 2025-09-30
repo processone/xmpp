@@ -368,7 +368,8 @@
 -type ps_subscription() :: #ps_subscription{}.
 
 -record(muc_hat, {title = <<>> :: binary(),
-                  uri = <<>> :: binary()}).
+                  uri = <<>> :: binary(),
+                  hue = <<>> :: binary()}).
 -type muc_hat() :: #muc_hat{}.
 
 -record(bytestreams, {hosts = [] :: [#streamhost{}],
