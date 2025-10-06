@@ -321,6 +321,7 @@ and its nice display in [Erlang/Elixir XMPP at xmpp.org](https://xmpp.org/softwa
 - [XEP-0363](https://xmpp.org/extensions/xep-0363.html):  HTTP File Upload
 - [XEP-0369](https://xmpp.org/extensions/xep-0369.html):  Mediated Information eXchange (MIX)
 - [XEP-0377](https://xmpp.org/extensions/xep-0377.html):  Spam Reporting
+- [XEP-0379](https://xmpp.org/extensions/xep-0379.html):  Pre-Authenticated Roster Subscription
 - [XEP-0386](https://xmpp.org/extensions/xep-0386.html):  Bind 2
 - [XEP-0388](https://xmpp.org/extensions/xep-0388.html):  Extensible SASL Profile
 - [XEP-0402](https://xmpp.org/extensions/xep-0402.html):  PEP Native Bookmarks

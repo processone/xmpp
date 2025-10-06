@@ -5743,6 +5743,14 @@
 		                  enc = {enc_enum, []},
 		                  dec = {dec_enum, [[incoming, outgoing, bidi]]}}]}).
 
+-xml(preauth,
+     #elem{name = <<"preauth">>,
+           xmlns = <<"urn:xmpp:pars:0">>,
+           module = 'xep0379',
+           attrs = [#attr{name = <<"token">>,
+                          label = '$token'}],
+           result = {preauth, '$token'}}).
+
 -spec dec_tzo(_) -> {integer(), integer()}.
 dec_tzo(Val) ->
     [H1, M1] = binary:split(Val, <<":">>),
