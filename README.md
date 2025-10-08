@@ -334,6 +334,7 @@ and its nice display in [Erlang/Elixir XMPP at xmpp.org](https://xmpp.org/softwa
 - [XEP-0425](https://xmpp.org/extensions/xep-0425.html):  Message Moderation
 - [XEP-0430](https://xmpp.org/extensions/xep-0430.html):  Inbox
 - [XEP-0440](https://xmpp.org/extensions/xep-0440.html):  SASL Channel-Binding Type Capability
+- [XEP-0445](https://xmpp.org/extensions/xep-0445.html):  Pre-Authenticated In-Band Registration
 - [XEP-0474](https://xmpp.org/extensions/xep-0474.html):  SASL SCRAM Downgrade Protection
 - [draft-cridland-xmpp-session-01](https://tools.ietf.org/html/draft-cridland-xmpp-session-01): XMPP Session Establishment
 

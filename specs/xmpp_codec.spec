@@ -5751,6 +5751,12 @@
                           label = '$token'}],
            result = {preauth, '$token'}}).
 
+-xml(feature_register_ibr_token,
+     #elem{name = <<"register">>,
+           xmlns = <<"urn:xmpp:ibr-token:0">>,
+           module = 'xep0445',
+           result = {feature_register_ibr_token}}).
+
 -spec dec_tzo(_) -> {integer(), integer()}.
 dec_tzo(Val) ->
     [H1, M1] = binary:split(Val, <<":">>),
