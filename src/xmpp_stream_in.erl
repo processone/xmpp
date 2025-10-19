@@ -25,7 +25,7 @@
 
 %% API
 -export([start/3, start_link/3, call/3, cast/2, reply/2, stop/1, stop_async/1,
-	 accept/1, send/2, close/1, close/2, send_error/3, establish/1,
+	 accept/1, connection_meta/2, send/2, close/1, close/2, send_error/3, establish/1,
 	 get_transport/1, change_shaper/2, set_timeout/2, format_error/1,
 	 send_ws_ping/1]).
 
@@ -196,6 +196,10 @@ stop_async(_) ->
 accept(Pid) ->
     cast(Pid, accept).
 
+-spec connection_meta(pid(), map()) -> ok.
+connection_meta(Pid, #{}=Meta) ->
+    cast(Pid, {connection_meta, Meta}).
+
 -spec send(pid(), xmpp_element()) -> ok;
 	  (state(), xmpp_element()) -> state().
 send(Pid, Pkt) when is_pid(Pid) ->
@@ -319,6 +323,12 @@ handle_cast(accept, #{socket := Socket,
 	{error, _} ->
 	    {stop, normal, State}
     end;
+handle_cast({connection_meta, Meta}, State) ->
+    noreply(
+        try callback(handle_connection_meta, Meta, State)
+        catch _:{?MODULE, undef} -> State
+        end
+    );
 handle_cast({send, Pkt}, State) ->
     noreply(send_pkt(State, Pkt));
 handle_cast(send_ws_ping, State) ->
