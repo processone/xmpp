@@ -1,3 +1,8 @@
+# Version 1.11.2
+
+* Update XEP-0317 "Hats" to version 0.3.1
+* Update XEP-0377 "Spam reporting" to version 0.4.0
+
 # Version 1.11.1
 
 * Updating fast_tls to version 1.1.25.
