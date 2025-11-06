@@ -119,7 +119,7 @@
     <implements>
       <xmpp:SupportedXep>
         <xmpp:xep rdf:resource="https://xmpp.org/extensions/xep-0045.html"/>
-        <xmpp:version>1.25</xmpp:version>
+        <xmpp:version>1.35.2</xmpp:version>
         <xmpp:since></xmpp:since>
         <xmpp:status></xmpp:status>
         <xmpp:note></xmpp:note>

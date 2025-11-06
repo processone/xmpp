@@ -59,6 +59,8 @@
 	<<"http://jabber.org/protocol/muc#owner">>).
 -define(NS_MUC_UNIQUE,
 	<<"http://jabber.org/protocol/muc#unique">>).
+-define(NS_MUC_STABLE_ID,
+	<<"http://jabber.org/protocol/muc#stable_id">>).
 -define(NS_PUBSUB,
 	<<"http://jabber.org/protocol/pubsub">>).
 -define(NS_PUBSUB_EVENT,
