@@ -5,6 +5,11 @@
 
 -compile(export_all).
 
+do_decode(<<"sub">>,
+          <<"urn:xmpp:features:pre-approval">>, El, Opts) ->
+    decode_feature_pre_approval(<<"urn:xmpp:features:pre-approval">>,
+                                Opts,
+                                El);
 do_decode(<<"ver">>, <<"urn:xmpp:features:rosterver">>,
           El, Opts) ->
     decode_rosterver_feature(<<"urn:xmpp:features:rosterver">>,
@@ -25,7 +30,8 @@ do_decode(Name, XMLNS, _, _) ->
     erlang:error({xmpp_codec, {unknown_tag, Name, XMLNS}}).
 
 tags() ->
-    [{<<"ver">>, <<"urn:xmpp:features:rosterver">>},
+    [{<<"sub">>, <<"urn:xmpp:features:pre-approval">>},
+     {<<"ver">>, <<"urn:xmpp:features:rosterver">>},
      {<<"query">>, <<"jabber:iq:roster">>},
      {<<"item">>, <<"jabber:iq:roster">>},
      {<<"group">>, <<"jabber:iq:roster">>}].
@@ -36,13 +42,18 @@ do_encode({roster_item, _, _, _, _, _, _} = Item,
 do_encode({roster_query, _, _, _} = Query, TopXMLNS) ->
     encode_roster_query(Query, TopXMLNS);
 do_encode({rosterver_feature} = Ver, TopXMLNS) ->
-    encode_rosterver_feature(Ver, TopXMLNS).
+    encode_rosterver_feature(Ver, TopXMLNS);
+do_encode({feature_pre_approval} = Sub, TopXMLNS) ->
+    encode_feature_pre_approval(Sub, TopXMLNS).
 
+do_get_name({feature_pre_approval}) -> <<"sub">>;
 do_get_name({roster_item, _, _, _, _, _, _}) ->
     <<"item">>;
 do_get_name({roster_query, _, _, _}) -> <<"query">>;
 do_get_name({rosterver_feature}) -> <<"ver">>.
 
+do_get_ns({feature_pre_approval}) ->
+    <<"urn:xmpp:features:pre-approval">>;
 do_get_ns({roster_item, _, _, _, _, _, _}) ->
     <<"jabber:iq:roster">>;
 do_get_ns({roster_query, _, _, _}) ->
@@ -54,12 +65,14 @@ pp(roster_item, 6) ->
     [jid, name, groups, subscription, ask, mix_channel];
 pp(roster_query, 3) -> [items, ver, mix_annotate];
 pp(rosterver_feature, 0) -> [];
+pp(feature_pre_approval, 0) -> [];
 pp(_, _) -> no.
 
 records() ->
     [{roster_item, 6},
      {roster_query, 3},
-     {rosterver_feature, 0}].
+     {rosterver_feature, 0},
+     {feature_pre_approval, 0}].
 
 dec_enum(Val, Enums) ->
     AtomVal = erlang:binary_to_existing_atom(Val, utf8),
@@ -68,6 +81,21 @@ dec_enum(Val, Enums) ->
     end.
 
 enc_enum(Atom) -> erlang:atom_to_binary(Atom, utf8).
+
+decode_feature_pre_approval(__TopXMLNS, __Opts,
+                            {xmlel, <<"sub">>, _attrs, _els}) ->
+    {feature_pre_approval}.
+
+encode_feature_pre_approval({feature_pre_approval},
+                            __TopXMLNS) ->
+    __NewTopXMLNS =
+        xmpp_codec:choose_top_xmlns(<<"urn:xmpp:features:pre-approval">>,
+                                    [],
+                                    __TopXMLNS),
+    _els = [],
+    _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
+                                        __TopXMLNS),
+    {xmlel, <<"sub">>, _attrs, _els}.
 
 decode_rosterver_feature(__TopXMLNS, __Opts,
                          {xmlel, <<"ver">>, _attrs, _els}) ->
