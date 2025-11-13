@@ -105,6 +105,12 @@
 	   module = rfc6121,
 	   result = {rosterver_feature}}).
 
+-xml(feature_pre_approval,
+     #elem{name = <<"sub">>,
+           xmlns = <<"urn:xmpp:features:pre-approval">>,
+           module = 'rfc6121',
+           result = {feature_pre_approval}}).
+
 -xml(privacy_message,
      #elem{name = <<"message">>,
 	   xmlns = <<"jabber:iq:privacy">>,

@@ -224,3 +224,4 @@
 -define(NS_OCCUPANT_ID, <<"urn:xmpp:occupant-id:0">>).
 -define(NS_PREAUTHENTICATED_ROSTER_SUBSCRIPTION, <<"urn:xmpp:pars:0">>).
 -define(NS_FEATURE_IBR_TOKEN, <<"urn:xmpp:ibr-token:0">>).
+-define(NS_FEATURE_SUB_PRE_APPROVAL, <<"urn:xmpp:features:pre-approval">>).
