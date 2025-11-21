@@ -1,3 +1,7 @@
+# Version 1.11.4
+
+* Regenerate files from spec
+
 # Version 1.11.3
 * Add support for XEP-0379 - Pre-Authenticated Roster Subscription
 * Add support for XEP-0445 - Pre-Authenticated In-Band Registration
