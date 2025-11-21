@@ -321,6 +321,7 @@ and its nice display in [Erlang/Elixir XMPP at xmpp.org](https://xmpp.org/softwa
 - [XEP-0363](https://xmpp.org/extensions/xep-0363.html):  HTTP File Upload
 - [XEP-0369](https://xmpp.org/extensions/xep-0369.html):  Mediated Information eXchange (MIX)
 - [XEP-0377](https://xmpp.org/extensions/xep-0377.html):  Spam Reporting
+- [XEP-0379](https://xmpp.org/extensions/xep-0379.html):  Pre-Authenticated Roster Subscription
 - [XEP-0386](https://xmpp.org/extensions/xep-0386.html):  Bind 2
 - [XEP-0388](https://xmpp.org/extensions/xep-0388.html):  Extensible SASL Profile
 - [XEP-0402](https://xmpp.org/extensions/xep-0402.html):  PEP Native Bookmarks
@@ -333,6 +334,7 @@ and its nice display in [Erlang/Elixir XMPP at xmpp.org](https://xmpp.org/softwa
 - [XEP-0425](https://xmpp.org/extensions/xep-0425.html):  Message Moderation
 - [XEP-0430](https://xmpp.org/extensions/xep-0430.html):  Inbox
 - [XEP-0440](https://xmpp.org/extensions/xep-0440.html):  SASL Channel-Binding Type Capability
+- [XEP-0445](https://xmpp.org/extensions/xep-0445.html):  Pre-Authenticated In-Band Registration
 - [XEP-0474](https://xmpp.org/extensions/xep-0474.html):  SASL SCRAM Downgrade Protection
 - [draft-cridland-xmpp-session-01](https://tools.ietf.org/html/draft-cridland-xmpp-session-01): XMPP Session Establishment
 

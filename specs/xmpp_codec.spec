@@ -105,6 +105,12 @@
 	   module = rfc6121,
 	   result = {rosterver_feature}}).
 
+-xml(feature_pre_approval,
+     #elem{name = <<"sub">>,
+           xmlns = <<"urn:xmpp:features:pre-approval">>,
+           module = 'rfc6121',
+           result = {feature_pre_approval}}).
+
 -xml(privacy_message,
      #elem{name = <<"message">>,
 	   xmlns = <<"jabber:iq:privacy">>,
@@ -5742,6 +5748,20 @@
 		                  required = true,
 		                  enc = {enc_enum, []},
 		                  dec = {dec_enum, [[incoming, outgoing, bidi]]}}]}).
+
+-xml(preauth,
+     #elem{name = <<"preauth">>,
+           xmlns = <<"urn:xmpp:pars:0">>,
+           module = 'xep0379',
+           attrs = [#attr{name = <<"token">>,
+                          label = '$token'}],
+           result = {preauth, '$token'}}).
+
+-xml(feature_register_ibr_token,
+     #elem{name = <<"register">>,
+           xmlns = <<"urn:xmpp:ibr-token:0">>,
+           module = 'xep0445',
+           result = {feature_register_ibr_token}}).
 
 -spec dec_tzo(_) -> {integer(), integer()}.
 dec_tzo(Val) ->
