@@ -12,7 +12,7 @@
   <field
       var='muc#roomconfig_allowinvites'
       type='boolean'
-      label='Occupants are allowed to invite others'/>
+      label='Members are allowed to invite others'/>
   <field
       var='muc#roomconfig_allow_query_users'
       type='boolean'
