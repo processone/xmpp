@@ -101,8 +101,8 @@ mech_step(State, ClientIn) ->
 	    {error, parser_failed}
     end.
 
--spec prepare(binary()) -> {binary(), binary()} | error.
-prepare(ClientIn) ->
+-spec prepare(term()) -> {binary(), binary()} | error.
+prepare(ClientIn) when is_binary(ClientIn) ->
     case parse(ClientIn) of
 	[User, Hash] ->
 	    case parse_authzid(User) of
@@ -113,7 +113,8 @@ prepare(ClientIn) ->
 	    end;
 	_ ->
 	    error
-    end.
+    end;
+prepare(_) -> error.
 
 -spec parse(binary()) -> [binary()].
 parse(S) ->

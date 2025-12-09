@@ -105,6 +105,8 @@ mech_new(Mech, ChannelBindings, Mechs, _UAId, _Host, #{get_password := GetPasswo
     #state{step = 2, get_password = GetPassword, algo = Algo,
 	channel_bindings = CB, ssdp = Ssdp}.
 
+mech_step(_State, ClientIn) when not is_binary(ClientIn) ->
+    {error, parser_failed};
 mech_step(#state{step = 2, algo = Algo, ssdp = Ssdp} = State, ClientIn) ->
     case re:split(ClientIn, <<",">>, [{return, binary}]) of
       [CBind, _AuthorizationIdentity, UserNameAttribute, ClientNonceAttribute | Extensions] ->

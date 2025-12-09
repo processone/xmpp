@@ -132,7 +132,8 @@ mech_step(#state{step = 5, auth_module = AuthModule,
 mech_step(_, _) ->
     {error, unexpected_response}.
 
-parse(S) -> parse1(binary_to_list(S), "", []).
+parse(S) when is_binary(S) -> parse1(binary_to_list(S), "", []);
+parse(_) -> bad.
 
 parse1([$= | Cs], S, Ts) ->
     parse2(Cs, lists:reverse(S), "", Ts);
