@@ -963,7 +963,7 @@ encode_allowinvites(Value, Lang, IsRequired) ->
                  options = Opts, desc = <<>>,
                  label =
                      xmpp_tr:tr(Lang,
-                                ?T("Occupants are allowed to invite others"))}.
+                                ?T("Members are allowed to invite others"))}.
 
 -spec encode_allow_query_users(boolean() | undefined,
                                binary(), boolean()) -> xdata_field().

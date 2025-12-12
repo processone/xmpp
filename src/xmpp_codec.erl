@@ -349,10 +349,6 @@ get_mod(<<"tzo">>, <<"urn:xmpp:time">>) -> xep0202;
 get_mod(<<"unsupported-info">>,
         <<"urn:xmpp:jingle:errors:1">>) ->
     xep0166;
-get_mod(<<"query">>, <<"jabber:iq:version">>) ->
-    xep0092;
-get_mod(<<"archived">>, <<"urn:xmpp:mam:tmp">>) ->
-    xep0313;
 get_mod(<<"nick">>, <<"urn:xmpp:mix:core:1">>) ->
     xep0369;
 get_mod(<<"next">>,
@@ -822,6 +818,9 @@ get_mod(<<"destroy">>,
     xep0045;
 get_mod(<<"subscribe">>, <<"urn:xmpp:mix:core:1">>) ->
     xep0369;
+get_mod(<<"referenced-stanza">>,
+        <<"urn:xmpp:sid:0">>) ->
+    xep0359;
 get_mod(<<"compress">>,
         <<"http://jabber.org/protocol/compress">>) ->
     xep0138;
@@ -1779,6 +1778,10 @@ get_mod(<<"submission-id">>,
         <<"urn:xmpp:mix:core:0">>) ->
     xep0369;
 get_mod(<<"text">>, <<"urn:xmpp:sasl:2">>) -> xep0388;
+get_mod(<<"query">>, <<"jabber:iq:version">>) ->
+    xep0092;
+get_mod(<<"archived">>, <<"urn:xmpp:mam:tmp">>) ->
+    xep0313;
 get_mod(Name, XMLNS) ->
     xmpp_codec_external:lookup(Name, XMLNS).
 
@@ -2019,6 +2022,7 @@ get_mod({x509_register}) -> xep0417;
 get_mod({roster_item, _, _, _, _, _, _}) -> rfc6121;
 get_mod({unified_push_push, _, _, _}) -> unifiedpush;
 get_mod({rsm_set, _, _, _, _, _, _, _}) -> xep0059;
+get_mod({referenced_stanza, _, _}) -> xep0359;
 get_mod({avatar_meta, _, _}) -> xep0084;
 get_mod({roster_query, _, _, _}) -> rfc6121;
 get_mod({unblock, _}) -> xep0191;

@@ -589,6 +589,10 @@
                     sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
 -type db_verify() :: #db_verify{}.
 
+-record(referenced_stanza, {by :: undefined | jid:jid(),
+                            id = <<>> :: binary()}).
+-type referenced_stanza() :: #referenced_stanza{}.
+
 -record(sasl2_success, {jid :: jid:jid(),
                         additional_data :: 'undefined' | binary(),
                         sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
@@ -1626,6 +1630,7 @@
                         receipt_request() |
                         receipt_response() |
                         redirect() |
+                        referenced_stanza() |
                         register() |
                         report() |
                         roster_item() |
