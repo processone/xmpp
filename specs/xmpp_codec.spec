@@ -3870,6 +3870,16 @@
 	   result = {origin_id, '$id'},
 	   attrs = [#attr{name = <<"id">>, required = true}]}).
 
+-xml(referenced_stanza,
+     #elem{name = <<"referenced-stanza">>,
+	   xmlns = <<"urn:xmpp:sid:0">>,
+	   module = 'xep0359',
+	   result = {referenced_stanza, '$by', '$id'},
+	   attrs = [#attr{name = <<"id">>, required = true},
+		    #attr{name = <<"by">>,
+			  enc = {jid, encode, []},
+			  dec = {jid, decode, []}}]}).
+
 -xml(adhoc_command_prev,
      #elem{name = <<"prev">>,
 	   xmlns = <<"http://jabber.org/protocol/commands">>,

@@ -605,7 +605,7 @@
     <implements>
       <xmpp:SupportedXep>
         <xmpp:xep rdf:resource="https://xmpp.org/extensions/xep-0359.html"/>
-        <xmpp:version></xmpp:version>
+        <xmpp:version>0.7.0</xmpp:version>
         <xmpp:since></xmpp:since>
         <xmpp:status></xmpp:status>
         <xmpp:note></xmpp:note>
