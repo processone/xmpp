@@ -73,11 +73,11 @@ encode_receipt_response({receipt_response, Id},
 
 decode_receipt_response_attr_id(__TopXMLNS,
                                 undefined) ->
-    <<>>;
+    erlang:error({xmpp_codec,
+                  {missing_attr, <<"id">>, <<"received">>, __TopXMLNS}});
 decode_receipt_response_attr_id(__TopXMLNS, _val) ->
     _val.
 
-encode_receipt_response_attr_id(<<>>, _acc) -> _acc;
 encode_receipt_response_attr_id(_val, _acc) ->
     [{<<"id">>, _val} | _acc].
 
