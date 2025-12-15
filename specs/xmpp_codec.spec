@@ -4101,7 +4101,7 @@
 	   xmlns = <<"urn:xmpp:receipts">>,
 	   module = 'xep0184',
 	   result = {receipt_response, '$id'},
-	   attrs = [#attr{name = <<"id">>}]}).
+	   attrs = [#attr{name = <<"id">>, required = true}]}).
 
 -xml(mark_markable,
      #elem{name = <<"markable">>,
