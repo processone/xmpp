@@ -201,6 +201,7 @@
                       groups = [] :: [binary()],
                       subscription = none :: 'both' | 'from' | 'none' | 'remove' | 'to',
                       ask :: 'subscribe' | 'undefined',
+                      approved = false :: boolean(),
                       mix_channel :: 'undefined' | #mix_roster_channel{}}).
 -type roster_item() :: #roster_item{}.
 

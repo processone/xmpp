@@ -2019,7 +2019,6 @@ get_mod({mix_update_subscription, _, _, _, _}) ->
     xep0369;
 get_mod({upload_retry, _}) -> xep0363;
 get_mod({x509_register}) -> xep0417;
-get_mod({roster_item, _, _, _, _, _, _}) -> rfc6121;
 get_mod({unified_push_push, _, _, _}) -> unifiedpush;
 get_mod({rsm_set, _, _, _, _, _, _, _}) -> xep0059;
 get_mod({referenced_stanza, _, _}) -> xep0359;
@@ -2058,6 +2057,7 @@ get_mod({mix_client_join, _, _, _}) -> xep0405;
 get_mod({jingle_reason, _, _, _}) -> xep0166;
 get_mod({ps_event, _, _, _, _, _, _}) -> xep0060;
 get_mod({privileged_iq, _}) -> xep0356;
+get_mod({roster_item, _, _, _, _, _, _, _}) -> rfc6121;
 get_mod({sasl_mechanisms, _}) -> rfc6120;
 get_mod({starttls, _}) -> rfc6120;
 get_mod({stream_start, _, _, _, _, _, _, _, _}) ->

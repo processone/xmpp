@@ -36,7 +36,7 @@ tags() ->
      {<<"item">>, <<"jabber:iq:roster">>},
      {<<"group">>, <<"jabber:iq:roster">>}].
 
-do_encode({roster_item, _, _, _, _, _, _} = Item,
+do_encode({roster_item, _, _, _, _, _, _, _} = Item,
           TopXMLNS) ->
     encode_roster_item(Item, TopXMLNS);
 do_encode({roster_query, _, _, _} = Query, TopXMLNS) ->
@@ -47,38 +47,52 @@ do_encode({feature_pre_approval} = Sub, TopXMLNS) ->
     encode_feature_pre_approval(Sub, TopXMLNS).
 
 do_get_name({feature_pre_approval}) -> <<"sub">>;
-do_get_name({roster_item, _, _, _, _, _, _}) ->
+do_get_name({roster_item, _, _, _, _, _, _, _}) ->
     <<"item">>;
 do_get_name({roster_query, _, _, _}) -> <<"query">>;
 do_get_name({rosterver_feature}) -> <<"ver">>.
 
 do_get_ns({feature_pre_approval}) ->
     <<"urn:xmpp:features:pre-approval">>;
-do_get_ns({roster_item, _, _, _, _, _, _}) ->
+do_get_ns({roster_item, _, _, _, _, _, _, _}) ->
     <<"jabber:iq:roster">>;
 do_get_ns({roster_query, _, _, _}) ->
     <<"jabber:iq:roster">>;
 do_get_ns({rosterver_feature}) ->
     <<"urn:xmpp:features:rosterver">>.
 
-pp(roster_item, 6) ->
-    [jid, name, groups, subscription, ask, mix_channel];
+pp(roster_item, 7) ->
+    [jid,
+     name,
+     groups,
+     subscription,
+     ask,
+     approved,
+     mix_channel];
 pp(roster_query, 3) -> [items, ver, mix_annotate];
 pp(rosterver_feature, 0) -> [];
 pp(feature_pre_approval, 0) -> [];
 pp(_, _) -> no.
 
 records() ->
-    [{roster_item, 6},
+    [{roster_item, 7},
      {roster_query, 3},
      {rosterver_feature, 0},
      {feature_pre_approval, 0}].
+
+dec_bool(<<"false">>) -> false;
+dec_bool(<<"0">>) -> false;
+dec_bool(<<"true">>) -> true;
+dec_bool(<<"1">>) -> true.
 
 dec_enum(Val, Enums) ->
     AtomVal = erlang:binary_to_existing_atom(Val, utf8),
     case lists:member(AtomVal, Enums) of
         true -> AtomVal
     end.
+
+enc_bool(false) -> <<"false">>;
+enc_bool(true) -> <<"true">>.
 
 enc_enum(Atom) -> erlang:atom_to_binary(Atom, utf8).
 
@@ -243,9 +257,10 @@ decode_roster_item(__TopXMLNS, __Opts,
                                _els,
                                [],
                                undefined),
-    {Jid, Name, Subscription, Ask} =
+    {Jid, Name, Subscription, Ask, Approved} =
         decode_roster_item_attrs(__TopXMLNS,
                                  _attrs,
+                                 undefined,
                                  undefined,
                                  undefined,
                                  undefined,
@@ -256,6 +271,7 @@ decode_roster_item(__TopXMLNS, __Opts,
      Groups,
      Subscription,
      Ask,
+     Approved,
      Mix_channel}.
 
 decode_roster_item_els(__TopXMLNS, __Opts, [], Groups,
@@ -316,55 +332,71 @@ decode_roster_item_els(__TopXMLNS, __Opts, [_ | _els],
 
 decode_roster_item_attrs(__TopXMLNS,
                          [{<<"jid">>, _val} | _attrs], _Jid, Name, Subscription,
-                         Ask) ->
+                         Ask, Approved) ->
     decode_roster_item_attrs(__TopXMLNS,
                              _attrs,
                              _val,
                              Name,
                              Subscription,
-                             Ask);
+                             Ask,
+                             Approved);
 decode_roster_item_attrs(__TopXMLNS,
                          [{<<"name">>, _val} | _attrs], Jid, _Name,
-                         Subscription, Ask) ->
+                         Subscription, Ask, Approved) ->
     decode_roster_item_attrs(__TopXMLNS,
                              _attrs,
                              Jid,
                              _val,
                              Subscription,
-                             Ask);
+                             Ask,
+                             Approved);
 decode_roster_item_attrs(__TopXMLNS,
                          [{<<"subscription">>, _val} | _attrs], Jid, Name,
-                         _Subscription, Ask) ->
+                         _Subscription, Ask, Approved) ->
     decode_roster_item_attrs(__TopXMLNS,
                              _attrs,
                              Jid,
                              Name,
                              _val,
-                             Ask);
+                             Ask,
+                             Approved);
 decode_roster_item_attrs(__TopXMLNS,
                          [{<<"ask">>, _val} | _attrs], Jid, Name, Subscription,
-                         _Ask) ->
+                         _Ask, Approved) ->
     decode_roster_item_attrs(__TopXMLNS,
                              _attrs,
                              Jid,
                              Name,
                              Subscription,
+                             _val,
+                             Approved);
+decode_roster_item_attrs(__TopXMLNS,
+                         [{<<"approved">>, _val} | _attrs], Jid, Name,
+                         Subscription, Ask, _Approved) ->
+    decode_roster_item_attrs(__TopXMLNS,
+                             _attrs,
+                             Jid,
+                             Name,
+                             Subscription,
+                             Ask,
                              _val);
 decode_roster_item_attrs(__TopXMLNS, [_ | _attrs], Jid,
-                         Name, Subscription, Ask) ->
+                         Name, Subscription, Ask, Approved) ->
     decode_roster_item_attrs(__TopXMLNS,
                              _attrs,
                              Jid,
                              Name,
                              Subscription,
-                             Ask);
+                             Ask,
+                             Approved);
 decode_roster_item_attrs(__TopXMLNS, [], Jid, Name,
-                         Subscription, Ask) ->
+                         Subscription, Ask, Approved) ->
     {decode_roster_item_attr_jid(__TopXMLNS, Jid),
      decode_roster_item_attr_name(__TopXMLNS, Name),
      decode_roster_item_attr_subscription(__TopXMLNS,
                                           Subscription),
-     decode_roster_item_attr_ask(__TopXMLNS, Ask)}.
+     decode_roster_item_attr_ask(__TopXMLNS, Ask),
+     decode_roster_item_attr_approved(__TopXMLNS, Approved)}.
 
 encode_roster_item({roster_item,
                     Jid,
@@ -372,6 +404,7 @@ encode_roster_item({roster_item,
                     Groups,
                     Subscription,
                     Ask,
+                    Approved,
                     Mix_channel},
                    __TopXMLNS) ->
     __NewTopXMLNS =
@@ -384,12 +417,13 @@ encode_roster_item({roster_item,
                                                    'encode_roster_item_$mix_channel'(Mix_channel,
                                                                                      __NewTopXMLNS,
                                                                                      []))),
-    _attrs = encode_roster_item_attr_ask(Ask,
-                                         encode_roster_item_attr_subscription(Subscription,
-                                                                              encode_roster_item_attr_name(Name,
-                                                                                                           encode_roster_item_attr_jid(Jid,
-                                                                                                                                       xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
-                                                                                                                                                                  __TopXMLNS))))),
+    _attrs = encode_roster_item_attr_approved(Approved,
+                                              encode_roster_item_attr_ask(Ask,
+                                                                          encode_roster_item_attr_subscription(Subscription,
+                                                                                                               encode_roster_item_attr_name(Name,
+                                                                                                                                            encode_roster_item_attr_jid(Jid,
+                                                                                                                                                                        xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
+                                                                                                                                                                                                   __TopXMLNS)))))),
     {xmlel, <<"item">>, _attrs, _els}.
 
 'encode_roster_item_$groups'([], __TopXMLNS, _acc) ->
@@ -465,6 +499,24 @@ decode_roster_item_attr_ask(__TopXMLNS, _val) ->
 encode_roster_item_attr_ask(undefined, _acc) -> _acc;
 encode_roster_item_attr_ask(_val, _acc) ->
     [{<<"ask">>, enc_enum(_val)} | _acc].
+
+decode_roster_item_attr_approved(__TopXMLNS,
+                                 undefined) ->
+    false;
+decode_roster_item_attr_approved(__TopXMLNS, _val) ->
+    case catch dec_bool(_val) of
+        {'EXIT', _} ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value,
+                           <<"approved">>,
+                           <<"item">>,
+                           __TopXMLNS}});
+        _res -> _res
+    end.
+
+encode_roster_item_attr_approved(false, _acc) -> _acc;
+encode_roster_item_attr_approved(_val, _acc) ->
+    [{<<"approved">>, enc_bool(_val)} | _acc].
 
 decode_roster_group(__TopXMLNS, __Opts,
                     {xmlel, <<"group">>, _attrs, _els}) ->
