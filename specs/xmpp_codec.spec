@@ -71,7 +71,7 @@
            xmlns = <<"jabber:iq:roster">>,
 	   module = rfc6121,
            result = {roster_item, '$jid', '$name',
-                     '$groups', '$subscription', '$ask', '$mix_channel'},
+                     '$groups', '$subscription', '$ask', '$approved', '$mix_channel'},
            attrs = [#attr{name = <<"jid">>,
                           required = true,
                           dec = {jid, decode, []},
@@ -85,7 +85,11 @@
                           dec = {dec_enum, [[none,to,from,both,remove]]}},
                     #attr{name = <<"ask">>,
                           enc = {enc_enum, []},
-                          dec = {dec_enum, [[subscribe]]}}],
+                          dec = {dec_enum, [[subscribe]]}},
+                    #attr{name = <<"approved">>,
+                          default = false,
+                          dec = {dec_bool, []},
+                          enc = {enc_bool, []}}],
            refs = [#ref{name = roster_group, label = '$groups'},
                    #ref{name = mix_roster_channel, label = '$mix_channel', min = 0, max = 1}]}).
 
