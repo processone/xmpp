@@ -1,3 +1,10 @@
+# Version 1.12.0
+
+* Add approve attribute to roster_item
+* Update XEP-0184 to 1.4.0
+* Update XEP-0359 to 0.7.0
+* Fix exception in SASL2 when client don't send initial-response 
+
 # Version 1.11.4
 
 * Regenerate files from spec
