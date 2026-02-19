@@ -13,7 +13,7 @@
 	 label='Search until the date'/>
   <field var='withtext'
 	 type='text-single'
-	 label='Search the text'/>
+	 label='Search the text (obsolete)'/>
 </form_type>
 
 <!--
