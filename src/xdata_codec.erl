@@ -209,6 +209,9 @@ io_format_error({missing_required_var, Var, Type}) ->
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
+
+-dialyzer({nowarn_function, compile_element/2}).
+
 compile_element(#xmlel{name = <<"form_type">>, children = Els} = Form,
 		#state{erl = OutErl, erl_dir = ErlDir,
 		       hrl = OutHrl, hrl_dir = HrlDir} = State0) ->
