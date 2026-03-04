@@ -9,37 +9,39 @@ jobs:
   release:
     runs-on: ubuntu-24.04
     steps:
+    - name: Check out
+      uses: actions/checkout@v6
 
-      - name: Check out
-        uses: actions/checkout@v4
+    - name: Get Erlang/OTP
+      uses: erlef/setup-beam@v1
+      with:
+        otp-version: 28
+        rebar3-version: '3.26.0'
 
-      - name: Get Erlang/OTP
-        uses: erlef/setup-beam@v1
-        with:
-          otp-version: 26
-          rebar3-version: '3.24.0'
+    - name: Generate documentation
+      run: rebar3 edoc
 
-      - name: Setup rebar3 hex
-        run: |
-          mkdir -p ~/.config/rebar3/
-          echo "{plugins, [rebar3_hex]}." > ~/.config/rebar3/rebar.config
+    - name: Prepare Markdown
+      run: |
+        sed -i 's|doc/API.md|API.html|g' README.md
 
-      - name: Prepare Markdown
-        run: |
-          sed -i 's|doc/API.md|API.html|g' README.md
+    - name: Convert Markdown to HTML
+      uses: natescherer/markdown-to-html-with-github-style-action@v1.1.0
+      with:
+        path: README.md,doc/API.md
 
-      - name: Convert Markdown to HTML
-        uses: natescherer/markdown-to-html-with-github-style-action@v1.1.0
-        with:
-          path: README.md,doc/API.md
+    - name: Postprocess links
+      run: |
+        mv README.html doc/index.html
+        sed -i 's| href="API.html#| href="API.html#user-content-|g' doc/index.html
+        sed -i 's| href="#| href="#user-content-|g' doc/API.html
 
-      - name: Postprocess links
-        run: |
-          mv README.html doc/index.html
-          sed -i 's| href="API.html#| href="API.html#user-content-|g' doc/index.html
-          sed -i 's| href="#| href="#user-content-|g' doc/API.html
+    - name: Setup rebar3 hex
+      run: |
+        mkdir -p ~/.config/rebar3/
+        echo "{plugins, [rebar3_hex]}." > ~/.config/rebar3/rebar.config
 
-      - name: Publish to hex.pm
-        run: DEBUG=1 rebar3 hex publish --repo hexpm --yes
-        env:
-          HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
+    - name: Publish to hex.pm
+      run: DEBUG=1 rebar3 hex publish --repo hexpm --yes
+      env:
+        HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
