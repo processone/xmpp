@@ -22,7 +22,7 @@
 -protocol({rfc, 5802}).
 -protocol({xep, 474, '0.4.0'}).
 
--export([mech_new/6, mech_step/2, format_error/1]).
+-export([mech_new/7, mech_step/2, format_error/1]).
 
 -include("scram.hrl").
 
@@ -33,6 +33,7 @@
 	{step = 2                :: 2 | 4,
 	 algo = sha              :: sha | sha256 | sha512,
 	 channel_bindings = none :: none | not_available | #{atom() => binary()},
+	 plus_disabled = false   :: boolean(),
 	 ssdp                    :: undefined | binary(),
 	 stored_key = <<"">>     :: binary(),
 	 server_key = <<"">>     :: binary(),
@@ -76,7 +77,7 @@ format_error(bad_channel_binding) ->
 format_error(incompatible_mechs) ->
     {'not-authorized', <<"Incompatible SCRAM methods">>}.
 
-mech_new(Mech, ChannelBindings, Mechs, _UAId, _Host, #{get_password := GetPassword}) ->
+mech_new(Mech, ChannelBindings, PlusDisabled, Mechs, _UAId, _Host, #{get_password := GetPassword}) ->
     NCB = case ChannelBindings of
 	      #{} -> none;
 	      _ -> ChannelBindings
@@ -103,7 +104,7 @@ mech_new(Mech, ChannelBindings, Mechs, _UAId, _Host, #{get_password := GetPasswo
 		       end]))
 	   end,
     #state{step = 2, get_password = GetPassword, algo = Algo,
-	channel_bindings = CB, ssdp = Ssdp}.
+	channel_bindings = CB, plus_disabled = PlusDisabled, ssdp = Ssdp}.
 
 mech_step(_State, ClientIn) when not is_binary(ClientIn) ->
     {error, parser_failed};
@@ -280,6 +281,8 @@ cbind_verify(State, ChannelBindingSupport) ->
 cbind_check(#state{channel_bindings = #{}}, _) ->
     false;
 cbind_check(#state{channel_bindings = not_available}, <<"y", _/binary>>) ->
+    true;
+cbind_check(#state{plus_disabled = true}, <<"y", _/binary>>) ->
     true;
 cbind_check(_, <<"y", _/binary>>) ->
     false;

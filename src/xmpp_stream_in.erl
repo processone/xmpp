@@ -965,7 +965,7 @@ init_channel_bindings(#{socket := Socket} = State) ->
 process_sasl_request(#sasl_auth{mechanism = Mech, text = ClientIn},
 		     #{lserver := LServer} = State) ->
     State1 = State#{sasl_mech => Mech},
-    Mechs = get_sasl_mechanisms(State1, sasl),
+    {Mechs, PlusDisabled} = get_sasl_mechanisms(State1, sasl),
     case lists:member(Mech, Mechs) of
 	true when Mech == <<"EXTERNAL">> ->
 	    Res = case xmpp_stream_pkix:authenticate(State1, ClientIn) of
@@ -989,7 +989,7 @@ process_sasl_request(#sasl_auth{mechanism = Mech, text = ClientIn},
 		     end,
 	    SASLState = xmpp_sasl:server_new(LServer, GetPW, CheckPW, CheckPWDigest, undefined),
 	    CB = maps:get(sasl_channel_bindings, State1, none),
-	    Res = xmpp_sasl:server_start(SASLState, Mech, ClientIn, CB, Mechs2, undefined),
+	    Res = xmpp_sasl:server_start(SASLState, Mech, ClientIn, CB, PlusDisabled, Mechs2, undefined),
 	    process_sasl_result(Res, disable_sasl2(State1#{sasl_state => SASLState}));
 	false ->
 	    process_sasl_result({error, unsupported_mechanism, <<"">>}, disable_sasl2(State1))
@@ -1078,7 +1078,7 @@ process_sasl2_request(#sasl2_authenticate{mechanism = Mech, initial_response = C
     FastMechs = try callback(fast_mechanisms, State)
 		catch _:{?MODULE, undef} -> []
 		end,
-    Mechs = get_sasl_mechanisms(State1, sasl2),
+    {Mechs, PlusDisabled} = get_sasl_mechanisms(State1, sasl2),
     MechsAll = Mechs ++ FastMechs,
     UAId = case UA of
 	       #sasl2_user_agent{id = ID} when ID /= <<>> ->
@@ -1116,7 +1116,7 @@ process_sasl2_request(#sasl2_authenticate{mechanism = Mech, initial_response = C
 	    SASLState = xmpp_sasl:server_new(LServer, GetPW, CheckPW,
 					     CheckPWDigest, GetFastTokens),
 	    CB = maps:get(sasl_channel_bindings, State1, none),
-	    Res = xmpp_sasl:server_start(SASLState, Mech, ClientIn, CB, Mechs2, UAId),
+	    Res = xmpp_sasl:server_start(SASLState, Mech, ClientIn, CB, PlusDisabled, Mechs2, UAId),
 	    process_sasl2_result(Res, State1#{sasl_state => SASLState,
 					      sasl2_inline_els => SaslInline,
 					      sasl2_ua_id => UAId});
@@ -1414,7 +1414,7 @@ get_fast_tokens_fun(Mech, State) ->
     catch _:{?MODULE, undef} -> fun(_, _) -> [] end
     end.
 
--spec get_sasl_mechanisms(state(), sasl | sasl2) -> [xmpp_sasl:mechanism()].
+-spec get_sasl_mechanisms(state(), sasl | sasl2) -> {[xmpp_sasl:mechanism()], boolean()}.
 get_sasl_mechanisms(#{stream_encrypted := Encrypted,
 		      xmlns := NS} = State, Type) ->
     Mechs = if NS == ?NS_CLIENT -> xmpp_sasl:listmech();
@@ -1423,15 +1423,18 @@ get_sasl_mechanisms(#{stream_encrypted := Encrypted,
     Mechs1 = if Encrypted -> [<<"EXTERNAL">> | Mechs];
 		 true -> Mechs
 	     end,
-    Mechs2 = try callback(sasl_mechanisms, Mechs1, State) of
-		 {Sasl1, _} when Type == sasl -> Sasl1;
-		 {_, Sasl2} when Type == sasl2 -> Sasl2;
-		 Common -> Common
-	     catch _:{?MODULE, undef} -> Mechs1
-	     end,
+    {Mechs2, PlusDisabled} =
+	try callback(sasl_mechanisms, Mechs1, State) of
+	    {Sasl1, _} when Type == sasl -> {Sasl1, false};
+	    {_, Sasl2} when Type == sasl2 -> {Sasl2, false};
+	    {Sasl1, _, Disabled} when Type == sasl -> {Sasl1, Disabled};
+	    {_, Sasl2, Disabled} when Type == sasl2 -> {Sasl2, Disabled};
+	    Common -> {Common, false}
+	catch _:{?MODULE, undef} -> {Mechs1, false}
+	end,
     if Type == sasl2 ->
-	filter_sasl2_user_mechs(Mechs2, State);
-	true -> Mechs2
+	filter_sasl2_user_mechs(Mechs2, PlusDisabled, State);
+	true -> {Mechs2, PlusDisabled}
     end.
 
 pass_to_mech(_, all)                     -> all;
@@ -1444,16 +1447,24 @@ pass_to_mech(#scram{hash = sha512}, Acc) -> [<<"SCRAM-SHA-512">>, <<"SCRAM-SHA-5
 pass_to_mech(List, Acc) when is_list(List) ->
     lists:foldl(fun pass_to_mech/2, Acc, List).
 
-filter_sasl2_user_mechs(Mechs, State) ->
+filter_sasl2_user_mechs(Mechs, PlusDisabled, State) ->
     {Pass, _} = (get_password_fun_sasl2(<<>>, State))(<<>>),
     case pass_to_mech(Pass, []) of
-	all -> Mechs;
+	all -> {Mechs, PlusDisabled};
 	M ->
 	    OtherMechs = Mechs -- [<<"SCRAM-SHA-1">>, <<"SCRAM-SHA-1-PLUS">>,
 				   <<"SCRAM-SHA-256">>, <<"SCRAM-SHA-256-PLUS">>,
 				   <<"SCRAM-SHA-512">>, <<"SCRAM-SHA-512-PLUS">>],
 	    ScramMechs = Mechs -- OtherMechs,
-	    OtherMechs ++ (ScramMechs -- (ScramMechs -- M))
+	    Mechs2 = OtherMechs ++ (ScramMechs -- (ScramMechs -- M)),
+	    case PlusDisabled of
+		true -> {Mechs2, true};
+		_ ->
+		    PlusMechs = [<<"SCRAM-SHA-1-PLUS">>, <<"SCRAM-SHA-256-PLUS">>, <<"SCRAM-SHA-512-PLUS">>],
+		    HadPlusMechs = ScramMechs -- PlusMechs /= ScramMechs,
+		    HavePlusMechs = PlusMechs -- Mechs2 == PlusMechs,
+		    {Mechs2, HadPlusMechs andalso not HavePlusMechs}
+	    end
     end.
 
 
@@ -1463,7 +1474,7 @@ get_sasl_feature(#{stream_authenticated := false,
     TLSRequired = is_starttls_required(State),
     if
 	Encrypted or not TLSRequired ->
-	    Mechs = get_sasl_mechanisms(State, sasl),
+	    {Mechs, _} = get_sasl_mechanisms(State, sasl),
 	    [#sasl_mechanisms{list = Mechs}] ++
 	    case maps:get(sasl_channel_bindings, State, none) of
 		none -> [];
@@ -1478,7 +1489,7 @@ get_sasl_feature(_) ->
 
 -spec get_sasl2_feature(state()) -> [sasl2_authenticaton() | sasl_channel_binding()].
 get_sasl2_feature(#{stream_authenticated := false} = State) ->
-    Mechs = get_sasl_mechanisms(State, sasl2),
+    {Mechs, _} = get_sasl_mechanisms(State, sasl2),
 
     {SASL2Features, Bind2Features, ExtraFeatures} =
     try callback(inline_stream_features, State)

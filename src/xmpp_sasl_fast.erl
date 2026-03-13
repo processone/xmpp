@@ -19,7 +19,7 @@
 -behaviour(xmpp_sasl).
 -author('alexey@process-one.net').
 
--export([mech_new/6, mech_step/2, format_error/1]).
+-export([mech_new/7, mech_step/2, format_error/1]).
 %% For tests
 -export([parse/1]).
 
@@ -34,7 +34,7 @@ format_error({Condition, Text}) ->
 format_error(incompatible_mechs) ->
     {'not-authorized', <<"Incompatible SCRAM methods">>};
 format_error(missing_ua) ->
-    {'malformed-request', <<"Missing user-agent">>};
+    {'malformed', <<"Missing user-agent">>};
 format_error(bad_channel_binding) ->
     {'not-authorized', <<"Invalid channel binding">>};
 format_error(parser_failed) ->
@@ -42,7 +42,7 @@ format_error(parser_failed) ->
 format_error(not_authorized) ->
     {'not-authorized', <<"Invalid username or password">>}.
 
-mech_new(Mech, CB, _Mechs, UAId, _Host, #{get_fast_tokens := GetFastTokens}) ->
+mech_new(Mech, CB, _PD, _Mechs, UAId, _Host, #{get_fast_tokens := GetFastTokens}) ->
     #state{mech = Mech, cb = CB, ua = UAId, get_fast_tokens = GetFastTokens}.
 
 
