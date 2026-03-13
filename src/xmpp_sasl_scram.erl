@@ -260,8 +260,10 @@ cbind_valid(#state{channel_bindings = #{} = Bindings}, <<"p=", Binding/binary>>)
     maps:is_key(Binding, Bindings);
 cbind_valid(#state{channel_bindings = #{}}, _) ->
     false;
-cbind_valid(_, <<"y", _/binary>>) ->
+cbind_valid(#state{channel_bindings = not_available}, <<"y", _/binary>>) ->
     true;
+cbind_valid(_, <<"y", _/binary>>) ->
+    false;
 cbind_valid(_, <<"n", _/binary>>) ->
     true;
 cbind_valid(_, _) ->
