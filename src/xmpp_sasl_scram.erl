@@ -256,24 +256,16 @@ mech_step(#state{step = 4, algo = Algo} = State, ClientIn) ->
 	    {error, parser_failed}
     end.
 
-cbind_valid(#state{channel_bindings = #{} = Bindings}, <<"p=", Binding/binary>>) ->
-    maps:is_key(Binding, Bindings);
-cbind_valid(#state{channel_bindings = #{}}, _) ->
-    false;
-cbind_valid(#state{channel_bindings = not_available}, <<"y", _/binary>>) ->
-    true;
-cbind_valid(_, <<"y", _/binary>>) ->
-    false;
-cbind_valid(_, <<"n", _/binary>>) ->
-    true;
-cbind_valid(_, _) ->
-    false.
-
 extensions_valid(_State, Ext) ->
     lists:all(
 	fun(<<"m=", _/binary>>) -> false;
 	   (_) -> true
 	end, Ext).
+
+cbind_valid(#state{channel_bindings = #{} = Bindings}, <<"p=", Binding/binary>>) ->
+    maps:is_key(Binding, Bindings);
+cbind_valid(State, ChannelBindingSupport) ->
+    cbind_check(State, ChannelBindingSupport).
 
 cbind_verify(#state{channel_bindings = #{} = Bindings}, <<"p=", Binding/binary>>) ->
     case re:split(Binding, <<",">>, [{parts, 3}, {return, binary}]) of
@@ -282,15 +274,18 @@ cbind_verify(#state{channel_bindings = #{} = Bindings}, <<"p=", Binding/binary>>
 	_ ->
 	    false
     end;
-cbind_verify(#state{channel_bindings = #{}}, _) ->
+cbind_verify(State, ChannelBindingSupport) ->
+    cbind_check(State, ChannelBindingSupport).
+
+cbind_check(#state{channel_bindings = #{}}, _) ->
     false;
-cbind_verify(#state{channel_bindings = not_available}, <<"y", _/binary>>) ->
+cbind_check(#state{channel_bindings = not_available}, <<"y", _/binary>>) ->
     true;
-cbind_verify(_, <<"y", _/binary>>) ->
+cbind_check(_, <<"y", _/binary>>) ->
     false;
-cbind_verify(_, <<"n", _/binary>>) ->
+cbind_check(_, <<"n", _/binary>>) ->
     true;
-cbind_verify(_, _) ->
+cbind_check(_, _) ->
     false.
 
 parse_attribute(<<Name, $=, Val/binary>>) when Val /= <<>> ->
