@@ -34,7 +34,7 @@ format_error({Condition, Text}) ->
 format_error(incompatible_mechs) ->
     {'not-authorized', <<"Incompatible SCRAM methods">>};
 format_error(missing_ua) ->
-    {'malformed', <<"Missing user-agent">>};
+    {'malformed-request', <<"Missing user-agent">>};
 format_error(bad_channel_binding) ->
     {'not-authorized', <<"Invalid channel binding">>};
 format_error(parser_failed) ->
