@@ -387,4 +387,5 @@ encode_withtext(Value, Lang, IsRequired) ->
     #xdata_field{var = <<"withtext">>, values = Values,
                  required = IsRequired, type = 'text-single',
                  options = Opts, desc = <<>>,
-                 label = xmpp_tr:tr(Lang, ?T("Search the text"))}.
+                 label =
+                     xmpp_tr:tr(Lang, ?T("Search the text (obsolete)"))}.
