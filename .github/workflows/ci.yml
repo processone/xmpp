@@ -9,12 +9,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        otp: [20, 25, 26, 27, 28]
+        otp: [20, 25, 26, 27, 28, 29]
     runs-on: ubuntu-24.04
     container:
       image: public.ecr.aws/docker/library/erlang:${{ matrix.otp }}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - run: sed -i 's|applications, \[|applications, \[erl_tidy, |g' src/xmpp.app.src
       if: matrix.otp >= 26
     - run: ./configure --enable-gcov
@@ -29,18 +29,20 @@ jobs:
     - run: rebar3 eunit -v
     - run: make doap
     - run: git config --global --add safe.directory /__w/xmpp/xmpp
-      if: matrix.otp == 26 && github.event_name == 'push'
-    - uses: stefanzweifel/git-auto-commit-action@v6
-      if: matrix.otp == 26 && github.event_name == 'push'
+      if: matrix.otp == 28 && github.event_name == 'push'
+    - uses: stefanzweifel/git-auto-commit-action@v7
+      if: matrix.otp == 28 && github.event_name == 'push'
       with:
         add_options: '-u'
         file_pattern: 'include/*.hrl src/*.erl'
         commit_message: Automatic changes "make spec xdata"
     - run: rebar3 eunit -v
     - name: Send to Coveralls
+      if: matrix.otp == 28
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
+        COVERALLS=true rebar3 as test coveralls send
         curl -v -k https://coveralls.io/webhook \
              --header "Content-Type: application/json" \
              --data '{"repo_name":"$GITHUB_REPOSITORY",
