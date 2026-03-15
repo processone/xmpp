@@ -13,11 +13,13 @@ c_src/*.o
 config.log
 config.status
 deps
+doc
 ebin
 include/XmppAddr.hrl
 priv
 rebar.lock
 src/XmppAddr.asn1db
 src/XmppAddr.erl
+test/*.beam
 vars.config
 dialyzer
