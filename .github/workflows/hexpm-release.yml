@@ -16,7 +16,7 @@ jobs:
       uses: erlef/setup-beam@v1
       with:
         otp-version: 28
-        rebar3-version: '3.26.0'
+        rebar3-version: '3.27.0'
 
     - name: Generate documentation
       run: rebar3 edoc
