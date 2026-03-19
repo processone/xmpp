@@ -98,7 +98,7 @@ sha_mac(Algo, Key, Data) ->
 -include_lib("eunit/include/eunit.hrl").
 
 scram_algo_test_() -> [
-    {<<"scram_algo_", (atom_to_binary(Algo))/binary, "_test">>,
+    {<<"scram_algo_", (atom_to_binary(Algo, latin1))/binary, "_test">>,
       fun() ->
 	  Password = <<"pencil">>,
 	  Salt = base64:decode(<<"QSXCR+Q6sek8bf92">>),
@@ -138,7 +138,7 @@ scram_zero_iterations_test() ->
 -ifndef(NO_PBKDF2_HMAC).
 pbkdf2_hmac_vs_hi_legacy_test_() -> [
     {timeout, 30,
-	{<<"scram_hi_", (atom_to_binary(Algo))/binary, "_test">>,
+	{<<"scram_hi_", (atom_to_binary(Algo, latin1))/binary, "_test">>,
 	    fun() ->
 		lists:foreach(
 		    fun(_) ->
