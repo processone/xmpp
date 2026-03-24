@@ -115,7 +115,10 @@
 -callback tls_required(state()) -> boolean().
 -callback tls_enabled(state()) -> boolean().
 -callback allow_unencrypted_sasl2(state()) -> boolean().
--callback sasl_mechanisms([xmpp_sasl:mechanism()], state()) -> [xmpp_sasl:mechanism()].
+-callback sasl_mechanisms([xmpp_sasl:mechanism()], state()) ->
+	[xmpp_sasl:mechanism()] |
+	{[xmpp_sasl:mechanism()], [xmpp_sasl:mechanism()]} |
+	{[xmpp_sasl:mechanism()], [xmpp_sasl:mechanism()], boolean()}.
 -callback sasl_options(state()) -> [tuple()].
 -callback unauthenticated_stream_features(state()) -> [xmpp_element()].
 -callback authenticated_stream_features(state()) -> [xmpp_element()].
