@@ -1,3 +1,10 @@
+# Version 1.13.0
+
+* Update idna to 7.1
+* Fix handling of errors in FAST when user-agent was missing id
+* Make SASL SCRAM authentication use more efficient implementation
+* Improve handling of SCRAM c=y flag, depending on configured mechanisms 
+
 # Version 1.12.0
 
 * Add approve attribute to roster_item
