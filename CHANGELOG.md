@@ -1,5 +1,10 @@
 # Version 1.13.0
 
+* Updating ezlib to version 1.0.16.
+* Updating fast_tls to version 1.1.26.
+* Updating fast_xml to version 1.1.58.
+* Updating p1_utils to version 1.0.29.
+* Updating stringprep to version 1.0.34.
 * Update idna to 7.1
 * Fix handling of errors in FAST when user-agent was missing id
 * Make SASL SCRAM authentication use more efficient implementation
