@@ -1,3 +1,7 @@
+# Version 1.13.1
+
+* Fix issue in documentation generation
+
 # Version 1.13.0
 
 * Updating ezlib to version 1.0.16.
