@@ -106,11 +106,12 @@ decode_scram_upgrade_hash_cdata(__TopXMLNS, <<>>) ->
     erlang:error({xmpp_codec,
                   {missing_cdata, <<>>, <<"hash">>, __TopXMLNS}});
 decode_scram_upgrade_hash_cdata(__TopXMLNS, _val) ->
-    case catch base64:decode(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_cdata_value, <<>>, <<"hash">>, __TopXMLNS}});
+    try base64:decode(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_cdata_value, <<>>, <<"hash">>, __TopXMLNS}})
     end.
 
 encode_scram_upgrade_hash_cdata(_val, _acc) ->
@@ -183,14 +184,15 @@ decode_scram_upgrade_salt_attr_iterations(__TopXMLNS,
                    __TopXMLNS}});
 decode_scram_upgrade_salt_attr_iterations(__TopXMLNS,
                                           _val) ->
-    case catch dec_int(_val, 1, infinity) of
-        {'EXIT', _} ->
+    try dec_int(_val, 1, infinity) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"iterations">>,
                            <<"salt">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_scram_upgrade_salt_attr_iterations(_val, _acc) ->
@@ -200,11 +202,12 @@ decode_scram_upgrade_salt_cdata(__TopXMLNS, <<>>) ->
     erlang:error({xmpp_codec,
                   {missing_cdata, <<>>, <<"salt">>, __TopXMLNS}});
 decode_scram_upgrade_salt_cdata(__TopXMLNS, _val) ->
-    case catch base64:decode(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_cdata_value, <<>>, <<"salt">>, __TopXMLNS}});
+    try base64:decode(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_cdata_value, <<>>, <<"salt">>, __TopXMLNS}})
     end.
 
 encode_scram_upgrade_salt_cdata(_val, _acc) ->

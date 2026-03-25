@@ -1019,58 +1019,59 @@ decode_pubsub_error_unsupported_attr_feature(__TopXMLNS,
                    __TopXMLNS}});
 decode_pubsub_error_unsupported_attr_feature(__TopXMLNS,
                                              _val) ->
-    case catch dec_enum(_val,
-                        ['access-authorize',
-                         'access-open',
-                         'access-presence',
-                         'access-roster',
-                         'access-whitelist',
-                         'auto-create',
-                         'auto-subscribe',
-                         collections,
-                         'config-node',
-                         'create-and-configure',
-                         'create-nodes',
-                         'delete-items',
-                         'delete-nodes',
-                         'filtered-notifications',
-                         'get-pending',
-                         'instant-nodes',
-                         'item-ids',
-                         'last-published',
-                         'leased-subscription',
-                         'manage-subscriptions',
-                         'member-affiliation',
-                         'meta-data',
-                         'modify-affiliations',
-                         'multi-collection',
-                         'multi-items',
-                         'multi-subscribe',
-                         'outcast-affiliation',
-                         'persistent-items',
-                         'presence-notifications',
-                         'presence-subscribe',
-                         publish,
-                         'publish-options',
-                         'publish-only-affiliation',
-                         'publisher-affiliation',
-                         'purge-nodes',
-                         'retract-items',
-                         'retrieve-affiliations',
-                         'retrieve-default',
-                         'retrieve-items',
-                         'retrieve-subscriptions',
-                         subscribe,
-                         'subscription-options',
-                         'subscription-notifications'])
-        of
-        {'EXIT', _} ->
+    try dec_enum(_val,
+                 ['access-authorize',
+                  'access-open',
+                  'access-presence',
+                  'access-roster',
+                  'access-whitelist',
+                  'auto-create',
+                  'auto-subscribe',
+                  collections,
+                  'config-node',
+                  'create-and-configure',
+                  'create-nodes',
+                  'delete-items',
+                  'delete-nodes',
+                  'filtered-notifications',
+                  'get-pending',
+                  'instant-nodes',
+                  'item-ids',
+                  'last-published',
+                  'leased-subscription',
+                  'manage-subscriptions',
+                  'member-affiliation',
+                  'meta-data',
+                  'modify-affiliations',
+                  'multi-collection',
+                  'multi-items',
+                  'multi-subscribe',
+                  'outcast-affiliation',
+                  'persistent-items',
+                  'presence-notifications',
+                  'presence-subscribe',
+                  publish,
+                  'publish-options',
+                  'publish-only-affiliation',
+                  'publisher-affiliation',
+                  'purge-nodes',
+                  'retract-items',
+                  'retrieve-affiliations',
+                  'retrieve-default',
+                  'retrieve-items',
+                  'retrieve-subscriptions',
+                  subscribe,
+                  'subscription-options',
+                  'subscription-notifications'])
+    of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"feature">>,
                            <<"unsupported">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_pubsub_error_unsupported_attr_feature(_val,
@@ -3763,14 +3764,15 @@ decode_pubsub_retract_attr_notify(__TopXMLNS,
                                   undefined) ->
     false;
 decode_pubsub_retract_attr_notify(__TopXMLNS, _val) ->
-    case catch dec_bool(_val) of
-        {'EXIT', _} ->
+    try dec_bool(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"notify">>,
                            <<"retract">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_pubsub_retract_attr_notify(false, _acc) -> _acc;
@@ -3906,14 +3908,15 @@ encode_pubsub_options_attr_subid(_val, _acc) ->
 decode_pubsub_options_attr_jid(__TopXMLNS, undefined) ->
     undefined;
 decode_pubsub_options_attr_jid(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
+    try jid:decode(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"jid">>,
                            <<"options">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_pubsub_options_attr_jid(undefined, _acc) -> _acc;
@@ -4107,14 +4110,15 @@ decode_pubsub_unsubscribe_attr_jid(__TopXMLNS,
                    <<"unsubscribe">>,
                    __TopXMLNS}});
 decode_pubsub_unsubscribe_attr_jid(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
+    try jid:decode(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"jid">>,
                            <<"unsubscribe">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_pubsub_unsubscribe_attr_jid(_val, _acc) ->
@@ -4182,14 +4186,15 @@ decode_pubsub_subscribe_attr_jid(__TopXMLNS,
                    <<"subscribe">>,
                    __TopXMLNS}});
 decode_pubsub_subscribe_attr_jid(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
+    try jid:decode(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"jid">>,
                            <<"subscribe">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_pubsub_subscribe_attr_jid(_val, _acc) ->
@@ -5096,14 +5101,15 @@ decode_pubsub_items_attr_max_items(__TopXMLNS,
                                    undefined) ->
     undefined;
 decode_pubsub_items_attr_max_items(__TopXMLNS, _val) ->
-    case catch dec_int(_val, 0, infinity) of
-        {'EXIT', _} ->
+    try dec_int(_val, 0, infinity) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"max_items">>,
                            <<"items">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_pubsub_items_attr_max_items(undefined, _acc) ->
@@ -5472,14 +5478,15 @@ decode_pubsub_owner_affiliation_attr_jid(__TopXMLNS,
                    __TopXMLNS}});
 decode_pubsub_owner_affiliation_attr_jid(__TopXMLNS,
                                          _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
+    try jid:decode(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"jid">>,
                            <<"affiliation">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_pubsub_owner_affiliation_attr_jid(_val, _acc) ->
@@ -5501,14 +5508,15 @@ decode_pubsub_owner_affiliation_attr_affiliation(__TopXMLNS,
                    __TopXMLNS}});
 decode_pubsub_owner_affiliation_attr_affiliation(__TopXMLNS,
                                                  _val) ->
-    case catch dec_ps_aff(_val) of
-        {'EXIT', _} ->
+    try dec_ps_aff(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"affiliation">>,
                            <<"affiliation">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_pubsub_owner_affiliation_attr_affiliation(_val,
@@ -5609,14 +5617,15 @@ decode_pubsub_affiliation_attr_affiliation(__TopXMLNS,
                    __TopXMLNS}});
 decode_pubsub_affiliation_attr_affiliation(__TopXMLNS,
                                            _val) ->
-    case catch dec_ps_aff(_val) of
-        {'EXIT', _} ->
+    try dec_ps_aff(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"affiliation">>,
                            <<"affiliation">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_pubsub_affiliation_attr_affiliation(_val,
@@ -5770,14 +5779,15 @@ decode_pubsub_subscription_attr_jid(__TopXMLNS,
                    <<"subscription">>,
                    __TopXMLNS}});
 decode_pubsub_subscription_attr_jid(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
+    try jid:decode(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"jid">>,
                            <<"subscription">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_pubsub_subscription_attr_jid(_val, _acc) ->
@@ -5812,16 +5822,17 @@ decode_pubsub_subscription_attr_subscription(__TopXMLNS,
     undefined;
 decode_pubsub_subscription_attr_subscription(__TopXMLNS,
                                              _val) ->
-    case catch dec_enum(_val,
-                        [none, pending, subscribed, unconfigured])
-        of
-        {'EXIT', _} ->
+    try dec_enum(_val,
+                 [none, pending, subscribed, unconfigured])
+    of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"subscription">>,
                            <<"subscription">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_pubsub_subscription_attr_subscription(undefined,
@@ -5836,14 +5847,15 @@ decode_pubsub_subscription_attr_expiry(__TopXMLNS,
     undefined;
 decode_pubsub_subscription_attr_expiry(__TopXMLNS,
                                        _val) ->
-    case catch dec_utc(_val) of
-        {'EXIT', _} ->
+    try dec_utc(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"expiry">>,
                            <<"subscription">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_pubsub_subscription_attr_expiry(undefined,

@@ -367,16 +367,15 @@ decode_privilege_perm_attr_access(__TopXMLNS,
     erlang:error({xmpp_codec,
                   {missing_attr, <<"access">>, <<"perm">>, __TopXMLNS}});
 decode_privilege_perm_attr_access(__TopXMLNS, _val) ->
-    case catch dec_enum(_val,
-                        [iq, roster, message, presence])
-        of
-        {'EXIT', _} ->
+    try dec_enum(_val, [iq, roster, message, presence]) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"access">>,
                            <<"perm">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_privilege_perm_attr_access(_val, _acc) ->
@@ -386,22 +385,20 @@ decode_privilege_perm_attr_type(__TopXMLNS,
                                 undefined) ->
     undefined;
 decode_privilege_perm_attr_type(__TopXMLNS, _val) ->
-    case catch dec_enum(_val,
-                        [none,
-                         get,
-                         set,
-                         both,
-                         outgoing,
-                         roster,
-                         managed_entity])
-        of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_attr_value,
-                           <<"type">>,
-                           <<"perm">>,
-                           __TopXMLNS}});
+    try dec_enum(_val,
+                 [none,
+                  get,
+                  set,
+                  both,
+                  outgoing,
+                  roster,
+                  managed_entity])
+    of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value, <<"type">>, <<"perm">>, __TopXMLNS}})
     end.
 
 encode_privilege_perm_attr_type(undefined, _acc) ->
@@ -413,14 +410,12 @@ decode_privilege_perm_attr_push(__TopXMLNS,
                                 undefined) ->
     true;
 decode_privilege_perm_attr_push(__TopXMLNS, _val) ->
-    case catch dec_bool(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_attr_value,
-                           <<"push">>,
-                           <<"perm">>,
-                           __TopXMLNS}});
+    try dec_bool(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value, <<"push">>, <<"perm">>, __TopXMLNS}})
     end.
 
 encode_privilege_perm_attr_push(true, _acc) -> _acc;
@@ -493,14 +488,15 @@ decode_privilege_namespace_attr_type(__TopXMLNS,
                    __TopXMLNS}});
 decode_privilege_namespace_attr_type(__TopXMLNS,
                                      _val) ->
-    case catch dec_enum(_val, [none, get, set, both]) of
-        {'EXIT', _} ->
+    try dec_enum(_val, [none, get, set, both]) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"type">>,
                            <<"namespace">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_privilege_namespace_attr_type(_val, _acc) ->

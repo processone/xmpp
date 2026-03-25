@@ -265,11 +265,12 @@ decode_disco_item_attr_jid(__TopXMLNS, undefined) ->
     erlang:error({xmpp_codec,
                   {missing_attr, <<"jid">>, <<"item">>, __TopXMLNS}});
 decode_disco_item_attr_jid(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_attr_value, <<"jid">>, <<"item">>, __TopXMLNS}});
+    try jid:decode(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value, <<"jid">>, <<"item">>, __TopXMLNS}})
     end.
 
 encode_disco_item_attr_jid(_val, _acc) ->
@@ -609,14 +610,15 @@ encode_disco_identity_attr_type(_val, _acc) ->
     <<>>;
 'decode_disco_identity_attr_xml:lang'(__TopXMLNS,
                                       _val) ->
-    case catch xmpp_lang:check(_val) of
-        {'EXIT', _} ->
+    try xmpp_lang:check(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"xml:lang">>,
                            <<"identity">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 'encode_disco_identity_attr_xml:lang'(<<>>, _acc) ->

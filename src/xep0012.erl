@@ -80,14 +80,15 @@ encode_last({last, Seconds, Status}, __TopXMLNS) ->
 decode_last_attr_seconds(__TopXMLNS, undefined) ->
     undefined;
 decode_last_attr_seconds(__TopXMLNS, _val) ->
-    case catch dec_int(_val, 0, infinity) of
-        {'EXIT', _} ->
+    try dec_int(_val, 0, infinity) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"seconds">>,
                            <<"query">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_last_attr_seconds(undefined, _acc) -> _acc;

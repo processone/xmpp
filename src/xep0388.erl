@@ -1352,14 +1352,15 @@ decode_sasl2_authorization_identifier_cdata(__TopXMLNS,
                    __TopXMLNS}});
 decode_sasl2_authorization_identifier_cdata(__TopXMLNS,
                                             _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
+    try jid:decode(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_cdata_value,
                            <<>>,
                            <<"authorization-identifier">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_sasl2_authorization_identifier_cdata(_val,
@@ -1403,14 +1404,15 @@ encode_sasl2_additional_data(Text, __TopXMLNS) ->
 decode_sasl2_additional_data_cdata(__TopXMLNS, <<>>) ->
     <<>>;
 decode_sasl2_additional_data_cdata(__TopXMLNS, _val) ->
-    case catch base64:mime_decode(_val) of
-        {'EXIT', _} ->
+    try base64:mime_decode(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_cdata_value,
                            <<>>,
                            <<"additional-data">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_sasl2_additional_data_cdata(<<>>, _acc) -> _acc;
@@ -1608,11 +1610,12 @@ encode_sasl2_response({sasl2_response, Text},
 
 decode_sasl2_response_cdata(__TopXMLNS, <<>>) -> <<>>;
 decode_sasl2_response_cdata(__TopXMLNS, _val) ->
-    case catch base64:mime_decode(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_cdata_value, <<>>, <<"response">>, __TopXMLNS}});
+    try base64:mime_decode(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_cdata_value, <<>>, <<"response">>, __TopXMLNS}})
     end.
 
 encode_sasl2_response_cdata(<<>>, _acc) -> _acc;
@@ -1656,14 +1659,12 @@ encode_sasl2_challenge({sasl2_challenge, Text},
 
 decode_sasl2_challenge_cdata(__TopXMLNS, <<>>) -> <<>>;
 decode_sasl2_challenge_cdata(__TopXMLNS, _val) ->
-    case catch base64:mime_decode(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_cdata_value,
-                           <<>>,
-                           <<"challenge">>,
-                           __TopXMLNS}});
+    try base64:mime_decode(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_cdata_value, <<>>, <<"challenge">>, __TopXMLNS}})
     end.
 
 encode_sasl2_challenge_cdata(<<>>, _acc) -> _acc;
@@ -1924,14 +1925,15 @@ encode_sasl2_initial_response(Text, __TopXMLNS) ->
 decode_sasl2_initial_response_cdata(__TopXMLNS, <<>>) ->
     <<>>;
 decode_sasl2_initial_response_cdata(__TopXMLNS, _val) ->
-    case catch base64:mime_decode(_val) of
-        {'EXIT', _} ->
+    try base64:mime_decode(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_cdata_value,
                            <<>>,
                            <<"initial-response">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_sasl2_initial_response_cdata(<<>>, _acc) -> _acc;

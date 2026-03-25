@@ -349,14 +349,15 @@ encode_adhoc_command_attr_node(_val, _acc) ->
     <<>>;
 'decode_adhoc_command_attr_xml:lang'(__TopXMLNS,
                                      _val) ->
-    case catch xmpp_lang:check(_val) of
-        {'EXIT', _} ->
+    try xmpp_lang:check(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"xml:lang">>,
                            <<"command">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 'encode_adhoc_command_attr_xml:lang'(<<>>, _acc) ->
@@ -378,16 +379,15 @@ decode_adhoc_command_attr_status(__TopXMLNS,
                                  undefined) ->
     undefined;
 decode_adhoc_command_attr_status(__TopXMLNS, _val) ->
-    case catch dec_enum(_val,
-                        [canceled, completed, executing])
-        of
-        {'EXIT', _} ->
+    try dec_enum(_val, [canceled, completed, executing]) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"status">>,
                            <<"command">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_adhoc_command_attr_status(undefined, _acc) ->
@@ -399,16 +399,17 @@ decode_adhoc_command_attr_action(__TopXMLNS,
                                  undefined) ->
     execute;
 decode_adhoc_command_attr_action(__TopXMLNS, _val) ->
-    case catch dec_enum(_val,
-                        [cancel, complete, execute, next, prev])
-        of
-        {'EXIT', _} ->
+    try dec_enum(_val,
+                 [cancel, complete, execute, next, prev])
+    of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"action">>,
                            <<"command">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_adhoc_command_attr_action(execute, _acc) -> _acc;
@@ -473,14 +474,12 @@ decode_adhoc_command_notes_attr_type(__TopXMLNS,
     info;
 decode_adhoc_command_notes_attr_type(__TopXMLNS,
                                      _val) ->
-    case catch dec_enum(_val, [info, warn, error]) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_attr_value,
-                           <<"type">>,
-                           <<"note">>,
-                           __TopXMLNS}});
+    try dec_enum(_val, [info, warn, error]) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value, <<"type">>, <<"note">>, __TopXMLNS}})
     end.
 
 encode_adhoc_command_notes_attr_type(info, _acc) ->
@@ -663,14 +662,15 @@ decode_adhoc_command_actions_attr_execute(__TopXMLNS,
     undefined;
 decode_adhoc_command_actions_attr_execute(__TopXMLNS,
                                           _val) ->
-    case catch dec_enum(_val, [complete, next, prev]) of
-        {'EXIT', _} ->
+    try dec_enum(_val, [complete, next, prev]) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"execute">>,
                            <<"actions">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_adhoc_command_actions_attr_execute(undefined,

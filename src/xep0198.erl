@@ -840,11 +840,12 @@ encode_sm_failed({sm_failed, Reason, Text, H, Xmlns},
 decode_sm_failed_attr_h(__TopXMLNS, undefined) ->
     undefined;
 decode_sm_failed_attr_h(__TopXMLNS, _val) ->
-    case catch dec_int(_val, 0, infinity) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_attr_value, <<"h">>, <<"failed">>, __TopXMLNS}});
+    try dec_int(_val, 0, infinity) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value, <<"h">>, <<"failed">>, __TopXMLNS}})
     end.
 
 encode_sm_failed_attr_h(undefined, _acc) -> _acc;
@@ -890,11 +891,12 @@ decode_sm_a_attr_h(__TopXMLNS, undefined) ->
     erlang:error({xmpp_codec,
                   {missing_attr, <<"h">>, <<"a">>, __TopXMLNS}});
 decode_sm_a_attr_h(__TopXMLNS, _val) ->
-    case catch dec_int(_val, 0, infinity) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_attr_value, <<"h">>, <<"a">>, __TopXMLNS}});
+    try dec_int(_val, 0, infinity) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value, <<"h">>, <<"a">>, __TopXMLNS}})
     end.
 
 encode_sm_a_attr_h(_val, _acc) ->
@@ -991,14 +993,12 @@ decode_sm_resumed_attr_h(__TopXMLNS, undefined) ->
     erlang:error({xmpp_codec,
                   {missing_attr, <<"h">>, <<"resumed">>, __TopXMLNS}});
 decode_sm_resumed_attr_h(__TopXMLNS, _val) ->
-    case catch dec_int(_val, 0, infinity) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_attr_value,
-                           <<"h">>,
-                           <<"resumed">>,
-                           __TopXMLNS}});
+    try dec_int(_val, 0, infinity) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value, <<"h">>, <<"resumed">>, __TopXMLNS}})
     end.
 
 encode_sm_resumed_attr_h(_val, _acc) ->
@@ -1079,11 +1079,12 @@ decode_sm_resume_attr_h(__TopXMLNS, undefined) ->
     erlang:error({xmpp_codec,
                   {missing_attr, <<"h">>, <<"resume">>, __TopXMLNS}});
 decode_sm_resume_attr_h(__TopXMLNS, _val) ->
-    case catch dec_int(_val, 0, infinity) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_attr_value, <<"h">>, <<"resume">>, __TopXMLNS}});
+    try dec_int(_val, 0, infinity) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value, <<"h">>, <<"resume">>, __TopXMLNS}})
     end.
 
 encode_sm_resume_attr_h(_val, _acc) ->
@@ -1228,14 +1229,15 @@ decode_sm_enabled_attr_xmlns(__TopXMLNS, _val) -> _val.
 decode_sm_enabled_attr_max(__TopXMLNS, undefined) ->
     undefined;
 decode_sm_enabled_attr_max(__TopXMLNS, _val) ->
-    case catch dec_int(_val, 0, infinity) of
-        {'EXIT', _} ->
+    try dec_int(_val, 0, infinity) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"max">>,
                            <<"enabled">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_sm_enabled_attr_max(undefined, _acc) -> _acc;
@@ -1245,14 +1247,15 @@ encode_sm_enabled_attr_max(_val, _acc) ->
 decode_sm_enabled_attr_resume(__TopXMLNS, undefined) ->
     false;
 decode_sm_enabled_attr_resume(__TopXMLNS, _val) ->
-    case catch dec_bool(_val) of
-        {'EXIT', _} ->
+    try dec_bool(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"resume">>,
                            <<"enabled">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_sm_enabled_attr_resume(false, _acc) -> _acc;
@@ -1319,14 +1322,15 @@ encode_sm_enable({sm_enable, Max, Resume, Xmlns},
 decode_sm_enable_attr_max(__TopXMLNS, undefined) ->
     undefined;
 decode_sm_enable_attr_max(__TopXMLNS, _val) ->
-    case catch dec_int(_val, 0, infinity) of
-        {'EXIT', _} ->
+    try dec_int(_val, 0, infinity) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"max">>,
                            <<"enable">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_sm_enable_attr_max(undefined, _acc) -> _acc;
@@ -1340,14 +1344,15 @@ decode_sm_enable_attr_xmlns(__TopXMLNS, _val) -> _val.
 decode_sm_enable_attr_resume(__TopXMLNS, undefined) ->
     false;
 decode_sm_enable_attr_resume(__TopXMLNS, _val) ->
-    case catch dec_bool(_val) of
-        {'EXIT', _} ->
+    try dec_bool(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"resume">>,
                            <<"enable">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_sm_enable_attr_resume(false, _acc) -> _acc;

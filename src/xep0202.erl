@@ -149,11 +149,12 @@ encode_time_tzo(Cdata, __TopXMLNS) ->
 
 decode_time_tzo_cdata(__TopXMLNS, <<>>) -> undefined;
 decode_time_tzo_cdata(__TopXMLNS, _val) ->
-    case catch dec_tzo(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_cdata_value, <<>>, <<"tzo">>, __TopXMLNS}});
+    try dec_tzo(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_cdata_value, <<>>, <<"tzo">>, __TopXMLNS}})
     end.
 
 encode_time_tzo_cdata(undefined, _acc) -> _acc;
@@ -192,11 +193,12 @@ encode_time_utc(Cdata, __TopXMLNS) ->
 
 decode_time_utc_cdata(__TopXMLNS, <<>>) -> undefined;
 decode_time_utc_cdata(__TopXMLNS, _val) ->
-    case catch dec_utc(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_cdata_value, <<>>, <<"utc">>, __TopXMLNS}});
+    try dec_utc(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_cdata_value, <<>>, <<"utc">>, __TopXMLNS}})
     end.
 
 encode_time_utc_cdata(undefined, _acc) -> _acc;

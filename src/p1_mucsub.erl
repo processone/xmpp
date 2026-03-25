@@ -141,14 +141,15 @@ decode_muc_unsubscribe_attr_jid(__TopXMLNS,
                                 undefined) ->
     undefined;
 decode_muc_unsubscribe_attr_jid(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
+    try jid:decode(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"jid">>,
                            <<"unsubscribe">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_muc_unsubscribe_attr_jid(undefined, _acc) ->
@@ -295,14 +296,15 @@ encode_muc_subscribe_attr_password(_val, _acc) ->
 decode_muc_subscribe_attr_jid(__TopXMLNS, undefined) ->
     undefined;
 decode_muc_subscribe_attr_jid(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
+    try jid:decode(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"jid">>,
                            <<"subscribe">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_muc_subscribe_attr_jid(undefined, _acc) -> _acc;
@@ -516,14 +518,15 @@ decode_muc_subscription_attr_jid(__TopXMLNS,
                                  undefined) ->
     undefined;
 decode_muc_subscription_attr_jid(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
+    try jid:decode(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"jid">>,
                            <<"subscription">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_muc_subscription_attr_jid(undefined, _acc) ->

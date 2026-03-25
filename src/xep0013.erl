@@ -250,14 +250,15 @@ decode_offline_item_attr_action(__TopXMLNS,
                                 undefined) ->
     undefined;
 decode_offline_item_attr_action(__TopXMLNS, _val) ->
-    case catch dec_enum(_val, [view, remove]) of
-        {'EXIT', _} ->
+    try dec_enum(_val, [view, remove]) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"action">>,
                            <<"item">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_offline_item_attr_action(undefined, _acc) ->

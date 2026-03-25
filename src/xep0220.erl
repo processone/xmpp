@@ -298,14 +298,15 @@ decode_db_verify_attr_from(__TopXMLNS, undefined) ->
                    <<"db:verify">>,
                    __TopXMLNS}});
 decode_db_verify_attr_from(__TopXMLNS, _val) ->
-    case catch nameprep(_val) of
-        {'EXIT', _} ->
+    try nameprep(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"from">>,
                            <<"db:verify">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_db_verify_attr_from(_val, _acc) ->
@@ -315,14 +316,15 @@ decode_db_verify_attr_to(__TopXMLNS, undefined) ->
     erlang:error({xmpp_codec,
                   {missing_attr, <<"to">>, <<"db:verify">>, __TopXMLNS}});
 decode_db_verify_attr_to(__TopXMLNS, _val) ->
-    case catch nameprep(_val) of
-        {'EXIT', _} ->
+    try nameprep(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"to">>,
                            <<"db:verify">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_db_verify_attr_to(_val, _acc) ->
@@ -339,14 +341,15 @@ encode_db_verify_attr_id(_val, _acc) ->
 decode_db_verify_attr_type(__TopXMLNS, undefined) ->
     undefined;
 decode_db_verify_attr_type(__TopXMLNS, _val) ->
-    case catch dec_enum(_val, [valid, invalid, error]) of
-        {'EXIT', _} ->
+    try dec_enum(_val, [valid, invalid, error]) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"type">>,
                            <<"db:verify">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_db_verify_attr_type(undefined, _acc) -> _acc;
@@ -480,14 +483,15 @@ decode_db_result_attr_from(__TopXMLNS, undefined) ->
                    <<"db:result">>,
                    __TopXMLNS}});
 decode_db_result_attr_from(__TopXMLNS, _val) ->
-    case catch nameprep(_val) of
-        {'EXIT', _} ->
+    try nameprep(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"from">>,
                            <<"db:result">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_db_result_attr_from(_val, _acc) ->
@@ -497,14 +501,15 @@ decode_db_result_attr_to(__TopXMLNS, undefined) ->
     erlang:error({xmpp_codec,
                   {missing_attr, <<"to">>, <<"db:result">>, __TopXMLNS}});
 decode_db_result_attr_to(__TopXMLNS, _val) ->
-    case catch nameprep(_val) of
-        {'EXIT', _} ->
+    try nameprep(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"to">>,
                            <<"db:result">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_db_result_attr_to(_val, _acc) ->
@@ -513,14 +518,15 @@ encode_db_result_attr_to(_val, _acc) ->
 decode_db_result_attr_type(__TopXMLNS, undefined) ->
     undefined;
 decode_db_result_attr_type(__TopXMLNS, _val) ->
-    case catch dec_enum(_val, [valid, invalid, error]) of
-        {'EXIT', _} ->
+    try dec_enum(_val, [valid, invalid, error]) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"type">>,
                            <<"db:result">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_db_result_attr_type(undefined, _acc) -> _acc;

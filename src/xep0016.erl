@@ -669,14 +669,15 @@ decode_privacy_item_attr_action(__TopXMLNS,
     erlang:error({xmpp_codec,
                   {missing_attr, <<"action">>, <<"item">>, __TopXMLNS}});
 decode_privacy_item_attr_action(__TopXMLNS, _val) ->
-    case catch dec_enum(_val, [allow, deny]) of
-        {'EXIT', _} ->
+    try dec_enum(_val, [allow, deny]) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"action">>,
                            <<"item">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_privacy_item_attr_action(_val, _acc) ->
@@ -686,14 +687,15 @@ decode_privacy_item_attr_order(__TopXMLNS, undefined) ->
     erlang:error({xmpp_codec,
                   {missing_attr, <<"order">>, <<"item">>, __TopXMLNS}});
 decode_privacy_item_attr_order(__TopXMLNS, _val) ->
-    case catch dec_int(_val, 0, infinity) of
-        {'EXIT', _} ->
+    try dec_int(_val, 0, infinity) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"order">>,
                            <<"item">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_privacy_item_attr_order(_val, _acc) ->
@@ -702,14 +704,12 @@ encode_privacy_item_attr_order(_val, _acc) ->
 decode_privacy_item_attr_type(__TopXMLNS, undefined) ->
     undefined;
 decode_privacy_item_attr_type(__TopXMLNS, _val) ->
-    case catch dec_enum(_val, [group, jid, subscription]) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_attr_value,
-                           <<"type">>,
-                           <<"item">>,
-                           __TopXMLNS}});
+    try dec_enum(_val, [group, jid, subscription]) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value, <<"type">>, <<"item">>, __TopXMLNS}})
     end.
 
 encode_privacy_item_attr_type(undefined, _acc) -> _acc;

@@ -364,14 +364,15 @@ encode_upload_retry({upload_retry, Stamp},
 decode_upload_retry_attr_stamp(__TopXMLNS, undefined) ->
     undefined;
 decode_upload_retry_attr_stamp(__TopXMLNS, _val) ->
-    case catch dec_utc(_val) of
-        {'EXIT', _} ->
+    try dec_utc(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"stamp">>,
                            <<"retry">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_upload_retry_attr_stamp(undefined, _acc) -> _acc;
@@ -524,14 +525,15 @@ decode_upload_max_file_size_cdata(__TopXMLNS, <<>>) ->
                    <<"max-file-size">>,
                    __TopXMLNS}});
 decode_upload_max_file_size_cdata(__TopXMLNS, _val) ->
-    case catch dec_int(_val) of
-        {'EXIT', _} ->
+    try dec_int(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_cdata_value,
                            <<>>,
                            <<"max-file-size">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_upload_max_file_size_cdata(_val, _acc) ->
@@ -952,14 +954,15 @@ decode_upload_request_0_attr_size(__TopXMLNS,
     erlang:error({xmpp_codec,
                   {missing_attr, <<"size">>, <<"request">>, __TopXMLNS}});
 decode_upload_request_0_attr_size(__TopXMLNS, _val) ->
-    case catch dec_int(_val, 1, infinity) of
-        {'EXIT', _} ->
+    try dec_int(_val, 1, infinity) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"size">>,
                            <<"request">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_upload_request_0_attr_size(_val, _acc) ->
@@ -1448,11 +1451,12 @@ decode_upload_size_cdata(__TopXMLNS, <<>>) ->
     erlang:error({xmpp_codec,
                   {missing_cdata, <<>>, <<"size">>, __TopXMLNS}});
 decode_upload_size_cdata(__TopXMLNS, _val) ->
-    case catch dec_int(_val, 0, infinity) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_cdata_value, <<>>, <<"size">>, __TopXMLNS}});
+    try dec_int(_val, 0, infinity) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_cdata_value, <<>>, <<"size">>, __TopXMLNS}})
     end.
 
 encode_upload_size_cdata(_val, _acc) ->

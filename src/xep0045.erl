@@ -573,14 +573,12 @@ decode_muc_admin_actor_attr_jid(__TopXMLNS,
                                 undefined) ->
     undefined;
 decode_muc_admin_actor_attr_jid(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_attr_value,
-                           <<"jid">>,
-                           <<"actor">>,
-                           __TopXMLNS}});
+    try jid:decode(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value, <<"jid">>, <<"actor">>, __TopXMLNS}})
     end.
 
 encode_muc_admin_actor_attr_jid(undefined, _acc) ->
@@ -833,16 +831,17 @@ decode_muc_admin_item_attr_affiliation(__TopXMLNS,
     undefined;
 decode_muc_admin_item_attr_affiliation(__TopXMLNS,
                                        _val) ->
-    case catch dec_enum(_val,
-                        [admin, member, none, outcast, owner])
-        of
-        {'EXIT', _} ->
+    try dec_enum(_val,
+                 [admin, member, none, outcast, owner])
+    of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"affiliation">>,
                            <<"item">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_muc_admin_item_attr_affiliation(undefined,
@@ -855,16 +854,14 @@ decode_muc_admin_item_attr_role(__TopXMLNS,
                                 undefined) ->
     undefined;
 decode_muc_admin_item_attr_role(__TopXMLNS, _val) ->
-    case catch dec_enum(_val,
-                        [moderator, none, participant, visitor])
-        of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_attr_value,
-                           <<"role">>,
-                           <<"item">>,
-                           __TopXMLNS}});
+    try dec_enum(_val,
+                 [moderator, none, participant, visitor])
+    of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value, <<"role">>, <<"item">>, __TopXMLNS}})
     end.
 
 encode_muc_admin_item_attr_role(undefined, _acc) ->
@@ -875,11 +872,12 @@ encode_muc_admin_item_attr_role(_val, _acc) ->
 decode_muc_admin_item_attr_jid(__TopXMLNS, undefined) ->
     undefined;
 decode_muc_admin_item_attr_jid(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_attr_value, <<"jid">>, <<"item">>, __TopXMLNS}});
+    try jid:decode(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value, <<"jid">>, <<"item">>, __TopXMLNS}})
     end.
 
 encode_muc_admin_item_attr_jid(undefined, _acc) -> _acc;
@@ -1131,16 +1129,17 @@ decode_muc_owner_item_attr_affiliation(__TopXMLNS,
     undefined;
 decode_muc_owner_item_attr_affiliation(__TopXMLNS,
                                        _val) ->
-    case catch dec_enum(_val,
-                        [admin, member, none, outcast, owner])
-        of
-        {'EXIT', _} ->
+    try dec_enum(_val,
+                 [admin, member, none, outcast, owner])
+    of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"affiliation">>,
                            <<"item">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_muc_owner_item_attr_affiliation(undefined,
@@ -1153,16 +1152,14 @@ decode_muc_owner_item_attr_role(__TopXMLNS,
                                 undefined) ->
     undefined;
 decode_muc_owner_item_attr_role(__TopXMLNS, _val) ->
-    case catch dec_enum(_val,
-                        [moderator, none, participant, visitor])
-        of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_attr_value,
-                           <<"role">>,
-                           <<"item">>,
-                           __TopXMLNS}});
+    try dec_enum(_val,
+                 [moderator, none, participant, visitor])
+    of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value, <<"role">>, <<"item">>, __TopXMLNS}})
     end.
 
 encode_muc_owner_item_attr_role(undefined, _acc) ->
@@ -1173,11 +1170,12 @@ encode_muc_owner_item_attr_role(_val, _acc) ->
 decode_muc_owner_item_attr_jid(__TopXMLNS, undefined) ->
     undefined;
 decode_muc_owner_item_attr_jid(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_attr_value, <<"jid">>, <<"item">>, __TopXMLNS}});
+    try jid:decode(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value, <<"jid">>, <<"item">>, __TopXMLNS}})
     end.
 
 encode_muc_owner_item_attr_jid(undefined, _acc) -> _acc;
@@ -1964,16 +1962,17 @@ decode_muc_user_item_attr_affiliation(__TopXMLNS,
     undefined;
 decode_muc_user_item_attr_affiliation(__TopXMLNS,
                                       _val) ->
-    case catch dec_enum(_val,
-                        [admin, member, none, outcast, owner])
-        of
-        {'EXIT', _} ->
+    try dec_enum(_val,
+                 [admin, member, none, outcast, owner])
+    of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"affiliation">>,
                            <<"item">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_muc_user_item_attr_affiliation(undefined,
@@ -1985,16 +1984,14 @@ encode_muc_user_item_attr_affiliation(_val, _acc) ->
 decode_muc_user_item_attr_role(__TopXMLNS, undefined) ->
     undefined;
 decode_muc_user_item_attr_role(__TopXMLNS, _val) ->
-    case catch dec_enum(_val,
-                        [moderator, none, participant, visitor])
-        of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_attr_value,
-                           <<"role">>,
-                           <<"item">>,
-                           __TopXMLNS}});
+    try dec_enum(_val,
+                 [moderator, none, participant, visitor])
+    of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value, <<"role">>, <<"item">>, __TopXMLNS}})
     end.
 
 encode_muc_user_item_attr_role(undefined, _acc) -> _acc;
@@ -2004,11 +2001,12 @@ encode_muc_user_item_attr_role(_val, _acc) ->
 decode_muc_user_item_attr_jid(__TopXMLNS, undefined) ->
     undefined;
 decode_muc_user_item_attr_jid(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_attr_value, <<"jid">>, <<"item">>, __TopXMLNS}});
+    try jid:decode(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value, <<"jid">>, <<"item">>, __TopXMLNS}})
     end.
 
 encode_muc_user_item_attr_jid(undefined, _acc) -> _acc;
@@ -2055,14 +2053,15 @@ decode_muc_user_status_attr_code(__TopXMLNS,
                                  undefined) ->
     undefined;
 decode_muc_user_status_attr_code(__TopXMLNS, _val) ->
-    case catch dec_int(_val, 100, 999) of
-        {'EXIT', _} ->
+    try dec_int(_val, 100, 999) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"code">>,
                            <<"status">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_muc_user_status_attr_code(undefined, _acc) ->
@@ -2162,14 +2161,12 @@ encode_muc_user_actor({muc_actor, Jid, Nick},
 decode_muc_user_actor_attr_jid(__TopXMLNS, undefined) ->
     undefined;
 decode_muc_user_actor_attr_jid(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_attr_value,
-                           <<"jid">>,
-                           <<"actor">>,
-                           __TopXMLNS}});
+    try jid:decode(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value, <<"jid">>, <<"actor">>, __TopXMLNS}})
     end.
 
 encode_muc_user_actor_attr_jid(undefined, _acc) -> _acc;
@@ -2333,14 +2330,12 @@ encode_muc_user_invite({muc_invite,
 decode_muc_user_invite_attr_to(__TopXMLNS, undefined) ->
     undefined;
 decode_muc_user_invite_attr_to(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_attr_value,
-                           <<"to">>,
-                           <<"invite">>,
-                           __TopXMLNS}});
+    try jid:decode(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value, <<"to">>, <<"invite">>, __TopXMLNS}})
     end.
 
 encode_muc_user_invite_attr_to(undefined, _acc) -> _acc;
@@ -2351,14 +2346,15 @@ decode_muc_user_invite_attr_from(__TopXMLNS,
                                  undefined) ->
     undefined;
 decode_muc_user_invite_attr_from(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
+    try jid:decode(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"from">>,
                            <<"invite">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_muc_user_invite_attr_from(undefined, _acc) ->
@@ -2522,14 +2518,15 @@ encode_muc_destroy({muc_destroy,
 decode_muc_destroy_attr_jid(__TopXMLNS, undefined) ->
     undefined;
 decode_muc_destroy_attr_jid(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
+    try jid:decode(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"jid">>,
                            <<"destroy">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_muc_destroy_attr_jid(undefined, _acc) -> _acc;
@@ -2646,14 +2643,15 @@ decode_muc_user_decline_attr_to(__TopXMLNS,
                                 undefined) ->
     undefined;
 decode_muc_user_decline_attr_to(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
+    try jid:decode(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"to">>,
                            <<"decline">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_muc_user_decline_attr_to(undefined, _acc) ->
@@ -2665,14 +2663,15 @@ decode_muc_user_decline_attr_from(__TopXMLNS,
                                   undefined) ->
     undefined;
 decode_muc_user_decline_attr_from(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
+    try jid:decode(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"from">>,
                            <<"decline">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_muc_user_decline_attr_from(undefined, _acc) ->
@@ -2804,14 +2803,15 @@ decode_muc_history_attr_maxchars(__TopXMLNS,
                                  undefined) ->
     undefined;
 decode_muc_history_attr_maxchars(__TopXMLNS, _val) ->
-    case catch dec_int(_val, 0, infinity) of
-        {'EXIT', _} ->
+    try dec_int(_val, 0, infinity) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"maxchars">>,
                            <<"history">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_muc_history_attr_maxchars(undefined, _acc) ->
@@ -2823,14 +2823,15 @@ decode_muc_history_attr_maxstanzas(__TopXMLNS,
                                    undefined) ->
     undefined;
 decode_muc_history_attr_maxstanzas(__TopXMLNS, _val) ->
-    case catch dec_int(_val, 0, infinity) of
-        {'EXIT', _} ->
+    try dec_int(_val, 0, infinity) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"maxstanzas">>,
                            <<"history">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_muc_history_attr_maxstanzas(undefined, _acc) ->
@@ -2842,14 +2843,15 @@ decode_muc_history_attr_seconds(__TopXMLNS,
                                 undefined) ->
     undefined;
 decode_muc_history_attr_seconds(__TopXMLNS, _val) ->
-    case catch dec_int(_val, 0, infinity) of
-        {'EXIT', _} ->
+    try dec_int(_val, 0, infinity) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"seconds">>,
                            <<"history">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_muc_history_attr_seconds(undefined, _acc) ->
@@ -2860,14 +2862,15 @@ encode_muc_history_attr_seconds(_val, _acc) ->
 decode_muc_history_attr_since(__TopXMLNS, undefined) ->
     undefined;
 decode_muc_history_attr_since(__TopXMLNS, _val) ->
-    case catch dec_utc(_val) of
-        {'EXIT', _} ->
+    try dec_utc(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"since">>,
                            <<"history">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_muc_history_attr_since(undefined, _acc) -> _acc;

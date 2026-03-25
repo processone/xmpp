@@ -349,14 +349,15 @@ decode_mam_fin_attr_xmlns(__TopXMLNS, _val) -> _val.
 decode_mam_fin_attr_stable(__TopXMLNS, undefined) ->
     undefined;
 decode_mam_fin_attr_stable(__TopXMLNS, _val) ->
-    case catch dec_bool(_val) of
-        {'EXIT', _} ->
+    try dec_bool(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"stable">>,
                            <<"fin">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_mam_fin_attr_stable(undefined, _acc) -> _acc;
@@ -366,14 +367,15 @@ encode_mam_fin_attr_stable(_val, _acc) ->
 decode_mam_fin_attr_complete(__TopXMLNS, undefined) ->
     undefined;
 decode_mam_fin_attr_complete(__TopXMLNS, _val) ->
-    case catch dec_bool(_val) of
-        {'EXIT', _} ->
+    try dec_bool(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"complete">>,
                            <<"fin">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_mam_fin_attr_complete(undefined, _acc) -> _acc;
@@ -553,14 +555,15 @@ encode_mam_prefs({mam_prefs,
 decode_mam_prefs_attr_default(__TopXMLNS, undefined) ->
     undefined;
 decode_mam_prefs_attr_default(__TopXMLNS, _val) ->
-    case catch dec_enum(_val, [always, never, roster]) of
-        {'EXIT', _} ->
+    try dec_enum(_val, [always, never, roster]) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"default">>,
                            <<"prefs">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_mam_prefs_attr_default(undefined, _acc) -> _acc;
@@ -759,11 +762,12 @@ decode_mam_jid_cdata(__TopXMLNS, <<>>) ->
     erlang:error({xmpp_codec,
                   {missing_cdata, <<>>, <<"jid">>, __TopXMLNS}});
 decode_mam_jid_cdata(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_cdata_value, <<>>, <<"jid">>, __TopXMLNS}});
+    try jid:decode(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_cdata_value, <<>>, <<"jid">>, __TopXMLNS}})
     end.
 
 encode_mam_jid_cdata(_val, _acc) ->
@@ -940,14 +944,15 @@ decode_mam_archived_attr_by(__TopXMLNS, undefined) ->
     erlang:error({xmpp_codec,
                   {missing_attr, <<"by">>, <<"archived">>, __TopXMLNS}});
 decode_mam_archived_attr_by(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
+    try jid:decode(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"by">>,
                            <<"archived">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_mam_archived_attr_by(_val, _acc) ->
@@ -1413,11 +1418,12 @@ decode_mam_with_cdata(__TopXMLNS, <<>>) ->
     erlang:error({xmpp_codec,
                   {missing_cdata, <<>>, <<"with">>, __TopXMLNS}});
 decode_mam_with_cdata(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_cdata_value, <<>>, <<"with">>, __TopXMLNS}});
+    try jid:decode(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_cdata_value, <<>>, <<"with">>, __TopXMLNS}})
     end.
 
 encode_mam_with_cdata(_val, _acc) ->
@@ -1457,11 +1463,12 @@ decode_mam_end_cdata(__TopXMLNS, <<>>) ->
     erlang:error({xmpp_codec,
                   {missing_cdata, <<>>, <<"end">>, __TopXMLNS}});
 decode_mam_end_cdata(__TopXMLNS, _val) ->
-    case catch dec_utc(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_cdata_value, <<>>, <<"end">>, __TopXMLNS}});
+    try dec_utc(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_cdata_value, <<>>, <<"end">>, __TopXMLNS}})
     end.
 
 encode_mam_end_cdata(_val, _acc) ->
@@ -1501,11 +1508,12 @@ decode_mam_start_cdata(__TopXMLNS, <<>>) ->
     erlang:error({xmpp_codec,
                   {missing_cdata, <<>>, <<"start">>, __TopXMLNS}});
 decode_mam_start_cdata(__TopXMLNS, _val) ->
-    case catch dec_utc(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_cdata_value, <<>>, <<"start">>, __TopXMLNS}});
+    try dec_utc(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_cdata_value, <<>>, <<"start">>, __TopXMLNS}})
     end.
 
 encode_mam_start_cdata(_val, _acc) ->

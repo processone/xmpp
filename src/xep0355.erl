@@ -149,11 +149,12 @@ decode_delegation_query_attr_to(__TopXMLNS,
     erlang:error({xmpp_codec,
                   {missing_attr, <<"to">>, <<"query">>, __TopXMLNS}});
 decode_delegation_query_attr_to(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_attr_value, <<"to">>, <<"query">>, __TopXMLNS}});
+    try jid:decode(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value, <<"to">>, <<"query">>, __TopXMLNS}})
     end.
 
 encode_delegation_query_attr_to(_val, _acc) ->

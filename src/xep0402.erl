@@ -268,14 +268,15 @@ decode_pep_bookmarks_conference_attr_autojoin(__TopXMLNS,
     false;
 decode_pep_bookmarks_conference_attr_autojoin(__TopXMLNS,
                                               _val) ->
-    case catch dec_bool(_val) of
-        {'EXIT', _} ->
+    try dec_bool(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"autojoin">>,
                            <<"conference">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_pep_bookmarks_conference_attr_autojoin(false,

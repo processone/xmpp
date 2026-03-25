@@ -143,14 +143,15 @@ encode_thumbnail_attr_uri(_val, _acc) ->
 decode_thumbnail_attr_width(__TopXMLNS, undefined) ->
     undefined;
 decode_thumbnail_attr_width(__TopXMLNS, _val) ->
-    case catch dec_int(_val, 0, infinity) of
-        {'EXIT', _} ->
+    try dec_int(_val, 0, infinity) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"width">>,
                            <<"thumbnail">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_thumbnail_attr_width(undefined, _acc) -> _acc;
@@ -160,14 +161,15 @@ encode_thumbnail_attr_width(_val, _acc) ->
 decode_thumbnail_attr_height(__TopXMLNS, undefined) ->
     undefined;
 decode_thumbnail_attr_height(__TopXMLNS, _val) ->
-    case catch dec_int(_val, 0, infinity) of
-        {'EXIT', _} ->
+    try dec_int(_val, 0, infinity) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"height">>,
                            <<"thumbnail">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_thumbnail_attr_height(undefined, _acc) -> _acc;

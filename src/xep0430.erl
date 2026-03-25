@@ -158,14 +158,12 @@ encode_inbox_fin({inbox_fin,
 decode_inbox_fin_attr_total(__TopXMLNS, undefined) ->
     undefined;
 decode_inbox_fin_attr_total(__TopXMLNS, _val) ->
-    case catch dec_int(_val, 0, infinity) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_attr_value,
-                           <<"total">>,
-                           <<"fin">>,
-                           __TopXMLNS}});
+    try dec_int(_val, 0, infinity) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value, <<"total">>, <<"fin">>, __TopXMLNS}})
     end.
 
 encode_inbox_fin_attr_total(undefined, _acc) -> _acc;
@@ -175,14 +173,15 @@ encode_inbox_fin_attr_total(_val, _acc) ->
 decode_inbox_fin_attr_unread(__TopXMLNS, undefined) ->
     undefined;
 decode_inbox_fin_attr_unread(__TopXMLNS, _val) ->
-    case catch dec_int(_val, 0, infinity) of
-        {'EXIT', _} ->
+    try dec_int(_val, 0, infinity) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"unread">>,
                            <<"fin">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_inbox_fin_attr_unread(undefined, _acc) -> _acc;
@@ -193,14 +192,15 @@ encode_inbox_fin_attr_unread(_val, _acc) ->
                                    undefined) ->
     undefined;
 'decode_inbox_fin_attr_all-unread'(__TopXMLNS, _val) ->
-    case catch dec_int(_val, 0, infinity) of
-        {'EXIT', _} ->
+    try dec_int(_val, 0, infinity) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"all-unread">>,
                            <<"fin">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 'encode_inbox_fin_attr_all-unread'(undefined, _acc) ->
@@ -268,14 +268,15 @@ encode_inbox_entry({inbox_entry, Unread, Jid, Id},
 decode_inbox_entry_attr_unread(__TopXMLNS, undefined) ->
     undefined;
 decode_inbox_entry_attr_unread(__TopXMLNS, _val) ->
-    case catch dec_int(_val, 0, infinity) of
-        {'EXIT', _} ->
+    try dec_int(_val, 0, infinity) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"unread">>,
                            <<"entry">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_inbox_entry_attr_unread(undefined, _acc) -> _acc;
@@ -285,14 +286,12 @@ encode_inbox_entry_attr_unread(_val, _acc) ->
 decode_inbox_entry_attr_jid(__TopXMLNS, undefined) ->
     undefined;
 decode_inbox_entry_attr_jid(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_attr_value,
-                           <<"jid">>,
-                           <<"entry">>,
-                           __TopXMLNS}});
+    try jid:decode(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value, <<"jid">>, <<"entry">>, __TopXMLNS}})
     end.
 
 encode_inbox_entry_attr_jid(undefined, _acc) -> _acc;

@@ -81,14 +81,15 @@ decode_delay_attr_stamp(__TopXMLNS, undefined) ->
     erlang:error({xmpp_codec,
                   {missing_attr, <<"stamp">>, <<"delay">>, __TopXMLNS}});
 decode_delay_attr_stamp(__TopXMLNS, _val) ->
-    case catch dec_utc(_val) of
-        {'EXIT', _} ->
+    try dec_utc(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"stamp">>,
                            <<"delay">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_delay_attr_stamp(_val, _acc) ->
@@ -97,14 +98,15 @@ encode_delay_attr_stamp(_val, _acc) ->
 decode_delay_attr_from(__TopXMLNS, undefined) ->
     undefined;
 decode_delay_attr_from(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
+    try jid:decode(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"from">>,
                            <<"delay">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_delay_attr_from(undefined, _acc) -> _acc;

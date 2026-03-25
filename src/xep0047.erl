@@ -168,11 +168,12 @@ decode_ibb_data_attr_seq(__TopXMLNS, undefined) ->
     erlang:error({xmpp_codec,
                   {missing_attr, <<"seq">>, <<"data">>, __TopXMLNS}});
 decode_ibb_data_attr_seq(__TopXMLNS, _val) ->
-    case catch dec_int(_val, 0, infinity) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_attr_value, <<"seq">>, <<"data">>, __TopXMLNS}});
+    try dec_int(_val, 0, infinity) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value, <<"seq">>, <<"data">>, __TopXMLNS}})
     end.
 
 encode_ibb_data_attr_seq(_val, _acc) ->
@@ -180,11 +181,12 @@ encode_ibb_data_attr_seq(_val, _acc) ->
 
 decode_ibb_data_cdata(__TopXMLNS, <<>>) -> <<>>;
 decode_ibb_data_cdata(__TopXMLNS, _val) ->
-    case catch base64:decode(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_cdata_value, <<>>, <<"data">>, __TopXMLNS}});
+    try base64:decode(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_cdata_value, <<>>, <<"data">>, __TopXMLNS}})
     end.
 
 encode_ibb_data_cdata(<<>>, _acc) -> _acc;
@@ -269,14 +271,15 @@ encode_ibb_open_attr_sid(_val, _acc) ->
                    <<"open">>,
                    __TopXMLNS}});
 'decode_ibb_open_attr_block-size'(__TopXMLNS, _val) ->
-    case catch dec_int(_val, 0, infinity) of
-        {'EXIT', _} ->
+    try dec_int(_val, 0, infinity) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"block-size">>,
                            <<"open">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 'encode_ibb_open_attr_block-size'(_val, _acc) ->
@@ -285,14 +288,15 @@ encode_ibb_open_attr_sid(_val, _acc) ->
 decode_ibb_open_attr_stanza(__TopXMLNS, undefined) ->
     iq;
 decode_ibb_open_attr_stanza(__TopXMLNS, _val) ->
-    case catch dec_enum(_val, [iq, message]) of
-        {'EXIT', _} ->
+    try dec_enum(_val, [iq, message]) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"stanza">>,
                            <<"open">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_ibb_open_attr_stanza(iq, _acc) -> _acc;

@@ -61,11 +61,12 @@ decode_jidprep_cdata(__TopXMLNS, <<>>) ->
     erlang:error({xmpp_codec,
                   {missing_cdata, <<>>, <<"jid">>, __TopXMLNS}});
 decode_jidprep_cdata(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_cdata_value, <<>>, <<"jid">>, __TopXMLNS}});
+    try jid:decode(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_cdata_value, <<>>, <<"jid">>, __TopXMLNS}})
     end.
 
 encode_jidprep_cdata(_val, _acc) ->

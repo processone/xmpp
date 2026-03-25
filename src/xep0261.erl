@@ -140,14 +140,15 @@ encode_jingle_ibb_transport_attr_sid(_val, _acc) ->
                    __TopXMLNS}});
 'decode_jingle_ibb_transport_attr_block-size'(__TopXMLNS,
                                               _val) ->
-    case catch dec_int(_val, 0, infinity) of
-        {'EXIT', _} ->
+    try dec_int(_val, 0, infinity) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"block-size">>,
                            <<"transport">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 'encode_jingle_ibb_transport_attr_block-size'(_val,
@@ -159,14 +160,15 @@ decode_jingle_ibb_transport_attr_stanza(__TopXMLNS,
     iq;
 decode_jingle_ibb_transport_attr_stanza(__TopXMLNS,
                                         _val) ->
-    case catch dec_enum(_val, [iq, message]) of
-        {'EXIT', _} ->
+    try dec_enum(_val, [iq, message]) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"stanza">>,
                            <<"transport">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_jingle_ibb_transport_attr_stanza(iq, _acc) ->

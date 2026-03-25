@@ -131,14 +131,15 @@ decode_pubsub_serverinfo_connection_attr_type(__TopXMLNS,
                    __TopXMLNS}});
 decode_pubsub_serverinfo_connection_attr_type(__TopXMLNS,
                                               _val) ->
-    case catch dec_enum(_val, [incoming, outgoing, bidi]) of
-        {'EXIT', _} ->
+    try dec_enum(_val, [incoming, outgoing, bidi]) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"type">>,
                            <<"connection">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_pubsub_serverinfo_connection_attr_type(_val,

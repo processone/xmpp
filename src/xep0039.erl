@@ -287,14 +287,15 @@ decode_stat_error_attr_code(__TopXMLNS, undefined) ->
     erlang:error({xmpp_codec,
                   {missing_attr, <<"code">>, <<"error">>, __TopXMLNS}});
 decode_stat_error_attr_code(__TopXMLNS, _val) ->
-    case catch dec_int(_val) of
-        {'EXIT', _} ->
+    try dec_int(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"code">>,
                            <<"error">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_stat_error_attr_code(_val, _acc) ->

@@ -383,14 +383,15 @@ decode_message_moderated_21_attr_by(__TopXMLNS,
                                     undefined) ->
     undefined;
 decode_message_moderated_21_attr_by(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
+    try jid:decode(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"by">>,
                            <<"moderated">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_message_moderated_21_attr_by(undefined, _acc) ->
@@ -620,14 +621,15 @@ decode_message_moderated_attr_by(__TopXMLNS,
                                  undefined) ->
     undefined;
 decode_message_moderated_attr_by(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
+    try jid:decode(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"by">>,
                            <<"moderated">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_message_moderated_attr_by(undefined, _acc) ->

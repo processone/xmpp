@@ -448,11 +448,12 @@ decode_roster_item_attr_jid(__TopXMLNS, undefined) ->
     erlang:error({xmpp_codec,
                   {missing_attr, <<"jid">>, <<"item">>, __TopXMLNS}});
 decode_roster_item_attr_jid(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_attr_value, <<"jid">>, <<"item">>, __TopXMLNS}});
+    try jid:decode(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value, <<"jid">>, <<"item">>, __TopXMLNS}})
     end.
 
 encode_roster_item_attr_jid(_val, _acc) ->
@@ -471,16 +472,15 @@ decode_roster_item_attr_subscription(__TopXMLNS,
     none;
 decode_roster_item_attr_subscription(__TopXMLNS,
                                      _val) ->
-    case catch dec_enum(_val,
-                        [none, to, from, both, remove])
-        of
-        {'EXIT', _} ->
+    try dec_enum(_val, [none, to, from, both, remove]) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"subscription">>,
                            <<"item">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_roster_item_attr_subscription(_val, _acc) ->
@@ -489,11 +489,12 @@ encode_roster_item_attr_subscription(_val, _acc) ->
 decode_roster_item_attr_ask(__TopXMLNS, undefined) ->
     undefined;
 decode_roster_item_attr_ask(__TopXMLNS, _val) ->
-    case catch dec_enum(_val, [subscribe]) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_attr_value, <<"ask">>, <<"item">>, __TopXMLNS}});
+    try dec_enum(_val, [subscribe]) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value, <<"ask">>, <<"item">>, __TopXMLNS}})
     end.
 
 encode_roster_item_attr_ask(undefined, _acc) -> _acc;
@@ -504,14 +505,15 @@ decode_roster_item_attr_approved(__TopXMLNS,
                                  undefined) ->
     false;
 decode_roster_item_attr_approved(__TopXMLNS, _val) ->
-    case catch dec_bool(_val) of
-        {'EXIT', _} ->
+    try dec_bool(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"approved">>,
                            <<"item">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_roster_item_attr_approved(false, _acc) -> _acc;

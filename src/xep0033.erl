@@ -285,16 +285,17 @@ decode_address_attr_type(__TopXMLNS, undefined) ->
     erlang:error({xmpp_codec,
                   {missing_attr, <<"type">>, <<"address">>, __TopXMLNS}});
 decode_address_attr_type(__TopXMLNS, _val) ->
-    case catch dec_enum(_val,
-                        [bcc, cc, noreply, ofrom, replyroom, replyto, to])
-        of
-        {'EXIT', _} ->
+    try dec_enum(_val,
+                 [bcc, cc, noreply, ofrom, replyroom, replyto, to])
+    of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"type">>,
                            <<"address">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_address_attr_type(_val, _acc) ->
@@ -303,14 +304,15 @@ encode_address_attr_type(_val, _acc) ->
 decode_address_attr_jid(__TopXMLNS, undefined) ->
     undefined;
 decode_address_attr_jid(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
+    try jid:decode(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"jid">>,
                            <<"address">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_address_attr_jid(undefined, _acc) -> _acc;
@@ -334,14 +336,15 @@ encode_address_attr_node(_val, _acc) ->
 decode_address_attr_delivered(__TopXMLNS, undefined) ->
     undefined;
 decode_address_attr_delivered(__TopXMLNS, _val) ->
-    case catch dec_bool(_val) of
-        {'EXIT', _} ->
+    try dec_bool(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"delivered">>,
                            <<"address">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_address_attr_delivered(undefined, _acc) -> _acc;

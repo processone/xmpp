@@ -246,14 +246,15 @@ encode_services({services, Type, List}, __TopXMLNS) ->
 decode_services_attr_type(__TopXMLNS, undefined) ->
     undefined;
 decode_services_attr_type(__TopXMLNS, _val) ->
-    case catch dec_enum(_val, [stun, turn, stuns, turns]) of
-        {'EXIT', _} ->
+    try dec_enum(_val, [stun, turn, stuns, turns]) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"type">>,
                            <<"services">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_services_attr_type(undefined, _acc) -> _acc;
@@ -553,14 +554,15 @@ encode_service({service,
 decode_service_attr_action(__TopXMLNS, undefined) ->
     undefined;
 decode_service_attr_action(__TopXMLNS, _val) ->
-    case catch dec_enum(_val, [add, remove, modify]) of
-        {'EXIT', _} ->
+    try dec_enum(_val, [add, remove, modify]) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"action">>,
                            <<"service">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_service_attr_action(undefined, _acc) -> _acc;
@@ -570,14 +572,15 @@ encode_service_attr_action(_val, _acc) ->
 decode_service_attr_expires(__TopXMLNS, undefined) ->
     undefined;
 decode_service_attr_expires(__TopXMLNS, _val) ->
-    case catch dec_utc(_val) of
-        {'EXIT', _} ->
+    try dec_utc(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"expires">>,
                            <<"service">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_service_attr_expires(undefined, _acc) -> _acc;
@@ -588,14 +591,15 @@ decode_service_attr_host(__TopXMLNS, undefined) ->
     erlang:error({xmpp_codec,
                   {missing_attr, <<"host">>, <<"service">>, __TopXMLNS}});
 decode_service_attr_host(__TopXMLNS, _val) ->
-    case catch dec_host(_val) of
-        {'EXIT', _} ->
+    try dec_host(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"host">>,
                            <<"service">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_service_attr_host(_val, _acc) ->
@@ -619,14 +623,15 @@ encode_service_attr_password(_val, _acc) ->
 decode_service_attr_port(__TopXMLNS, undefined) ->
     undefined;
 decode_service_attr_port(__TopXMLNS, _val) ->
-    case catch dec_int(_val, 0, 65535) of
-        {'EXIT', _} ->
+    try dec_int(_val, 0, 65535) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"port">>,
                            <<"service">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_service_attr_port(undefined, _acc) -> _acc;
@@ -636,14 +641,15 @@ encode_service_attr_port(_val, _acc) ->
 decode_service_attr_restricted(__TopXMLNS, undefined) ->
     undefined;
 decode_service_attr_restricted(__TopXMLNS, _val) ->
-    case catch dec_bool(_val) of
-        {'EXIT', _} ->
+    try dec_bool(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"restricted">>,
                            <<"service">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_service_attr_restricted(undefined, _acc) -> _acc;
@@ -653,14 +659,15 @@ encode_service_attr_restricted(_val, _acc) ->
 decode_service_attr_transport(__TopXMLNS, undefined) ->
     undefined;
 decode_service_attr_transport(__TopXMLNS, _val) ->
-    case catch dec_enum(_val, [tcp, udp]) of
-        {'EXIT', _} ->
+    try dec_enum(_val, [tcp, udp]) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"transport">>,
                            <<"service">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_service_attr_transport(undefined, _acc) -> _acc;
@@ -671,14 +678,15 @@ decode_service_attr_type(__TopXMLNS, undefined) ->
     erlang:error({xmpp_codec,
                   {missing_attr, <<"type">>, <<"service">>, __TopXMLNS}});
 decode_service_attr_type(__TopXMLNS, _val) ->
-    case catch dec_enum(_val, [stun, turn, stuns, turns]) of
-        {'EXIT', _} ->
+    try dec_enum(_val, [stun, turn, stuns, turns]) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"type">>,
                            <<"service">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_service_attr_type(_val, _acc) ->

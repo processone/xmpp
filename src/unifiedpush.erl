@@ -246,14 +246,15 @@ decode_unified_push_registered_attr_expiration(__TopXMLNS,
                    __TopXMLNS}});
 decode_unified_push_registered_attr_expiration(__TopXMLNS,
                                                _val) ->
-    case catch dec_utc(_val) of
-        {'EXIT', _} ->
+    try dec_utc(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"expiration">>,
                            <<"registered">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_unified_push_registered_attr_expiration(_val,

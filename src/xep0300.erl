@@ -121,11 +121,12 @@ encode_hash_attr_algo(_val, _acc) ->
 
 decode_hash_cdata(__TopXMLNS, <<>>) -> <<>>;
 decode_hash_cdata(__TopXMLNS, _val) ->
-    case catch base64:decode(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_cdata_value, <<>>, <<"hash">>, __TopXMLNS}});
+    try base64:decode(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_cdata_value, <<>>, <<"hash">>, __TopXMLNS}})
     end.
 
 encode_hash_cdata(<<>>, _acc) -> _acc;

@@ -114,14 +114,15 @@ decode_report_attr_reason(__TopXMLNS, undefined) ->
                    <<"report">>,
                    __TopXMLNS}});
 decode_report_attr_reason(__TopXMLNS, _val) ->
-    case catch dec_reporting_reason(_val) of
-        {'EXIT', _} ->
+    try dec_reporting_reason(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"reason">>,
                            <<"report">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_report_attr_reason(_val, _acc) ->
@@ -174,14 +175,15 @@ encode_report_text({text, Lang, Data}, __TopXMLNS) ->
                                    undefined) ->
     <<>>;
 'decode_report_text_attr_xml:lang'(__TopXMLNS, _val) ->
-    case catch xmpp_lang:check(_val) of
-        {'EXIT', _} ->
+    try xmpp_lang:check(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"xml:lang">>,
                            <<"text">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 'encode_report_text_attr_xml:lang'(<<>>, _acc) -> _acc;

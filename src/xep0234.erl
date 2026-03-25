@@ -348,14 +348,15 @@ decode_jingle_ft_checksum_attr_creator(__TopXMLNS,
     undefined;
 decode_jingle_ft_checksum_attr_creator(__TopXMLNS,
                                        _val) ->
-    case catch dec_enum(_val, [initiator, responder]) of
-        {'EXIT', _} ->
+    try dec_enum(_val, [initiator, responder]) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"creator">>,
                            <<"checksum">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_jingle_ft_checksum_attr_creator(undefined,
@@ -429,14 +430,15 @@ decode_jingle_ft_received_attr_creator(__TopXMLNS,
     undefined;
 decode_jingle_ft_received_attr_creator(__TopXMLNS,
                                        _val) ->
-    case catch dec_enum(_val, [initiator, responder]) of
-        {'EXIT', _} ->
+    try dec_enum(_val, [initiator, responder]) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"creator">>,
                            <<"received">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_jingle_ft_received_attr_creator(undefined,
@@ -1049,14 +1051,15 @@ decode_jingle_ft_range_attr_offset(__TopXMLNS,
                                    undefined) ->
     0;
 decode_jingle_ft_range_attr_offset(__TopXMLNS, _val) ->
-    case catch dec_int(_val, 0, infinity) of
-        {'EXIT', _} ->
+    try dec_int(_val, 0, infinity) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"offset">>,
                            <<"range">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_jingle_ft_range_attr_offset(0, _acc) -> _acc;
@@ -1067,14 +1070,15 @@ decode_jingle_ft_range_attr_length(__TopXMLNS,
                                    undefined) ->
     undefined;
 decode_jingle_ft_range_attr_length(__TopXMLNS, _val) ->
-    case catch dec_int(_val, 0, infinity) of
-        {'EXIT', _} ->
+    try dec_int(_val, 0, infinity) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"length">>,
                            <<"range">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_jingle_ft_range_attr_length(undefined, _acc) ->
@@ -1120,11 +1124,12 @@ decode_jingle_ft_size_cdata(__TopXMLNS, <<>>) ->
     erlang:error({xmpp_codec,
                   {missing_cdata, <<>>, <<"size">>, __TopXMLNS}});
 decode_jingle_ft_size_cdata(__TopXMLNS, _val) ->
-    case catch dec_int(_val, 0, infinity) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_cdata_value, <<>>, <<"size">>, __TopXMLNS}});
+    try dec_int(_val, 0, infinity) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_cdata_value, <<>>, <<"size">>, __TopXMLNS}})
     end.
 
 encode_jingle_ft_size_cdata(_val, _acc) ->
@@ -1267,14 +1272,15 @@ encode_jingle_ft_desc({text, Lang, Data}, __TopXMLNS) ->
     <<>>;
 'decode_jingle_ft_desc_attr_xml:lang'(__TopXMLNS,
                                       _val) ->
-    case catch xmpp_lang:check(_val) of
-        {'EXIT', _} ->
+    try xmpp_lang:check(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"xml:lang">>,
                            <<"desc">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 'encode_jingle_ft_desc_attr_xml:lang'(<<>>, _acc) ->
@@ -1327,11 +1333,12 @@ decode_jingle_ft_date_cdata(__TopXMLNS, <<>>) ->
     erlang:error({xmpp_codec,
                   {missing_cdata, <<>>, <<"date">>, __TopXMLNS}});
 decode_jingle_ft_date_cdata(__TopXMLNS, _val) ->
-    case catch dec_utc(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_cdata_value, <<>>, <<"date">>, __TopXMLNS}});
+    try dec_utc(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_cdata_value, <<>>, <<"date">>, __TopXMLNS}})
     end.
 
 encode_jingle_ft_date_cdata(_val, _acc) ->

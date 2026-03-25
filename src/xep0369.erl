@@ -429,14 +429,15 @@ decode_mix_destroy_attr_channel(__TopXMLNS,
                    <<"destroy">>,
                    __TopXMLNS}});
 decode_mix_destroy_attr_channel(__TopXMLNS, _val) ->
-    case catch nodeprep(_val) of
-        {'EXIT', _} ->
+    try nodeprep(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"channel">>,
                            <<"destroy">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_mix_destroy_attr_channel(_val, _acc) ->
@@ -492,14 +493,15 @@ encode_mix_create({mix_create, Channel, Xmlns},
 decode_mix_create_attr_channel(__TopXMLNS, undefined) ->
     <<>>;
 decode_mix_create_attr_channel(__TopXMLNS, _val) ->
-    case catch nodeprep(_val) of
-        {'EXIT', _} ->
+    try nodeprep(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"channel">>,
                            <<"create">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_mix_create_attr_channel(<<>>, _acc) -> _acc;
@@ -838,11 +840,12 @@ encode_mix_join_attr_id(_val, _acc) ->
 decode_mix_join_attr_jid(__TopXMLNS, undefined) ->
     undefined;
 decode_mix_join_attr_jid(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_attr_value, <<"jid">>, <<"join">>, __TopXMLNS}});
+    try jid:decode(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value, <<"jid">>, <<"join">>, __TopXMLNS}})
     end.
 
 encode_mix_join_attr_jid(undefined, _acc) -> _acc;
@@ -1036,14 +1039,15 @@ decode_mix_update_subscription_attr_jid(__TopXMLNS,
     undefined;
 decode_mix_update_subscription_attr_jid(__TopXMLNS,
                                         _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
+    try jid:decode(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"jid">>,
                            <<"update-subscription">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_mix_update_subscription_attr_jid(undefined,
@@ -1217,11 +1221,12 @@ decode_mix_jid_cdata(__TopXMLNS, <<>>) ->
     erlang:error({xmpp_codec,
                   {missing_cdata, <<>>, <<"jid">>, __TopXMLNS}});
 decode_mix_jid_cdata(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_cdata_value, <<>>, <<"jid">>, __TopXMLNS}});
+    try jid:decode(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_cdata_value, <<>>, <<"jid">>, __TopXMLNS}})
     end.
 
 encode_mix_jid_cdata(_val, _acc) ->

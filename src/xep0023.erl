@@ -74,14 +74,12 @@ decode_expire_attr_seconds(__TopXMLNS, undefined) ->
     erlang:error({xmpp_codec,
                   {missing_attr, <<"seconds">>, <<"x">>, __TopXMLNS}});
 decode_expire_attr_seconds(__TopXMLNS, _val) ->
-    case catch dec_int(_val, 0, infinity) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_attr_value,
-                           <<"seconds">>,
-                           <<"x">>,
-                           __TopXMLNS}});
+    try dec_int(_val, 0, infinity) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value, <<"seconds">>, <<"x">>, __TopXMLNS}})
     end.
 
 encode_expire_attr_seconds(_val, _acc) ->
@@ -90,11 +88,12 @@ encode_expire_attr_seconds(_val, _acc) ->
 decode_expire_attr_stored(__TopXMLNS, undefined) ->
     undefined;
 decode_expire_attr_stored(__TopXMLNS, _val) ->
-    case catch dec_int(_val, 0, infinity) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_attr_value, <<"stored">>, <<"x">>, __TopXMLNS}});
+    try dec_int(_val, 0, infinity) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value, <<"stored">>, <<"x">>, __TopXMLNS}})
     end.
 
 encode_expire_attr_stored(undefined, _acc) -> _acc;

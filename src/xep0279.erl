@@ -179,11 +179,12 @@ decode_sic_port_cdata(__TopXMLNS, <<>>) ->
     erlang:error({xmpp_codec,
                   {missing_cdata, <<>>, <<"port">>, __TopXMLNS}});
 decode_sic_port_cdata(__TopXMLNS, _val) ->
-    case catch dec_int(_val, 0, 65535) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_cdata_value, <<>>, <<"port">>, __TopXMLNS}});
+    try dec_int(_val, 0, 65535) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_cdata_value, <<>>, <<"port">>, __TopXMLNS}})
     end.
 
 encode_sic_port_cdata(_val, _acc) ->
@@ -223,11 +224,12 @@ decode_sic_ip_cdata(__TopXMLNS, <<>>) ->
     erlang:error({xmpp_codec,
                   {missing_cdata, <<>>, <<"ip">>, __TopXMLNS}});
 decode_sic_ip_cdata(__TopXMLNS, _val) ->
-    case catch dec_ip(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_cdata_value, <<>>, <<"ip">>, __TopXMLNS}});
+    try dec_ip(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_cdata_value, <<>>, <<"ip">>, __TopXMLNS}})
     end.
 
 encode_sic_ip_cdata(_val, _acc) ->

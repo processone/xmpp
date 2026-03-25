@@ -540,30 +540,31 @@ decode_jingle_attr_action(__TopXMLNS, undefined) ->
                    <<"jingle">>,
                    __TopXMLNS}});
 decode_jingle_attr_action(__TopXMLNS, _val) ->
-    case catch dec_enum(_val,
-                        ['content-accept',
-                         'content-add',
-                         'content-modify',
-                         'content-reject',
-                         'content-remove',
-                         'description-info',
-                         'security-info',
-                         'session-accept',
-                         'session-info',
-                         'session-initiate',
-                         'session-terminate',
-                         'transport-accept',
-                         'transport-info',
-                         'transport-reject',
-                         'transport-replace'])
-        of
-        {'EXIT', _} ->
+    try dec_enum(_val,
+                 ['content-accept',
+                  'content-add',
+                  'content-modify',
+                  'content-reject',
+                  'content-remove',
+                  'description-info',
+                  'security-info',
+                  'session-accept',
+                  'session-info',
+                  'session-initiate',
+                  'session-terminate',
+                  'transport-accept',
+                  'transport-info',
+                  'transport-reject',
+                  'transport-replace'])
+    of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"action">>,
                            <<"jingle">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_jingle_attr_action(_val, _acc) ->
@@ -580,14 +581,15 @@ encode_jingle_attr_sid(_val, _acc) ->
 decode_jingle_attr_initiator(__TopXMLNS, undefined) ->
     undefined;
 decode_jingle_attr_initiator(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
+    try jid:decode(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"initiator">>,
                            <<"jingle">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_jingle_attr_initiator(undefined, _acc) -> _acc;
@@ -597,14 +599,15 @@ encode_jingle_attr_initiator(_val, _acc) ->
 decode_jingle_attr_responder(__TopXMLNS, undefined) ->
     undefined;
 decode_jingle_attr_responder(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
+    try jid:decode(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"responder">>,
                            <<"jingle">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_jingle_attr_responder(undefined, _acc) -> _acc;
@@ -753,14 +756,15 @@ decode_jingle_content_attr_creator(__TopXMLNS,
                    <<"content">>,
                    __TopXMLNS}});
 decode_jingle_content_attr_creator(__TopXMLNS, _val) ->
-    case catch dec_enum(_val, [initiator, responder]) of
-        {'EXIT', _} ->
+    try dec_enum(_val, [initiator, responder]) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"creator">>,
                            <<"content">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_jingle_content_attr_creator(_val, _acc) ->
@@ -792,16 +796,16 @@ decode_jingle_content_attr_senders(__TopXMLNS,
                                    undefined) ->
     both;
 decode_jingle_content_attr_senders(__TopXMLNS, _val) ->
-    case catch dec_enum(_val,
-                        [both, initiator, none, responder])
-        of
-        {'EXIT', _} ->
+    try dec_enum(_val, [both, initiator, none, responder])
+    of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"senders">>,
                            <<"content">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_jingle_content_attr_senders(both, _acc) -> _acc;
@@ -1483,14 +1487,15 @@ encode_jingle_reason_text({text, Lang, Data},
     <<>>;
 'decode_jingle_reason_text_attr_xml:lang'(__TopXMLNS,
                                           _val) ->
-    case catch xmpp_lang:check(_val) of
-        {'EXIT', _} ->
+    try xmpp_lang:check(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"xml:lang">>,
                            <<"text">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 'encode_jingle_reason_text_attr_xml:lang'(<<>>, _acc) ->

@@ -332,14 +332,15 @@ decode_avatar_pointer_attr_bytes(__TopXMLNS,
                                  undefined) ->
     undefined;
 decode_avatar_pointer_attr_bytes(__TopXMLNS, _val) ->
-    case catch dec_int(_val, 0, infinity) of
-        {'EXIT', _} ->
+    try dec_int(_val, 0, infinity) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"bytes">>,
                            <<"pointer">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_avatar_pointer_attr_bytes(undefined, _acc) ->
@@ -369,14 +370,15 @@ decode_avatar_pointer_attr_height(__TopXMLNS,
                                   undefined) ->
     undefined;
 decode_avatar_pointer_attr_height(__TopXMLNS, _val) ->
-    case catch dec_int(_val, 0, infinity) of
-        {'EXIT', _} ->
+    try dec_int(_val, 0, infinity) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"height">>,
                            <<"pointer">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_avatar_pointer_attr_height(undefined, _acc) ->
@@ -388,14 +390,15 @@ decode_avatar_pointer_attr_width(__TopXMLNS,
                                  undefined) ->
     undefined;
 decode_avatar_pointer_attr_width(__TopXMLNS, _val) ->
-    case catch dec_int(_val, 0, infinity) of
-        {'EXIT', _} ->
+    try dec_int(_val, 0, infinity) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"width">>,
                            <<"pointer">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_avatar_pointer_attr_width(undefined, _acc) ->
@@ -528,14 +531,15 @@ decode_avatar_info_attr_bytes(__TopXMLNS, undefined) ->
     erlang:error({xmpp_codec,
                   {missing_attr, <<"bytes">>, <<"info">>, __TopXMLNS}});
 decode_avatar_info_attr_bytes(__TopXMLNS, _val) ->
-    case catch dec_int(_val, 0, infinity) of
-        {'EXIT', _} ->
+    try dec_int(_val, 0, infinity) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"bytes">>,
                            <<"info">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_avatar_info_attr_bytes(_val, _acc) ->
@@ -568,14 +572,15 @@ encode_avatar_info_attr_url(_val, _acc) ->
 decode_avatar_info_attr_height(__TopXMLNS, undefined) ->
     undefined;
 decode_avatar_info_attr_height(__TopXMLNS, _val) ->
-    case catch dec_int(_val, 0, infinity) of
-        {'EXIT', _} ->
+    try dec_int(_val, 0, infinity) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"height">>,
                            <<"info">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_avatar_info_attr_height(undefined, _acc) -> _acc;
@@ -585,14 +590,15 @@ encode_avatar_info_attr_height(_val, _acc) ->
 decode_avatar_info_attr_width(__TopXMLNS, undefined) ->
     undefined;
 decode_avatar_info_attr_width(__TopXMLNS, _val) ->
-    case catch dec_int(_val, 0, infinity) of
-        {'EXIT', _} ->
+    try dec_int(_val, 0, infinity) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"width">>,
                            <<"info">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_avatar_info_attr_width(undefined, _acc) -> _acc;
@@ -633,11 +639,12 @@ decode_avatar_data_cdata(__TopXMLNS, <<>>) ->
     erlang:error({xmpp_codec,
                   {missing_cdata, <<>>, <<"data">>, __TopXMLNS}});
 decode_avatar_data_cdata(__TopXMLNS, _val) ->
-    case catch base64:decode(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_cdata_value, <<>>, <<"data">>, __TopXMLNS}});
+    try base64:decode(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_cdata_value, <<>>, <<"data">>, __TopXMLNS}})
     end.
 
 encode_avatar_data_cdata(_val, _acc) ->

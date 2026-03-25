@@ -450,14 +450,15 @@ decode_jingle_s5b_transport_attr_mode(__TopXMLNS,
     tcp;
 decode_jingle_s5b_transport_attr_mode(__TopXMLNS,
                                       _val) ->
-    case catch dec_enum(_val, [tcp, udp]) of
-        {'EXIT', _} ->
+    try dec_enum(_val, [tcp, udp]) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"mode">>,
                            <<"transport">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_jingle_s5b_transport_attr_mode(tcp, _acc) ->
@@ -697,14 +698,15 @@ decode_jingle_s5b_candidate_attr_host(__TopXMLNS,
                    __TopXMLNS}});
 decode_jingle_s5b_candidate_attr_host(__TopXMLNS,
                                       _val) ->
-    case catch dec_ip(_val) of
-        {'EXIT', _} ->
+    try dec_ip(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"host">>,
                            <<"candidate">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_jingle_s5b_candidate_attr_host(_val, _acc) ->
@@ -719,14 +721,15 @@ decode_jingle_s5b_candidate_attr_jid(__TopXMLNS,
                    __TopXMLNS}});
 decode_jingle_s5b_candidate_attr_jid(__TopXMLNS,
                                      _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
+    try jid:decode(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"jid">>,
                            <<"candidate">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_jingle_s5b_candidate_attr_jid(_val, _acc) ->
@@ -737,14 +740,15 @@ decode_jingle_s5b_candidate_attr_port(__TopXMLNS,
     undefined;
 decode_jingle_s5b_candidate_attr_port(__TopXMLNS,
                                       _val) ->
-    case catch dec_int(_val, 0, 65535) of
-        {'EXIT', _} ->
+    try dec_int(_val, 0, 65535) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"port">>,
                            <<"candidate">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_jingle_s5b_candidate_attr_port(undefined,
@@ -762,14 +766,15 @@ decode_jingle_s5b_candidate_attr_priority(__TopXMLNS,
                    __TopXMLNS}});
 decode_jingle_s5b_candidate_attr_priority(__TopXMLNS,
                                           _val) ->
-    case catch dec_int(_val, 0, infinity) of
-        {'EXIT', _} ->
+    try dec_int(_val, 0, infinity) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"priority">>,
                            <<"candidate">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_jingle_s5b_candidate_attr_priority(_val, _acc) ->
@@ -780,16 +785,15 @@ decode_jingle_s5b_candidate_attr_type(__TopXMLNS,
     direct;
 decode_jingle_s5b_candidate_attr_type(__TopXMLNS,
                                       _val) ->
-    case catch dec_enum(_val,
-                        [assisted, direct, proxy, tunnel])
-        of
-        {'EXIT', _} ->
+    try dec_enum(_val, [assisted, direct, proxy, tunnel]) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"type">>,
                            <<"candidate">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_jingle_s5b_candidate_attr_type(direct, _acc) ->

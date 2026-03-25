@@ -128,11 +128,12 @@ encode_caps_attr_node(_val, _acc) ->
 
 decode_caps_attr_ext(__TopXMLNS, undefined) -> [];
 decode_caps_attr_ext(__TopXMLNS, _val) ->
-    case catch re:split(_val, "\\h+") of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_attr_value, <<"ext">>, <<"c">>, __TopXMLNS}});
+    try re:split(_val, "\\h+") of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value, <<"ext">>, <<"c">>, __TopXMLNS}})
     end.
 
 encode_caps_attr_ext([], _acc) -> _acc;

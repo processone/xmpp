@@ -1281,14 +1281,15 @@ encode_stream_start({stream_start,
 decode_stream_start_attr_from(__TopXMLNS, undefined) ->
     undefined;
 decode_stream_start_attr_from(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
+    try jid:decode(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"from">>,
                            <<"stream:stream">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_stream_start_attr_from(undefined, _acc) -> _acc;
@@ -1298,14 +1299,15 @@ encode_stream_start_attr_from(_val, _acc) ->
 decode_stream_start_attr_to(__TopXMLNS, undefined) ->
     undefined;
 decode_stream_start_attr_to(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
+    try jid:decode(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"to">>,
                            <<"stream:stream">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_stream_start_attr_to(undefined, _acc) -> _acc;
@@ -1343,14 +1345,15 @@ decode_stream_start_attr_xmlns(__TopXMLNS, _val) ->
                                     undefined) ->
     <<>>;
 'decode_stream_start_attr_xml:lang'(__TopXMLNS, _val) ->
-    case catch xmpp_lang:check(_val) of
-        {'EXIT', _} ->
+    try xmpp_lang:check(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"xml:lang">>,
                            <<"stream:stream">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 'encode_stream_start_attr_xml:lang'(<<>>, _acc) -> _acc;
@@ -1361,14 +1364,15 @@ decode_stream_start_attr_version(__TopXMLNS,
                                  undefined) ->
     undefined;
 decode_stream_start_attr_version(__TopXMLNS, _val) ->
-    case catch dec_version(_val) of
-        {'EXIT', _} ->
+    try dec_version(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"version">>,
                            <<"stream:stream">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_stream_start_attr_version(undefined, _acc) ->
@@ -2341,14 +2345,15 @@ decode_stream_error_see_other_host_cdata(__TopXMLNS,
                    __TopXMLNS}});
 decode_stream_error_see_other_host_cdata(__TopXMLNS,
                                          _val) ->
-    case catch dec_host_port(_val) of
-        {'EXIT', _} ->
+    try dec_host_port(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_cdata_value,
                            <<>>,
                            <<"see-other-host">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_stream_error_see_other_host_cdata(_val, _acc) ->
@@ -2735,14 +2740,15 @@ encode_stream_error_text({text, Lang, Data},
     <<>>;
 'decode_stream_error_text_attr_xml:lang'(__TopXMLNS,
                                          _val) ->
-    case catch xmpp_lang:check(_val) of
-        {'EXIT', _} ->
+    try xmpp_lang:check(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"xml:lang">>,
                            <<"text">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 'encode_stream_error_text_attr_xml:lang'(<<>>, _acc) ->
@@ -3698,14 +3704,15 @@ encode_sasl_failure_text({text, Lang, Data},
     <<>>;
 'decode_sasl_failure_text_attr_xml:lang'(__TopXMLNS,
                                          _val) ->
-    case catch xmpp_lang:check(_val) of
-        {'EXIT', _} ->
+    try xmpp_lang:check(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"xml:lang">>,
                            <<"text">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 'encode_sasl_failure_text_attr_xml:lang'(<<>>, _acc) ->
@@ -3754,11 +3761,12 @@ encode_sasl_success({sasl_success, Text}, __TopXMLNS) ->
 
 decode_sasl_success_cdata(__TopXMLNS, <<>>) -> <<>>;
 decode_sasl_success_cdata(__TopXMLNS, _val) ->
-    case catch base64:mime_decode(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_cdata_value, <<>>, <<"success">>, __TopXMLNS}});
+    try base64:mime_decode(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_cdata_value, <<>>, <<"success">>, __TopXMLNS}})
     end.
 
 encode_sasl_success_cdata(<<>>, _acc) -> _acc;
@@ -3802,11 +3810,12 @@ encode_sasl_response({sasl_response, Text},
 
 decode_sasl_response_cdata(__TopXMLNS, <<>>) -> <<>>;
 decode_sasl_response_cdata(__TopXMLNS, _val) ->
-    case catch base64:mime_decode(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_cdata_value, <<>>, <<"response">>, __TopXMLNS}});
+    try base64:mime_decode(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_cdata_value, <<>>, <<"response">>, __TopXMLNS}})
     end.
 
 encode_sasl_response_cdata(<<>>, _acc) -> _acc;
@@ -3850,14 +3859,12 @@ encode_sasl_challenge({sasl_challenge, Text},
 
 decode_sasl_challenge_cdata(__TopXMLNS, <<>>) -> <<>>;
 decode_sasl_challenge_cdata(__TopXMLNS, _val) ->
-    case catch base64:mime_decode(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_cdata_value,
-                           <<>>,
-                           <<"challenge">>,
-                           __TopXMLNS}});
+    try base64:mime_decode(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_cdata_value, <<>>, <<"challenge">>, __TopXMLNS}})
     end.
 
 encode_sasl_challenge_cdata(<<>>, _acc) -> _acc;
@@ -3937,11 +3944,12 @@ encode_sasl_auth_attr_mechanism(_val, _acc) ->
 
 decode_sasl_auth_cdata(__TopXMLNS, <<>>) -> <<>>;
 decode_sasl_auth_cdata(__TopXMLNS, _val) ->
-    case catch base64:mime_decode(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_cdata_value, <<>>, <<"auth">>, __TopXMLNS}});
+    try base64:mime_decode(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_cdata_value, <<>>, <<"auth">>, __TopXMLNS}})
     end.
 
 encode_sasl_auth_cdata(<<>>, _acc) -> _acc;
@@ -4062,11 +4070,12 @@ encode_bind_resource(Cdata, __TopXMLNS) ->
 
 decode_bind_resource_cdata(__TopXMLNS, <<>>) -> <<>>;
 decode_bind_resource_cdata(__TopXMLNS, _val) ->
-    case catch check_resource(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_cdata_value, <<>>, <<"resource">>, __TopXMLNS}});
+    try check_resource(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_cdata_value, <<>>, <<"resource">>, __TopXMLNS}})
     end.
 
 encode_bind_resource_cdata(<<>>, _acc) -> _acc;
@@ -4105,11 +4114,12 @@ encode_bind_jid(Cdata, __TopXMLNS) ->
 
 decode_bind_jid_cdata(__TopXMLNS, <<>>) -> undefined;
 decode_bind_jid_cdata(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_cdata_value, <<>>, <<"jid">>, __TopXMLNS}});
+    try jid:decode(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_cdata_value, <<>>, <<"jid">>, __TopXMLNS}})
     end.
 
 encode_bind_jid_cdata(undefined, _acc) -> _acc;
@@ -4906,16 +4916,17 @@ decode_error_attr_type(__TopXMLNS, undefined) ->
     erlang:error({xmpp_codec,
                   {missing_attr, <<"type">>, <<"error">>, __TopXMLNS}});
 decode_error_attr_type(__TopXMLNS, _val) ->
-    case catch dec_enum(_val,
-                        [auth, cancel, continue, modify, wait])
-        of
-        {'EXIT', _} ->
+    try dec_enum(_val,
+                 [auth, cancel, continue, modify, wait])
+    of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"type">>,
                            <<"error">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_error_attr_type(_val, _acc) ->
@@ -4924,11 +4935,12 @@ encode_error_attr_type(_val, _acc) ->
 decode_error_attr_by(__TopXMLNS, undefined) ->
     undefined;
 decode_error_attr_by(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_attr_value, <<"by">>, <<"error">>, __TopXMLNS}});
+    try jid:decode(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value, <<"by">>, <<"error">>, __TopXMLNS}})
     end.
 
 encode_error_attr_by(undefined, _acc) -> _acc;
@@ -4982,14 +4994,15 @@ encode_error_text({text, Lang, Data}, __TopXMLNS) ->
                                   undefined) ->
     <<>>;
 'decode_error_text_attr_xml:lang'(__TopXMLNS, _val) ->
-    case catch xmpp_lang:check(_val) of
-        {'EXIT', _} ->
+    try xmpp_lang:check(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"xml:lang">>,
                            <<"text">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 'encode_error_text_attr_xml:lang'(<<>>, _acc) -> _acc;
@@ -5784,23 +5797,24 @@ encode_presence_attr_id(_val, _acc) ->
 decode_presence_attr_type(__TopXMLNS, undefined) ->
     available;
 decode_presence_attr_type(__TopXMLNS, _val) ->
-    case catch dec_enum(_val,
-                        [unavailable,
-                         subscribe,
-                         subscribed,
-                         unsubscribe,
-                         unsubscribed,
-                         available,
-                         probe,
-                         error])
-        of
-        {'EXIT', _} ->
+    try dec_enum(_val,
+                 [unavailable,
+                  subscribe,
+                  subscribed,
+                  unsubscribe,
+                  unsubscribed,
+                  available,
+                  probe,
+                  error])
+    of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"type">>,
                            <<"presence">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_presence_attr_type(available, _acc) -> _acc;
@@ -5810,14 +5824,15 @@ encode_presence_attr_type(_val, _acc) ->
 decode_presence_attr_from(__TopXMLNS, undefined) ->
     undefined;
 decode_presence_attr_from(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
+    try jid:decode(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"from">>,
                            <<"presence">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_presence_attr_from(undefined, _acc) -> _acc;
@@ -5827,14 +5842,15 @@ encode_presence_attr_from(_val, _acc) ->
 decode_presence_attr_to(__TopXMLNS, undefined) ->
     undefined;
 decode_presence_attr_to(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
+    try jid:decode(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"to">>,
                            <<"presence">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_presence_attr_to(undefined, _acc) -> _acc;
@@ -5845,14 +5861,15 @@ encode_presence_attr_to(_val, _acc) ->
                                 undefined) ->
     <<>>;
 'decode_presence_attr_xml:lang'(__TopXMLNS, _val) ->
-    case catch xmpp_lang:check(_val) of
-        {'EXIT', _} ->
+    try xmpp_lang:check(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"xml:lang">>,
                            <<"presence">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 'encode_presence_attr_xml:lang'(<<>>, _acc) -> _acc;
@@ -5897,11 +5914,12 @@ encode_presence_priority(Cdata, __TopXMLNS) ->
 decode_presence_priority_cdata(__TopXMLNS, <<>>) ->
     undefined;
 decode_presence_priority_cdata(__TopXMLNS, _val) ->
-    case catch dec_int(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_cdata_value, <<>>, <<"priority">>, __TopXMLNS}});
+    try dec_int(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_cdata_value, <<>>, <<"priority">>, __TopXMLNS}})
     end.
 
 encode_presence_priority_cdata(undefined, _acc) -> _acc;
@@ -5963,14 +5981,15 @@ encode_presence_status({text, Lang, Data},
     <<>>;
 'decode_presence_status_attr_xml:lang'(__TopXMLNS,
                                        _val) ->
-    case catch xmpp_lang:check(_val) of
-        {'EXIT', _} ->
+    try xmpp_lang:check(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"xml:lang">>,
                            <<"status">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 'encode_presence_status_attr_xml:lang'(<<>>, _acc) ->
@@ -6023,11 +6042,12 @@ encode_presence_show(Cdata, __TopXMLNS) ->
 decode_presence_show_cdata(__TopXMLNS, <<>>) ->
     undefined;
 decode_presence_show_cdata(__TopXMLNS, _val) ->
-    case catch dec_enum(_val, [away, chat, dnd, xa]) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_cdata_value, <<>>, <<"show">>, __TopXMLNS}});
+    try dec_enum(_val, [away, chat, dnd, xa]) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_cdata_value, <<>>, <<"show">>, __TopXMLNS}})
     end.
 
 encode_presence_show_cdata(undefined, _acc) -> _acc;
@@ -6396,14 +6416,15 @@ encode_message_attr_id(_val, _acc) ->
 decode_message_attr_type(__TopXMLNS, undefined) ->
     normal;
 decode_message_attr_type(__TopXMLNS, _val) ->
-    case catch dec_message_type(_val) of
-        {'EXIT', _} ->
+    try dec_message_type(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"type">>,
                            <<"message">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_message_attr_type(normal, _acc) -> _acc;
@@ -6413,14 +6434,15 @@ encode_message_attr_type(_val, _acc) ->
 decode_message_attr_from(__TopXMLNS, undefined) ->
     undefined;
 decode_message_attr_from(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
+    try jid:decode(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"from">>,
                            <<"message">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_message_attr_from(undefined, _acc) -> _acc;
@@ -6430,14 +6452,15 @@ encode_message_attr_from(_val, _acc) ->
 decode_message_attr_to(__TopXMLNS, undefined) ->
     undefined;
 decode_message_attr_to(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
+    try jid:decode(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"to">>,
                            <<"message">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_message_attr_to(undefined, _acc) -> _acc;
@@ -6447,14 +6470,15 @@ encode_message_attr_to(_val, _acc) ->
 'decode_message_attr_xml:lang'(__TopXMLNS, undefined) ->
     <<>>;
 'decode_message_attr_xml:lang'(__TopXMLNS, _val) ->
-    case catch xmpp_lang:check(_val) of
-        {'EXIT', _} ->
+    try xmpp_lang:check(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"xml:lang">>,
                            <<"message">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 'encode_message_attr_xml:lang'(<<>>, _acc) -> _acc;
@@ -6575,14 +6599,15 @@ encode_message_body({text, Lang, Data}, __TopXMLNS) ->
                                     undefined) ->
     <<>>;
 'decode_message_body_attr_xml:lang'(__TopXMLNS, _val) ->
-    case catch xmpp_lang:check(_val) of
-        {'EXIT', _} ->
+    try xmpp_lang:check(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"xml:lang">>,
                            <<"body">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 'encode_message_body_attr_xml:lang'(<<>>, _acc) -> _acc;
@@ -6651,14 +6676,15 @@ encode_message_subject({text, Lang, Data},
     <<>>;
 'decode_message_subject_attr_xml:lang'(__TopXMLNS,
                                        _val) ->
-    case catch xmpp_lang:check(_val) of
-        {'EXIT', _} ->
+    try xmpp_lang:check(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"xml:lang">>,
                            <<"subject">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 'encode_message_subject_attr_xml:lang'(<<>>, _acc) ->
@@ -6805,11 +6831,12 @@ decode_iq_attr_type(__TopXMLNS, undefined) ->
     erlang:error({xmpp_codec,
                   {missing_attr, <<"type">>, <<"iq">>, __TopXMLNS}});
 decode_iq_attr_type(__TopXMLNS, _val) ->
-    case catch dec_enum(_val, [get, set, result, error]) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_attr_value, <<"type">>, <<"iq">>, __TopXMLNS}});
+    try dec_enum(_val, [get, set, result, error]) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value, <<"type">>, <<"iq">>, __TopXMLNS}})
     end.
 
 encode_iq_attr_type(_val, _acc) ->
@@ -6817,11 +6844,12 @@ encode_iq_attr_type(_val, _acc) ->
 
 decode_iq_attr_from(__TopXMLNS, undefined) -> undefined;
 decode_iq_attr_from(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_attr_value, <<"from">>, <<"iq">>, __TopXMLNS}});
+    try jid:decode(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value, <<"from">>, <<"iq">>, __TopXMLNS}})
     end.
 
 encode_iq_attr_from(undefined, _acc) -> _acc;
@@ -6830,11 +6858,12 @@ encode_iq_attr_from(_val, _acc) ->
 
 decode_iq_attr_to(__TopXMLNS, undefined) -> undefined;
 decode_iq_attr_to(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_attr_value, <<"to">>, <<"iq">>, __TopXMLNS}});
+    try jid:decode(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value, <<"to">>, <<"iq">>, __TopXMLNS}})
     end.
 
 encode_iq_attr_to(undefined, _acc) -> _acc;
@@ -6844,14 +6873,15 @@ encode_iq_attr_to(_val, _acc) ->
 'decode_iq_attr_xml:lang'(__TopXMLNS, undefined) ->
     <<>>;
 'decode_iq_attr_xml:lang'(__TopXMLNS, _val) ->
-    case catch xmpp_lang:check(_val) of
-        {'EXIT', _} ->
+    try xmpp_lang:check(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"xml:lang">>,
                            <<"iq">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 'encode_iq_attr_xml:lang'(<<>>, _acc) -> _acc;

@@ -145,11 +145,12 @@ decode_x_conference_attr_jid(__TopXMLNS, undefined) ->
     erlang:error({xmpp_codec,
                   {missing_attr, <<"jid">>, <<"x">>, __TopXMLNS}});
 decode_x_conference_attr_jid(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_attr_value, <<"jid">>, <<"x">>, __TopXMLNS}});
+    try jid:decode(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value, <<"jid">>, <<"x">>, __TopXMLNS}})
     end.
 
 encode_x_conference_attr_jid(_val, _acc) ->
@@ -189,14 +190,15 @@ decode_x_conference_attr_continue(__TopXMLNS,
                                   undefined) ->
     undefined;
 decode_x_conference_attr_continue(__TopXMLNS, _val) ->
-    case catch dec_bool(_val) of
-        {'EXIT', _} ->
+    try dec_bool(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"continue">>,
                            <<"x">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_x_conference_attr_continue(undefined, _acc) ->

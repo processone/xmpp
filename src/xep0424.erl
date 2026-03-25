@@ -221,14 +221,15 @@ decode_message_retracted_30_attr_by(__TopXMLNS,
                                     undefined) ->
     undefined;
 decode_message_retracted_30_attr_by(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
+    try jid:decode(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"by">>,
                            <<"retracted">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_message_retracted_30_attr_by(undefined, _acc) ->
@@ -253,14 +254,15 @@ decode_message_retracted_30_attr_stamp(__TopXMLNS,
     undefined;
 decode_message_retracted_30_attr_stamp(__TopXMLNS,
                                        _val) ->
-    case catch dec_utc(_val) of
-        {'EXIT', _} ->
+    try dec_utc(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"stamp">>,
                            <<"retracted">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_message_retracted_30_attr_stamp(undefined,
@@ -424,14 +426,15 @@ decode_message_retracted_attr_by(__TopXMLNS,
                                  undefined) ->
     undefined;
 decode_message_retracted_attr_by(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
+    try jid:decode(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"by">>,
                            <<"retracted">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_message_retracted_attr_by(undefined, _acc) ->
@@ -453,14 +456,15 @@ decode_message_retracted_attr_stamp(__TopXMLNS,
                                     undefined) ->
     undefined;
 decode_message_retracted_attr_stamp(__TopXMLNS, _val) ->
-    case catch dec_utc(_val) of
-        {'EXIT', _} ->
+    try dec_utc(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"stamp">>,
                            <<"retracted">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_message_retracted_attr_stamp(undefined, _acc) ->

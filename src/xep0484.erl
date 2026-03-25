@@ -125,14 +125,15 @@ encode_fast_token({fast_token, Expiry, Token},
 decode_fast_token_attr_expiry(__TopXMLNS, undefined) ->
     undefined;
 decode_fast_token_attr_expiry(__TopXMLNS, _val) ->
-    case catch dec_utc(_val) of
-        {'EXIT', _} ->
+    try dec_utc(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"expiry">>,
                            <<"token">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_fast_token_attr_expiry(undefined, _acc) -> _acc;
@@ -328,14 +329,15 @@ encode_fast({fast, Zero_rtt, Count, Invalidate, Mechs},
 'decode_fast_attr_tls-0rtt'(__TopXMLNS, undefined) ->
     undefined;
 'decode_fast_attr_tls-0rtt'(__TopXMLNS, _val) ->
-    case catch dec_bool(_val) of
-        {'EXIT', _} ->
+    try dec_bool(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"tls-0rtt">>,
                            <<"fast">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 'encode_fast_attr_tls-0rtt'(undefined, _acc) -> _acc;
@@ -345,14 +347,15 @@ encode_fast({fast, Zero_rtt, Count, Invalidate, Mechs},
 decode_fast_attr_count(__TopXMLNS, undefined) ->
     undefined;
 decode_fast_attr_count(__TopXMLNS, _val) ->
-    case catch dec_int(_val) of
-        {'EXIT', _} ->
+    try dec_int(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"count">>,
                            <<"fast">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_fast_attr_count(undefined, _acc) -> _acc;
@@ -362,14 +365,15 @@ encode_fast_attr_count(_val, _acc) ->
 decode_fast_attr_invalidate(__TopXMLNS, undefined) ->
     undefined;
 decode_fast_attr_invalidate(__TopXMLNS, _val) ->
-    case catch dec_bool(_val) of
-        {'EXIT', _} ->
+    try dec_bool(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"invalidate">>,
                            <<"fast">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_fast_attr_invalidate(undefined, _acc) -> _acc;

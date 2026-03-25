@@ -466,14 +466,15 @@ encode_rsm_first({rsm_first, Index, Data},
 decode_rsm_first_attr_index(__TopXMLNS, undefined) ->
     undefined;
 decode_rsm_first_attr_index(__TopXMLNS, _val) ->
-    case catch dec_int(_val, 0, infinity) of
-        {'EXIT', _} ->
+    try dec_int(_val, 0, infinity) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"index">>,
                            <<"first">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_rsm_first_attr_index(undefined, _acc) -> _acc;
@@ -519,11 +520,12 @@ encode_rsm_max(Cdata, __TopXMLNS) ->
 
 decode_rsm_max_cdata(__TopXMLNS, <<>>) -> undefined;
 decode_rsm_max_cdata(__TopXMLNS, _val) ->
-    case catch dec_int(_val, 0, infinity) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_cdata_value, <<>>, <<"max">>, __TopXMLNS}});
+    try dec_int(_val, 0, infinity) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_cdata_value, <<>>, <<"max">>, __TopXMLNS}})
     end.
 
 encode_rsm_max_cdata(undefined, _acc) -> _acc;
@@ -562,11 +564,12 @@ encode_rsm_index(Cdata, __TopXMLNS) ->
 
 decode_rsm_index_cdata(__TopXMLNS, <<>>) -> undefined;
 decode_rsm_index_cdata(__TopXMLNS, _val) ->
-    case catch dec_int(_val, 0, infinity) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_cdata_value, <<>>, <<"index">>, __TopXMLNS}});
+    try dec_int(_val, 0, infinity) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_cdata_value, <<>>, <<"index">>, __TopXMLNS}})
     end.
 
 encode_rsm_index_cdata(undefined, _acc) -> _acc;
@@ -605,11 +608,12 @@ encode_rsm_count(Cdata, __TopXMLNS) ->
 
 decode_rsm_count_cdata(__TopXMLNS, <<>>) -> undefined;
 decode_rsm_count_cdata(__TopXMLNS, _val) ->
-    case catch dec_int(_val, 0, infinity) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_cdata_value, <<>>, <<"count">>, __TopXMLNS}});
+    try dec_int(_val, 0, infinity) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_cdata_value, <<>>, <<"count">>, __TopXMLNS}})
     end.
 
 encode_rsm_count_cdata(undefined, _acc) -> _acc;

@@ -4365,11 +4365,12 @@ encode_vcard_BINVAL(Cdata, __TopXMLNS) ->
 
 decode_vcard_BINVAL_cdata(__TopXMLNS, <<>>) -> <<>>;
 decode_vcard_BINVAL_cdata(__TopXMLNS, _val) ->
-    case catch base64:decode(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_cdata_value, <<>>, <<"BINVAL">>, __TopXMLNS}});
+    try base64:decode(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_cdata_value, <<>>, <<"BINVAL">>, __TopXMLNS}})
     end.
 
 encode_vcard_BINVAL_cdata(<<>>, _acc) -> _acc;

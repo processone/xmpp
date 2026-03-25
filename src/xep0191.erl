@@ -282,11 +282,12 @@ decode_block_item_attr_jid(__TopXMLNS, undefined) ->
     erlang:error({xmpp_codec,
                   {missing_attr, <<"jid">>, <<"item">>, __TopXMLNS}});
 decode_block_item_attr_jid(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_attr_value, <<"jid">>, <<"item">>, __TopXMLNS}});
+    try jid:decode(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value, <<"jid">>, <<"item">>, __TopXMLNS}})
     end.
 
 encode_block_item_attr_jid(_val, _acc) ->

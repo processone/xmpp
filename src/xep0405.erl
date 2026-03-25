@@ -256,14 +256,15 @@ decode_mix_client_leave_attr_channel(__TopXMLNS,
     undefined;
 decode_mix_client_leave_attr_channel(__TopXMLNS,
                                      _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
+    try jid:decode(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"channel">>,
                            <<"client-leave">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_mix_client_leave_attr_channel(undefined, _acc) ->
@@ -385,14 +386,15 @@ decode_mix_client_join_attr_channel(__TopXMLNS,
                                     undefined) ->
     undefined;
 decode_mix_client_join_attr_channel(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
+    try jid:decode(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"channel">>,
                            <<"client-join">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_mix_client_join_attr_channel(undefined, _acc) ->

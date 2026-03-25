@@ -119,14 +119,15 @@ encode_bob_data_attr_cid(_val, _acc) ->
 'decode_bob_data_attr_max-age'(__TopXMLNS, undefined) ->
     undefined;
 'decode_bob_data_attr_max-age'(__TopXMLNS, _val) ->
-    case catch dec_int(_val, 0, infinity) of
-        {'EXIT', _} ->
+    try dec_int(_val, 0, infinity) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"max-age">>,
                            <<"data">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 'encode_bob_data_attr_max-age'(undefined, _acc) -> _acc;
@@ -143,11 +144,12 @@ encode_bob_data_attr_type(_val, _acc) ->
 
 decode_bob_data_cdata(__TopXMLNS, <<>>) -> <<>>;
 decode_bob_data_cdata(__TopXMLNS, _val) ->
-    case catch base64:decode(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_cdata_value, <<>>, <<"data">>, __TopXMLNS}});
+    try base64:decode(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_cdata_value, <<>>, <<"data">>, __TopXMLNS}})
     end.
 
 encode_bob_data_cdata(<<>>, _acc) -> _acc;

@@ -299,14 +299,15 @@ encode_bytestreams_attr_sid(_val, _acc) ->
 decode_bytestreams_attr_mode(__TopXMLNS, undefined) ->
     tcp;
 decode_bytestreams_attr_mode(__TopXMLNS, _val) ->
-    case catch dec_enum(_val, [tcp, udp]) of
-        {'EXIT', _} ->
+    try dec_enum(_val, [tcp, udp]) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"mode">>,
                            <<"query">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_bytestreams_attr_mode(tcp, _acc) -> _acc;
@@ -350,11 +351,12 @@ encode_bytestreams_activate(Cdata, __TopXMLNS) ->
 decode_bytestreams_activate_cdata(__TopXMLNS, <<>>) ->
     undefined;
 decode_bytestreams_activate_cdata(__TopXMLNS, _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_cdata_value, <<>>, <<"activate">>, __TopXMLNS}});
+    try jid:decode(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_cdata_value, <<>>, <<"activate">>, __TopXMLNS}})
     end.
 
 encode_bytestreams_activate_cdata(undefined, _acc) ->
@@ -409,14 +411,15 @@ decode_bytestreams_streamhost_used_attr_jid(__TopXMLNS,
                    __TopXMLNS}});
 decode_bytestreams_streamhost_used_attr_jid(__TopXMLNS,
                                             _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
+    try jid:decode(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"jid">>,
                            <<"streamhost-used">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_bytestreams_streamhost_used_attr_jid(_val,
@@ -499,14 +502,15 @@ decode_bytestreams_streamhost_attr_jid(__TopXMLNS,
                    __TopXMLNS}});
 decode_bytestreams_streamhost_attr_jid(__TopXMLNS,
                                        _val) ->
-    case catch jid:decode(_val) of
-        {'EXIT', _} ->
+    try jid:decode(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"jid">>,
                            <<"streamhost">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_bytestreams_streamhost_attr_jid(_val, _acc) ->
@@ -531,14 +535,15 @@ decode_bytestreams_streamhost_attr_port(__TopXMLNS,
     1080;
 decode_bytestreams_streamhost_attr_port(__TopXMLNS,
                                         _val) ->
-    case catch dec_int(_val, 0, 65535) of
-        {'EXIT', _} ->
+    try dec_int(_val, 0, 65535) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"port">>,
                            <<"streamhost">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_bytestreams_streamhost_attr_port(1080, _acc) ->

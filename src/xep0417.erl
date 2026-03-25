@@ -593,14 +593,15 @@ decode_x509_signature_cdata(__TopXMLNS, <<>>) ->
                    <<"x509-signature">>,
                    __TopXMLNS}});
 decode_x509_signature_cdata(__TopXMLNS, _val) ->
-    case catch base64:decode(_val) of
-        {'EXIT', _} ->
+    try base64:decode(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_cdata_value,
                            <<>>,
                            <<"x509-signature">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_x509_signature_cdata(_val, _acc) ->
@@ -802,11 +803,12 @@ decode_x509_csr_cdata(__TopXMLNS, <<>>) ->
     erlang:error({xmpp_codec,
                   {missing_cdata, <<>>, <<"x509-csr">>, __TopXMLNS}});
 decode_x509_csr_cdata(__TopXMLNS, _val) ->
-    case catch base64:decode(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_cdata_value, <<>>, <<"x509-csr">>, __TopXMLNS}});
+    try base64:decode(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_cdata_value, <<>>, <<"x509-csr">>, __TopXMLNS}})
     end.
 
 encode_x509_csr_cdata(_val, _acc) ->
@@ -846,14 +848,12 @@ decode_x509_cert_cdata(__TopXMLNS, <<>>) ->
     erlang:error({xmpp_codec,
                   {missing_cdata, <<>>, <<"x509-cert">>, __TopXMLNS}});
 decode_x509_cert_cdata(__TopXMLNS, _val) ->
-    case catch base64:decode(_val) of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_cdata_value,
-                           <<>>,
-                           <<"x509-cert">>,
-                           __TopXMLNS}});
+    try base64:decode(_val) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_cdata_value, <<>>, <<"x509-cert">>, __TopXMLNS}})
     end.
 
 encode_x509_cert_cdata(_val, _acc) ->

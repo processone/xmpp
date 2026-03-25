@@ -61,14 +61,15 @@ decode_idle_attr_since(__TopXMLNS, undefined) ->
     erlang:error({xmpp_codec,
                   {missing_attr, <<"since">>, <<"idle">>, __TopXMLNS}});
 decode_idle_attr_since(__TopXMLNS, _val) ->
-    case catch dec_utc(_val) of
-        {'EXIT', _} ->
+    try dec_utc(_val) of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"since">>,
                            <<"idle">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_idle_attr_since(_val, _acc) ->

@@ -384,13 +384,12 @@ decode_xdata_attr_type(__TopXMLNS, undefined) ->
     erlang:error({xmpp_codec,
                   {missing_attr, <<"type">>, <<"x">>, __TopXMLNS}});
 decode_xdata_attr_type(__TopXMLNS, _val) ->
-    case catch dec_enum(_val,
-                        [cancel, form, result, submit])
-        of
-        {'EXIT', _} ->
-            erlang:error({xmpp_codec,
-                          {bad_attr_value, <<"type">>, <<"x">>, __TopXMLNS}});
+    try dec_enum(_val, [cancel, form, result, submit]) of
         _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value, <<"type">>, <<"x">>, __TopXMLNS}})
     end.
 
 encode_xdata_attr_type(_val, _acc) ->
@@ -901,25 +900,26 @@ encode_xdata_field_attr_label(_val, _acc) ->
 decode_xdata_field_attr_type(__TopXMLNS, undefined) ->
     undefined;
 decode_xdata_field_attr_type(__TopXMLNS, _val) ->
-    case catch dec_enum(_val,
-                        [boolean,
-                         fixed,
-                         hidden,
-                         'jid-multi',
-                         'jid-single',
-                         'list-multi',
-                         'list-single',
-                         'text-multi',
-                         'text-private',
-                         'text-single'])
-        of
-        {'EXIT', _} ->
+    try dec_enum(_val,
+                 [boolean,
+                  fixed,
+                  hidden,
+                  'jid-multi',
+                  'jid-single',
+                  'list-multi',
+                  'list-single',
+                  'text-multi',
+                  'text-private',
+                  'text-single'])
+    of
+        _res -> _res
+    catch
+        error:_ ->
             erlang:error({xmpp_codec,
                           {bad_attr_value,
                            <<"type">>,
                            <<"field">>,
-                           __TopXMLNS}});
-        _res -> _res
+                           __TopXMLNS}})
     end.
 
 encode_xdata_field_attr_type(undefined, _acc) -> _acc;
