@@ -51,7 +51,8 @@
 	 release/1,
 	 get_tls_cb_exporter/1,
 	 get_tls_cert_hash/1,
-	 finish_tls_handshake/1]).
+	 finish_tls_handshake/1,
+	 change_limits/3]).
 
 -include("xmpp.hrl").
 -include_lib("public_key/include/public_key.hrl").
@@ -71,6 +72,7 @@
 -record(socket_state, {sockmod           :: sockmod(),
                        socket            :: socket(),
 		       max_stanza_size   :: timeout(),
+		       max_stanza_elements :: timeout(),
 		       xml_stream :: undefined | fxml_stream:xml_stream_state(),
 		       shaper = none :: none | p1_shaper:state(),
 		       sock_peer_name = none :: none | {endpoint(), endpoint()},
@@ -108,10 +110,11 @@
 -spec new(sockmod(), socket(), [proplists:property()]) -> socket_state().
 new(SockMod, Socket, Opts) ->
     MaxStanzaSize = proplists:get_value(max_stanza_size, Opts, infinity),
+    MaxStanzaElements = proplists:get_value(max_stanza_elements, Opts, infinity),
     SockPeer =  proplists:get_value(sock_peer_name, Opts, none),
     XMLStream = case get_owner(SockMod, Socket) of
 		    Pid when Pid == self() ->
-			fxml_stream:new(self(), MaxStanzaSize);
+			fxml_stream:new(self(), {MaxStanzaSize, MaxStanzaElements});
 		    _ ->
 			undefined
 		end,
@@ -119,6 +122,7 @@ new(SockMod, Socket, Opts) ->
 		  socket = Socket,
 		  xml_stream = XMLStream,
 		  max_stanza_size = MaxStanzaSize,
+		  max_stanza_elements = MaxStanzaElements,
 		  sock_peer_name = SockPeer}.
 
 connect(Addr, Port, Opts) ->
@@ -227,18 +231,27 @@ compress(_, _) ->
 
 reset_stream(#socket_state{xml_stream = XMLStream,
 			   sockmod = SockMod, socket = Socket,
-			   max_stanza_size = MaxStanzaSize} = SocketData) ->
+			   max_stanza_size = MaxStanzaSize,
+			   max_stanza_elements = MaxStanzaElements} = SocketData) ->
     if XMLStream /= undefined ->
 	    XMLStream1 = try fxml_stream:reset(XMLStream)
 			 catch error:_ ->
 				 fxml_stream:close(XMLStream),
-				 fxml_stream:new(self(), MaxStanzaSize)
+				 fxml_stream:new(self(), {MaxStanzaSize, MaxStanzaElements})
 			 end,
 	    SocketData#socket_state{xml_stream = XMLStream1};
        true ->
 	    Socket1 = SockMod:reset_stream(Socket),
 	    SocketData#socket_state{socket = Socket1}
     end.
+
+change_limits(#socket_state{xml_stream = undefined} = SocketData, _NewMaxStanzaSize, _NewMaxStanzaElements) ->
+	SocketData;
+change_limits(#socket_state{xml_stream = XMLStream} = SocketData, NewMaxStanzaSize, NewMaxStanzaElements) ->
+    fxml_stream:change_limits(XMLStream, NewMaxStanzaSize, NewMaxStanzaElements),
+	SocketData#socket_state{max_stanza_size = NewMaxStanzaSize, max_stanza_elements = NewMaxStanzaElements};
+change_limits(SocketData, _, _) ->
+	SocketData.
 
 -spec send_element(socket_state(), fxml:xmlel()) -> ok | {error, inet:posix()}.
 send_element(#socket_state{xml_stream = undefined} = SocketData, El) ->

@@ -302,7 +302,12 @@ init([Mod, {SockMod, Socket}, Opts]) ->
 handle_cast(accept, #{socket := Socket,
 		      socket_mod := SockMod,
 		      socket_opts := Opts} = State) ->
-    XMPPSocket = xmpp_socket:new(SockMod, Socket, Opts),
+    MaxStanzaSize = proplists:get_value(max_stanza_size, Opts, infinity),
+    MaxStanzaElements = proplists:get_value(max_stanza_elements, Opts, infinity),
+    PreAuthMaxStanzaSize = proplists:get_value(pre_auth_max_stanza_size, Opts, MaxStanzaSize),
+	PreAuthMaxStanzaElements = proplists:get_value(pre_auth_max_stanza_elements, Opts, MaxStanzaElements),
+	Opts2 = [{max_stanza_size, PreAuthMaxStanzaSize}, {max_stanza_elements, PreAuthMaxStanzaElements} | Opts],
+    XMPPSocket = xmpp_socket:new(SockMod, Socket, Opts2),
     SocketMonitor = xmpp_socket:monitor(XMPPSocket),
     case xmpp_socket:peername(XMPPSocket) of
 	{ok, IP} ->
@@ -314,9 +319,14 @@ handle_cast(accept, #{socket := Socket,
 		{stop, State4} ->
 		    {stop, normal, State4};
 		State4 ->
-		    case is_disconnected(State4) of
-			true -> noreply(State4);
-			false -> handle_info({tcp, Socket, <<>>}, State4)
+			State5 = if MaxStanzaSize /= PreAuthMaxStanzaSize orelse MaxStanzaElements /= PreAuthMaxStanzaElements ->
+					State4#{post_auth_stanza_limits => {MaxStanzaSize, MaxStanzaElements}};
+				true ->
+					State4
+			end,
+		    case is_disconnected(State5) of
+			true -> noreply(State5);
+			false -> handle_info({tcp, Socket, <<>>}, State5)
 		    end
 	    end;
 	{error, _} ->
@@ -862,9 +872,16 @@ process_stream_established(State) ->
     State1 = State#{stream_authenticated => true,
 		    stream_state => established,
 		    stream_timeout => infinity},
-    try callback(handle_stream_established, State1)
-    catch _:{?MODULE, undef} -> State1
+    State2 = update_parser_limits(State1),
+    try callback(handle_stream_established, State2)
+    catch _:{?MODULE, undef} -> State2
     end.
+
+update_parser_limits(#{socket := Socket, post_auth_stanza_limits := {MaxStanzaSize, MaxElementsCount}} = State) ->
+    Socket2 = xmpp_socket:change_limits(Socket, MaxStanzaSize, MaxElementsCount),
+	maps:remove(post_auth_stanza_limits, State#{socket => Socket2});
+update_parser_limits(State) ->
+    State.
 
 -spec process_compress(compress(), state()) -> state().
 process_compress(#compress{},
@@ -1032,8 +1049,9 @@ process_sasl_success(Props, ServerOut,
 	    case is_disconnected(State2) of
 		true -> State2;
 		false ->
-		    State3 = map_remove_keys(State2, [sasl_state, sasl_mech, sasl_channel_bindings]),
-		    State3#{stream_id => xmpp_stream:new_id(),
+		    State3 = update_parser_limits(State2),
+		    State4 = map_remove_keys(State3, [sasl_state, sasl_mech, sasl_channel_bindings]),
+		    State4#{stream_id => xmpp_stream:new_id(),
 			    stream_authenticated => true,
 			    stream_header_sent => false,
 			    stream_restarted => true,
@@ -1161,13 +1179,14 @@ process_sasl2_success(Props, ServerOut,
 	    case is_disconnected(State1) of
 		true -> State1;
 		false ->
-		    State2 = State1#{stream_id => xmpp_stream:new_id(),
-				     stream_authenticated => true,
-				     user => User},
+		    State2 = update_parser_limits(
+				State1#{stream_id => xmpp_stream:new_id(),
+					stream_authenticated => true,
+					user => User}),
 		    {State3, NewEls, Results} =
-		    try callback(handle_sasl2_inline, InlineEls, State2)
-		    catch _:{?MODULE, undef} -> {State2, InlineEls, []}
-		    end,
+			try callback(handle_sasl2_inline, InlineEls, State2)
+			catch _:{?MODULE, undef} -> {State2, InlineEls, []}
+			end,
 
 		    case NewEls of
 			{continue, Tasks} ->
