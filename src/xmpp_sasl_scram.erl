@@ -235,8 +235,8 @@ mech_step(#state{step = 4, algo = Algo} = State, ClientIn) ->
 				    ClientKey =
 				    scram:client_key_xor(ClientProof, ClientSignature),
 				    CompareStoredKey = scram:stored_key(Algo, ClientKey),
-				    if
-					CompareStoredKey == State#state.stored_key ->
+				    case crypto:hash_equals(CompareStoredKey, State#state.stored_key) of
+					true ->
 					    ServerSignature =
 					    scram:server_signature(Algo,
 								   State#state.server_key,
@@ -245,7 +245,7 @@ mech_step(#state{step = 4, algo = Algo} = State, ClientIn) ->
 						  {auth_module, State#state.auth_module},
 						  {authzid, State#state.username}],
 					     <<"v=", (base64:encode(ServerSignature))/binary>>};
-					true ->
+					false ->
 					    {error, not_authorized, State#state.username}
 				    end
 			    end;
