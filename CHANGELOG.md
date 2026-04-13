@@ -1,3 +1,7 @@
+# Version 1.13.3
+
+* Update fast_xml
+
 # Version 1.13.2
 
 * Recognize new option in stream options: max_stanza_elements,
