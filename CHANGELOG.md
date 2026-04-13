@@ -1,3 +1,8 @@
+# Version 1.13.2
+
+* Recognize new option in stream options: max_stanza_elements,
+  pre_auth_max_stanza_elements and pre_auth_max_stanza_size
+
 # Version 1.13.1
 
 * Fix issue in documentation generation
