@@ -802,7 +802,7 @@
     </implements>
     <implements>
       <xmpp:SupportedXep>
-        <xmpp:xep rdf:resource="https://xmpp.org/extensions/xep-0512.html"/>
+        <xmpp:xep rdf:resource="https://xmpp.org/extensions/xep-0513.html"/>
         <xmpp:version>0.1.0</xmpp:version>
         <xmpp:since>1.13.4</xmpp:since>
         <xmpp:status></xmpp:status>
