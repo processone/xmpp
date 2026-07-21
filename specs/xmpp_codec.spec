@@ -5777,6 +5777,78 @@
            module = 'xep0445',
            result = {feature_register_ibr_token}}).
 
+-xml(mention,
+	 #elem{name = <<"mention">>,
+	       xmlns = <<"urn:xmpp:mentions:0">>,
+		   module = 'xep0513',
+		   attrs = [#attr{name = <<"begin">>,
+						  label = '$begin',
+						  dec = {dec_int, [0, infinity]},
+						  enc = {enc_int, []}},
+					#attr{name = <<"end">>,
+						  label = '$end',
+						  dec = {dec_int, [0, infinity]},
+						  enc = {enc_int, []}},
+					#attr{name = <<"occupantid">>,
+						  label = '$occupantid'},
+					#attr{name = <<"mentions">>,
+						  label = '$mentions',
+					      enc = {enc_mention_type, []},
+					      dec = {dec_mention_type, []}},
+					#attr{name = <<"uri">>,
+						  label = '$uri'},
+					#attr{name = <<"hreflang">>,
+						  label = '$hreflang',
+						  dec = {xmpp_lang, check, []}}],
+		   refs = [#ref{name = mention_active,
+		                label = '$active',
+		                min = 0,
+						max = 1,
+						default = false},
+				   #ref{name = mention_noping,
+		                label = '$noping',
+		                min = 0,
+						max = 1,
+						default = false}],
+			result = {mention, '$begin', '$end', '$occupantid', '$mentions', '$uri', '$hreflang', '$active', '$noping'}}).
+
+-xml(mention_active,
+	 #elem{name = <<"active">>,
+	       xmlns = <<"urn:xmpp:mentions:0">>,
+		   module = 'xep0513',
+		   result = true}).
+
+-xml(mention_noping,
+	 #elem{name = <<"noping">>,
+	       xmlns = <<"urn:xmpp:mentions:0">>,
+		   module = 'xep0513',
+		   result = true}).
+
+-spec dec_mention_type(_) -> atom() | binary().
+dec_mention_type(<<"urn:xmpp:mentions:0#channel">>) -> channel;
+dec_mention_type(<<"urn:xmpp:mentions:0#space">>) -> space;
+dec_mention_type(<<"urn:xmpp:mentions:0#server">>) -> server;
+dec_mention_type(<<"urn:xmpp:mentions:0#moderators">>) -> moderators;
+dec_mention_type(<<"urn:xmpp:mentions:0#participants">>) -> participants;
+dec_mention_type(<<"urn:xmpp:mentions:0#visitors">>) -> visitors;
+dec_mention_type(<<"urn:xmpp:mentions:0#owners">>) -> owners;
+dec_mention_type(<<"urn:xmpp:mentions:0#admin">>) -> admin;
+dec_mention_type(<<"urn:xmpp:mentions:0#member">>) -> member;
+dec_mention_type(<<"urn:xmpp:mentions:0#none">>) -> none;
+dec_mention_type(Other) -> Other.
+
+enc_mention_type(channel) -> <<"urn:xmpp:mentions:0#channel">>;
+enc_mention_type(space) -> <<"urn:xmpp:mentions:0#space">>;
+enc_mention_type(server) -> <<"urn:xmpp:mentions:0#server">>;
+enc_mention_type(moderators) -> <<"urn:xmpp:mentions:0#moderators">>;
+enc_mention_type(participants) -> <<"urn:xmpp:mentions:0#participants">>;
+enc_mention_type(visitors) -> <<"urn:xmpp:mentions:0#visitors">>;
+enc_mention_type(owners) -> <<"urn:xmpp:mentions:0#owners">>;
+enc_mention_type(admin) -> <<"urn:xmpp:mentions:0#admin">>;
+enc_mention_type(member) -> <<"urn:xmpp:mentions:0#member">>;
+enc_mention_type(none) -> <<"urn:xmpp:mentions:0#none">>;
+enc_mention_type(Other) -> Other.
+
 -spec dec_tzo(_) -> {integer(), integer()}.
 dec_tzo(Val) ->
     [H1, M1] = binary:split(Val, <<":">>),

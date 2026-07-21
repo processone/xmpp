@@ -761,6 +761,8 @@ get_mod(<<"reason">>,
         <<"urn:xmpp:message-moderate:1">>) ->
     xep0425;
 get_mod(<<"tag">>, <<"urn:xmpp:bind:0">>) -> xep0386;
+get_mod(<<"mention">>, <<"urn:xmpp:mentions:0">>) ->
+    xep0513;
 get_mod(<<"iq">>, <<"jabber:client">>) -> rfc6120;
 get_mod(<<"LOCALITY">>, <<"vcard-temp">>) -> xep0054;
 get_mod(<<"inactive">>,
@@ -1209,6 +1211,8 @@ get_mod(<<"invalid-payload">>,
 get_mod(<<"leave">>, <<"urn:xmpp:mix:core:0">>) ->
     xep0369;
 get_mod(<<"last">>, <<"jabber:iq:search">>) -> xep0055;
+get_mod(<<"active">>, <<"urn:xmpp:mentions:0">>) ->
+    xep0513;
 get_mod(<<"query">>, <<"jabber:iq:last">>) -> xep0012;
 get_mod(<<"show">>, <<"jabber:server">>) -> rfc6120;
 get_mod(<<"configure">>,
@@ -1743,6 +1747,8 @@ get_mod(<<"apply-to">>, <<"urn:xmpp:fasten:0">>) ->
 get_mod(<<"received">>, <<"urn:xmpp:carbons:2">>) ->
     xep0280;
 get_mod(<<"x">>, <<"jabber:x:event">>) -> xep0022;
+get_mod(<<"noping">>, <<"urn:xmpp:mentions:0">>) ->
+    xep0513;
 get_mod(<<"nick">>, <<"jabber:iq:register">>) ->
     xep0077;
 get_mod(<<"internal-server-error">>,
@@ -1791,6 +1797,7 @@ get_mod({carbons_disable}) -> xep0280;
 get_mod({last, _, _}) -> xep0012;
 get_mod({sasl2_next, _, _}) -> xep0388;
 get_mod({sasl2_abort, _, _}) -> xep0388;
+get_mod({mention, _, _, _, _, _, _, _, _}) -> xep0513;
 get_mod({compression, _}) -> xep0138;
 get_mod({mam_prefs, _, _, _, _}) -> xep0313;
 get_mod({upload_file_too_large, _, _}) -> xep0363;
