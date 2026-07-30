@@ -1,3 +1,8 @@
+# Version 1.13.4
+
+* Add support for XEP-0513 Explicit Metnions
+* Use constant time comparison in SCRAM 
+
 # Version 1.13.3
 
 * Update fast_xml
