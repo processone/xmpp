@@ -43,7 +43,7 @@ records() -> [{version, 3}].
 
 decode_version(__TopXMLNS, __Opts,
                {xmlel, <<"query">>, _attrs, _els}) ->
-    {Ver, Os, Name} = decode_version_els(__TopXMLNS,
+    {Name, Ver, Os} = decode_version_els(__TopXMLNS,
                                          __Opts,
                                          _els,
                                          undefined,
@@ -51,12 +51,12 @@ decode_version(__TopXMLNS, __Opts,
                                          undefined),
     {version, Name, Ver, Os}.
 
-decode_version_els(__TopXMLNS, __Opts, [], Ver, Os,
-                   Name) ->
-    {Ver, Os, Name};
+decode_version_els(__TopXMLNS, __Opts, [], Name, Ver,
+                   Os) ->
+    {Name, Ver, Os};
 decode_version_els(__TopXMLNS, __Opts,
-                   [{xmlel, <<"name">>, _attrs, _} = _el | _els], Ver, Os,
-                   Name) ->
+                   [{xmlel, <<"name">>, _attrs, _} = _el | _els], Name,
+                   Ver, Os) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -65,22 +65,22 @@ decode_version_els(__TopXMLNS, __Opts,
             decode_version_els(__TopXMLNS,
                                __Opts,
                                _els,
-                               Ver,
-                               Os,
                                decode_version_name(<<"jabber:iq:version">>,
                                                    __Opts,
-                                                   _el));
+                                                   _el),
+                               Ver,
+                               Os);
         _ ->
             decode_version_els(__TopXMLNS,
                                __Opts,
                                _els,
+                               Name,
                                Ver,
-                               Os,
-                               Name)
+                               Os)
     end;
 decode_version_els(__TopXMLNS, __Opts,
-                   [{xmlel, <<"version">>, _attrs, _} = _el | _els], Ver,
-                   Os, Name) ->
+                   [{xmlel, <<"version">>, _attrs, _} = _el | _els], Name,
+                   Ver, Os) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -89,22 +89,22 @@ decode_version_els(__TopXMLNS, __Opts,
             decode_version_els(__TopXMLNS,
                                __Opts,
                                _els,
+                               Name,
                                decode_version_ver(<<"jabber:iq:version">>,
                                                   __Opts,
                                                   _el),
-                               Os,
-                               Name);
+                               Os);
         _ ->
             decode_version_els(__TopXMLNS,
                                __Opts,
                                _els,
+                               Name,
                                Ver,
-                               Os,
-                               Name)
+                               Os)
     end;
 decode_version_els(__TopXMLNS, __Opts,
-                   [{xmlel, <<"os">>, _attrs, _} = _el | _els], Ver, Os,
-                   Name) ->
+                   [{xmlel, <<"os">>, _attrs, _} = _el | _els], Name, Ver,
+                   Os) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -113,36 +113,36 @@ decode_version_els(__TopXMLNS, __Opts,
             decode_version_els(__TopXMLNS,
                                __Opts,
                                _els,
+                               Name,
                                Ver,
                                decode_version_os(<<"jabber:iq:version">>,
                                                  __Opts,
-                                                 _el),
-                               Name);
+                                                 _el));
         _ ->
             decode_version_els(__TopXMLNS,
                                __Opts,
                                _els,
+                               Name,
                                Ver,
-                               Os,
-                               Name)
+                               Os)
     end;
-decode_version_els(__TopXMLNS, __Opts, [_ | _els], Ver,
-                   Os, Name) ->
+decode_version_els(__TopXMLNS, __Opts, [_ | _els], Name,
+                   Ver, Os) ->
     decode_version_els(__TopXMLNS,
                        __Opts,
                        _els,
+                       Name,
                        Ver,
-                       Os,
-                       Name).
+                       Os).
 
 encode_version({version, Name, Ver, Os}, __TopXMLNS) ->
     __NewTopXMLNS =
         xmpp_codec:choose_top_xmlns(<<"jabber:iq:version">>,
                                     [],
                                     __TopXMLNS),
-    _els = lists:reverse('encode_version_$ver'(Ver,
-                                               __NewTopXMLNS,
-                                               'encode_version_$os'(Os,
+    _els = lists:reverse('encode_version_$os'(Os,
+                                              __NewTopXMLNS,
+                                              'encode_version_$ver'(Ver,
                                                                     __NewTopXMLNS,
                                                                     'encode_version_$name'(Name,
                                                                                            __NewTopXMLNS,
@@ -150,6 +150,11 @@ encode_version({version, Name, Ver, Os}, __TopXMLNS) ->
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
                                         __TopXMLNS),
     {xmlel, <<"query">>, _attrs, _els}.
+
+'encode_version_$name'(undefined, __TopXMLNS, _acc) ->
+    _acc;
+'encode_version_$name'(Name, __TopXMLNS, _acc) ->
+    [encode_version_name(Name, __TopXMLNS) | _acc].
 
 'encode_version_$ver'(undefined, __TopXMLNS, _acc) ->
     _acc;
@@ -160,11 +165,6 @@ encode_version({version, Name, Ver, Os}, __TopXMLNS) ->
     _acc;
 'encode_version_$os'(Os, __TopXMLNS, _acc) ->
     [encode_version_os(Os, __TopXMLNS) | _acc].
-
-'encode_version_$name'(undefined, __TopXMLNS, _acc) ->
-    _acc;
-'encode_version_$name'(Name, __TopXMLNS, _acc) ->
-    [encode_version_name(Name, __TopXMLNS) | _acc].
 
 decode_version_os(__TopXMLNS, __Opts,
                   {xmlel, <<"os">>, _attrs, _els}) ->

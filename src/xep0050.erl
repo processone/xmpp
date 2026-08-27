@@ -103,13 +103,13 @@ enc_enum(Atom) -> erlang:atom_to_binary(Atom, utf8).
 
 decode_adhoc_command(__TopXMLNS, __Opts,
                      {xmlel, <<"command">>, _attrs, _els}) ->
-    {Xdata, Notes, Actions} =
+    {Actions, Xdata, Notes} =
         decode_adhoc_command_els(__TopXMLNS,
                                  __Opts,
                                  _els,
                                  undefined,
-                                 [],
-                                 undefined),
+                                 undefined,
+                                 []),
     {Node, Lang, Sid, Status, Action} =
         decode_adhoc_command_attrs(__TopXMLNS,
                                    _attrs,
@@ -128,12 +128,12 @@ decode_adhoc_command(__TopXMLNS, __Opts,
      Notes,
      Xdata}.
 
-decode_adhoc_command_els(__TopXMLNS, __Opts, [], Xdata,
-                         Notes, Actions) ->
-    {Xdata, lists:reverse(Notes), Actions};
+decode_adhoc_command_els(__TopXMLNS, __Opts, [],
+                         Actions, Xdata, Notes) ->
+    {Actions, Xdata, lists:reverse(Notes)};
 decode_adhoc_command_els(__TopXMLNS, __Opts,
                          [{xmlel, <<"actions">>, _attrs, _} = _el | _els],
-                         Xdata, Notes, Actions) ->
+                         Actions, Xdata, Notes) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -142,22 +142,22 @@ decode_adhoc_command_els(__TopXMLNS, __Opts,
             decode_adhoc_command_els(__TopXMLNS,
                                      __Opts,
                                      _els,
-                                     Xdata,
-                                     Notes,
                                      decode_adhoc_command_actions(<<"http://jabber.org/protocol/commands">>,
                                                                   __Opts,
-                                                                  _el));
+                                                                  _el),
+                                     Xdata,
+                                     Notes);
         _ ->
             decode_adhoc_command_els(__TopXMLNS,
                                      __Opts,
                                      _els,
+                                     Actions,
                                      Xdata,
-                                     Notes,
-                                     Actions)
+                                     Notes)
     end;
 decode_adhoc_command_els(__TopXMLNS, __Opts,
-                         [{xmlel, <<"x">>, _attrs, _} = _el | _els], Xdata,
-                         Notes, Actions) ->
+                         [{xmlel, <<"x">>, _attrs, _} = _el | _els], Actions,
+                         Xdata, Notes) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -166,22 +166,22 @@ decode_adhoc_command_els(__TopXMLNS, __Opts,
             decode_adhoc_command_els(__TopXMLNS,
                                      __Opts,
                                      _els,
+                                     Actions,
                                      xep0004:decode_xdata(<<"jabber:x:data">>,
                                                           __Opts,
                                                           _el),
-                                     Notes,
-                                     Actions);
+                                     Notes);
         _ ->
             decode_adhoc_command_els(__TopXMLNS,
                                      __Opts,
                                      _els,
+                                     Actions,
                                      Xdata,
-                                     Notes,
-                                     Actions)
+                                     Notes)
     end;
 decode_adhoc_command_els(__TopXMLNS, __Opts,
-                         [{xmlel, <<"note">>, _attrs, _} = _el | _els], Xdata,
-                         Notes, Actions) ->
+                         [{xmlel, <<"note">>, _attrs, _} = _el | _els], Actions,
+                         Xdata, Notes) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -190,28 +190,28 @@ decode_adhoc_command_els(__TopXMLNS, __Opts,
             decode_adhoc_command_els(__TopXMLNS,
                                      __Opts,
                                      _els,
+                                     Actions,
                                      Xdata,
                                      [decode_adhoc_command_notes(<<"http://jabber.org/protocol/commands">>,
                                                                  __Opts,
                                                                  _el)
-                                      | Notes],
-                                     Actions);
+                                      | Notes]);
         _ ->
             decode_adhoc_command_els(__TopXMLNS,
                                      __Opts,
                                      _els,
+                                     Actions,
                                      Xdata,
-                                     Notes,
-                                     Actions)
+                                     Notes)
     end;
 decode_adhoc_command_els(__TopXMLNS, __Opts, [_ | _els],
-                         Xdata, Notes, Actions) ->
+                         Actions, Xdata, Notes) ->
     decode_adhoc_command_els(__TopXMLNS,
                              __Opts,
                              _els,
+                             Actions,
                              Xdata,
-                             Notes,
-                             Actions).
+                             Notes).
 
 decode_adhoc_command_attrs(__TopXMLNS,
                            [{<<"node">>, _val} | _attrs], _Node, Lang, Sid,
@@ -295,9 +295,9 @@ encode_adhoc_command({adhoc_command,
                                     [],
                                     __TopXMLNS),
     _els =
-        lists:reverse('encode_adhoc_command_$xdata'(Xdata,
+        lists:reverse('encode_adhoc_command_$notes'(Notes,
                                                     __NewTopXMLNS,
-                                                    'encode_adhoc_command_$notes'(Notes,
+                                                    'encode_adhoc_command_$xdata'(Xdata,
                                                                                   __NewTopXMLNS,
                                                                                   'encode_adhoc_command_$actions'(Actions,
                                                                                                                   __NewTopXMLNS,
@@ -310,6 +310,14 @@ encode_adhoc_command({adhoc_command,
                                                                                                                                                                                        xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
                                                                                                                                                                                                                   __TopXMLNS)))))),
     {xmlel, <<"command">>, _attrs, _els}.
+
+'encode_adhoc_command_$actions'(undefined, __TopXMLNS,
+                                _acc) ->
+    _acc;
+'encode_adhoc_command_$actions'(Actions, __TopXMLNS,
+                                _acc) ->
+    [encode_adhoc_command_actions(Actions, __TopXMLNS)
+     | _acc].
 
 'encode_adhoc_command_$xdata'(undefined, __TopXMLNS,
                               _acc) ->
@@ -326,14 +334,6 @@ encode_adhoc_command({adhoc_command,
                                   __TopXMLNS,
                                   [encode_adhoc_command_notes(Notes, __TopXMLNS)
                                    | _acc]).
-
-'encode_adhoc_command_$actions'(undefined, __TopXMLNS,
-                                _acc) ->
-    _acc;
-'encode_adhoc_command_$actions'(Actions, __TopXMLNS,
-                                _acc) ->
-    [encode_adhoc_command_actions(Actions, __TopXMLNS)
-     | _acc].
 
 decode_adhoc_command_attr_node(__TopXMLNS, undefined) ->
     erlang:error({xmpp_codec,
@@ -498,7 +498,7 @@ encode_adhoc_command_notes_cdata(_val, _acc) ->
 
 decode_adhoc_command_actions(__TopXMLNS, __Opts,
                              {xmlel, <<"actions">>, _attrs, _els}) ->
-    {Next, Complete, Prev} =
+    {Prev, Next, Complete} =
         decode_adhoc_command_actions_els(__TopXMLNS,
                                          __Opts,
                                          _els,
@@ -511,11 +511,11 @@ decode_adhoc_command_actions(__TopXMLNS, __Opts,
     {adhoc_actions, Execute, Prev, Next, Complete}.
 
 decode_adhoc_command_actions_els(__TopXMLNS, __Opts, [],
-                                 Next, Complete, Prev) ->
-    {Next, Complete, Prev};
+                                 Prev, Next, Complete) ->
+    {Prev, Next, Complete};
 decode_adhoc_command_actions_els(__TopXMLNS, __Opts,
                                  [{xmlel, <<"prev">>, _attrs, _} = _el | _els],
-                                 Next, Complete, Prev) ->
+                                 Prev, Next, Complete) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -524,22 +524,22 @@ decode_adhoc_command_actions_els(__TopXMLNS, __Opts,
             decode_adhoc_command_actions_els(__TopXMLNS,
                                              __Opts,
                                              _els,
-                                             Next,
-                                             Complete,
                                              decode_adhoc_command_prev(<<"http://jabber.org/protocol/commands">>,
                                                                        __Opts,
-                                                                       _el));
+                                                                       _el),
+                                             Next,
+                                             Complete);
         _ ->
             decode_adhoc_command_actions_els(__TopXMLNS,
                                              __Opts,
                                              _els,
+                                             Prev,
                                              Next,
-                                             Complete,
-                                             Prev)
+                                             Complete)
     end;
 decode_adhoc_command_actions_els(__TopXMLNS, __Opts,
                                  [{xmlel, <<"next">>, _attrs, _} = _el | _els],
-                                 Next, Complete, Prev) ->
+                                 Prev, Next, Complete) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -548,23 +548,23 @@ decode_adhoc_command_actions_els(__TopXMLNS, __Opts,
             decode_adhoc_command_actions_els(__TopXMLNS,
                                              __Opts,
                                              _els,
+                                             Prev,
                                              decode_adhoc_command_next(<<"http://jabber.org/protocol/commands">>,
                                                                        __Opts,
                                                                        _el),
-                                             Complete,
-                                             Prev);
+                                             Complete);
         _ ->
             decode_adhoc_command_actions_els(__TopXMLNS,
                                              __Opts,
                                              _els,
+                                             Prev,
                                              Next,
-                                             Complete,
-                                             Prev)
+                                             Complete)
     end;
 decode_adhoc_command_actions_els(__TopXMLNS, __Opts,
                                  [{xmlel, <<"complete">>, _attrs, _} = _el
                                   | _els],
-                                 Next, Complete, Prev) ->
+                                 Prev, Next, Complete) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -573,27 +573,27 @@ decode_adhoc_command_actions_els(__TopXMLNS, __Opts,
             decode_adhoc_command_actions_els(__TopXMLNS,
                                              __Opts,
                                              _els,
+                                             Prev,
                                              Next,
                                              decode_adhoc_command_complete(<<"http://jabber.org/protocol/commands">>,
                                                                            __Opts,
-                                                                           _el),
-                                             Prev);
+                                                                           _el));
         _ ->
             decode_adhoc_command_actions_els(__TopXMLNS,
                                              __Opts,
                                              _els,
+                                             Prev,
                                              Next,
-                                             Complete,
-                                             Prev)
+                                             Complete)
     end;
 decode_adhoc_command_actions_els(__TopXMLNS, __Opts,
-                                 [_ | _els], Next, Complete, Prev) ->
+                                 [_ | _els], Prev, Next, Complete) ->
     decode_adhoc_command_actions_els(__TopXMLNS,
                                      __Opts,
                                      _els,
+                                     Prev,
                                      Next,
-                                     Complete,
-                                     Prev).
+                                     Complete).
 
 decode_adhoc_command_actions_attrs(__TopXMLNS,
                                    [{<<"execute">>, _val} | _attrs],
@@ -622,9 +622,9 @@ encode_adhoc_command_actions({adhoc_actions,
                                     [],
                                     __TopXMLNS),
     _els =
-        lists:reverse('encode_adhoc_command_actions_$next'(Next,
-                                                           __NewTopXMLNS,
-                                                           'encode_adhoc_command_actions_$complete'(Complete,
+        lists:reverse('encode_adhoc_command_actions_$complete'(Complete,
+                                                               __NewTopXMLNS,
+                                                               'encode_adhoc_command_actions_$next'(Next,
                                                                                                     __NewTopXMLNS,
                                                                                                     'encode_adhoc_command_actions_$prev'(Prev,
                                                                                                                                          __NewTopXMLNS,
@@ -634,6 +634,13 @@ encode_adhoc_command_actions({adhoc_actions,
                                                   xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
                                                                              __TopXMLNS)),
     {xmlel, <<"actions">>, _attrs, _els}.
+
+'encode_adhoc_command_actions_$prev'(false, __TopXMLNS,
+                                     _acc) ->
+    _acc;
+'encode_adhoc_command_actions_$prev'(Prev, __TopXMLNS,
+                                     _acc) ->
+    [encode_adhoc_command_prev(Prev, __TopXMLNS) | _acc].
 
 'encode_adhoc_command_actions_$next'(false, __TopXMLNS,
                                      _acc) ->
@@ -649,13 +656,6 @@ encode_adhoc_command_actions({adhoc_actions,
                                          __TopXMLNS, _acc) ->
     [encode_adhoc_command_complete(Complete, __TopXMLNS)
      | _acc].
-
-'encode_adhoc_command_actions_$prev'(false, __TopXMLNS,
-                                     _acc) ->
-    _acc;
-'encode_adhoc_command_actions_$prev'(Prev, __TopXMLNS,
-                                     _acc) ->
-    [encode_adhoc_command_prev(Prev, __TopXMLNS) | _acc].
 
 decode_adhoc_command_actions_attr_execute(__TopXMLNS,
                                           undefined) ->

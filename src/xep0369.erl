@@ -206,21 +206,21 @@ nodeprep(S) ->
 
 decode_mix(__TopXMLNS, __Opts,
            {xmlel, <<"mix">>, _attrs, _els}) ->
-    {Jid, Submission_id, Nick} = decode_mix_els(__TopXMLNS,
+    {Submission_id, Jid, Nick} = decode_mix_els(__TopXMLNS,
                                                 __Opts,
                                                 _els,
-                                                undefined,
                                                 <<>>,
+                                                undefined,
                                                 <<>>),
     Xmlns = decode_mix_attrs(__TopXMLNS, _attrs, undefined),
     {mix, Submission_id, Jid, Nick, Xmlns}.
 
-decode_mix_els(__TopXMLNS, __Opts, [], Jid,
-               Submission_id, Nick) ->
-    {Jid, Submission_id, Nick};
+decode_mix_els(__TopXMLNS, __Opts, [], Submission_id,
+               Jid, Nick) ->
+    {Submission_id, Jid, Nick};
 decode_mix_els(__TopXMLNS, __Opts,
                [{xmlel, <<"submission-id">>, _attrs, _} = _el | _els],
-               Jid, Submission_id, Nick) ->
+               Submission_id, Jid, Nick) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -229,22 +229,22 @@ decode_mix_els(__TopXMLNS, __Opts,
             decode_mix_els(__TopXMLNS,
                            __Opts,
                            _els,
-                           Jid,
                            decode_mix_submission_id(<<"urn:xmpp:mix:core:0">>,
                                                     __Opts,
                                                     _el),
+                           Jid,
                            Nick);
         _ ->
             decode_mix_els(__TopXMLNS,
                            __Opts,
                            _els,
-                           Jid,
                            Submission_id,
+                           Jid,
                            Nick)
     end;
 decode_mix_els(__TopXMLNS, __Opts,
-               [{xmlel, <<"jid">>, _attrs, _} = _el | _els], Jid,
-               Submission_id, Nick) ->
+               [{xmlel, <<"jid">>, _attrs, _} = _el | _els],
+               Submission_id, Jid, Nick) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -253,40 +253,40 @@ decode_mix_els(__TopXMLNS, __Opts,
             decode_mix_els(__TopXMLNS,
                            __Opts,
                            _els,
+                           Submission_id,
                            decode_mix_jid(<<"urn:xmpp:mix:core:0">>,
                                           __Opts,
                                           _el),
-                           Submission_id,
                            Nick);
         <<"urn:xmpp:mix:core:1">> ->
             decode_mix_els(__TopXMLNS,
                            __Opts,
                            _els,
+                           Submission_id,
                            decode_mix_jid(<<"urn:xmpp:mix:core:1">>,
                                           __Opts,
                                           _el),
-                           Submission_id,
                            Nick);
         <<"urn:xmpp:mix:presence:0">> ->
             decode_mix_els(__TopXMLNS,
                            __Opts,
                            _els,
+                           Submission_id,
                            decode_mix_jid(<<"urn:xmpp:mix:presence:0">>,
                                           __Opts,
                                           _el),
-                           Submission_id,
                            Nick);
         _ ->
             decode_mix_els(__TopXMLNS,
                            __Opts,
                            _els,
-                           Jid,
                            Submission_id,
+                           Jid,
                            Nick)
     end;
 decode_mix_els(__TopXMLNS, __Opts,
-               [{xmlel, <<"nick">>, _attrs, _} = _el | _els], Jid,
-               Submission_id, Nick) ->
+               [{xmlel, <<"nick">>, _attrs, _} = _el | _els],
+               Submission_id, Jid, Nick) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -295,8 +295,8 @@ decode_mix_els(__TopXMLNS, __Opts,
             decode_mix_els(__TopXMLNS,
                            __Opts,
                            _els,
-                           Jid,
                            Submission_id,
+                           Jid,
                            decode_mix_nick(<<"urn:xmpp:mix:core:0">>,
                                            __Opts,
                                            _el));
@@ -304,8 +304,8 @@ decode_mix_els(__TopXMLNS, __Opts,
             decode_mix_els(__TopXMLNS,
                            __Opts,
                            _els,
-                           Jid,
                            Submission_id,
+                           Jid,
                            decode_mix_nick(<<"urn:xmpp:mix:core:1">>,
                                            __Opts,
                                            _el));
@@ -313,8 +313,8 @@ decode_mix_els(__TopXMLNS, __Opts,
             decode_mix_els(__TopXMLNS,
                            __Opts,
                            _els,
-                           Jid,
                            Submission_id,
+                           Jid,
                            decode_mix_nick(<<"urn:xmpp:mix:presence:0">>,
                                            __Opts,
                                            _el));
@@ -322,17 +322,17 @@ decode_mix_els(__TopXMLNS, __Opts,
             decode_mix_els(__TopXMLNS,
                            __Opts,
                            _els,
-                           Jid,
                            Submission_id,
+                           Jid,
                            Nick)
     end;
-decode_mix_els(__TopXMLNS, __Opts, [_ | _els], Jid,
-               Submission_id, Nick) ->
+decode_mix_els(__TopXMLNS, __Opts, [_ | _els],
+               Submission_id, Jid, Nick) ->
     decode_mix_els(__TopXMLNS,
                    __Opts,
                    _els,
-                   Jid,
                    Submission_id,
+                   Jid,
                    Nick).
 
 decode_mix_attrs(__TopXMLNS,
@@ -349,20 +349,16 @@ encode_mix({mix, Submission_id, Jid, Nick, Xmlns},
                                                 [<<"urn:xmpp:mix:core:0">>,
                                                  <<"urn:xmpp:mix:core:1">>],
                                                 __TopXMLNS),
-    _els = lists:reverse('encode_mix_$jid'(Jid,
-                                           __NewTopXMLNS,
-                                           'encode_mix_$submission_id'(Submission_id,
-                                                                       __NewTopXMLNS,
-                                                                       'encode_mix_$nick'(Nick,
+    _els = lists:reverse('encode_mix_$nick'(Nick,
+                                            __NewTopXMLNS,
+                                            'encode_mix_$jid'(Jid,
+                                                              __NewTopXMLNS,
+                                                              'encode_mix_$submission_id'(Submission_id,
                                                                                           __NewTopXMLNS,
                                                                                           [])))),
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
                                         __TopXMLNS),
     {xmlel, <<"mix">>, _attrs, _els}.
-
-'encode_mix_$jid'(undefined, __TopXMLNS, _acc) -> _acc;
-'encode_mix_$jid'(Jid, __TopXMLNS, _acc) ->
-    [encode_mix_jid(Jid, __TopXMLNS) | _acc].
 
 'encode_mix_$submission_id'(<<>>, __TopXMLNS, _acc) ->
     _acc;
@@ -370,6 +366,10 @@ encode_mix({mix, Submission_id, Jid, Nick, Xmlns},
                             _acc) ->
     [encode_mix_submission_id(Submission_id, __TopXMLNS)
      | _acc].
+
+'encode_mix_$jid'(undefined, __TopXMLNS, _acc) -> _acc;
+'encode_mix_$jid'(Jid, __TopXMLNS, _acc) ->
+    [encode_mix_jid(Jid, __TopXMLNS) | _acc].
 
 'encode_mix_$nick'(<<>>, __TopXMLNS, _acc) -> _acc;
 'encode_mix_$nick'(Nick, __TopXMLNS, _acc) ->
@@ -614,11 +614,12 @@ encode_mix_participant({mix_participant, Jid, Nick},
         xmpp_codec:choose_top_xmlns(<<"urn:xmpp:mix:core:1">>,
                                     [],
                                     __TopXMLNS),
-    _els = lists:reverse('encode_mix_participant_$jid'(Jid,
-                                                       __NewTopXMLNS,
-                                                       'encode_mix_participant_$nick'(Nick,
-                                                                                      __NewTopXMLNS,
-                                                                                      []))),
+    _els =
+        lists:reverse('encode_mix_participant_$nick'(Nick,
+                                                     __NewTopXMLNS,
+                                                     'encode_mix_participant_$jid'(Jid,
+                                                                                   __NewTopXMLNS,
+                                                                                   []))),
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
                                         __TopXMLNS),
     {xmlel, <<"participant">>, _attrs, _els}.
@@ -805,12 +806,11 @@ encode_mix_join({mix_join,
                                                 [<<"urn:xmpp:mix:core:0">>,
                                                  <<"urn:xmpp:mix:core:1">>],
                                                 __TopXMLNS),
-    _els =
-        lists:reverse('encode_mix_join_$subscribe'(Subscribe,
-                                                   __NewTopXMLNS,
-                                                   'encode_mix_join_$nick'(Nick,
-                                                                           __NewTopXMLNS,
-                                                                           []))),
+    _els = lists:reverse('encode_mix_join_$nick'(Nick,
+                                                 __NewTopXMLNS,
+                                                 'encode_mix_join_$subscribe'(Subscribe,
+                                                                              __NewTopXMLNS,
+                                                                              []))),
     _attrs = encode_mix_join_attr_jid(Jid,
                                       encode_mix_join_attr_id(Id,
                                                               xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
@@ -861,7 +861,7 @@ decode_mix_update_subscription(__TopXMLNS, __Opts,
                                 <<"update-subscription">>,
                                 _attrs,
                                 _els}) ->
-    {Unsubscribe, Subscribe} =
+    {Subscribe, Unsubscribe} =
         decode_mix_update_subscription_els(__TopXMLNS,
                                            __Opts,
                                            _els,
@@ -879,12 +879,12 @@ decode_mix_update_subscription(__TopXMLNS, __Opts,
      Unsubscribe}.
 
 decode_mix_update_subscription_els(__TopXMLNS, __Opts,
-                                   [], Unsubscribe, Subscribe) ->
-    {lists:reverse(Unsubscribe), lists:reverse(Subscribe)};
+                                   [], Subscribe, Unsubscribe) ->
+    {lists:reverse(Subscribe), lists:reverse(Unsubscribe)};
 decode_mix_update_subscription_els(__TopXMLNS, __Opts,
                                    [{xmlel, <<"subscribe">>, _attrs, _} = _el
                                     | _els],
-                                   Unsubscribe, Subscribe) ->
+                                   Subscribe, Unsubscribe) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -893,31 +893,31 @@ decode_mix_update_subscription_els(__TopXMLNS, __Opts,
             decode_mix_update_subscription_els(__TopXMLNS,
                                                __Opts,
                                                _els,
-                                               Unsubscribe,
                                                [decode_mix_subscribe(<<"urn:xmpp:mix:core:0">>,
                                                                      __Opts,
                                                                      _el)
-                                                | Subscribe]);
+                                                | Subscribe],
+                                               Unsubscribe);
         <<"urn:xmpp:mix:core:1">> ->
             decode_mix_update_subscription_els(__TopXMLNS,
                                                __Opts,
                                                _els,
-                                               Unsubscribe,
                                                [decode_mix_subscribe(<<"urn:xmpp:mix:core:1">>,
                                                                      __Opts,
                                                                      _el)
-                                                | Subscribe]);
+                                                | Subscribe],
+                                               Unsubscribe);
         _ ->
             decode_mix_update_subscription_els(__TopXMLNS,
                                                __Opts,
                                                _els,
-                                               Unsubscribe,
-                                               Subscribe)
+                                               Subscribe,
+                                               Unsubscribe)
     end;
 decode_mix_update_subscription_els(__TopXMLNS, __Opts,
                                    [{xmlel, <<"unsubscribe">>, _attrs, _} = _el
                                     | _els],
-                                   Unsubscribe, Subscribe) ->
+                                   Subscribe, Unsubscribe) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -926,34 +926,34 @@ decode_mix_update_subscription_els(__TopXMLNS, __Opts,
             decode_mix_update_subscription_els(__TopXMLNS,
                                                __Opts,
                                                _els,
+                                               Subscribe,
                                                [decode_mix_unsubscribe(<<"urn:xmpp:mix:core:0">>,
                                                                        __Opts,
                                                                        _el)
-                                                | Unsubscribe],
-                                               Subscribe);
+                                                | Unsubscribe]);
         <<"urn:xmpp:mix:core:1">> ->
             decode_mix_update_subscription_els(__TopXMLNS,
                                                __Opts,
                                                _els,
+                                               Subscribe,
                                                [decode_mix_unsubscribe(<<"urn:xmpp:mix:core:1">>,
                                                                        __Opts,
                                                                        _el)
-                                                | Unsubscribe],
-                                               Subscribe);
+                                                | Unsubscribe]);
         _ ->
             decode_mix_update_subscription_els(__TopXMLNS,
                                                __Opts,
                                                _els,
-                                               Unsubscribe,
-                                               Subscribe)
+                                               Subscribe,
+                                               Unsubscribe)
     end;
 decode_mix_update_subscription_els(__TopXMLNS, __Opts,
-                                   [_ | _els], Unsubscribe, Subscribe) ->
+                                   [_ | _els], Subscribe, Unsubscribe) ->
     decode_mix_update_subscription_els(__TopXMLNS,
                                        __Opts,
                                        _els,
-                                       Unsubscribe,
-                                       Subscribe).
+                                       Subscribe,
+                                       Unsubscribe).
 
 decode_mix_update_subscription_attrs(__TopXMLNS,
                                      [{<<"xmlns">>, _val} | _attrs], _Xmlns,
@@ -1003,18 +1003,6 @@ encode_mix_update_subscription({mix_update_subscription,
                                                                                 __TopXMLNS)),
     {xmlel, <<"update-subscription">>, _attrs, _els}.
 
-'encode_mix_update_subscription_$unsubscribe'([],
-                                              __TopXMLNS, _acc) ->
-    _acc;
-'encode_mix_update_subscription_$unsubscribe'([Unsubscribe
-                                               | _els],
-                                              __TopXMLNS, _acc) ->
-    'encode_mix_update_subscription_$unsubscribe'(_els,
-                                                  __TopXMLNS,
-                                                  [encode_mix_unsubscribe(Unsubscribe,
-                                                                          __TopXMLNS)
-                                                   | _acc]).
-
 'encode_mix_update_subscription_$subscribe'([],
                                             __TopXMLNS, _acc) ->
     _acc;
@@ -1026,6 +1014,18 @@ encode_mix_update_subscription({mix_update_subscription,
                                                 [encode_mix_subscribe(Subscribe,
                                                                       __TopXMLNS)
                                                  | _acc]).
+
+'encode_mix_update_subscription_$unsubscribe'([],
+                                              __TopXMLNS, _acc) ->
+    _acc;
+'encode_mix_update_subscription_$unsubscribe'([Unsubscribe
+                                               | _els],
+                                              __TopXMLNS, _acc) ->
+    'encode_mix_update_subscription_$unsubscribe'(_els,
+                                                  __TopXMLNS,
+                                                  [encode_mix_unsubscribe(Unsubscribe,
+                                                                          __TopXMLNS)
+                                                   | _acc]).
 
 decode_mix_update_subscription_attr_xmlns(__TopXMLNS,
                                           undefined) ->

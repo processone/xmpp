@@ -68,7 +68,7 @@ enc_bool(true) -> <<"true">>.
 
 decode_pep_bookmarks_conference(__TopXMLNS, __Opts,
                                 {xmlel, <<"conference">>, _attrs, _els}) ->
-    {Extensions, Password, Nick} =
+    {Nick, Password, Extensions} =
         decode_pep_bookmarks_conference_els(__TopXMLNS,
                                             __Opts,
                                             _els,
@@ -88,12 +88,12 @@ decode_pep_bookmarks_conference(__TopXMLNS, __Opts,
      Extensions}.
 
 decode_pep_bookmarks_conference_els(__TopXMLNS, __Opts,
-                                    [], Extensions, Password, Nick) ->
-    {Extensions, Password, Nick};
+                                    [], Nick, Password, Extensions) ->
+    {Nick, Password, Extensions};
 decode_pep_bookmarks_conference_els(__TopXMLNS, __Opts,
                                     [{xmlel, <<"nick">>, _attrs, _} = _el
                                      | _els],
-                                    Extensions, Password, Nick) ->
+                                    Nick, Password, Extensions) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -102,23 +102,23 @@ decode_pep_bookmarks_conference_els(__TopXMLNS, __Opts,
             decode_pep_bookmarks_conference_els(__TopXMLNS,
                                                 __Opts,
                                                 _els,
-                                                Extensions,
-                                                Password,
                                                 decode_pep_conference_nick(<<"urn:xmpp:bookmarks:1">>,
                                                                            __Opts,
-                                                                           _el));
+                                                                           _el),
+                                                Password,
+                                                Extensions);
         _ ->
             decode_pep_bookmarks_conference_els(__TopXMLNS,
                                                 __Opts,
                                                 _els,
-                                                Extensions,
+                                                Nick,
                                                 Password,
-                                                Nick)
+                                                Extensions)
     end;
 decode_pep_bookmarks_conference_els(__TopXMLNS, __Opts,
                                     [{xmlel, <<"password">>, _attrs, _} = _el
                                      | _els],
-                                    Extensions, Password, Nick) ->
+                                    Nick, Password, Extensions) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -127,23 +127,23 @@ decode_pep_bookmarks_conference_els(__TopXMLNS, __Opts,
             decode_pep_bookmarks_conference_els(__TopXMLNS,
                                                 __Opts,
                                                 _els,
-                                                Extensions,
+                                                Nick,
                                                 decode_pep_conference_password(<<"urn:xmpp:bookmarks:1">>,
                                                                                __Opts,
                                                                                _el),
-                                                Nick);
+                                                Extensions);
         _ ->
             decode_pep_bookmarks_conference_els(__TopXMLNS,
                                                 __Opts,
                                                 _els,
-                                                Extensions,
+                                                Nick,
                                                 Password,
-                                                Nick)
+                                                Extensions)
     end;
 decode_pep_bookmarks_conference_els(__TopXMLNS, __Opts,
                                     [{xmlel, <<"extensions">>, _attrs, _} = _el
                                      | _els],
-                                    Extensions, Password, Nick) ->
+                                    Nick, Password, Extensions) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -152,27 +152,27 @@ decode_pep_bookmarks_conference_els(__TopXMLNS, __Opts,
             decode_pep_bookmarks_conference_els(__TopXMLNS,
                                                 __Opts,
                                                 _els,
+                                                Nick,
+                                                Password,
                                                 decode_pep_conference_extensions(<<"urn:xmpp:bookmarks:1">>,
                                                                                  __Opts,
-                                                                                 _el),
-                                                Password,
-                                                Nick);
+                                                                                 _el));
         _ ->
             decode_pep_bookmarks_conference_els(__TopXMLNS,
                                                 __Opts,
                                                 _els,
-                                                Extensions,
+                                                Nick,
                                                 Password,
-                                                Nick)
+                                                Extensions)
     end;
 decode_pep_bookmarks_conference_els(__TopXMLNS, __Opts,
-                                    [_ | _els], Extensions, Password, Nick) ->
+                                    [_ | _els], Nick, Password, Extensions) ->
     decode_pep_bookmarks_conference_els(__TopXMLNS,
                                         __Opts,
                                         _els,
-                                        Extensions,
+                                        Nick,
                                         Password,
-                                        Nick).
+                                        Extensions).
 
 decode_pep_bookmarks_conference_attrs(__TopXMLNS,
                                       [{<<"name">>, _val} | _attrs], _Name,
@@ -227,14 +227,12 @@ encode_pep_bookmarks_conference({pep_bookmarks_conference,
                                                                                                                            __TopXMLNS))),
     {xmlel, <<"conference">>, _attrs, _els}.
 
-'encode_pep_bookmarks_conference_$extensions'(undefined,
-                                              __TopXMLNS, _acc) ->
+'encode_pep_bookmarks_conference_$nick'(undefined,
+                                        __TopXMLNS, _acc) ->
     _acc;
-'encode_pep_bookmarks_conference_$extensions'(Extensions,
-                                              __TopXMLNS, _acc) ->
-    [encode_pep_conference_extensions(Extensions,
-                                      __TopXMLNS)
-     | _acc].
+'encode_pep_bookmarks_conference_$nick'(Nick,
+                                        __TopXMLNS, _acc) ->
+    [encode_pep_conference_nick(Nick, __TopXMLNS) | _acc].
 
 'encode_pep_bookmarks_conference_$password'(undefined,
                                             __TopXMLNS, _acc) ->
@@ -244,12 +242,14 @@ encode_pep_bookmarks_conference({pep_bookmarks_conference,
     [encode_pep_conference_password(Password, __TopXMLNS)
      | _acc].
 
-'encode_pep_bookmarks_conference_$nick'(undefined,
-                                        __TopXMLNS, _acc) ->
+'encode_pep_bookmarks_conference_$extensions'(undefined,
+                                              __TopXMLNS, _acc) ->
     _acc;
-'encode_pep_bookmarks_conference_$nick'(Nick,
-                                        __TopXMLNS, _acc) ->
-    [encode_pep_conference_nick(Nick, __TopXMLNS) | _acc].
+'encode_pep_bookmarks_conference_$extensions'(Extensions,
+                                              __TopXMLNS, _acc) ->
+    [encode_pep_conference_extensions(Extensions,
+                                      __TopXMLNS)
+     | _acc].
 
 decode_pep_bookmarks_conference_attr_name(__TopXMLNS,
                                           undefined) ->

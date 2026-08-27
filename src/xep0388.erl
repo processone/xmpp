@@ -749,11 +749,11 @@ encode_sasl2_continue({sasl2_continue,
     _els = [xmpp_codec:encode(_el, __NewTopXMLNS)
             || _el <- __Els]
                ++
-               lists:reverse('encode_sasl2_continue_$additional_data'(Additional_data,
-                                                                      __NewTopXMLNS,
-                                                                      'encode_sasl2_continue_$tasks'(Tasks,
-                                                                                                     __NewTopXMLNS,
-                                                                                                     'encode_sasl2_continue_$text'(Text,
+               lists:reverse('encode_sasl2_continue_$text'(Text,
+                                                           __NewTopXMLNS,
+                                                           'encode_sasl2_continue_$tasks'(Tasks,
+                                                                                          __NewTopXMLNS,
+                                                                                          'encode_sasl2_continue_$additional_data'(Additional_data,
                                                                                                                                    __NewTopXMLNS,
                                                                                                                                    [])))),
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
@@ -1212,9 +1212,9 @@ encode_sasl2_failure({sasl2_failure,
     _els = [xmpp_codec:encode(_el, __NewTopXMLNS)
             || _el <- __Els]
                ++
-               lists:reverse('encode_sasl2_failure_$text'(Text,
-                                                          __NewTopXMLNS,
-                                                          'encode_sasl2_failure_$reason'(Reason,
+               lists:reverse('encode_sasl2_failure_$reason'(Reason,
+                                                            __NewTopXMLNS,
+                                                            'encode_sasl2_failure_$text'(Text,
                                                                                          __NewTopXMLNS,
                                                                                          []))),
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
@@ -1551,9 +1551,9 @@ encode_sasl2_success({sasl2_success,
     _els = [xmpp_codec:encode(_el, __NewTopXMLNS)
             || _el <- __Els]
                ++
-               lists:reverse('encode_sasl2_success_$additional_data'(Additional_data,
-                                                                     __NewTopXMLNS,
-                                                                     'encode_sasl2_success_$jid'(Jid,
+               lists:reverse('encode_sasl2_success_$jid'(Jid,
+                                                         __NewTopXMLNS,
+                                                         'encode_sasl2_success_$additional_data'(Additional_data,
                                                                                                  __NewTopXMLNS,
                                                                                                  []))),
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
@@ -1767,7 +1767,7 @@ encode_sasl2_user_agent_software_cdata(_val, _acc) ->
 
 decode_sasl2_user_agent(__TopXMLNS, __Opts,
                         {xmlel, <<"user-agent">>, _attrs, _els}) ->
-    {Device, Software} =
+    {Software, Device} =
         decode_sasl2_user_agent_els(__TopXMLNS,
                                     __Opts,
                                     _els,
@@ -1779,11 +1779,11 @@ decode_sasl2_user_agent(__TopXMLNS, __Opts,
     {sasl2_user_agent, Id, Software, Device}.
 
 decode_sasl2_user_agent_els(__TopXMLNS, __Opts, [],
-                            Device, Software) ->
-    {Device, Software};
+                            Software, Device) ->
+    {Software, Device};
 decode_sasl2_user_agent_els(__TopXMLNS, __Opts,
                             [{xmlel, <<"software">>, _attrs, _} = _el | _els],
-                            Device, Software) ->
+                            Software, Device) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -1792,20 +1792,20 @@ decode_sasl2_user_agent_els(__TopXMLNS, __Opts,
             decode_sasl2_user_agent_els(__TopXMLNS,
                                         __Opts,
                                         _els,
-                                        Device,
                                         decode_sasl2_user_agent_software(<<"urn:xmpp:sasl:2">>,
                                                                          __Opts,
-                                                                         _el));
+                                                                         _el),
+                                        Device);
         _ ->
             decode_sasl2_user_agent_els(__TopXMLNS,
                                         __Opts,
                                         _els,
-                                        Device,
-                                        Software)
+                                        Software,
+                                        Device)
     end;
 decode_sasl2_user_agent_els(__TopXMLNS, __Opts,
                             [{xmlel, <<"device">>, _attrs, _} = _el | _els],
-                            Device, Software) ->
+                            Software, Device) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -1814,24 +1814,24 @@ decode_sasl2_user_agent_els(__TopXMLNS, __Opts,
             decode_sasl2_user_agent_els(__TopXMLNS,
                                         __Opts,
                                         _els,
+                                        Software,
                                         decode_sasl2_user_agent_device(<<"urn:xmpp:sasl:2">>,
                                                                        __Opts,
-                                                                       _el),
-                                        Software);
+                                                                       _el));
         _ ->
             decode_sasl2_user_agent_els(__TopXMLNS,
                                         __Opts,
                                         _els,
-                                        Device,
-                                        Software)
+                                        Software,
+                                        Device)
     end;
 decode_sasl2_user_agent_els(__TopXMLNS, __Opts,
-                            [_ | _els], Device, Software) ->
+                            [_ | _els], Software, Device) ->
     decode_sasl2_user_agent_els(__TopXMLNS,
                                 __Opts,
                                 _els,
-                                Device,
-                                Software).
+                                Software,
+                                Device).
 
 decode_sasl2_user_agent_attrs(__TopXMLNS,
                               [{<<"id">>, _val} | _attrs], _Id) ->
@@ -1862,20 +1862,20 @@ encode_sasl2_user_agent({sasl2_user_agent,
                                                                         __TopXMLNS)),
     {xmlel, <<"user-agent">>, _attrs, _els}.
 
-'encode_sasl2_user_agent_$device'(undefined, __TopXMLNS,
-                                  _acc) ->
-    _acc;
-'encode_sasl2_user_agent_$device'(Device, __TopXMLNS,
-                                  _acc) ->
-    [encode_sasl2_user_agent_device(Device, __TopXMLNS)
-     | _acc].
-
 'encode_sasl2_user_agent_$software'(undefined,
                                     __TopXMLNS, _acc) ->
     _acc;
 'encode_sasl2_user_agent_$software'(Software,
                                     __TopXMLNS, _acc) ->
     [encode_sasl2_user_agent_software(Software, __TopXMLNS)
+     | _acc].
+
+'encode_sasl2_user_agent_$device'(undefined, __TopXMLNS,
+                                  _acc) ->
+    _acc;
+'encode_sasl2_user_agent_$device'(Device, __TopXMLNS,
+                                  _acc) ->
+    [encode_sasl2_user_agent_device(Device, __TopXMLNS)
      | _acc].
 
 decode_sasl2_user_agent_attr_id(__TopXMLNS,
@@ -1942,7 +1942,7 @@ encode_sasl2_initial_response_cdata(_val, _acc) ->
 
 decode_sasl2_authenticate(__TopXMLNS, __Opts,
                           {xmlel, <<"authenticate">>, _attrs, _els}) ->
-    {User_agent, Initial_response, __Els} =
+    {Initial_response, User_agent, __Els} =
         decode_sasl2_authenticate_els(__TopXMLNS,
                                       __Opts,
                                       _els,
@@ -1959,12 +1959,12 @@ decode_sasl2_authenticate(__TopXMLNS, __Opts,
      __Els}.
 
 decode_sasl2_authenticate_els(__TopXMLNS, __Opts, [],
-                              User_agent, Initial_response, __Els) ->
-    {User_agent, Initial_response, lists:reverse(__Els)};
+                              Initial_response, User_agent, __Els) ->
+    {Initial_response, User_agent, lists:reverse(__Els)};
 decode_sasl2_authenticate_els(__TopXMLNS, __Opts,
                               [{xmlel, <<"initial-response">>, _attrs, _} = _el
                                | _els],
-                              User_agent, Initial_response, __Els) ->
+                              Initial_response, User_agent, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -1973,23 +1973,23 @@ decode_sasl2_authenticate_els(__TopXMLNS, __Opts,
             decode_sasl2_authenticate_els(__TopXMLNS,
                                           __Opts,
                                           _els,
-                                          User_agent,
                                           decode_sasl2_initial_response(<<"urn:xmpp:sasl:2">>,
                                                                         __Opts,
                                                                         _el),
+                                          User_agent,
                                           __Els);
         _ ->
             decode_sasl2_authenticate_els(__TopXMLNS,
                                           __Opts,
                                           _els,
-                                          User_agent,
                                           Initial_response,
+                                          User_agent,
                                           [_el | __Els])
     end;
 decode_sasl2_authenticate_els(__TopXMLNS, __Opts,
                               [{xmlel, <<"user-agent">>, _attrs, _} = _el
                                | _els],
-                              User_agent, Initial_response, __Els) ->
+                              Initial_response, User_agent, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -1998,29 +1998,29 @@ decode_sasl2_authenticate_els(__TopXMLNS, __Opts,
             decode_sasl2_authenticate_els(__TopXMLNS,
                                           __Opts,
                                           _els,
+                                          Initial_response,
                                           decode_sasl2_user_agent(<<"urn:xmpp:sasl:2">>,
                                                                   __Opts,
                                                                   _el),
-                                          Initial_response,
                                           __Els);
         _ ->
             decode_sasl2_authenticate_els(__TopXMLNS,
                                           __Opts,
                                           _els,
-                                          User_agent,
                                           Initial_response,
+                                          User_agent,
                                           [_el | __Els])
     end;
 decode_sasl2_authenticate_els(__TopXMLNS, __Opts,
                               [{xmlel, _name, _attrs, _} = _el | _els],
-                              User_agent, Initial_response, __Els) ->
+                              Initial_response, User_agent, __Els) ->
     case proplists:get_bool(ignore_els, __Opts) of
         true ->
             decode_sasl2_authenticate_els(__TopXMLNS,
                                           __Opts,
                                           _els,
-                                          User_agent,
                                           Initial_response,
+                                          User_agent,
                                           [_el | __Els]);
         false ->
             __XMLNS = xmpp_codec:get_attr(<<"xmlns">>,
@@ -2031,15 +2031,15 @@ decode_sasl2_authenticate_els(__TopXMLNS, __Opts,
                     decode_sasl2_authenticate_els(__TopXMLNS,
                                                   __Opts,
                                                   _els,
-                                                  User_agent,
                                                   Initial_response,
+                                                  User_agent,
                                                   [_el | __Els]);
                 Mod ->
                     decode_sasl2_authenticate_els(__TopXMLNS,
                                                   __Opts,
                                                   _els,
-                                                  User_agent,
                                                   Initial_response,
+                                                  User_agent,
                                                   [Mod:do_decode(_name,
                                                                  __XMLNS,
                                                                  _el,
@@ -2048,13 +2048,13 @@ decode_sasl2_authenticate_els(__TopXMLNS, __Opts,
             end
     end;
 decode_sasl2_authenticate_els(__TopXMLNS, __Opts,
-                              [_ | _els], User_agent, Initial_response,
+                              [_ | _els], Initial_response, User_agent,
                               __Els) ->
     decode_sasl2_authenticate_els(__TopXMLNS,
                                   __Opts,
                                   _els,
-                                  User_agent,
                                   Initial_response,
+                                  User_agent,
                                   __Els).
 
 decode_sasl2_authenticate_attrs(__TopXMLNS,
@@ -2097,14 +2097,6 @@ encode_sasl2_authenticate({sasl2_authenticate,
                                                                             __TopXMLNS)),
     {xmlel, <<"authenticate">>, _attrs, _els}.
 
-'encode_sasl2_authenticate_$user_agent'(undefined,
-                                        __TopXMLNS, _acc) ->
-    _acc;
-'encode_sasl2_authenticate_$user_agent'(User_agent,
-                                        __TopXMLNS, _acc) ->
-    [encode_sasl2_user_agent(User_agent, __TopXMLNS)
-     | _acc].
-
 'encode_sasl2_authenticate_$initial_response'(undefined,
                                               __TopXMLNS, _acc) ->
     _acc;
@@ -2112,6 +2104,14 @@ encode_sasl2_authenticate({sasl2_authenticate,
                                               __TopXMLNS, _acc) ->
     [encode_sasl2_initial_response(Initial_response,
                                    __TopXMLNS)
+     | _acc].
+
+'encode_sasl2_authenticate_$user_agent'(undefined,
+                                        __TopXMLNS, _acc) ->
+    _acc;
+'encode_sasl2_authenticate_$user_agent'(User_agent,
+                                        __TopXMLNS, _acc) ->
+    [encode_sasl2_user_agent(User_agent, __TopXMLNS)
      | _acc].
 
 decode_sasl2_authenticate_attr_mechanism(__TopXMLNS,
@@ -2350,9 +2350,9 @@ encode_sasl2_authentication({sasl2_authenticaton,
     _els = [xmpp_codec:encode(_el, __NewTopXMLNS)
             || _el <- __Els]
                ++
-               lists:reverse('encode_sasl2_authentication_$mechanisms'(Mechanisms,
-                                                                       __NewTopXMLNS,
-                                                                       'encode_sasl2_authentication_$inline'(Inline,
+               lists:reverse('encode_sasl2_authentication_$inline'(Inline,
+                                                                   __NewTopXMLNS,
+                                                                   'encode_sasl2_authentication_$mechanisms'(Mechanisms,
                                                                                                              __NewTopXMLNS,
                                                                                                              []))),
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,

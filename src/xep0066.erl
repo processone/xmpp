@@ -41,27 +41,27 @@ records() -> [{oob_x, 4}].
 
 decode_oob_x(__TopXMLNS, __Opts,
              {xmlel, <<"x">>, _attrs, _els}) ->
-    {Desc, Url, __Els} = decode_oob_x_els(__TopXMLNS,
+    {Url, Desc, __Els} = decode_oob_x_els(__TopXMLNS,
                                           __Opts,
                                           _els,
-                                          <<>>,
                                           error,
+                                          <<>>,
                                           []),
     Sid = decode_oob_x_attrs(__TopXMLNS, _attrs, undefined),
     {oob_x, Url, Desc, Sid, __Els}.
 
-decode_oob_x_els(__TopXMLNS, __Opts, [], Desc, Url,
+decode_oob_x_els(__TopXMLNS, __Opts, [], Url, Desc,
                  __Els) ->
-    {Desc,
-     case Url of
+    {case Url of
          error ->
              erlang:error({xmpp_codec,
                            {missing_tag, <<"url">>, __TopXMLNS}});
          {value, Url1} -> Url1
      end,
+     Desc,
      lists:reverse(__Els)};
 decode_oob_x_els(__TopXMLNS, __Opts,
-                 [{xmlel, <<"url">>, _attrs, _} = _el | _els], Desc, Url,
+                 [{xmlel, <<"url">>, _attrs, _} = _el | _els], Url, Desc,
                  __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
@@ -71,21 +71,21 @@ decode_oob_x_els(__TopXMLNS, __Opts,
             decode_oob_x_els(__TopXMLNS,
                              __Opts,
                              _els,
-                             Desc,
                              {value,
                               decode_oob_url(<<"jabber:x:oob">>, __Opts, _el)},
+                             Desc,
                              __Els);
         _ ->
             decode_oob_x_els(__TopXMLNS,
                              __Opts,
                              _els,
-                             Desc,
                              Url,
+                             Desc,
                              [_el | __Els])
     end;
 decode_oob_x_els(__TopXMLNS, __Opts,
-                 [{xmlel, <<"desc">>, _attrs, _} = _el | _els], Desc,
-                 Url, __Els) ->
+                 [{xmlel, <<"desc">>, _attrs, _} = _el | _els], Url,
+                 Desc, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -94,27 +94,27 @@ decode_oob_x_els(__TopXMLNS, __Opts,
             decode_oob_x_els(__TopXMLNS,
                              __Opts,
                              _els,
-                             decode_oob_desc(<<"jabber:x:oob">>, __Opts, _el),
                              Url,
+                             decode_oob_desc(<<"jabber:x:oob">>, __Opts, _el),
                              __Els);
         _ ->
             decode_oob_x_els(__TopXMLNS,
                              __Opts,
                              _els,
-                             Desc,
                              Url,
+                             Desc,
                              [_el | __Els])
     end;
 decode_oob_x_els(__TopXMLNS, __Opts,
-                 [{xmlel, _name, _attrs, _} = _el | _els], Desc, Url,
+                 [{xmlel, _name, _attrs, _} = _el | _els], Url, Desc,
                  __Els) ->
     case proplists:get_bool(ignore_els, __Opts) of
         true ->
             decode_oob_x_els(__TopXMLNS,
                              __Opts,
                              _els,
-                             Desc,
                              Url,
+                             Desc,
                              [_el | __Els]);
         false ->
             __XMLNS = xmpp_codec:get_attr(<<"xmlns">>,
@@ -125,26 +125,26 @@ decode_oob_x_els(__TopXMLNS, __Opts,
                     decode_oob_x_els(__TopXMLNS,
                                      __Opts,
                                      _els,
-                                     Desc,
                                      Url,
+                                     Desc,
                                      [_el | __Els]);
                 Mod ->
                     decode_oob_x_els(__TopXMLNS,
                                      __Opts,
                                      _els,
-                                     Desc,
                                      Url,
+                                     Desc,
                                      [Mod:do_decode(_name, __XMLNS, _el, __Opts)
                                       | __Els])
             end
     end;
-decode_oob_x_els(__TopXMLNS, __Opts, [_ | _els], Desc,
-                 Url, __Els) ->
+decode_oob_x_els(__TopXMLNS, __Opts, [_ | _els], Url,
+                 Desc, __Els) ->
     decode_oob_x_els(__TopXMLNS,
                      __Opts,
                      _els,
-                     Desc,
                      Url,
+                     Desc,
                      __Els).
 
 decode_oob_x_attrs(__TopXMLNS,
@@ -174,12 +174,12 @@ encode_oob_x({oob_x, Url, Desc, Sid, __Els},
                                                               __TopXMLNS)),
     {xmlel, <<"x">>, _attrs, _els}.
 
+'encode_oob_x_$url'(Url, __TopXMLNS, _acc) ->
+    [encode_oob_url(Url, __TopXMLNS) | _acc].
+
 'encode_oob_x_$desc'(<<>>, __TopXMLNS, _acc) -> _acc;
 'encode_oob_x_$desc'(Desc, __TopXMLNS, _acc) ->
     [encode_oob_desc(Desc, __TopXMLNS) | _acc].
-
-'encode_oob_x_$url'(Url, __TopXMLNS, _acc) ->
-    [encode_oob_url(Url, __TopXMLNS) | _acc].
 
 decode_oob_x_attr_sid(__TopXMLNS, undefined) -> <<>>;
 decode_oob_x_attr_sid(__TopXMLNS, _val) -> _val.

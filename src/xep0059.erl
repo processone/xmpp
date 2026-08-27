@@ -92,7 +92,7 @@ enc_int(Int) -> erlang:integer_to_binary(Int).
 
 decode_rsm_set(__TopXMLNS, __Opts,
                {xmlel, <<"set">>, _attrs, _els}) ->
-    {After, Last, First, Count, Before, Max, Index} =
+    {After, Before, Count, First, Index, Last, Max} =
         decode_rsm_set_els(__TopXMLNS,
                            __Opts,
                            _els,
@@ -112,12 +112,12 @@ decode_rsm_set(__TopXMLNS, __Opts,
      Last,
      Max}.
 
-decode_rsm_set_els(__TopXMLNS, __Opts, [], After, Last,
-                   First, Count, Before, Max, Index) ->
-    {After, Last, First, Count, Before, Max, Index};
+decode_rsm_set_els(__TopXMLNS, __Opts, [], After,
+                   Before, Count, First, Index, Last, Max) ->
+    {After, Before, Count, First, Index, Last, Max};
 decode_rsm_set_els(__TopXMLNS, __Opts,
                    [{xmlel, <<"after">>, _attrs, _} = _el | _els], After,
-                   Last, First, Count, Before, Max, Index) ->
+                   Before, Count, First, Index, Last, Max) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -129,27 +129,27 @@ decode_rsm_set_els(__TopXMLNS, __Opts,
                                decode_rsm_after(<<"http://jabber.org/protocol/rsm">>,
                                                 __Opts,
                                                 _el),
-                               Last,
-                               First,
-                               Count,
                                Before,
-                               Max,
-                               Index);
+                               Count,
+                               First,
+                               Index,
+                               Last,
+                               Max);
         _ ->
             decode_rsm_set_els(__TopXMLNS,
                                __Opts,
                                _els,
                                After,
-                               Last,
-                               First,
-                               Count,
                                Before,
-                               Max,
-                               Index)
+                               Count,
+                               First,
+                               Index,
+                               Last,
+                               Max)
     end;
 decode_rsm_set_els(__TopXMLNS, __Opts,
                    [{xmlel, <<"before">>, _attrs, _} = _el | _els], After,
-                   Last, First, Count, Before, Max, Index) ->
+                   Before, Count, First, Index, Last, Max) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -159,29 +159,29 @@ decode_rsm_set_els(__TopXMLNS, __Opts,
                                __Opts,
                                _els,
                                After,
-                               Last,
-                               First,
-                               Count,
                                decode_rsm_before(<<"http://jabber.org/protocol/rsm">>,
                                                  __Opts,
                                                  _el),
-                               Max,
-                               Index);
+                               Count,
+                               First,
+                               Index,
+                               Last,
+                               Max);
         _ ->
             decode_rsm_set_els(__TopXMLNS,
                                __Opts,
                                _els,
                                After,
-                               Last,
-                               First,
-                               Count,
                                Before,
-                               Max,
-                               Index)
+                               Count,
+                               First,
+                               Index,
+                               Last,
+                               Max)
     end;
 decode_rsm_set_els(__TopXMLNS, __Opts,
                    [{xmlel, <<"count">>, _attrs, _} = _el | _els], After,
-                   Last, First, Count, Before, Max, Index) ->
+                   Before, Count, First, Index, Last, Max) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -191,29 +191,29 @@ decode_rsm_set_els(__TopXMLNS, __Opts,
                                __Opts,
                                _els,
                                After,
-                               Last,
-                               First,
+                               Before,
                                decode_rsm_count(<<"http://jabber.org/protocol/rsm">>,
                                                 __Opts,
                                                 _el),
-                               Before,
-                               Max,
-                               Index);
+                               First,
+                               Index,
+                               Last,
+                               Max);
         _ ->
             decode_rsm_set_els(__TopXMLNS,
                                __Opts,
                                _els,
                                After,
-                               Last,
-                               First,
-                               Count,
                                Before,
-                               Max,
-                               Index)
+                               Count,
+                               First,
+                               Index,
+                               Last,
+                               Max)
     end;
 decode_rsm_set_els(__TopXMLNS, __Opts,
                    [{xmlel, <<"first">>, _attrs, _} = _el | _els], After,
-                   Last, First, Count, Before, Max, Index) ->
+                   Before, Count, First, Index, Last, Max) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -223,29 +223,29 @@ decode_rsm_set_els(__TopXMLNS, __Opts,
                                __Opts,
                                _els,
                                After,
-                               Last,
+                               Before,
+                               Count,
                                decode_rsm_first(<<"http://jabber.org/protocol/rsm">>,
                                                 __Opts,
                                                 _el),
-                               Count,
-                               Before,
-                               Max,
-                               Index);
+                               Index,
+                               Last,
+                               Max);
         _ ->
             decode_rsm_set_els(__TopXMLNS,
                                __Opts,
                                _els,
                                After,
-                               Last,
-                               First,
-                               Count,
                                Before,
-                               Max,
-                               Index)
+                               Count,
+                               First,
+                               Index,
+                               Last,
+                               Max)
     end;
 decode_rsm_set_els(__TopXMLNS, __Opts,
                    [{xmlel, <<"index">>, _attrs, _} = _el | _els], After,
-                   Last, First, Count, Before, Max, Index) ->
+                   Before, Count, First, Index, Last, Max) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -255,29 +255,29 @@ decode_rsm_set_els(__TopXMLNS, __Opts,
                                __Opts,
                                _els,
                                After,
-                               Last,
-                               First,
-                               Count,
                                Before,
-                               Max,
+                               Count,
+                               First,
                                decode_rsm_index(<<"http://jabber.org/protocol/rsm">>,
                                                 __Opts,
-                                                _el));
+                                                _el),
+                               Last,
+                               Max);
         _ ->
             decode_rsm_set_els(__TopXMLNS,
                                __Opts,
                                _els,
                                After,
-                               Last,
-                               First,
-                               Count,
                                Before,
-                               Max,
-                               Index)
+                               Count,
+                               First,
+                               Index,
+                               Last,
+                               Max)
     end;
 decode_rsm_set_els(__TopXMLNS, __Opts,
                    [{xmlel, <<"last">>, _attrs, _} = _el | _els], After,
-                   Last, First, Count, Before, Max, Index) ->
+                   Before, Count, First, Index, Last, Max) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -287,29 +287,29 @@ decode_rsm_set_els(__TopXMLNS, __Opts,
                                __Opts,
                                _els,
                                After,
+                               Before,
+                               Count,
+                               First,
+                               Index,
                                decode_rsm_last(<<"http://jabber.org/protocol/rsm">>,
                                                __Opts,
                                                _el),
-                               First,
-                               Count,
-                               Before,
-                               Max,
-                               Index);
+                               Max);
         _ ->
             decode_rsm_set_els(__TopXMLNS,
                                __Opts,
                                _els,
                                After,
-                               Last,
-                               First,
-                               Count,
                                Before,
-                               Max,
-                               Index)
+                               Count,
+                               First,
+                               Index,
+                               Last,
+                               Max)
     end;
 decode_rsm_set_els(__TopXMLNS, __Opts,
                    [{xmlel, <<"max">>, _attrs, _} = _el | _els], After,
-                   Last, First, Count, Before, Max, Index) ->
+                   Before, Count, First, Index, Last, Max) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -319,38 +319,38 @@ decode_rsm_set_els(__TopXMLNS, __Opts,
                                __Opts,
                                _els,
                                After,
-                               Last,
-                               First,
-                               Count,
                                Before,
+                               Count,
+                               First,
+                               Index,
+                               Last,
                                decode_rsm_max(<<"http://jabber.org/protocol/rsm">>,
                                               __Opts,
-                                              _el),
-                               Index);
+                                              _el));
         _ ->
             decode_rsm_set_els(__TopXMLNS,
                                __Opts,
                                _els,
                                After,
-                               Last,
-                               First,
-                               Count,
                                Before,
-                               Max,
-                               Index)
+                               Count,
+                               First,
+                               Index,
+                               Last,
+                               Max)
     end;
 decode_rsm_set_els(__TopXMLNS, __Opts, [_ | _els],
-                   After, Last, First, Count, Before, Max, Index) ->
+                   After, Before, Count, First, Index, Last, Max) ->
     decode_rsm_set_els(__TopXMLNS,
                        __Opts,
                        _els,
                        After,
-                       Last,
-                       First,
-                       Count,
                        Before,
-                       Max,
-                       Index).
+                       Count,
+                       First,
+                       Index,
+                       Last,
+                       Max).
 
 encode_rsm_set({rsm_set,
                 After,
@@ -365,19 +365,19 @@ encode_rsm_set({rsm_set,
         xmpp_codec:choose_top_xmlns(<<"http://jabber.org/protocol/rsm">>,
                                     [],
                                     __TopXMLNS),
-    _els = lists:reverse('encode_rsm_set_$after'(After,
-                                                 __NewTopXMLNS,
-                                                 'encode_rsm_set_$last'(Last,
-                                                                        __NewTopXMLNS,
-                                                                        'encode_rsm_set_$first'(First,
-                                                                                                __NewTopXMLNS,
-                                                                                                'encode_rsm_set_$count'(Count,
-                                                                                                                        __NewTopXMLNS,
-                                                                                                                        'encode_rsm_set_$before'(Before,
-                                                                                                                                                 __NewTopXMLNS,
-                                                                                                                                                 'encode_rsm_set_$max'(Max,
+    _els = lists:reverse('encode_rsm_set_$max'(Max,
+                                               __NewTopXMLNS,
+                                               'encode_rsm_set_$last'(Last,
+                                                                      __NewTopXMLNS,
+                                                                      'encode_rsm_set_$index'(Index,
+                                                                                              __NewTopXMLNS,
+                                                                                              'encode_rsm_set_$first'(First,
+                                                                                                                      __NewTopXMLNS,
+                                                                                                                      'encode_rsm_set_$count'(Count,
+                                                                                                                                              __NewTopXMLNS,
+                                                                                                                                              'encode_rsm_set_$before'(Before,
                                                                                                                                                                        __NewTopXMLNS,
-                                                                                                                                                                       'encode_rsm_set_$index'(Index,
+                                                                                                                                                                       'encode_rsm_set_$after'(After,
                                                                                                                                                                                                __NewTopXMLNS,
                                                                                                                                                                                                [])))))))),
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
@@ -389,35 +389,35 @@ encode_rsm_set({rsm_set,
 'encode_rsm_set_$after'(After, __TopXMLNS, _acc) ->
     [encode_rsm_after(After, __TopXMLNS) | _acc].
 
-'encode_rsm_set_$last'(undefined, __TopXMLNS, _acc) ->
+'encode_rsm_set_$before'(undefined, __TopXMLNS, _acc) ->
     _acc;
-'encode_rsm_set_$last'(Last, __TopXMLNS, _acc) ->
-    [encode_rsm_last(Last, __TopXMLNS) | _acc].
-
-'encode_rsm_set_$first'(undefined, __TopXMLNS, _acc) ->
-    _acc;
-'encode_rsm_set_$first'(First, __TopXMLNS, _acc) ->
-    [encode_rsm_first(First, __TopXMLNS) | _acc].
+'encode_rsm_set_$before'(Before, __TopXMLNS, _acc) ->
+    [encode_rsm_before(Before, __TopXMLNS) | _acc].
 
 'encode_rsm_set_$count'(undefined, __TopXMLNS, _acc) ->
     _acc;
 'encode_rsm_set_$count'(Count, __TopXMLNS, _acc) ->
     [encode_rsm_count(Count, __TopXMLNS) | _acc].
 
-'encode_rsm_set_$before'(undefined, __TopXMLNS, _acc) ->
+'encode_rsm_set_$first'(undefined, __TopXMLNS, _acc) ->
     _acc;
-'encode_rsm_set_$before'(Before, __TopXMLNS, _acc) ->
-    [encode_rsm_before(Before, __TopXMLNS) | _acc].
-
-'encode_rsm_set_$max'(undefined, __TopXMLNS, _acc) ->
-    _acc;
-'encode_rsm_set_$max'(Max, __TopXMLNS, _acc) ->
-    [encode_rsm_max(Max, __TopXMLNS) | _acc].
+'encode_rsm_set_$first'(First, __TopXMLNS, _acc) ->
+    [encode_rsm_first(First, __TopXMLNS) | _acc].
 
 'encode_rsm_set_$index'(undefined, __TopXMLNS, _acc) ->
     _acc;
 'encode_rsm_set_$index'(Index, __TopXMLNS, _acc) ->
     [encode_rsm_index(Index, __TopXMLNS) | _acc].
+
+'encode_rsm_set_$last'(undefined, __TopXMLNS, _acc) ->
+    _acc;
+'encode_rsm_set_$last'(Last, __TopXMLNS, _acc) ->
+    [encode_rsm_last(Last, __TopXMLNS) | _acc].
+
+'encode_rsm_set_$max'(undefined, __TopXMLNS, _acc) ->
+    _acc;
+'encode_rsm_set_$max'(Max, __TopXMLNS, _acc) ->
+    [encode_rsm_max(Max, __TopXMLNS) | _acc].
 
 decode_rsm_first(__TopXMLNS, __Opts,
                  {xmlel, <<"first">>, _attrs, _els}) ->

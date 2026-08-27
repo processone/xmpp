@@ -85,7 +85,7 @@ encode_legacy_auth_feature({legacy_auth_feature},
 
 decode_legacy_auth(__TopXMLNS, __Opts,
                    {xmlel, <<"query">>, _attrs, _els}) ->
-    {Digest, Password, Resource, Username} =
+    {Username, Password, Digest, Resource} =
         decode_legacy_auth_els(__TopXMLNS,
                                __Opts,
                                _els,
@@ -95,12 +95,12 @@ decode_legacy_auth(__TopXMLNS, __Opts,
                                undefined),
     {legacy_auth, Username, Password, Digest, Resource}.
 
-decode_legacy_auth_els(__TopXMLNS, __Opts, [], Digest,
-                       Password, Resource, Username) ->
-    {Digest, Password, Resource, Username};
+decode_legacy_auth_els(__TopXMLNS, __Opts, [], Username,
+                       Password, Digest, Resource) ->
+    {Username, Password, Digest, Resource};
 decode_legacy_auth_els(__TopXMLNS, __Opts,
                        [{xmlel, <<"username">>, _attrs, _} = _el | _els],
-                       Digest, Password, Resource, Username) ->
+                       Username, Password, Digest, Resource) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -109,108 +109,108 @@ decode_legacy_auth_els(__TopXMLNS, __Opts,
             decode_legacy_auth_els(__TopXMLNS,
                                    __Opts,
                                    _els,
-                                   Digest,
-                                   Password,
-                                   Resource,
                                    decode_legacy_auth_username(<<"jabber:iq:auth">>,
+                                                               __Opts,
+                                                               _el),
+                                   Password,
+                                   Digest,
+                                   Resource);
+        _ ->
+            decode_legacy_auth_els(__TopXMLNS,
+                                   __Opts,
+                                   _els,
+                                   Username,
+                                   Password,
+                                   Digest,
+                                   Resource)
+    end;
+decode_legacy_auth_els(__TopXMLNS, __Opts,
+                       [{xmlel, <<"password">>, _attrs, _} = _el | _els],
+                       Username, Password, Digest, Resource) ->
+    case xmpp_codec:get_attr(<<"xmlns">>,
+                             _attrs,
+                             __TopXMLNS)
+        of
+        <<"jabber:iq:auth">> ->
+            decode_legacy_auth_els(__TopXMLNS,
+                                   __Opts,
+                                   _els,
+                                   Username,
+                                   decode_legacy_auth_password(<<"jabber:iq:auth">>,
+                                                               __Opts,
+                                                               _el),
+                                   Digest,
+                                   Resource);
+        _ ->
+            decode_legacy_auth_els(__TopXMLNS,
+                                   __Opts,
+                                   _els,
+                                   Username,
+                                   Password,
+                                   Digest,
+                                   Resource)
+    end;
+decode_legacy_auth_els(__TopXMLNS, __Opts,
+                       [{xmlel, <<"digest">>, _attrs, _} = _el | _els],
+                       Username, Password, Digest, Resource) ->
+    case xmpp_codec:get_attr(<<"xmlns">>,
+                             _attrs,
+                             __TopXMLNS)
+        of
+        <<"jabber:iq:auth">> ->
+            decode_legacy_auth_els(__TopXMLNS,
+                                   __Opts,
+                                   _els,
+                                   Username,
+                                   Password,
+                                   decode_legacy_auth_digest(<<"jabber:iq:auth">>,
+                                                             __Opts,
+                                                             _el),
+                                   Resource);
+        _ ->
+            decode_legacy_auth_els(__TopXMLNS,
+                                   __Opts,
+                                   _els,
+                                   Username,
+                                   Password,
+                                   Digest,
+                                   Resource)
+    end;
+decode_legacy_auth_els(__TopXMLNS, __Opts,
+                       [{xmlel, <<"resource">>, _attrs, _} = _el | _els],
+                       Username, Password, Digest, Resource) ->
+    case xmpp_codec:get_attr(<<"xmlns">>,
+                             _attrs,
+                             __TopXMLNS)
+        of
+        <<"jabber:iq:auth">> ->
+            decode_legacy_auth_els(__TopXMLNS,
+                                   __Opts,
+                                   _els,
+                                   Username,
+                                   Password,
+                                   Digest,
+                                   decode_legacy_auth_resource(<<"jabber:iq:auth">>,
                                                                __Opts,
                                                                _el));
         _ ->
             decode_legacy_auth_els(__TopXMLNS,
                                    __Opts,
                                    _els,
-                                   Digest,
+                                   Username,
                                    Password,
-                                   Resource,
-                                   Username)
-    end;
-decode_legacy_auth_els(__TopXMLNS, __Opts,
-                       [{xmlel, <<"password">>, _attrs, _} = _el | _els],
-                       Digest, Password, Resource, Username) ->
-    case xmpp_codec:get_attr(<<"xmlns">>,
-                             _attrs,
-                             __TopXMLNS)
-        of
-        <<"jabber:iq:auth">> ->
-            decode_legacy_auth_els(__TopXMLNS,
-                                   __Opts,
-                                   _els,
                                    Digest,
-                                   decode_legacy_auth_password(<<"jabber:iq:auth">>,
-                                                               __Opts,
-                                                               _el),
-                                   Resource,
-                                   Username);
-        _ ->
-            decode_legacy_auth_els(__TopXMLNS,
-                                   __Opts,
-                                   _els,
-                                   Digest,
-                                   Password,
-                                   Resource,
-                                   Username)
-    end;
-decode_legacy_auth_els(__TopXMLNS, __Opts,
-                       [{xmlel, <<"digest">>, _attrs, _} = _el | _els], Digest,
-                       Password, Resource, Username) ->
-    case xmpp_codec:get_attr(<<"xmlns">>,
-                             _attrs,
-                             __TopXMLNS)
-        of
-        <<"jabber:iq:auth">> ->
-            decode_legacy_auth_els(__TopXMLNS,
-                                   __Opts,
-                                   _els,
-                                   decode_legacy_auth_digest(<<"jabber:iq:auth">>,
-                                                             __Opts,
-                                                             _el),
-                                   Password,
-                                   Resource,
-                                   Username);
-        _ ->
-            decode_legacy_auth_els(__TopXMLNS,
-                                   __Opts,
-                                   _els,
-                                   Digest,
-                                   Password,
-                                   Resource,
-                                   Username)
-    end;
-decode_legacy_auth_els(__TopXMLNS, __Opts,
-                       [{xmlel, <<"resource">>, _attrs, _} = _el | _els],
-                       Digest, Password, Resource, Username) ->
-    case xmpp_codec:get_attr(<<"xmlns">>,
-                             _attrs,
-                             __TopXMLNS)
-        of
-        <<"jabber:iq:auth">> ->
-            decode_legacy_auth_els(__TopXMLNS,
-                                   __Opts,
-                                   _els,
-                                   Digest,
-                                   Password,
-                                   decode_legacy_auth_resource(<<"jabber:iq:auth">>,
-                                                               __Opts,
-                                                               _el),
-                                   Username);
-        _ ->
-            decode_legacy_auth_els(__TopXMLNS,
-                                   __Opts,
-                                   _els,
-                                   Digest,
-                                   Password,
-                                   Resource,
-                                   Username)
+                                   Resource)
     end;
 decode_legacy_auth_els(__TopXMLNS, __Opts, [_ | _els],
-                       Digest, Password, Resource, Username) ->
+                       Username, Password, Digest, Resource) ->
     decode_legacy_auth_els(__TopXMLNS,
                            __Opts,
                            _els,
-                           Digest,
+                           Username,
                            Password,
-                           Resource,
-                           Username).
+                           Digest,
+                           Resource).
 
 encode_legacy_auth({legacy_auth,
                     Username,
@@ -223,11 +223,11 @@ encode_legacy_auth({legacy_auth,
                                     [],
                                     __TopXMLNS),
     _els =
-        lists:reverse('encode_legacy_auth_$digest'(Digest,
-                                                   __NewTopXMLNS,
-                                                   'encode_legacy_auth_$password'(Password,
+        lists:reverse('encode_legacy_auth_$resource'(Resource,
+                                                     __NewTopXMLNS,
+                                                     'encode_legacy_auth_$digest'(Digest,
                                                                                   __NewTopXMLNS,
-                                                                                  'encode_legacy_auth_$resource'(Resource,
+                                                                                  'encode_legacy_auth_$password'(Password,
                                                                                                                  __NewTopXMLNS,
                                                                                                                  'encode_legacy_auth_$username'(Username,
                                                                                                                                                 __NewTopXMLNS,
@@ -236,12 +236,13 @@ encode_legacy_auth({legacy_auth,
                                         __TopXMLNS),
     {xmlel, <<"query">>, _attrs, _els}.
 
-'encode_legacy_auth_$digest'(undefined, __TopXMLNS,
-                             _acc) ->
+'encode_legacy_auth_$username'(undefined, __TopXMLNS,
+                               _acc) ->
     _acc;
-'encode_legacy_auth_$digest'(Digest, __TopXMLNS,
-                             _acc) ->
-    [encode_legacy_auth_digest(Digest, __TopXMLNS) | _acc].
+'encode_legacy_auth_$username'(Username, __TopXMLNS,
+                               _acc) ->
+    [encode_legacy_auth_username(Username, __TopXMLNS)
+     | _acc].
 
 'encode_legacy_auth_$password'(undefined, __TopXMLNS,
                                _acc) ->
@@ -251,20 +252,19 @@ encode_legacy_auth({legacy_auth,
     [encode_legacy_auth_password(Password, __TopXMLNS)
      | _acc].
 
+'encode_legacy_auth_$digest'(undefined, __TopXMLNS,
+                             _acc) ->
+    _acc;
+'encode_legacy_auth_$digest'(Digest, __TopXMLNS,
+                             _acc) ->
+    [encode_legacy_auth_digest(Digest, __TopXMLNS) | _acc].
+
 'encode_legacy_auth_$resource'(undefined, __TopXMLNS,
                                _acc) ->
     _acc;
 'encode_legacy_auth_$resource'(Resource, __TopXMLNS,
                                _acc) ->
     [encode_legacy_auth_resource(Resource, __TopXMLNS)
-     | _acc].
-
-'encode_legacy_auth_$username'(undefined, __TopXMLNS,
-                               _acc) ->
-    _acc;
-'encode_legacy_auth_$username'(Username, __TopXMLNS,
-                               _acc) ->
-    [encode_legacy_auth_username(Username, __TopXMLNS)
      | _acc].
 
 decode_legacy_auth_resource(__TopXMLNS, __Opts,

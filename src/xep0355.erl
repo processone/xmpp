@@ -201,20 +201,20 @@ encode_delegate_attr_namespace(_val, _acc) ->
 
 decode_delegation(__TopXMLNS, __Opts,
                   {xmlel, <<"delegation">>, _attrs, _els}) ->
-    {Forwarded, Delegated} =
+    {Delegated, Forwarded} =
         decode_delegation_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              undefined,
-                              []),
+                              [],
+                              undefined),
     {delegation, Delegated, Forwarded}.
 
-decode_delegation_els(__TopXMLNS, __Opts, [], Forwarded,
-                      Delegated) ->
-    {Forwarded, lists:reverse(Delegated)};
+decode_delegation_els(__TopXMLNS, __Opts, [], Delegated,
+                      Forwarded) ->
+    {lists:reverse(Delegated), Forwarded};
 decode_delegation_els(__TopXMLNS, __Opts,
                       [{xmlel, <<"delegated">>, _attrs, _} = _el | _els],
-                      Forwarded, Delegated) ->
+                      Delegated, Forwarded) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -223,21 +223,21 @@ decode_delegation_els(__TopXMLNS, __Opts,
             decode_delegation_els(__TopXMLNS,
                                   __Opts,
                                   _els,
-                                  Forwarded,
                                   [decode_delegated(<<"urn:xmpp:delegation:1">>,
                                                     __Opts,
                                                     _el)
-                                   | Delegated]);
+                                   | Delegated],
+                                  Forwarded);
         _ ->
             decode_delegation_els(__TopXMLNS,
                                   __Opts,
                                   _els,
-                                  Forwarded,
-                                  Delegated)
+                                  Delegated,
+                                  Forwarded)
     end;
 decode_delegation_els(__TopXMLNS, __Opts,
                       [{xmlel, <<"forwarded">>, _attrs, _} = _el | _els],
-                      Forwarded, Delegated) ->
+                      Delegated, Forwarded) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -246,24 +246,24 @@ decode_delegation_els(__TopXMLNS, __Opts,
             decode_delegation_els(__TopXMLNS,
                                   __Opts,
                                   _els,
+                                  Delegated,
                                   xep0297:decode_forwarded(<<"urn:xmpp:forward:0">>,
                                                            __Opts,
-                                                           _el),
-                                  Delegated);
+                                                           _el));
         _ ->
             decode_delegation_els(__TopXMLNS,
                                   __Opts,
                                   _els,
-                                  Forwarded,
-                                  Delegated)
+                                  Delegated,
+                                  Forwarded)
     end;
 decode_delegation_els(__TopXMLNS, __Opts, [_ | _els],
-                      Forwarded, Delegated) ->
+                      Delegated, Forwarded) ->
     decode_delegation_els(__TopXMLNS,
                           __Opts,
                           _els,
-                          Forwarded,
-                          Delegated).
+                          Delegated,
+                          Forwarded).
 
 encode_delegation({delegation, Delegated, Forwarded},
                   __TopXMLNS) ->
@@ -281,14 +281,6 @@ encode_delegation({delegation, Delegated, Forwarded},
                                         __TopXMLNS),
     {xmlel, <<"delegation">>, _attrs, _els}.
 
-'encode_delegation_$forwarded'(undefined, __TopXMLNS,
-                               _acc) ->
-    _acc;
-'encode_delegation_$forwarded'(Forwarded, __TopXMLNS,
-                               _acc) ->
-    [xep0297:encode_forwarded(Forwarded, __TopXMLNS)
-     | _acc].
-
 'encode_delegation_$delegated'([], __TopXMLNS, _acc) ->
     _acc;
 'encode_delegation_$delegated'([Delegated | _els],
@@ -297,6 +289,14 @@ encode_delegation({delegation, Delegated, Forwarded},
                                    __TopXMLNS,
                                    [encode_delegated(Delegated, __TopXMLNS)
                                     | _acc]).
+
+'encode_delegation_$forwarded'(undefined, __TopXMLNS,
+                               _acc) ->
+    _acc;
+'encode_delegation_$forwarded'(Forwarded, __TopXMLNS,
+                               _acc) ->
+    [xep0297:encode_forwarded(Forwarded, __TopXMLNS)
+     | _acc].
 
 decode_delegated(__TopXMLNS, __Opts,
                  {xmlel, <<"delegated">>, _attrs, _els}) ->

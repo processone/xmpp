@@ -112,19 +112,19 @@ enc_int(Int) -> erlang:integer_to_binary(Int).
 
 decode_avatar_meta(__TopXMLNS, __Opts,
                    {xmlel, <<"metadata">>, _attrs, _els}) ->
-    {Pointer, Info} = decode_avatar_meta_els(__TopXMLNS,
+    {Info, Pointer} = decode_avatar_meta_els(__TopXMLNS,
                                              __Opts,
                                              _els,
-                                             undefined,
-                                             []),
+                                             [],
+                                             undefined),
     {avatar_meta, Info, Pointer}.
 
-decode_avatar_meta_els(__TopXMLNS, __Opts, [], Pointer,
-                       Info) ->
-    {Pointer, lists:reverse(Info)};
+decode_avatar_meta_els(__TopXMLNS, __Opts, [], Info,
+                       Pointer) ->
+    {lists:reverse(Info), Pointer};
 decode_avatar_meta_els(__TopXMLNS, __Opts,
-                       [{xmlel, <<"info">>, _attrs, _} = _el | _els], Pointer,
-                       Info) ->
+                       [{xmlel, <<"info">>, _attrs, _} = _el | _els], Info,
+                       Pointer) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -133,21 +133,21 @@ decode_avatar_meta_els(__TopXMLNS, __Opts,
             decode_avatar_meta_els(__TopXMLNS,
                                    __Opts,
                                    _els,
-                                   Pointer,
                                    [decode_avatar_info(<<"urn:xmpp:avatar:metadata">>,
                                                        __Opts,
                                                        _el)
-                                    | Info]);
+                                    | Info],
+                                   Pointer);
         _ ->
             decode_avatar_meta_els(__TopXMLNS,
                                    __Opts,
                                    _els,
-                                   Pointer,
-                                   Info)
+                                   Info,
+                                   Pointer)
     end;
 decode_avatar_meta_els(__TopXMLNS, __Opts,
-                       [{xmlel, <<"pointer">>, _attrs, _} = _el | _els],
-                       Pointer, Info) ->
+                       [{xmlel, <<"pointer">>, _attrs, _} = _el | _els], Info,
+                       Pointer) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -156,24 +156,24 @@ decode_avatar_meta_els(__TopXMLNS, __Opts,
             decode_avatar_meta_els(__TopXMLNS,
                                    __Opts,
                                    _els,
+                                   Info,
                                    decode_avatar_pointer(<<"urn:xmpp:avatar:metadata">>,
                                                          __Opts,
-                                                         _el),
-                                   Info);
+                                                         _el));
         _ ->
             decode_avatar_meta_els(__TopXMLNS,
                                    __Opts,
                                    _els,
-                                   Pointer,
-                                   Info)
+                                   Info,
+                                   Pointer)
     end;
 decode_avatar_meta_els(__TopXMLNS, __Opts, [_ | _els],
-                       Pointer, Info) ->
+                       Info, Pointer) ->
     decode_avatar_meta_els(__TopXMLNS,
                            __Opts,
                            _els,
-                           Pointer,
-                           Info).
+                           Info,
+                           Pointer).
 
 encode_avatar_meta({avatar_meta, Info, Pointer},
                    __TopXMLNS) ->
@@ -191,13 +191,6 @@ encode_avatar_meta({avatar_meta, Info, Pointer},
                                         __TopXMLNS),
     {xmlel, <<"metadata">>, _attrs, _els}.
 
-'encode_avatar_meta_$pointer'(undefined, __TopXMLNS,
-                              _acc) ->
-    _acc;
-'encode_avatar_meta_$pointer'(Pointer, __TopXMLNS,
-                              _acc) ->
-    [encode_avatar_pointer(Pointer, __TopXMLNS) | _acc].
-
 'encode_avatar_meta_$info'([], __TopXMLNS, _acc) ->
     _acc;
 'encode_avatar_meta_$info'([Info | _els], __TopXMLNS,
@@ -205,6 +198,13 @@ encode_avatar_meta({avatar_meta, Info, Pointer},
     'encode_avatar_meta_$info'(_els,
                                __TopXMLNS,
                                [encode_avatar_info(Info, __TopXMLNS) | _acc]).
+
+'encode_avatar_meta_$pointer'(undefined, __TopXMLNS,
+                              _acc) ->
+    _acc;
+'encode_avatar_meta_$pointer'(Pointer, __TopXMLNS,
+                              _acc) ->
+    [encode_avatar_pointer(Pointer, __TopXMLNS) | _acc].
 
 decode_avatar_pointer(__TopXMLNS, __Opts,
                       {xmlel, <<"pointer">>, _attrs, _els}) ->

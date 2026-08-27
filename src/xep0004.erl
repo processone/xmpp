@@ -129,15 +129,15 @@ enc_enum(Atom) -> erlang:atom_to_binary(Atom, utf8).
 
 decode_xdata(__TopXMLNS, __Opts,
              {xmlel, <<"x">>, _attrs, _els}) ->
-    {Fields, Items, Instructions, Reported, Title} =
+    {Instructions, Title, Reported, Items, Fields} =
         decode_xdata_els(__TopXMLNS,
                          __Opts,
                          _els,
                          [],
-                         [],
-                         [],
                          undefined,
-                         undefined),
+                         undefined,
+                         [],
+                         []),
     Type = decode_xdata_attrs(__TopXMLNS,
                               _attrs,
                               undefined),
@@ -149,16 +149,16 @@ decode_xdata(__TopXMLNS, __Opts,
      Items,
      Fields}.
 
-decode_xdata_els(__TopXMLNS, __Opts, [], Fields, Items,
-                 Instructions, Reported, Title) ->
-    {lists:reverse(Fields),
-     lists:reverse(Items),
-     lists:reverse(Instructions),
+decode_xdata_els(__TopXMLNS, __Opts, [], Instructions,
+                 Title, Reported, Items, Fields) ->
+    {lists:reverse(Instructions),
+     Title,
      Reported,
-     Title};
+     lists:reverse(Items),
+     lists:reverse(Fields)};
 decode_xdata_els(__TopXMLNS, __Opts,
                  [{xmlel, <<"instructions">>, _attrs, _} = _el | _els],
-                 Fields, Items, Instructions, Reported, Title) ->
+                 Instructions, Title, Reported, Items, Fields) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -167,27 +167,27 @@ decode_xdata_els(__TopXMLNS, __Opts,
             decode_xdata_els(__TopXMLNS,
                              __Opts,
                              _els,
-                             Fields,
-                             Items,
                              [decode_xdata_instructions(<<"jabber:x:data">>,
                                                         __Opts,
                                                         _el)
                               | Instructions],
+                             Title,
                              Reported,
-                             Title);
+                             Items,
+                             Fields);
         _ ->
             decode_xdata_els(__TopXMLNS,
                              __Opts,
                              _els,
-                             Fields,
-                             Items,
                              Instructions,
+                             Title,
                              Reported,
-                             Title)
+                             Items,
+                             Fields)
     end;
 decode_xdata_els(__TopXMLNS, __Opts,
-                 [{xmlel, <<"title">>, _attrs, _} = _el | _els], Fields,
-                 Items, Instructions, Reported, Title) ->
+                 [{xmlel, <<"title">>, _attrs, _} = _el | _els],
+                 Instructions, Title, Reported, Items, Fields) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -196,26 +196,26 @@ decode_xdata_els(__TopXMLNS, __Opts,
             decode_xdata_els(__TopXMLNS,
                              __Opts,
                              _els,
-                             Fields,
-                             Items,
                              Instructions,
-                             Reported,
                              decode_xdata_title(<<"jabber:x:data">>,
                                                 __Opts,
-                                                _el));
+                                                _el),
+                             Reported,
+                             Items,
+                             Fields);
         _ ->
             decode_xdata_els(__TopXMLNS,
                              __Opts,
                              _els,
-                             Fields,
-                             Items,
                              Instructions,
+                             Title,
                              Reported,
-                             Title)
+                             Items,
+                             Fields)
     end;
 decode_xdata_els(__TopXMLNS, __Opts,
                  [{xmlel, <<"reported">>, _attrs, _} = _el | _els],
-                 Fields, Items, Instructions, Reported, Title) ->
+                 Instructions, Title, Reported, Items, Fields) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -224,26 +224,26 @@ decode_xdata_els(__TopXMLNS, __Opts,
             decode_xdata_els(__TopXMLNS,
                              __Opts,
                              _els,
-                             Fields,
-                             Items,
                              Instructions,
+                             Title,
                              decode_xdata_reported(<<"jabber:x:data">>,
                                                    __Opts,
                                                    _el),
-                             Title);
+                             Items,
+                             Fields);
         _ ->
             decode_xdata_els(__TopXMLNS,
                              __Opts,
                              _els,
-                             Fields,
-                             Items,
                              Instructions,
+                             Title,
                              Reported,
-                             Title)
+                             Items,
+                             Fields)
     end;
 decode_xdata_els(__TopXMLNS, __Opts,
-                 [{xmlel, <<"item">>, _attrs, _} = _el | _els], Fields,
-                 Items, Instructions, Reported, Title) ->
+                 [{xmlel, <<"item">>, _attrs, _} = _el | _els],
+                 Instructions, Title, Reported, Items, Fields) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -252,27 +252,27 @@ decode_xdata_els(__TopXMLNS, __Opts,
             decode_xdata_els(__TopXMLNS,
                              __Opts,
                              _els,
-                             Fields,
+                             Instructions,
+                             Title,
+                             Reported,
                              [decode_xdata_item(<<"jabber:x:data">>,
                                                 __Opts,
                                                 _el)
                               | Items],
-                             Instructions,
-                             Reported,
-                             Title);
+                             Fields);
         _ ->
             decode_xdata_els(__TopXMLNS,
                              __Opts,
                              _els,
-                             Fields,
-                             Items,
                              Instructions,
+                             Title,
                              Reported,
-                             Title)
+                             Items,
+                             Fields)
     end;
 decode_xdata_els(__TopXMLNS, __Opts,
-                 [{xmlel, <<"field">>, _attrs, _} = _el | _els], Fields,
-                 Items, Instructions, Reported, Title) ->
+                 [{xmlel, <<"field">>, _attrs, _} = _el | _els],
+                 Instructions, Title, Reported, Items, Fields) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -281,34 +281,34 @@ decode_xdata_els(__TopXMLNS, __Opts,
             decode_xdata_els(__TopXMLNS,
                              __Opts,
                              _els,
+                             Instructions,
+                             Title,
+                             Reported,
+                             Items,
                              [decode_xdata_field(<<"jabber:x:data">>,
                                                  __Opts,
                                                  _el)
-                              | Fields],
-                             Items,
-                             Instructions,
-                             Reported,
-                             Title);
+                              | Fields]);
         _ ->
             decode_xdata_els(__TopXMLNS,
                              __Opts,
                              _els,
-                             Fields,
-                             Items,
                              Instructions,
+                             Title,
                              Reported,
-                             Title)
+                             Items,
+                             Fields)
     end;
-decode_xdata_els(__TopXMLNS, __Opts, [_ | _els], Fields,
-                 Items, Instructions, Reported, Title) ->
+decode_xdata_els(__TopXMLNS, __Opts, [_ | _els],
+                 Instructions, Title, Reported, Items, Fields) ->
     decode_xdata_els(__TopXMLNS,
                      __Opts,
                      _els,
-                     Fields,
-                     Items,
                      Instructions,
+                     Title,
                      Reported,
-                     Title).
+                     Items,
+                     Fields).
 
 decode_xdata_attrs(__TopXMLNS,
                    [{<<"type">>, _val} | _attrs], _Type) ->
@@ -334,31 +334,17 @@ encode_xdata({xdata,
                                                 __NewTopXMLNS,
                                                 'encode_xdata_$items'(Items,
                                                                       __NewTopXMLNS,
-                                                                      'encode_xdata_$instructions'(Instructions,
-                                                                                                   __NewTopXMLNS,
-                                                                                                   'encode_xdata_$reported'(Reported,
-                                                                                                                            __NewTopXMLNS,
-                                                                                                                            'encode_xdata_$title'(Title,
+                                                                      'encode_xdata_$reported'(Reported,
+                                                                                               __NewTopXMLNS,
+                                                                                               'encode_xdata_$title'(Title,
+                                                                                                                     __NewTopXMLNS,
+                                                                                                                     'encode_xdata_$instructions'(Instructions,
                                                                                                                                                   __NewTopXMLNS,
                                                                                                                                                   [])))))),
     _attrs = encode_xdata_attr_type(Type,
                                     xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
                                                                __TopXMLNS)),
     {xmlel, <<"x">>, _attrs, _els}.
-
-'encode_xdata_$fields'([], __TopXMLNS, _acc) -> _acc;
-'encode_xdata_$fields'([Fields | _els], __TopXMLNS,
-                       _acc) ->
-    'encode_xdata_$fields'(_els,
-                           __TopXMLNS,
-                           [encode_xdata_field(Fields, __TopXMLNS) | _acc]).
-
-'encode_xdata_$items'([], __TopXMLNS, _acc) -> _acc;
-'encode_xdata_$items'([Items | _els], __TopXMLNS,
-                      _acc) ->
-    'encode_xdata_$items'(_els,
-                          __TopXMLNS,
-                          [encode_xdata_item(Items, __TopXMLNS) | _acc]).
 
 'encode_xdata_$instructions'([], __TopXMLNS, _acc) ->
     _acc;
@@ -370,15 +356,29 @@ encode_xdata({xdata,
                                                             __TopXMLNS)
                                   | _acc]).
 
+'encode_xdata_$title'(undefined, __TopXMLNS, _acc) ->
+    _acc;
+'encode_xdata_$title'(Title, __TopXMLNS, _acc) ->
+    [encode_xdata_title(Title, __TopXMLNS) | _acc].
+
 'encode_xdata_$reported'(undefined, __TopXMLNS, _acc) ->
     _acc;
 'encode_xdata_$reported'(Reported, __TopXMLNS, _acc) ->
     [encode_xdata_reported(Reported, __TopXMLNS) | _acc].
 
-'encode_xdata_$title'(undefined, __TopXMLNS, _acc) ->
-    _acc;
-'encode_xdata_$title'(Title, __TopXMLNS, _acc) ->
-    [encode_xdata_title(Title, __TopXMLNS) | _acc].
+'encode_xdata_$items'([], __TopXMLNS, _acc) -> _acc;
+'encode_xdata_$items'([Items | _els], __TopXMLNS,
+                      _acc) ->
+    'encode_xdata_$items'(_els,
+                          __TopXMLNS,
+                          [encode_xdata_item(Items, __TopXMLNS) | _acc]).
+
+'encode_xdata_$fields'([], __TopXMLNS, _acc) -> _acc;
+'encode_xdata_$fields'([Fields | _els], __TopXMLNS,
+                       _acc) ->
+    'encode_xdata_$fields'(_els,
+                           __TopXMLNS,
+                           [encode_xdata_field(Fields, __TopXMLNS) | _acc]).
 
 decode_xdata_attr_type(__TopXMLNS, undefined) ->
     erlang:error({xmpp_codec,
@@ -591,14 +591,14 @@ encode_xdata_instructions_cdata(_val, _acc) ->
 
 decode_xdata_field(__TopXMLNS, __Opts,
                    {xmlel, <<"field">>, _attrs, _els}) ->
-    {Options, Values, Desc, Required, __Els} =
+    {Required, Desc, Values, Options, __Els} =
         decode_xdata_field_els(__TopXMLNS,
                                __Opts,
                                _els,
-                               [],
-                               [],
-                               <<>>,
                                false,
+                               <<>>,
+                               [],
+                               [],
                                []),
     {Label, Type, Var} =
         decode_xdata_field_attrs(__TopXMLNS,
@@ -616,16 +616,16 @@ decode_xdata_field(__TopXMLNS, __Opts,
      Options,
      __Els}.
 
-decode_xdata_field_els(__TopXMLNS, __Opts, [], Options,
-                       Values, Desc, Required, __Els) ->
-    {lists:reverse(Options),
-     lists:reverse(Values),
+decode_xdata_field_els(__TopXMLNS, __Opts, [], Required,
+                       Desc, Values, Options, __Els) ->
+    {Required,
      Desc,
-     Required,
+     lists:reverse(Values),
+     lists:reverse(Options),
      lists:reverse(__Els)};
 decode_xdata_field_els(__TopXMLNS, __Opts,
                        [{xmlel, <<"required">>, _attrs, _} = _el | _els],
-                       Options, Values, Desc, Required, __Els) ->
+                       Required, Desc, Values, Options, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -634,26 +634,26 @@ decode_xdata_field_els(__TopXMLNS, __Opts,
             decode_xdata_field_els(__TopXMLNS,
                                    __Opts,
                                    _els,
-                                   Options,
-                                   Values,
-                                   Desc,
                                    decode_xdata_field_required(<<"jabber:x:data">>,
                                                                __Opts,
                                                                _el),
+                                   Desc,
+                                   Values,
+                                   Options,
                                    __Els);
         _ ->
             decode_xdata_field_els(__TopXMLNS,
                                    __Opts,
                                    _els,
-                                   Options,
-                                   Values,
-                                   Desc,
                                    Required,
+                                   Desc,
+                                   Values,
+                                   Options,
                                    [_el | __Els])
     end;
 decode_xdata_field_els(__TopXMLNS, __Opts,
-                       [{xmlel, <<"desc">>, _attrs, _} = _el | _els], Options,
-                       Values, Desc, Required, __Els) ->
+                       [{xmlel, <<"desc">>, _attrs, _} = _el | _els], Required,
+                       Desc, Values, Options, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -662,26 +662,26 @@ decode_xdata_field_els(__TopXMLNS, __Opts,
             decode_xdata_field_els(__TopXMLNS,
                                    __Opts,
                                    _els,
-                                   Options,
-                                   Values,
+                                   Required,
                                    decode_xdata_field_desc(<<"jabber:x:data">>,
                                                            __Opts,
                                                            _el),
-                                   Required,
+                                   Values,
+                                   Options,
                                    __Els);
         _ ->
             decode_xdata_field_els(__TopXMLNS,
                                    __Opts,
                                    _els,
-                                   Options,
-                                   Values,
-                                   Desc,
                                    Required,
+                                   Desc,
+                                   Values,
+                                   Options,
                                    [_el | __Els])
     end;
 decode_xdata_field_els(__TopXMLNS, __Opts,
-                       [{xmlel, <<"value">>, _attrs, _} = _el | _els], Options,
-                       Values, Desc, Required, __Els) ->
+                       [{xmlel, <<"value">>, _attrs, _} = _el | _els],
+                       Required, Desc, Values, Options, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -690,27 +690,27 @@ decode_xdata_field_els(__TopXMLNS, __Opts,
             decode_xdata_field_els(__TopXMLNS,
                                    __Opts,
                                    _els,
-                                   Options,
+                                   Required,
+                                   Desc,
                                    [decode_xdata_field_value(<<"jabber:x:data">>,
                                                              __Opts,
                                                              _el)
                                     | Values],
-                                   Desc,
-                                   Required,
+                                   Options,
                                    __Els);
         _ ->
             decode_xdata_field_els(__TopXMLNS,
                                    __Opts,
                                    _els,
-                                   Options,
-                                   Values,
-                                   Desc,
                                    Required,
+                                   Desc,
+                                   Values,
+                                   Options,
                                    [_el | __Els])
     end;
 decode_xdata_field_els(__TopXMLNS, __Opts,
                        [{xmlel, <<"option">>, _attrs, _} = _el | _els],
-                       Options, Values, Desc, Required, __Els) ->
+                       Required, Desc, Values, Options, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -719,36 +719,36 @@ decode_xdata_field_els(__TopXMLNS, __Opts,
             decode_xdata_field_els(__TopXMLNS,
                                    __Opts,
                                    _els,
+                                   Required,
+                                   Desc,
+                                   Values,
                                    [decode_xdata_field_option(<<"jabber:x:data">>,
                                                               __Opts,
                                                               _el)
                                     | Options],
-                                   Values,
-                                   Desc,
-                                   Required,
                                    __Els);
         _ ->
             decode_xdata_field_els(__TopXMLNS,
                                    __Opts,
                                    _els,
-                                   Options,
-                                   Values,
-                                   Desc,
                                    Required,
+                                   Desc,
+                                   Values,
+                                   Options,
                                    [_el | __Els])
     end;
 decode_xdata_field_els(__TopXMLNS, __Opts,
-                       [{xmlel, _name, _attrs, _} = _el | _els], Options,
-                       Values, Desc, Required, __Els) ->
+                       [{xmlel, _name, _attrs, _} = _el | _els], Required,
+                       Desc, Values, Options, __Els) ->
     case proplists:get_bool(ignore_els, __Opts) of
         true ->
             decode_xdata_field_els(__TopXMLNS,
                                    __Opts,
                                    _els,
-                                   Options,
-                                   Values,
-                                   Desc,
                                    Required,
+                                   Desc,
+                                   Values,
+                                   Options,
                                    [_el | __Els]);
         false ->
             __XMLNS = xmpp_codec:get_attr(<<"xmlns">>,
@@ -759,19 +759,19 @@ decode_xdata_field_els(__TopXMLNS, __Opts,
                     decode_xdata_field_els(__TopXMLNS,
                                            __Opts,
                                            _els,
-                                           Options,
-                                           Values,
-                                           Desc,
                                            Required,
+                                           Desc,
+                                           Values,
+                                           Options,
                                            [_el | __Els]);
                 Mod ->
                     decode_xdata_field_els(__TopXMLNS,
                                            __Opts,
                                            _els,
-                                           Options,
-                                           Values,
-                                           Desc,
                                            Required,
+                                           Desc,
+                                           Values,
+                                           Options,
                                            [Mod:do_decode(_name,
                                                           __XMLNS,
                                                           _el,
@@ -780,14 +780,14 @@ decode_xdata_field_els(__TopXMLNS, __Opts,
             end
     end;
 decode_xdata_field_els(__TopXMLNS, __Opts, [_ | _els],
-                       Options, Values, Desc, Required, __Els) ->
+                       Required, Desc, Values, Options, __Els) ->
     decode_xdata_field_els(__TopXMLNS,
                            __Opts,
                            _els,
-                           Options,
-                           Values,
-                           Desc,
                            Required,
+                           Desc,
+                           Values,
+                           Options,
                            __Els).
 
 decode_xdata_field_attrs(__TopXMLNS,
@@ -857,15 +857,18 @@ encode_xdata_field({xdata_field,
                                                                                                                                __TopXMLNS)))),
     {xmlel, <<"field">>, _attrs, _els}.
 
-'encode_xdata_field_$options'([], __TopXMLNS, _acc) ->
+'encode_xdata_field_$required'(false, __TopXMLNS,
+                               _acc) ->
     _acc;
-'encode_xdata_field_$options'([Options | _els],
-                              __TopXMLNS, _acc) ->
-    'encode_xdata_field_$options'(_els,
-                                  __TopXMLNS,
-                                  [encode_xdata_field_option(Options,
-                                                             __TopXMLNS)
-                                   | _acc]).
+'encode_xdata_field_$required'(Required, __TopXMLNS,
+                               _acc) ->
+    [encode_xdata_field_required(Required, __TopXMLNS)
+     | _acc].
+
+'encode_xdata_field_$desc'(<<>>, __TopXMLNS, _acc) ->
+    _acc;
+'encode_xdata_field_$desc'(Desc, __TopXMLNS, _acc) ->
+    [encode_xdata_field_desc(Desc, __TopXMLNS) | _acc].
 
 'encode_xdata_field_$values'([], __TopXMLNS, _acc) ->
     _acc;
@@ -876,18 +879,15 @@ encode_xdata_field({xdata_field,
                                  [encode_xdata_field_value(Values, __TopXMLNS)
                                   | _acc]).
 
-'encode_xdata_field_$desc'(<<>>, __TopXMLNS, _acc) ->
+'encode_xdata_field_$options'([], __TopXMLNS, _acc) ->
     _acc;
-'encode_xdata_field_$desc'(Desc, __TopXMLNS, _acc) ->
-    [encode_xdata_field_desc(Desc, __TopXMLNS) | _acc].
-
-'encode_xdata_field_$required'(false, __TopXMLNS,
-                               _acc) ->
-    _acc;
-'encode_xdata_field_$required'(Required, __TopXMLNS,
-                               _acc) ->
-    [encode_xdata_field_required(Required, __TopXMLNS)
-     | _acc].
+'encode_xdata_field_$options'([Options | _els],
+                              __TopXMLNS, _acc) ->
+    'encode_xdata_field_$options'(_els,
+                                  __TopXMLNS,
+                                  [encode_xdata_field_option(Options,
+                                                             __TopXMLNS)
+                                   | _acc]).
 
 decode_xdata_field_attr_label(__TopXMLNS, undefined) ->
     <<>>;

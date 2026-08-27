@@ -52,18 +52,18 @@ enc_utc(Val) -> xmpp_util:encode_timestamp(Val).
 
 decode_time(__TopXMLNS, __Opts,
             {xmlel, <<"time">>, _attrs, _els}) ->
-    {Utc, Tzo} = decode_time_els(__TopXMLNS,
+    {Tzo, Utc} = decode_time_els(__TopXMLNS,
                                  __Opts,
                                  _els,
                                  undefined,
                                  undefined),
     {time, Tzo, Utc}.
 
-decode_time_els(__TopXMLNS, __Opts, [], Utc, Tzo) ->
-    {Utc, Tzo};
+decode_time_els(__TopXMLNS, __Opts, [], Tzo, Utc) ->
+    {Tzo, Utc};
 decode_time_els(__TopXMLNS, __Opts,
-                [{xmlel, <<"tzo">>, _attrs, _} = _el | _els], Utc,
-                Tzo) ->
+                [{xmlel, <<"tzo">>, _attrs, _} = _el | _els], Tzo,
+                Utc) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -72,13 +72,13 @@ decode_time_els(__TopXMLNS, __Opts,
             decode_time_els(__TopXMLNS,
                             __Opts,
                             _els,
-                            Utc,
-                            decode_time_tzo(<<"urn:xmpp:time">>, __Opts, _el));
-        _ -> decode_time_els(__TopXMLNS, __Opts, _els, Utc, Tzo)
+                            decode_time_tzo(<<"urn:xmpp:time">>, __Opts, _el),
+                            Utc);
+        _ -> decode_time_els(__TopXMLNS, __Opts, _els, Tzo, Utc)
     end;
 decode_time_els(__TopXMLNS, __Opts,
-                [{xmlel, <<"utc">>, _attrs, _} = _el | _els], Utc,
-                Tzo) ->
+                [{xmlel, <<"utc">>, _attrs, _} = _el | _els], Tzo,
+                Utc) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -87,13 +87,13 @@ decode_time_els(__TopXMLNS, __Opts,
             decode_time_els(__TopXMLNS,
                             __Opts,
                             _els,
-                            decode_time_utc(<<"urn:xmpp:time">>, __Opts, _el),
-                            Tzo);
-        _ -> decode_time_els(__TopXMLNS, __Opts, _els, Utc, Tzo)
+                            Tzo,
+                            decode_time_utc(<<"urn:xmpp:time">>, __Opts, _el));
+        _ -> decode_time_els(__TopXMLNS, __Opts, _els, Tzo, Utc)
     end;
-decode_time_els(__TopXMLNS, __Opts, [_ | _els], Utc,
-                Tzo) ->
-    decode_time_els(__TopXMLNS, __Opts, _els, Utc, Tzo).
+decode_time_els(__TopXMLNS, __Opts, [_ | _els], Tzo,
+                Utc) ->
+    decode_time_els(__TopXMLNS, __Opts, _els, Tzo, Utc).
 
 encode_time({time, Tzo, Utc}, __TopXMLNS) ->
     __NewTopXMLNS =
@@ -109,13 +109,13 @@ encode_time({time, Tzo, Utc}, __TopXMLNS) ->
                                         __TopXMLNS),
     {xmlel, <<"time">>, _attrs, _els}.
 
-'encode_time_$utc'(undefined, __TopXMLNS, _acc) -> _acc;
-'encode_time_$utc'(Utc, __TopXMLNS, _acc) ->
-    [encode_time_utc(Utc, __TopXMLNS) | _acc].
-
 'encode_time_$tzo'(undefined, __TopXMLNS, _acc) -> _acc;
 'encode_time_$tzo'(Tzo, __TopXMLNS, _acc) ->
     [encode_time_tzo(Tzo, __TopXMLNS) | _acc].
+
+'encode_time_$utc'(undefined, __TopXMLNS, _acc) -> _acc;
+'encode_time_$utc'(Utc, __TopXMLNS, _acc) ->
+    [encode_time_utc(Utc, __TopXMLNS) | _acc].
 
 decode_time_tzo(__TopXMLNS, __Opts,
                 {xmlel, <<"tzo">>, _attrs, _els}) ->

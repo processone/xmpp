@@ -131,12 +131,12 @@ enc_ip(Addr) -> list_to_binary(inet_parse:ntoa(Addr)).
 
 decode_jingle_s5b_transport(__TopXMLNS, __Opts,
                             {xmlel, <<"transport">>, _attrs, _els}) ->
-    {Error, Candidates, Activated, Candidate_used} =
+    {Candidates, Candidate_used, Activated, Error} =
         decode_jingle_s5b_transport_els(__TopXMLNS,
                                         __Opts,
                                         _els,
-                                        undefined,
                                         [],
+                                        undefined,
                                         undefined,
                                         undefined),
     {Sid, Dstaddr, Mode} =
@@ -155,15 +155,15 @@ decode_jingle_s5b_transport(__TopXMLNS, __Opts,
      Error}.
 
 decode_jingle_s5b_transport_els(__TopXMLNS, __Opts, [],
-                                Error, Candidates, Activated, Candidate_used) ->
-    {Error,
-     lists:reverse(Candidates),
+                                Candidates, Candidate_used, Activated, Error) ->
+    {lists:reverse(Candidates),
+     Candidate_used,
      Activated,
-     Candidate_used};
+     Error};
 decode_jingle_s5b_transport_els(__TopXMLNS, __Opts,
                                 [{xmlel, <<"candidate">>, _attrs, _} = _el
                                  | _els],
-                                Error, Candidates, Activated, Candidate_used) ->
+                                Candidates, Candidate_used, Activated, Error) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -172,26 +172,26 @@ decode_jingle_s5b_transport_els(__TopXMLNS, __Opts,
             decode_jingle_s5b_transport_els(__TopXMLNS,
                                             __Opts,
                                             _els,
-                                            Error,
                                             [decode_jingle_s5b_candidate(<<"urn:xmpp:jingle:transports:s5b:1">>,
                                                                          __Opts,
                                                                          _el)
                                              | Candidates],
+                                            Candidate_used,
                                             Activated,
-                                            Candidate_used);
+                                            Error);
         _ ->
             decode_jingle_s5b_transport_els(__TopXMLNS,
                                             __Opts,
                                             _els,
-                                            Error,
                                             Candidates,
+                                            Candidate_used,
                                             Activated,
-                                            Candidate_used)
+                                            Error)
     end;
 decode_jingle_s5b_transport_els(__TopXMLNS, __Opts,
                                 [{xmlel, <<"candidate-used">>, _attrs, _} = _el
                                  | _els],
-                                Error, Candidates, Activated, Candidate_used) ->
+                                Candidates, Candidate_used, Activated, Error) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -200,25 +200,25 @@ decode_jingle_s5b_transport_els(__TopXMLNS, __Opts,
             decode_jingle_s5b_transport_els(__TopXMLNS,
                                             __Opts,
                                             _els,
-                                            Error,
                                             Candidates,
-                                            Activated,
                                             decode_jingle_s5b_candidate_used(<<"urn:xmpp:jingle:transports:s5b:1">>,
                                                                              __Opts,
-                                                                             _el));
+                                                                             _el),
+                                            Activated,
+                                            Error);
         _ ->
             decode_jingle_s5b_transport_els(__TopXMLNS,
                                             __Opts,
                                             _els,
-                                            Error,
                                             Candidates,
+                                            Candidate_used,
                                             Activated,
-                                            Candidate_used)
+                                            Error)
     end;
 decode_jingle_s5b_transport_els(__TopXMLNS, __Opts,
                                 [{xmlel, <<"activated">>, _attrs, _} = _el
                                  | _els],
-                                Error, Candidates, Activated, Candidate_used) ->
+                                Candidates, Candidate_used, Activated, Error) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -227,25 +227,25 @@ decode_jingle_s5b_transport_els(__TopXMLNS, __Opts,
             decode_jingle_s5b_transport_els(__TopXMLNS,
                                             __Opts,
                                             _els,
-                                            Error,
                                             Candidates,
+                                            Candidate_used,
                                             decode_jingle_s5b_activated(<<"urn:xmpp:jingle:transports:s5b:1">>,
                                                                         __Opts,
                                                                         _el),
-                                            Candidate_used);
+                                            Error);
         _ ->
             decode_jingle_s5b_transport_els(__TopXMLNS,
                                             __Opts,
                                             _els,
-                                            Error,
                                             Candidates,
+                                            Candidate_used,
                                             Activated,
-                                            Candidate_used)
+                                            Error)
     end;
 decode_jingle_s5b_transport_els(__TopXMLNS, __Opts,
                                 [{xmlel, <<"candidate-error">>, _attrs, _} = _el
                                  | _els],
-                                Error, Candidates, Activated, Candidate_used) ->
+                                Candidates, Candidate_used, Activated, Error) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -254,25 +254,25 @@ decode_jingle_s5b_transport_els(__TopXMLNS, __Opts,
             decode_jingle_s5b_transport_els(__TopXMLNS,
                                             __Opts,
                                             _els,
+                                            Candidates,
+                                            Candidate_used,
+                                            Activated,
                                             decode_jingle_s5b_candidate_error(<<"urn:xmpp:jingle:transports:s5b:1">>,
                                                                               __Opts,
-                                                                              _el),
-                                            Candidates,
-                                            Activated,
-                                            Candidate_used);
+                                                                              _el));
         _ ->
             decode_jingle_s5b_transport_els(__TopXMLNS,
                                             __Opts,
                                             _els,
-                                            Error,
                                             Candidates,
+                                            Candidate_used,
                                             Activated,
-                                            Candidate_used)
+                                            Error)
     end;
 decode_jingle_s5b_transport_els(__TopXMLNS, __Opts,
                                 [{xmlel, <<"proxy-error">>, _attrs, _} = _el
                                  | _els],
-                                Error, Candidates, Activated, Candidate_used) ->
+                                Candidates, Candidate_used, Activated, Error) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -281,31 +281,31 @@ decode_jingle_s5b_transport_els(__TopXMLNS, __Opts,
             decode_jingle_s5b_transport_els(__TopXMLNS,
                                             __Opts,
                                             _els,
+                                            Candidates,
+                                            Candidate_used,
+                                            Activated,
                                             decode_jingle_s5b_proxy_error(<<"urn:xmpp:jingle:transports:s5b:1">>,
                                                                           __Opts,
-                                                                          _el),
-                                            Candidates,
-                                            Activated,
-                                            Candidate_used);
+                                                                          _el));
         _ ->
             decode_jingle_s5b_transport_els(__TopXMLNS,
                                             __Opts,
                                             _els,
-                                            Error,
                                             Candidates,
+                                            Candidate_used,
                                             Activated,
-                                            Candidate_used)
+                                            Error)
     end;
 decode_jingle_s5b_transport_els(__TopXMLNS, __Opts,
-                                [_ | _els], Error, Candidates, Activated,
-                                Candidate_used) ->
+                                [_ | _els], Candidates, Candidate_used,
+                                Activated, Error) ->
     decode_jingle_s5b_transport_els(__TopXMLNS,
                                     __Opts,
                                     _els,
-                                    Error,
                                     Candidates,
+                                    Candidate_used,
                                     Activated,
-                                    Candidate_used).
+                                    Error).
 
 decode_jingle_s5b_transport_attrs(__TopXMLNS,
                                   [{<<"sid">>, _val} | _attrs], _Sid, Dstaddr,
@@ -362,11 +362,11 @@ encode_jingle_s5b_transport({jingle_s5b_transport,
     _els =
         lists:reverse('encode_jingle_s5b_transport_$error'(Error,
                                                            __NewTopXMLNS,
-                                                           'encode_jingle_s5b_transport_$candidates'(Candidates,
-                                                                                                     __NewTopXMLNS,
-                                                                                                     'encode_jingle_s5b_transport_$activated'(Activated,
-                                                                                                                                              __NewTopXMLNS,
-                                                                                                                                              'encode_jingle_s5b_transport_$candidate-used'(Candidate_used,
+                                                           'encode_jingle_s5b_transport_$activated'(Activated,
+                                                                                                    __NewTopXMLNS,
+                                                                                                    'encode_jingle_s5b_transport_$candidate-used'(Candidate_used,
+                                                                                                                                                  __NewTopXMLNS,
+                                                                                                                                                  'encode_jingle_s5b_transport_$candidates'(Candidates,
                                                                                                                                                                                             __NewTopXMLNS,
                                                                                                                                                                                             []))))),
     _attrs = encode_jingle_s5b_transport_attr_mode(Mode,
@@ -375,20 +375,6 @@ encode_jingle_s5b_transport({jingle_s5b_transport,
                                                                                                                                  xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
                                                                                                                                                             __TopXMLNS)))),
     {xmlel, <<"transport">>, _attrs, _els}.
-
-'encode_jingle_s5b_transport_$error'(undefined,
-                                     __TopXMLNS, _acc) ->
-    _acc;
-'encode_jingle_s5b_transport_$error'('candidate-error' =
-                                         Error,
-                                     __TopXMLNS, _acc) ->
-    [encode_jingle_s5b_candidate_error(Error, __TopXMLNS)
-     | _acc];
-'encode_jingle_s5b_transport_$error'('proxy-error' =
-                                         Error,
-                                     __TopXMLNS, _acc) ->
-    [encode_jingle_s5b_proxy_error(Error, __TopXMLNS)
-     | _acc].
 
 'encode_jingle_s5b_transport_$candidates'([],
                                           __TopXMLNS, _acc) ->
@@ -402,6 +388,15 @@ encode_jingle_s5b_transport({jingle_s5b_transport,
                                                                            __TopXMLNS)
                                                | _acc]).
 
+'encode_jingle_s5b_transport_$candidate-used'(undefined,
+                                              __TopXMLNS, _acc) ->
+    _acc;
+'encode_jingle_s5b_transport_$candidate-used'(Candidate_used,
+                                              __TopXMLNS, _acc) ->
+    [encode_jingle_s5b_candidate_used(Candidate_used,
+                                      __TopXMLNS)
+     | _acc].
+
 'encode_jingle_s5b_transport_$activated'(undefined,
                                          __TopXMLNS, _acc) ->
     _acc;
@@ -410,13 +405,18 @@ encode_jingle_s5b_transport({jingle_s5b_transport,
     [encode_jingle_s5b_activated(Activated, __TopXMLNS)
      | _acc].
 
-'encode_jingle_s5b_transport_$candidate-used'(undefined,
-                                              __TopXMLNS, _acc) ->
+'encode_jingle_s5b_transport_$error'(undefined,
+                                     __TopXMLNS, _acc) ->
     _acc;
-'encode_jingle_s5b_transport_$candidate-used'(Candidate_used,
-                                              __TopXMLNS, _acc) ->
-    [encode_jingle_s5b_candidate_used(Candidate_used,
-                                      __TopXMLNS)
+'encode_jingle_s5b_transport_$error'('candidate-error' =
+                                         Error,
+                                     __TopXMLNS, _acc) ->
+    [encode_jingle_s5b_candidate_error(Error, __TopXMLNS)
+     | _acc];
+'encode_jingle_s5b_transport_$error'('proxy-error' =
+                                         Error,
+                                     __TopXMLNS, _acc) ->
+    [encode_jingle_s5b_proxy_error(Error, __TopXMLNS)
      | _acc].
 
 decode_jingle_s5b_transport_attr_sid(__TopXMLNS,

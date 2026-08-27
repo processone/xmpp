@@ -365,9 +365,9 @@ encode_bind2_bind({bind2_bind, Tag, Inline, __Els},
     _els = [xmpp_codec:encode(_el, __NewTopXMLNS)
             || _el <- __Els]
                ++
-               lists:reverse('encode_bind2_bind_$inline'(Inline,
-                                                         __NewTopXMLNS,
-                                                         'encode_bind2_bind_$tag'(Tag,
+               lists:reverse('encode_bind2_bind_$tag'(Tag,
+                                                      __NewTopXMLNS,
+                                                      'encode_bind2_bind_$inline'(Inline,
                                                                                   __NewTopXMLNS,
                                                                                   []))),
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,

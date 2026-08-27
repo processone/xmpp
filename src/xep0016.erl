@@ -214,11 +214,11 @@ encode_privacy({privacy_query, Lists, Default, Active},
         xmpp_codec:choose_top_xmlns(<<"jabber:iq:privacy">>,
                                     [],
                                     __TopXMLNS),
-    _els = lists:reverse('encode_privacy_$lists'(Lists,
-                                                 __NewTopXMLNS,
-                                                 'encode_privacy_$default'(Default,
-                                                                           __NewTopXMLNS,
-                                                                           'encode_privacy_$active'(Active,
+    _els = lists:reverse('encode_privacy_$active'(Active,
+                                                  __NewTopXMLNS,
+                                                  'encode_privacy_$default'(Default,
+                                                                            __NewTopXMLNS,
+                                                                            'encode_privacy_$lists'(Lists,
                                                                                                     __NewTopXMLNS,
                                                                                                     [])))),
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
@@ -412,7 +412,7 @@ encode_privacy_list_attr_name(_val, _acc) ->
 
 decode_privacy_item(__TopXMLNS, __Opts,
                     {xmlel, <<"item">>, _attrs, _els}) ->
-    {Iq, Presence_out, Message, Presence_in} =
+    {Message, Iq, Presence_in, Presence_out} =
         decode_privacy_item_els(__TopXMLNS,
                                 __Opts,
                                 _els,
@@ -437,12 +437,12 @@ decode_privacy_item(__TopXMLNS, __Opts,
      Presence_in,
      Presence_out}.
 
-decode_privacy_item_els(__TopXMLNS, __Opts, [], Iq,
-                        Presence_out, Message, Presence_in) ->
-    {Iq, Presence_out, Message, Presence_in};
+decode_privacy_item_els(__TopXMLNS, __Opts, [], Message,
+                        Iq, Presence_in, Presence_out) ->
+    {Message, Iq, Presence_in, Presence_out};
 decode_privacy_item_els(__TopXMLNS, __Opts,
-                        [{xmlel, <<"message">>, _attrs, _} = _el | _els], Iq,
-                        Presence_out, Message, Presence_in) ->
+                        [{xmlel, <<"message">>, _attrs, _} = _el | _els],
+                        Message, Iq, Presence_in, Presence_out) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -451,24 +451,24 @@ decode_privacy_item_els(__TopXMLNS, __Opts,
             decode_privacy_item_els(__TopXMLNS,
                                     __Opts,
                                     _els,
-                                    Iq,
-                                    Presence_out,
                                     decode_privacy_message(<<"jabber:iq:privacy">>,
                                                            __Opts,
                                                            _el),
-                                    Presence_in);
+                                    Iq,
+                                    Presence_in,
+                                    Presence_out);
         _ ->
             decode_privacy_item_els(__TopXMLNS,
                                     __Opts,
                                     _els,
-                                    Iq,
-                                    Presence_out,
                                     Message,
-                                    Presence_in)
+                                    Iq,
+                                    Presence_in,
+                                    Presence_out)
     end;
 decode_privacy_item_els(__TopXMLNS, __Opts,
-                        [{xmlel, <<"iq">>, _attrs, _} = _el | _els], Iq,
-                        Presence_out, Message, Presence_in) ->
+                        [{xmlel, <<"iq">>, _attrs, _} = _el | _els], Message,
+                        Iq, Presence_in, Presence_out) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -477,24 +477,24 @@ decode_privacy_item_els(__TopXMLNS, __Opts,
             decode_privacy_item_els(__TopXMLNS,
                                     __Opts,
                                     _els,
+                                    Message,
                                     decode_privacy_iq(<<"jabber:iq:privacy">>,
                                                       __Opts,
                                                       _el),
-                                    Presence_out,
-                                    Message,
-                                    Presence_in);
+                                    Presence_in,
+                                    Presence_out);
         _ ->
             decode_privacy_item_els(__TopXMLNS,
                                     __Opts,
                                     _els,
-                                    Iq,
-                                    Presence_out,
                                     Message,
-                                    Presence_in)
+                                    Iq,
+                                    Presence_in,
+                                    Presence_out)
     end;
 decode_privacy_item_els(__TopXMLNS, __Opts,
                         [{xmlel, <<"presence-in">>, _attrs, _} = _el | _els],
-                        Iq, Presence_out, Message, Presence_in) ->
+                        Message, Iq, Presence_in, Presence_out) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -503,24 +503,24 @@ decode_privacy_item_els(__TopXMLNS, __Opts,
             decode_privacy_item_els(__TopXMLNS,
                                     __Opts,
                                     _els,
-                                    Iq,
-                                    Presence_out,
                                     Message,
+                                    Iq,
                                     decode_privacy_presence_in(<<"jabber:iq:privacy">>,
                                                                __Opts,
-                                                               _el));
+                                                               _el),
+                                    Presence_out);
         _ ->
             decode_privacy_item_els(__TopXMLNS,
                                     __Opts,
                                     _els,
-                                    Iq,
-                                    Presence_out,
                                     Message,
-                                    Presence_in)
+                                    Iq,
+                                    Presence_in,
+                                    Presence_out)
     end;
 decode_privacy_item_els(__TopXMLNS, __Opts,
                         [{xmlel, <<"presence-out">>, _attrs, _} = _el | _els],
-                        Iq, Presence_out, Message, Presence_in) ->
+                        Message, Iq, Presence_in, Presence_out) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -529,30 +529,30 @@ decode_privacy_item_els(__TopXMLNS, __Opts,
             decode_privacy_item_els(__TopXMLNS,
                                     __Opts,
                                     _els,
+                                    Message,
                                     Iq,
+                                    Presence_in,
                                     decode_privacy_presence_out(<<"jabber:iq:privacy">>,
                                                                 __Opts,
-                                                                _el),
-                                    Message,
-                                    Presence_in);
+                                                                _el));
         _ ->
             decode_privacy_item_els(__TopXMLNS,
                                     __Opts,
                                     _els,
-                                    Iq,
-                                    Presence_out,
                                     Message,
-                                    Presence_in)
+                                    Iq,
+                                    Presence_in,
+                                    Presence_out)
     end;
 decode_privacy_item_els(__TopXMLNS, __Opts, [_ | _els],
-                        Iq, Presence_out, Message, Presence_in) ->
+                        Message, Iq, Presence_in, Presence_out) ->
     decode_privacy_item_els(__TopXMLNS,
                             __Opts,
                             _els,
-                            Iq,
-                            Presence_out,
                             Message,
-                            Presence_in).
+                            Iq,
+                            Presence_in,
+                            Presence_out).
 
 decode_privacy_item_attrs(__TopXMLNS,
                           [{<<"action">>, _val} | _attrs], _Action, Order, Type,
@@ -619,15 +619,16 @@ encode_privacy_item({privacy_item,
         xmpp_codec:choose_top_xmlns(<<"jabber:iq:privacy">>,
                                     [],
                                     __TopXMLNS),
-    _els = lists:reverse('encode_privacy_item_$iq'(Iq,
-                                                   __NewTopXMLNS,
-                                                   'encode_privacy_item_$presence_out'(Presence_out,
-                                                                                       __NewTopXMLNS,
-                                                                                       'encode_privacy_item_$message'(Message,
-                                                                                                                      __NewTopXMLNS,
-                                                                                                                      'encode_privacy_item_$presence_in'(Presence_in,
-                                                                                                                                                         __NewTopXMLNS,
-                                                                                                                                                         []))))),
+    _els =
+        lists:reverse('encode_privacy_item_$presence_out'(Presence_out,
+                                                          __NewTopXMLNS,
+                                                          'encode_privacy_item_$presence_in'(Presence_in,
+                                                                                             __NewTopXMLNS,
+                                                                                             'encode_privacy_item_$iq'(Iq,
+                                                                                                                       __NewTopXMLNS,
+                                                                                                                       'encode_privacy_item_$message'(Message,
+                                                                                                                                                      __NewTopXMLNS,
+                                                                                                                                                      []))))),
     _attrs = encode_privacy_item_attr_value(Value,
                                             encode_privacy_item_attr_type(Type,
                                                                           encode_privacy_item_attr_order(Order,
@@ -636,19 +637,6 @@ encode_privacy_item({privacy_item,
                                                                                                                                                                     __TopXMLNS))))),
     {xmlel, <<"item">>, _attrs, _els}.
 
-'encode_privacy_item_$iq'(false, __TopXMLNS, _acc) ->
-    _acc;
-'encode_privacy_item_$iq'(Iq, __TopXMLNS, _acc) ->
-    [encode_privacy_iq(Iq, __TopXMLNS) | _acc].
-
-'encode_privacy_item_$presence_out'(false, __TopXMLNS,
-                                    _acc) ->
-    _acc;
-'encode_privacy_item_$presence_out'(Presence_out,
-                                    __TopXMLNS, _acc) ->
-    [encode_privacy_presence_out(Presence_out, __TopXMLNS)
-     | _acc].
-
 'encode_privacy_item_$message'(false, __TopXMLNS,
                                _acc) ->
     _acc;
@@ -656,12 +644,25 @@ encode_privacy_item({privacy_item,
                                _acc) ->
     [encode_privacy_message(Message, __TopXMLNS) | _acc].
 
+'encode_privacy_item_$iq'(false, __TopXMLNS, _acc) ->
+    _acc;
+'encode_privacy_item_$iq'(Iq, __TopXMLNS, _acc) ->
+    [encode_privacy_iq(Iq, __TopXMLNS) | _acc].
+
 'encode_privacy_item_$presence_in'(false, __TopXMLNS,
                                    _acc) ->
     _acc;
 'encode_privacy_item_$presence_in'(Presence_in,
                                    __TopXMLNS, _acc) ->
     [encode_privacy_presence_in(Presence_in, __TopXMLNS)
+     | _acc].
+
+'encode_privacy_item_$presence_out'(false, __TopXMLNS,
+                                    _acc) ->
+    _acc;
+'encode_privacy_item_$presence_out'(Presence_out,
+                                    __TopXMLNS, _acc) ->
+    [encode_privacy_presence_out(Presence_out, __TopXMLNS)
      | _acc].
 
 decode_privacy_item_attr_action(__TopXMLNS,

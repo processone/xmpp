@@ -327,19 +327,19 @@ encode_muc_unique_cdata(_val, _acc) ->
 
 decode_muc(__TopXMLNS, __Opts,
            {xmlel, <<"x">>, _attrs, _els}) ->
-    {Password, History} = decode_muc_els(__TopXMLNS,
+    {History, Password} = decode_muc_els(__TopXMLNS,
                                          __Opts,
                                          _els,
                                          undefined,
                                          undefined),
     {muc, History, Password}.
 
-decode_muc_els(__TopXMLNS, __Opts, [], Password,
-               History) ->
-    {Password, History};
+decode_muc_els(__TopXMLNS, __Opts, [], History,
+               Password) ->
+    {History, Password};
 decode_muc_els(__TopXMLNS, __Opts,
                [{xmlel, <<"history">>, _attrs, _} = _el | _els],
-               Password, History) ->
+               History, Password) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -348,20 +348,20 @@ decode_muc_els(__TopXMLNS, __Opts,
             decode_muc_els(__TopXMLNS,
                            __Opts,
                            _els,
-                           Password,
                            decode_muc_history(<<"http://jabber.org/protocol/muc">>,
                                               __Opts,
-                                              _el));
+                                              _el),
+                           Password);
         _ ->
             decode_muc_els(__TopXMLNS,
                            __Opts,
                            _els,
-                           Password,
-                           History)
+                           History,
+                           Password)
     end;
 decode_muc_els(__TopXMLNS, __Opts,
                [{xmlel, <<"password">>, _attrs, _} = _el | _els],
-               Password, History) ->
+               History, Password) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -370,40 +370,40 @@ decode_muc_els(__TopXMLNS, __Opts,
             decode_muc_els(__TopXMLNS,
                            __Opts,
                            _els,
+                           History,
                            decode_muc_password(<<"http://jabber.org/protocol/muc#owner">>,
                                                __Opts,
-                                               _el),
-                           History);
+                                               _el));
         <<"http://jabber.org/protocol/muc#user">> ->
             decode_muc_els(__TopXMLNS,
                            __Opts,
                            _els,
+                           History,
                            decode_muc_password(<<"http://jabber.org/protocol/muc#user">>,
                                                __Opts,
-                                               _el),
-                           History);
+                                               _el));
         <<"http://jabber.org/protocol/muc">> ->
             decode_muc_els(__TopXMLNS,
                            __Opts,
                            _els,
+                           History,
                            decode_muc_password(<<"http://jabber.org/protocol/muc">>,
                                                __Opts,
-                                               _el),
-                           History);
+                                               _el));
         _ ->
             decode_muc_els(__TopXMLNS,
                            __Opts,
                            _els,
-                           Password,
-                           History)
+                           History,
+                           Password)
     end;
-decode_muc_els(__TopXMLNS, __Opts, [_ | _els], Password,
-               History) ->
+decode_muc_els(__TopXMLNS, __Opts, [_ | _els], History,
+               Password) ->
     decode_muc_els(__TopXMLNS,
                    __Opts,
                    _els,
-                   Password,
-                   History).
+                   History,
+                   Password).
 
 encode_muc({muc, History, Password}, __TopXMLNS) ->
     __NewTopXMLNS =
@@ -419,15 +419,15 @@ encode_muc({muc, History, Password}, __TopXMLNS) ->
                                         __TopXMLNS),
     {xmlel, <<"x">>, _attrs, _els}.
 
-'encode_muc_$password'(undefined, __TopXMLNS, _acc) ->
-    _acc;
-'encode_muc_$password'(Password, __TopXMLNS, _acc) ->
-    [encode_muc_password(Password, __TopXMLNS) | _acc].
-
 'encode_muc_$history'(undefined, __TopXMLNS, _acc) ->
     _acc;
 'encode_muc_$history'(History, __TopXMLNS, _acc) ->
     [encode_muc_history(History, __TopXMLNS) | _acc].
+
+'encode_muc_$password'(undefined, __TopXMLNS, _acc) ->
+    _acc;
+'encode_muc_$password'(Password, __TopXMLNS, _acc) ->
+    [encode_muc_password(Password, __TopXMLNS) | _acc].
 
 decode_muc_admin(__TopXMLNS, __Opts,
                  {xmlel, <<"query">>, _attrs, _els}) ->
@@ -789,11 +789,11 @@ encode_muc_admin_item({muc_item,
                                     [],
                                     __TopXMLNS),
     _els =
-        lists:reverse('encode_muc_admin_item_$actor'(Actor,
-                                                     __NewTopXMLNS,
-                                                     'encode_muc_admin_item_$continue'(Continue,
-                                                                                       __NewTopXMLNS,
-                                                                                       'encode_muc_admin_item_$reason'(Reason,
+        lists:reverse('encode_muc_admin_item_$reason'(Reason,
+                                                      __NewTopXMLNS,
+                                                      'encode_muc_admin_item_$continue'(Continue,
+                                                                                        __NewTopXMLNS,
+                                                                                        'encode_muc_admin_item_$actor'(Actor,
                                                                                                                        __NewTopXMLNS,
                                                                                                                        [])))),
     _attrs = encode_muc_admin_item_attr_nick(Nick,
@@ -1087,11 +1087,11 @@ encode_muc_owner_item({muc_item,
                                     [],
                                     __TopXMLNS),
     _els =
-        lists:reverse('encode_muc_owner_item_$actor'(Actor,
-                                                     __NewTopXMLNS,
-                                                     'encode_muc_owner_item_$continue'(Continue,
-                                                                                       __NewTopXMLNS,
-                                                                                       'encode_muc_owner_item_$reason'(Reason,
+        lists:reverse('encode_muc_owner_item_$reason'(Reason,
+                                                      __NewTopXMLNS,
+                                                      'encode_muc_owner_item_$continue'(Continue,
+                                                                                        __NewTopXMLNS,
+                                                                                        'encode_muc_owner_item_$actor'(Actor,
                                                                                                                        __NewTopXMLNS,
                                                                                                                        [])))),
     _attrs = encode_muc_owner_item_attr_nick(Nick,
@@ -1194,21 +1194,21 @@ encode_muc_owner_item_attr_nick(_val, _acc) ->
 
 decode_muc_owner(__TopXMLNS, __Opts,
                  {xmlel, <<"query">>, _attrs, _els}) ->
-    {Items, Config, Destroy} =
+    {Destroy, Config, Items} =
         decode_muc_owner_els(__TopXMLNS,
                              __Opts,
                              _els,
-                             [],
                              undefined,
-                             undefined),
+                             undefined,
+                             []),
     {muc_owner, Destroy, Config, Items}.
 
-decode_muc_owner_els(__TopXMLNS, __Opts, [], Items,
-                     Config, Destroy) ->
-    {lists:reverse(Items), Config, Destroy};
+decode_muc_owner_els(__TopXMLNS, __Opts, [], Destroy,
+                     Config, Items) ->
+    {Destroy, Config, lists:reverse(Items)};
 decode_muc_owner_els(__TopXMLNS, __Opts,
-                     [{xmlel, <<"destroy">>, _attrs, _} = _el | _els], Items,
-                     Config, Destroy) ->
+                     [{xmlel, <<"destroy">>, _attrs, _} = _el | _els],
+                     Destroy, Config, Items) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -1217,31 +1217,31 @@ decode_muc_owner_els(__TopXMLNS, __Opts,
             decode_muc_owner_els(__TopXMLNS,
                                  __Opts,
                                  _els,
-                                 Items,
-                                 Config,
                                  decode_muc_destroy(<<"http://jabber.org/protocol/muc#user">>,
                                                     __Opts,
-                                                    _el));
+                                                    _el),
+                                 Config,
+                                 Items);
         <<"http://jabber.org/protocol/muc#owner">> ->
             decode_muc_owner_els(__TopXMLNS,
                                  __Opts,
                                  _els,
-                                 Items,
-                                 Config,
                                  decode_muc_destroy(<<"http://jabber.org/protocol/muc#owner">>,
                                                     __Opts,
-                                                    _el));
+                                                    _el),
+                                 Config,
+                                 Items);
         _ ->
             decode_muc_owner_els(__TopXMLNS,
                                  __Opts,
                                  _els,
-                                 Items,
+                                 Destroy,
                                  Config,
-                                 Destroy)
+                                 Items)
     end;
 decode_muc_owner_els(__TopXMLNS, __Opts,
-                     [{xmlel, <<"x">>, _attrs, _} = _el | _els], Items,
-                     Config, Destroy) ->
+                     [{xmlel, <<"x">>, _attrs, _} = _el | _els], Destroy,
+                     Config, Items) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -1250,22 +1250,22 @@ decode_muc_owner_els(__TopXMLNS, __Opts,
             decode_muc_owner_els(__TopXMLNS,
                                  __Opts,
                                  _els,
-                                 Items,
+                                 Destroy,
                                  xep0004:decode_xdata(<<"jabber:x:data">>,
                                                       __Opts,
                                                       _el),
-                                 Destroy);
+                                 Items);
         _ ->
             decode_muc_owner_els(__TopXMLNS,
                                  __Opts,
                                  _els,
-                                 Items,
+                                 Destroy,
                                  Config,
-                                 Destroy)
+                                 Items)
     end;
 decode_muc_owner_els(__TopXMLNS, __Opts,
-                     [{xmlel, <<"item">>, _attrs, _} = _el | _els], Items,
-                     Config, Destroy) ->
+                     [{xmlel, <<"item">>, _attrs, _} = _el | _els], Destroy,
+                     Config, Items) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -1274,28 +1274,28 @@ decode_muc_owner_els(__TopXMLNS, __Opts,
             decode_muc_owner_els(__TopXMLNS,
                                  __Opts,
                                  _els,
+                                 Destroy,
+                                 Config,
                                  [decode_muc_owner_item(<<"http://jabber.org/protocol/muc#owner">>,
                                                         __Opts,
                                                         _el)
-                                  | Items],
-                                 Config,
-                                 Destroy);
+                                  | Items]);
         _ ->
             decode_muc_owner_els(__TopXMLNS,
                                  __Opts,
                                  _els,
-                                 Items,
+                                 Destroy,
                                  Config,
-                                 Destroy)
+                                 Items)
     end;
 decode_muc_owner_els(__TopXMLNS, __Opts, [_ | _els],
-                     Items, Config, Destroy) ->
+                     Destroy, Config, Items) ->
     decode_muc_owner_els(__TopXMLNS,
                          __Opts,
                          _els,
-                         Items,
+                         Destroy,
                          Config,
-                         Destroy).
+                         Items).
 
 encode_muc_owner({muc_owner, Destroy, Config, Items},
                  __TopXMLNS) ->
@@ -1314,13 +1314,12 @@ encode_muc_owner({muc_owner, Destroy, Config, Items},
                                         __TopXMLNS),
     {xmlel, <<"query">>, _attrs, _els}.
 
-'encode_muc_owner_$items'([], __TopXMLNS, _acc) -> _acc;
-'encode_muc_owner_$items'([Items | _els], __TopXMLNS,
-                          _acc) ->
-    'encode_muc_owner_$items'(_els,
-                              __TopXMLNS,
-                              [encode_muc_owner_item(Items, __TopXMLNS)
-                               | _acc]).
+'encode_muc_owner_$destroy'(undefined, __TopXMLNS,
+                            _acc) ->
+    _acc;
+'encode_muc_owner_$destroy'(Destroy, __TopXMLNS,
+                            _acc) ->
+    [encode_muc_destroy(Destroy, __TopXMLNS) | _acc].
 
 'encode_muc_owner_$config'(undefined, __TopXMLNS,
                            _acc) ->
@@ -1328,12 +1327,13 @@ encode_muc_owner({muc_owner, Destroy, Config, Items},
 'encode_muc_owner_$config'(Config, __TopXMLNS, _acc) ->
     [xep0004:encode_xdata(Config, __TopXMLNS) | _acc].
 
-'encode_muc_owner_$destroy'(undefined, __TopXMLNS,
-                            _acc) ->
-    _acc;
-'encode_muc_owner_$destroy'(Destroy, __TopXMLNS,
-                            _acc) ->
-    [encode_muc_destroy(Destroy, __TopXMLNS) | _acc].
+'encode_muc_owner_$items'([], __TopXMLNS, _acc) -> _acc;
+'encode_muc_owner_$items'([Items | _els], __TopXMLNS,
+                          _acc) ->
+    'encode_muc_owner_$items'(_els,
+                              __TopXMLNS,
+                              [encode_muc_owner_item(Items, __TopXMLNS)
+                               | _acc]).
 
 decode_muc_password(__TopXMLNS, __Opts,
                     {xmlel, <<"password">>, _attrs, _els}) ->
@@ -1379,21 +1379,21 @@ encode_muc_password_cdata(_val, _acc) ->
 
 decode_muc_user(__TopXMLNS, __Opts,
                 {xmlel, <<"x">>, _attrs, _els}) ->
-    {Status_codes,
-     Items,
-     Invites,
+    {Decline,
+     Destroy,
      Password,
-     Decline,
-     Destroy} =
+     Invites,
+     Items,
+     Status_codes} =
         decode_muc_user_els(__TopXMLNS,
                             __Opts,
                             _els,
-                            [],
-                            [],
-                            [],
                             undefined,
                             undefined,
-                            undefined),
+                            undefined,
+                            [],
+                            [],
+                            []),
     {muc_user,
      Decline,
      Destroy,
@@ -1402,19 +1402,18 @@ decode_muc_user(__TopXMLNS, __Opts,
      Status_codes,
      Password}.
 
-decode_muc_user_els(__TopXMLNS, __Opts, [],
-                    Status_codes, Items, Invites, Password, Decline,
-                    Destroy) ->
-    {lists:reverse(Status_codes),
-     lists:reverse(Items),
-     lists:reverse(Invites),
+decode_muc_user_els(__TopXMLNS, __Opts, [], Decline,
+                    Destroy, Password, Invites, Items, Status_codes) ->
+    {Decline,
+     Destroy,
      Password,
-     Decline,
-     Destroy};
+     lists:reverse(Invites),
+     lists:reverse(Items),
+     lists:reverse(Status_codes)};
 decode_muc_user_els(__TopXMLNS, __Opts,
                     [{xmlel, <<"decline">>, _attrs, _} = _el | _els],
-                    Status_codes, Items, Invites, Password, Decline,
-                    Destroy) ->
+                    Decline, Destroy, Password, Invites, Items,
+                    Status_codes) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -1423,29 +1422,29 @@ decode_muc_user_els(__TopXMLNS, __Opts,
             decode_muc_user_els(__TopXMLNS,
                                 __Opts,
                                 _els,
-                                Status_codes,
-                                Items,
-                                Invites,
-                                Password,
                                 decode_muc_user_decline(<<"http://jabber.org/protocol/muc#user">>,
                                                         __Opts,
                                                         _el),
-                                Destroy);
+                                Destroy,
+                                Password,
+                                Invites,
+                                Items,
+                                Status_codes);
         _ ->
             decode_muc_user_els(__TopXMLNS,
                                 __Opts,
                                 _els,
-                                Status_codes,
-                                Items,
-                                Invites,
-                                Password,
                                 Decline,
-                                Destroy)
+                                Destroy,
+                                Password,
+                                Invites,
+                                Items,
+                                Status_codes)
     end;
 decode_muc_user_els(__TopXMLNS, __Opts,
                     [{xmlel, <<"destroy">>, _attrs, _} = _el | _els],
-                    Status_codes, Items, Invites, Password, Decline,
-                    Destroy) ->
+                    Decline, Destroy, Password, Invites, Items,
+                    Status_codes) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -1454,41 +1453,41 @@ decode_muc_user_els(__TopXMLNS, __Opts,
             decode_muc_user_els(__TopXMLNS,
                                 __Opts,
                                 _els,
-                                Status_codes,
-                                Items,
-                                Invites,
-                                Password,
                                 Decline,
                                 decode_muc_destroy(<<"http://jabber.org/protocol/muc#user">>,
                                                    __Opts,
-                                                   _el));
+                                                   _el),
+                                Password,
+                                Invites,
+                                Items,
+                                Status_codes);
         <<"http://jabber.org/protocol/muc#owner">> ->
             decode_muc_user_els(__TopXMLNS,
                                 __Opts,
                                 _els,
-                                Status_codes,
-                                Items,
-                                Invites,
-                                Password,
                                 Decline,
                                 decode_muc_destroy(<<"http://jabber.org/protocol/muc#owner">>,
                                                    __Opts,
-                                                   _el));
+                                                   _el),
+                                Password,
+                                Invites,
+                                Items,
+                                Status_codes);
         _ ->
             decode_muc_user_els(__TopXMLNS,
                                 __Opts,
                                 _els,
-                                Status_codes,
-                                Items,
-                                Invites,
-                                Password,
                                 Decline,
-                                Destroy)
+                                Destroy,
+                                Password,
+                                Invites,
+                                Items,
+                                Status_codes)
     end;
 decode_muc_user_els(__TopXMLNS, __Opts,
                     [{xmlel, <<"password">>, _attrs, _} = _el | _els],
-                    Status_codes, Items, Invites, Password, Decline,
-                    Destroy) ->
+                    Decline, Destroy, Password, Invites, Items,
+                    Status_codes) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -1497,53 +1496,53 @@ decode_muc_user_els(__TopXMLNS, __Opts,
             decode_muc_user_els(__TopXMLNS,
                                 __Opts,
                                 _els,
-                                Status_codes,
-                                Items,
-                                Invites,
+                                Decline,
+                                Destroy,
                                 decode_muc_password(<<"http://jabber.org/protocol/muc#owner">>,
                                                     __Opts,
                                                     _el),
-                                Decline,
-                                Destroy);
+                                Invites,
+                                Items,
+                                Status_codes);
         <<"http://jabber.org/protocol/muc#user">> ->
             decode_muc_user_els(__TopXMLNS,
                                 __Opts,
                                 _els,
-                                Status_codes,
-                                Items,
-                                Invites,
+                                Decline,
+                                Destroy,
                                 decode_muc_password(<<"http://jabber.org/protocol/muc#user">>,
                                                     __Opts,
                                                     _el),
-                                Decline,
-                                Destroy);
+                                Invites,
+                                Items,
+                                Status_codes);
         <<"http://jabber.org/protocol/muc">> ->
             decode_muc_user_els(__TopXMLNS,
                                 __Opts,
                                 _els,
-                                Status_codes,
-                                Items,
-                                Invites,
+                                Decline,
+                                Destroy,
                                 decode_muc_password(<<"http://jabber.org/protocol/muc">>,
                                                     __Opts,
                                                     _el),
-                                Decline,
-                                Destroy);
+                                Invites,
+                                Items,
+                                Status_codes);
         _ ->
             decode_muc_user_els(__TopXMLNS,
                                 __Opts,
                                 _els,
-                                Status_codes,
-                                Items,
-                                Invites,
-                                Password,
                                 Decline,
-                                Destroy)
+                                Destroy,
+                                Password,
+                                Invites,
+                                Items,
+                                Status_codes)
     end;
 decode_muc_user_els(__TopXMLNS, __Opts,
                     [{xmlel, <<"invite">>, _attrs, _} = _el | _els],
-                    Status_codes, Items, Invites, Password, Decline,
-                    Destroy) ->
+                    Decline, Destroy, Password, Invites, Items,
+                    Status_codes) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -1552,30 +1551,29 @@ decode_muc_user_els(__TopXMLNS, __Opts,
             decode_muc_user_els(__TopXMLNS,
                                 __Opts,
                                 _els,
-                                Status_codes,
-                                Items,
+                                Decline,
+                                Destroy,
+                                Password,
                                 [decode_muc_user_invite(<<"http://jabber.org/protocol/muc#user">>,
                                                         __Opts,
                                                         _el)
                                  | Invites],
-                                Password,
-                                Decline,
-                                Destroy);
+                                Items,
+                                Status_codes);
         _ ->
             decode_muc_user_els(__TopXMLNS,
                                 __Opts,
                                 _els,
-                                Status_codes,
-                                Items,
-                                Invites,
-                                Password,
                                 Decline,
-                                Destroy)
+                                Destroy,
+                                Password,
+                                Invites,
+                                Items,
+                                Status_codes)
     end;
 decode_muc_user_els(__TopXMLNS, __Opts,
-                    [{xmlel, <<"item">>, _attrs, _} = _el | _els],
-                    Status_codes, Items, Invites, Password, Decline,
-                    Destroy) ->
+                    [{xmlel, <<"item">>, _attrs, _} = _el | _els], Decline,
+                    Destroy, Password, Invites, Items, Status_codes) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -1584,30 +1582,30 @@ decode_muc_user_els(__TopXMLNS, __Opts,
             decode_muc_user_els(__TopXMLNS,
                                 __Opts,
                                 _els,
-                                Status_codes,
+                                Decline,
+                                Destroy,
+                                Password,
+                                Invites,
                                 [decode_muc_user_item(<<"http://jabber.org/protocol/muc#user">>,
                                                       __Opts,
                                                       _el)
                                  | Items],
-                                Invites,
-                                Password,
-                                Decline,
-                                Destroy);
+                                Status_codes);
         _ ->
             decode_muc_user_els(__TopXMLNS,
                                 __Opts,
                                 _els,
-                                Status_codes,
-                                Items,
-                                Invites,
-                                Password,
                                 Decline,
-                                Destroy)
+                                Destroy,
+                                Password,
+                                Invites,
+                                Items,
+                                Status_codes)
     end;
 decode_muc_user_els(__TopXMLNS, __Opts,
                     [{xmlel, <<"status">>, _attrs, _} = _el | _els],
-                    Status_codes, Items, Invites, Password, Decline,
-                    Destroy) ->
+                    Decline, Destroy, Password, Invites, Items,
+                    Status_codes) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -1616,6 +1614,11 @@ decode_muc_user_els(__TopXMLNS, __Opts,
             decode_muc_user_els(__TopXMLNS,
                                 __Opts,
                                 _els,
+                                Decline,
+                                Destroy,
+                                Password,
+                                Invites,
+                                Items,
                                 case
                                     decode_muc_user_status(<<"http://jabber.org/protocol/muc#user">>,
                                                            __Opts,
@@ -1623,35 +1626,30 @@ decode_muc_user_els(__TopXMLNS, __Opts,
                                     of
                                     undefined -> Status_codes;
                                     _new_el -> [_new_el | Status_codes]
-                                end,
-                                Items,
-                                Invites,
-                                Password,
-                                Decline,
-                                Destroy);
+                                end);
         _ ->
             decode_muc_user_els(__TopXMLNS,
                                 __Opts,
                                 _els,
-                                Status_codes,
-                                Items,
-                                Invites,
-                                Password,
                                 Decline,
-                                Destroy)
+                                Destroy,
+                                Password,
+                                Invites,
+                                Items,
+                                Status_codes)
     end;
 decode_muc_user_els(__TopXMLNS, __Opts, [_ | _els],
-                    Status_codes, Items, Invites, Password, Decline,
-                    Destroy) ->
+                    Decline, Destroy, Password, Invites, Items,
+                    Status_codes) ->
     decode_muc_user_els(__TopXMLNS,
                         __Opts,
                         _els,
-                        Status_codes,
-                        Items,
-                        Invites,
-                        Password,
                         Decline,
-                        Destroy).
+                        Destroy,
+                        Password,
+                        Invites,
+                        Items,
+                        Status_codes).
 
 encode_muc_user({muc_user,
                  Decline,
@@ -1674,47 +1672,14 @@ encode_muc_user({muc_user,
                                                                                                           __NewTopXMLNS,
                                                                                                           'encode_muc_user_$password'(Password,
                                                                                                                                       __NewTopXMLNS,
-                                                                                                                                      'encode_muc_user_$decline'(Decline,
+                                                                                                                                      'encode_muc_user_$destroy'(Destroy,
                                                                                                                                                                  __NewTopXMLNS,
-                                                                                                                                                                 'encode_muc_user_$destroy'(Destroy,
+                                                                                                                                                                 'encode_muc_user_$decline'(Decline,
                                                                                                                                                                                             __NewTopXMLNS,
                                                                                                                                                                                             []))))))),
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
                                         __TopXMLNS),
     {xmlel, <<"x">>, _attrs, _els}.
-
-'encode_muc_user_$status_codes'([], __TopXMLNS, _acc) ->
-    _acc;
-'encode_muc_user_$status_codes'([Status_codes | _els],
-                                __TopXMLNS, _acc) ->
-    'encode_muc_user_$status_codes'(_els,
-                                    __TopXMLNS,
-                                    [encode_muc_user_status(Status_codes,
-                                                            __TopXMLNS)
-                                     | _acc]).
-
-'encode_muc_user_$items'([], __TopXMLNS, _acc) -> _acc;
-'encode_muc_user_$items'([Items | _els], __TopXMLNS,
-                         _acc) ->
-    'encode_muc_user_$items'(_els,
-                             __TopXMLNS,
-                             [encode_muc_user_item(Items, __TopXMLNS) | _acc]).
-
-'encode_muc_user_$invites'([], __TopXMLNS, _acc) ->
-    _acc;
-'encode_muc_user_$invites'([Invites | _els], __TopXMLNS,
-                           _acc) ->
-    'encode_muc_user_$invites'(_els,
-                               __TopXMLNS,
-                               [encode_muc_user_invite(Invites, __TopXMLNS)
-                                | _acc]).
-
-'encode_muc_user_$password'(undefined, __TopXMLNS,
-                            _acc) ->
-    _acc;
-'encode_muc_user_$password'(Password, __TopXMLNS,
-                            _acc) ->
-    [encode_muc_password(Password, __TopXMLNS) | _acc].
 
 'encode_muc_user_$decline'(undefined, __TopXMLNS,
                            _acc) ->
@@ -1727,6 +1692,39 @@ encode_muc_user({muc_user,
     _acc;
 'encode_muc_user_$destroy'(Destroy, __TopXMLNS, _acc) ->
     [encode_muc_destroy(Destroy, __TopXMLNS) | _acc].
+
+'encode_muc_user_$password'(undefined, __TopXMLNS,
+                            _acc) ->
+    _acc;
+'encode_muc_user_$password'(Password, __TopXMLNS,
+                            _acc) ->
+    [encode_muc_password(Password, __TopXMLNS) | _acc].
+
+'encode_muc_user_$invites'([], __TopXMLNS, _acc) ->
+    _acc;
+'encode_muc_user_$invites'([Invites | _els], __TopXMLNS,
+                           _acc) ->
+    'encode_muc_user_$invites'(_els,
+                               __TopXMLNS,
+                               [encode_muc_user_invite(Invites, __TopXMLNS)
+                                | _acc]).
+
+'encode_muc_user_$items'([], __TopXMLNS, _acc) -> _acc;
+'encode_muc_user_$items'([Items | _els], __TopXMLNS,
+                         _acc) ->
+    'encode_muc_user_$items'(_els,
+                             __TopXMLNS,
+                             [encode_muc_user_item(Items, __TopXMLNS) | _acc]).
+
+'encode_muc_user_$status_codes'([], __TopXMLNS, _acc) ->
+    _acc;
+'encode_muc_user_$status_codes'([Status_codes | _els],
+                                __TopXMLNS, _acc) ->
+    'encode_muc_user_$status_codes'(_els,
+                                    __TopXMLNS,
+                                    [encode_muc_user_status(Status_codes,
+                                                            __TopXMLNS)
+                                     | _acc]).
 
 decode_muc_user_item(__TopXMLNS, __Opts,
                      {xmlel, <<"item">>, _attrs, _els}) ->
@@ -1921,11 +1919,11 @@ encode_muc_user_item({muc_item,
                                     [],
                                     __TopXMLNS),
     _els =
-        lists:reverse('encode_muc_user_item_$actor'(Actor,
-                                                    __NewTopXMLNS,
-                                                    'encode_muc_user_item_$continue'(Continue,
-                                                                                     __NewTopXMLNS,
-                                                                                     'encode_muc_user_item_$reason'(Reason,
+        lists:reverse('encode_muc_user_item_$reason'(Reason,
+                                                     __NewTopXMLNS,
+                                                     'encode_muc_user_item_$continue'(Continue,
+                                                                                      __NewTopXMLNS,
+                                                                                      'encode_muc_user_item_$actor'(Actor,
                                                                                                                     __NewTopXMLNS,
                                                                                                                     [])))),
     _attrs = encode_muc_user_item_attr_nick(Nick,
@@ -2185,12 +2183,12 @@ encode_muc_user_actor_attr_nick(_val, _acc) ->
 
 decode_muc_user_invite(__TopXMLNS, __Opts,
                        {xmlel, <<"invite">>, _attrs, _els}) ->
-    {Continue, Reason} =
+    {Reason, Continue} =
         decode_muc_user_invite_els(__TopXMLNS,
                                    __Opts,
                                    _els,
-                                   undefined,
-                                   <<>>),
+                                   <<>>,
+                                   undefined),
     {To, From} = decode_muc_user_invite_attrs(__TopXMLNS,
                                               _attrs,
                                               undefined,
@@ -2198,11 +2196,11 @@ decode_muc_user_invite(__TopXMLNS, __Opts,
     {muc_invite, Reason, From, To, Continue}.
 
 decode_muc_user_invite_els(__TopXMLNS, __Opts, [],
-                           Continue, Reason) ->
-    {Continue, Reason};
+                           Reason, Continue) ->
+    {Reason, Continue};
 decode_muc_user_invite_els(__TopXMLNS, __Opts,
                            [{xmlel, <<"reason">>, _attrs, _} = _el | _els],
-                           Continue, Reason) ->
+                           Reason, Continue) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -2211,36 +2209,36 @@ decode_muc_user_invite_els(__TopXMLNS, __Opts,
             decode_muc_user_invite_els(__TopXMLNS,
                                        __Opts,
                                        _els,
-                                       Continue,
                                        decode_muc_reason(<<"http://jabber.org/protocol/muc#user">>,
                                                          __Opts,
-                                                         _el));
+                                                         _el),
+                                       Continue);
         <<"http://jabber.org/protocol/muc#admin">> ->
             decode_muc_user_invite_els(__TopXMLNS,
                                        __Opts,
                                        _els,
-                                       Continue,
                                        decode_muc_reason(<<"http://jabber.org/protocol/muc#admin">>,
                                                          __Opts,
-                                                         _el));
+                                                         _el),
+                                       Continue);
         <<"http://jabber.org/protocol/muc#owner">> ->
             decode_muc_user_invite_els(__TopXMLNS,
                                        __Opts,
                                        _els,
-                                       Continue,
                                        decode_muc_reason(<<"http://jabber.org/protocol/muc#owner">>,
                                                          __Opts,
-                                                         _el));
+                                                         _el),
+                                       Continue);
         _ ->
             decode_muc_user_invite_els(__TopXMLNS,
                                        __Opts,
                                        _els,
-                                       Continue,
-                                       Reason)
+                                       Reason,
+                                       Continue)
     end;
 decode_muc_user_invite_els(__TopXMLNS, __Opts,
                            [{xmlel, <<"continue">>, _attrs, _} = _el | _els],
-                           Continue, Reason) ->
+                           Reason, Continue) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -2249,24 +2247,24 @@ decode_muc_user_invite_els(__TopXMLNS, __Opts,
             decode_muc_user_invite_els(__TopXMLNS,
                                        __Opts,
                                        _els,
+                                       Reason,
                                        decode_muc_user_continue(<<"http://jabber.org/protocol/muc#user">>,
                                                                 __Opts,
-                                                                _el),
-                                       Reason);
+                                                                _el));
         _ ->
             decode_muc_user_invite_els(__TopXMLNS,
                                        __Opts,
                                        _els,
-                                       Continue,
-                                       Reason)
+                                       Reason,
+                                       Continue)
     end;
 decode_muc_user_invite_els(__TopXMLNS, __Opts,
-                           [_ | _els], Continue, Reason) ->
+                           [_ | _els], Reason, Continue) ->
     decode_muc_user_invite_els(__TopXMLNS,
                                __Opts,
                                _els,
-                               Continue,
-                               Reason).
+                               Reason,
+                               Continue).
 
 decode_muc_user_invite_attrs(__TopXMLNS,
                              [{<<"to">>, _val} | _attrs], _To, From) ->
@@ -2313,19 +2311,19 @@ encode_muc_user_invite({muc_invite,
                                                                                                         __TopXMLNS))),
     {xmlel, <<"invite">>, _attrs, _els}.
 
-'encode_muc_user_invite_$continue'(undefined,
-                                   __TopXMLNS, _acc) ->
-    _acc;
-'encode_muc_user_invite_$continue'(Continue, __TopXMLNS,
-                                   _acc) ->
-    [encode_muc_user_continue(Continue, __TopXMLNS) | _acc].
-
 'encode_muc_user_invite_$reason'(<<>>, __TopXMLNS,
                                  _acc) ->
     _acc;
 'encode_muc_user_invite_$reason'(Reason, __TopXMLNS,
                                  _acc) ->
     [encode_muc_reason(Reason, __TopXMLNS) | _acc].
+
+'encode_muc_user_invite_$continue'(undefined,
+                                   __TopXMLNS, _acc) ->
+    _acc;
+'encode_muc_user_invite_$continue'(Continue, __TopXMLNS,
+                                   _acc) ->
+    [encode_muc_user_continue(Continue, __TopXMLNS) | _acc].
 
 decode_muc_user_invite_attr_to(__TopXMLNS, undefined) ->
     undefined;
@@ -2364,23 +2362,23 @@ encode_muc_user_invite_attr_from(_val, _acc) ->
 
 decode_muc_destroy(__TopXMLNS, __Opts,
                    {xmlel, <<"destroy">>, _attrs, _els}) ->
-    {Password, Reason} = decode_muc_destroy_els(__TopXMLNS,
+    {Reason, Password} = decode_muc_destroy_els(__TopXMLNS,
                                                 __Opts,
                                                 _els,
-                                                undefined,
-                                                <<>>),
+                                                <<>>,
+                                                undefined),
     {Jid, Xmlns} = decode_muc_destroy_attrs(__TopXMLNS,
                                             _attrs,
                                             undefined,
                                             undefined),
     {muc_destroy, Xmlns, Jid, Reason, Password}.
 
-decode_muc_destroy_els(__TopXMLNS, __Opts, [], Password,
-                       Reason) ->
-    {Password, Reason};
+decode_muc_destroy_els(__TopXMLNS, __Opts, [], Reason,
+                       Password) ->
+    {Reason, Password};
 decode_muc_destroy_els(__TopXMLNS, __Opts,
-                       [{xmlel, <<"reason">>, _attrs, _} = _el | _els],
-                       Password, Reason) ->
+                       [{xmlel, <<"reason">>, _attrs, _} = _el | _els], Reason,
+                       Password) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -2389,36 +2387,36 @@ decode_muc_destroy_els(__TopXMLNS, __Opts,
             decode_muc_destroy_els(__TopXMLNS,
                                    __Opts,
                                    _els,
-                                   Password,
                                    decode_muc_reason(<<"http://jabber.org/protocol/muc#user">>,
                                                      __Opts,
-                                                     _el));
+                                                     _el),
+                                   Password);
         <<"http://jabber.org/protocol/muc#admin">> ->
             decode_muc_destroy_els(__TopXMLNS,
                                    __Opts,
                                    _els,
-                                   Password,
                                    decode_muc_reason(<<"http://jabber.org/protocol/muc#admin">>,
                                                      __Opts,
-                                                     _el));
+                                                     _el),
+                                   Password);
         <<"http://jabber.org/protocol/muc#owner">> ->
             decode_muc_destroy_els(__TopXMLNS,
                                    __Opts,
                                    _els,
-                                   Password,
                                    decode_muc_reason(<<"http://jabber.org/protocol/muc#owner">>,
                                                      __Opts,
-                                                     _el));
+                                                     _el),
+                                   Password);
         _ ->
             decode_muc_destroy_els(__TopXMLNS,
                                    __Opts,
                                    _els,
-                                   Password,
-                                   Reason)
+                                   Reason,
+                                   Password)
     end;
 decode_muc_destroy_els(__TopXMLNS, __Opts,
                        [{xmlel, <<"password">>, _attrs, _} = _el | _els],
-                       Password, Reason) ->
+                       Reason, Password) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -2427,40 +2425,40 @@ decode_muc_destroy_els(__TopXMLNS, __Opts,
             decode_muc_destroy_els(__TopXMLNS,
                                    __Opts,
                                    _els,
+                                   Reason,
                                    decode_muc_password(<<"http://jabber.org/protocol/muc#owner">>,
                                                        __Opts,
-                                                       _el),
-                                   Reason);
+                                                       _el));
         <<"http://jabber.org/protocol/muc#user">> ->
             decode_muc_destroy_els(__TopXMLNS,
                                    __Opts,
                                    _els,
+                                   Reason,
                                    decode_muc_password(<<"http://jabber.org/protocol/muc#user">>,
                                                        __Opts,
-                                                       _el),
-                                   Reason);
+                                                       _el));
         <<"http://jabber.org/protocol/muc">> ->
             decode_muc_destroy_els(__TopXMLNS,
                                    __Opts,
                                    _els,
+                                   Reason,
                                    decode_muc_password(<<"http://jabber.org/protocol/muc">>,
                                                        __Opts,
-                                                       _el),
-                                   Reason);
+                                                       _el));
         _ ->
             decode_muc_destroy_els(__TopXMLNS,
                                    __Opts,
                                    _els,
-                                   Password,
-                                   Reason)
+                                   Reason,
+                                   Password)
     end;
 decode_muc_destroy_els(__TopXMLNS, __Opts, [_ | _els],
-                       Password, Reason) ->
+                       Reason, Password) ->
     decode_muc_destroy_els(__TopXMLNS,
                            __Opts,
                            _els,
-                           Password,
-                           Reason).
+                           Reason,
+                           Password).
 
 decode_muc_destroy_attrs(__TopXMLNS,
                          [{<<"jid">>, _val} | _attrs], _Jid, Xmlns) ->
@@ -2502,18 +2500,18 @@ encode_muc_destroy({muc_destroy,
                                                                     __TopXMLNS)),
     {xmlel, <<"destroy">>, _attrs, _els}.
 
+'encode_muc_destroy_$reason'(<<>>, __TopXMLNS, _acc) ->
+    _acc;
+'encode_muc_destroy_$reason'(Reason, __TopXMLNS,
+                             _acc) ->
+    [encode_muc_reason(Reason, __TopXMLNS) | _acc].
+
 'encode_muc_destroy_$password'(undefined, __TopXMLNS,
                                _acc) ->
     _acc;
 'encode_muc_destroy_$password'(Password, __TopXMLNS,
                                _acc) ->
     [encode_muc_password(Password, __TopXMLNS) | _acc].
-
-'encode_muc_destroy_$reason'(<<>>, __TopXMLNS, _acc) ->
-    _acc;
-'encode_muc_destroy_$reason'(Reason, __TopXMLNS,
-                             _acc) ->
-    [encode_muc_reason(Reason, __TopXMLNS) | _acc].
 
 decode_muc_destroy_attr_jid(__TopXMLNS, undefined) ->
     undefined;

@@ -2026,11 +2026,12 @@ encode_stream_error({stream_error, Reason, Text},
                                                  <<"jabber:server">>,
                                                  <<"jabber:component:accept">>],
                                                 __TopXMLNS),
-    _els = lists:reverse('encode_stream_error_$text'(Text,
-                                                     __NewTopXMLNS,
-                                                     'encode_stream_error_$reason'(Reason,
-                                                                                   __NewTopXMLNS,
-                                                                                   []))),
+    _els =
+        lists:reverse('encode_stream_error_$reason'(Reason,
+                                                    __NewTopXMLNS,
+                                                    'encode_stream_error_$text'(Text,
+                                                                                __NewTopXMLNS,
+                                                                                []))),
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
                                         __TopXMLNS),
     {xmlel, <<"stream:error">>, _attrs, _els}.
@@ -3343,11 +3344,12 @@ encode_sasl_failure({sasl_failure, Reason, Text},
         xmpp_codec:choose_top_xmlns(<<"urn:ietf:params:xml:ns:xmpp-sasl">>,
                                     [],
                                     __TopXMLNS),
-    _els = lists:reverse('encode_sasl_failure_$text'(Text,
-                                                     __NewTopXMLNS,
-                                                     'encode_sasl_failure_$reason'(Reason,
-                                                                                   __NewTopXMLNS,
-                                                                                   []))),
+    _els =
+        lists:reverse('encode_sasl_failure_$reason'(Reason,
+                                                    __NewTopXMLNS,
+                                                    'encode_sasl_failure_$text'(Text,
+                                                                                __NewTopXMLNS,
+                                                                                []))),
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
                                         __TopXMLNS),
     {xmlel, <<"failure">>, _attrs, _els}.
@@ -4017,9 +4019,9 @@ encode_bind({bind, Jid, Resource}, __TopXMLNS) ->
         xmpp_codec:choose_top_xmlns(<<"urn:ietf:params:xml:ns:xmpp-bind">>,
                                     [],
                                     __TopXMLNS),
-    _els = lists:reverse('encode_bind_$jid'(Jid,
-                                            __NewTopXMLNS,
-                                            'encode_bind_$resource'(Resource,
+    _els = lists:reverse('encode_bind_$resource'(Resource,
+                                                 __NewTopXMLNS,
+                                                 'encode_bind_$jid'(Jid,
                                                                     __NewTopXMLNS,
                                                                     []))),
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
@@ -4803,9 +4805,9 @@ encode_error({stanza_error,
     _els = [xmpp_codec:encode(_el, __NewTopXMLNS)
             || _el <- __Els]
                ++
-               lists:reverse('encode_error_$text'(Text,
-                                                  __NewTopXMLNS,
-                                                  'encode_error_$reason'(Reason,
+               lists:reverse('encode_error_$reason'(Reason,
+                                                    __NewTopXMLNS,
+                                                    'encode_error_$text'(Text,
                                                                          __NewTopXMLNS,
                                                                          []))),
     _attrs = encode_error_attr_by(By,
@@ -5440,12 +5442,12 @@ encode_error_bad_request('bad-request', __TopXMLNS) ->
 
 decode_presence(__TopXMLNS, __Opts,
                 {xmlel, <<"presence">>, _attrs, _els}) ->
-    {Status, Show, Priority, __Els} =
+    {Show, Status, Priority, __Els} =
         decode_presence_els(__TopXMLNS,
                             __Opts,
                             _els,
-                            [],
                             undefined,
+                            [],
                             undefined,
                             []),
     {Id, Type, From, To, Lang} =
@@ -5468,15 +5470,15 @@ decode_presence(__TopXMLNS, __Opts,
      __Els,
      #{}}.
 
-decode_presence_els(__TopXMLNS, __Opts, [], Status,
-                    Show, Priority, __Els) ->
-    {lists:reverse(Status),
-     Show,
+decode_presence_els(__TopXMLNS, __Opts, [], Show,
+                    Status, Priority, __Els) ->
+    {Show,
+     lists:reverse(Status),
      Priority,
      lists:reverse(__Els)};
 decode_presence_els(__TopXMLNS, __Opts,
-                    [{xmlel, <<"show">>, _attrs, _} = _el | _els], Status,
-                    Show, Priority, __Els) ->
+                    [{xmlel, <<"show">>, _attrs, _} = _el | _els], Show,
+                    Status, Priority, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -5485,44 +5487,44 @@ decode_presence_els(__TopXMLNS, __Opts,
             decode_presence_els(__TopXMLNS,
                                 __Opts,
                                 _els,
-                                Status,
                                 decode_presence_show(<<"jabber:client">>,
                                                      __Opts,
                                                      _el),
+                                Status,
                                 Priority,
                                 __Els);
         <<"jabber:server">> ->
             decode_presence_els(__TopXMLNS,
                                 __Opts,
                                 _els,
-                                Status,
                                 decode_presence_show(<<"jabber:server">>,
                                                      __Opts,
                                                      _el),
+                                Status,
                                 Priority,
                                 __Els);
         <<"jabber:component:accept">> ->
             decode_presence_els(__TopXMLNS,
                                 __Opts,
                                 _els,
-                                Status,
                                 decode_presence_show(<<"jabber:component:accept">>,
                                                      __Opts,
                                                      _el),
+                                Status,
                                 Priority,
                                 __Els);
         _ ->
             decode_presence_els(__TopXMLNS,
                                 __Opts,
                                 _els,
-                                Status,
                                 Show,
+                                Status,
                                 Priority,
                                 [_el | __Els])
     end;
 decode_presence_els(__TopXMLNS, __Opts,
-                    [{xmlel, <<"status">>, _attrs, _} = _el | _els], Status,
-                    Show, Priority, __Els) ->
+                    [{xmlel, <<"status">>, _attrs, _} = _el | _els], Show,
+                    Status, Priority, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -5531,47 +5533,47 @@ decode_presence_els(__TopXMLNS, __Opts,
             decode_presence_els(__TopXMLNS,
                                 __Opts,
                                 _els,
+                                Show,
                                 [decode_presence_status(<<"jabber:client">>,
                                                         __Opts,
                                                         _el)
                                  | Status],
-                                Show,
                                 Priority,
                                 __Els);
         <<"jabber:server">> ->
             decode_presence_els(__TopXMLNS,
                                 __Opts,
                                 _els,
+                                Show,
                                 [decode_presence_status(<<"jabber:server">>,
                                                         __Opts,
                                                         _el)
                                  | Status],
-                                Show,
                                 Priority,
                                 __Els);
         <<"jabber:component:accept">> ->
             decode_presence_els(__TopXMLNS,
                                 __Opts,
                                 _els,
+                                Show,
                                 [decode_presence_status(<<"jabber:component:accept">>,
                                                         __Opts,
                                                         _el)
                                  | Status],
-                                Show,
                                 Priority,
                                 __Els);
         _ ->
             decode_presence_els(__TopXMLNS,
                                 __Opts,
                                 _els,
-                                Status,
                                 Show,
+                                Status,
                                 Priority,
                                 [_el | __Els])
     end;
 decode_presence_els(__TopXMLNS, __Opts,
-                    [{xmlel, <<"priority">>, _attrs, _} = _el | _els],
-                    Status, Show, Priority, __Els) ->
+                    [{xmlel, <<"priority">>, _attrs, _} = _el | _els], Show,
+                    Status, Priority, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -5580,8 +5582,8 @@ decode_presence_els(__TopXMLNS, __Opts,
             decode_presence_els(__TopXMLNS,
                                 __Opts,
                                 _els,
-                                Status,
                                 Show,
+                                Status,
                                 decode_presence_priority(<<"jabber:client">>,
                                                          __Opts,
                                                          _el),
@@ -5590,8 +5592,8 @@ decode_presence_els(__TopXMLNS, __Opts,
             decode_presence_els(__TopXMLNS,
                                 __Opts,
                                 _els,
-                                Status,
                                 Show,
+                                Status,
                                 decode_presence_priority(<<"jabber:server">>,
                                                          __Opts,
                                                          _el),
@@ -5600,8 +5602,8 @@ decode_presence_els(__TopXMLNS, __Opts,
             decode_presence_els(__TopXMLNS,
                                 __Opts,
                                 _els,
-                                Status,
                                 Show,
+                                Status,
                                 decode_presence_priority(<<"jabber:component:accept">>,
                                                          __Opts,
                                                          _el),
@@ -5610,21 +5612,21 @@ decode_presence_els(__TopXMLNS, __Opts,
             decode_presence_els(__TopXMLNS,
                                 __Opts,
                                 _els,
-                                Status,
                                 Show,
+                                Status,
                                 Priority,
                                 [_el | __Els])
     end;
 decode_presence_els(__TopXMLNS, __Opts,
-                    [{xmlel, _name, _attrs, _} = _el | _els], Status, Show,
+                    [{xmlel, _name, _attrs, _} = _el | _els], Show, Status,
                     Priority, __Els) ->
     case proplists:get_bool(ignore_els, __Opts) of
         true ->
             decode_presence_els(__TopXMLNS,
                                 __Opts,
                                 _els,
-                                Status,
                                 Show,
+                                Status,
                                 Priority,
                                 [_el | __Els]);
         false ->
@@ -5636,16 +5638,16 @@ decode_presence_els(__TopXMLNS, __Opts,
                     decode_presence_els(__TopXMLNS,
                                         __Opts,
                                         _els,
-                                        Status,
                                         Show,
+                                        Status,
                                         Priority,
                                         [_el | __Els]);
                 Mod ->
                     decode_presence_els(__TopXMLNS,
                                         __Opts,
                                         _els,
-                                        Status,
                                         Show,
+                                        Status,
                                         Priority,
                                         [Mod:do_decode(_name,
                                                        __XMLNS,
@@ -5655,12 +5657,12 @@ decode_presence_els(__TopXMLNS, __Opts,
             end
     end;
 decode_presence_els(__TopXMLNS, __Opts, [_ | _els],
-                    Status, Show, Priority, __Els) ->
+                    Show, Status, Priority, __Els) ->
     decode_presence_els(__TopXMLNS,
                         __Opts,
                         _els,
-                        Status,
                         Show,
+                        Status,
                         Priority,
                         __Els).
 
@@ -5751,11 +5753,11 @@ encode_presence({presence,
     _els = [xmpp_codec:encode(_el, __NewTopXMLNS)
             || _el <- __Els]
                ++
-               lists:reverse('encode_presence_$status'(Status,
-                                                       __NewTopXMLNS,
-                                                       'encode_presence_$show'(Show,
-                                                                               __NewTopXMLNS,
-                                                                               'encode_presence_$priority'(Priority,
+               lists:reverse('encode_presence_$priority'(Priority,
+                                                         __NewTopXMLNS,
+                                                         'encode_presence_$status'(Status,
+                                                                                   __NewTopXMLNS,
+                                                                                   'encode_presence_$show'(Show,
                                                                                                            __NewTopXMLNS,
                                                                                                            [])))),
     _attrs = 'encode_presence_attr_xml:lang'(Lang,
@@ -5767,6 +5769,11 @@ encode_presence({presence,
                                                                                                                                                                             __TopXMLNS)))))),
     {xmlel, <<"presence">>, _attrs, _els}.
 
+'encode_presence_$show'(undefined, __TopXMLNS, _acc) ->
+    _acc;
+'encode_presence_$show'(Show, __TopXMLNS, _acc) ->
+    [encode_presence_show(Show, __TopXMLNS) | _acc].
+
 'encode_presence_$status'([], __TopXMLNS, _acc) -> _acc;
 'encode_presence_$status'([Status | _els], __TopXMLNS,
                           _acc) ->
@@ -5774,11 +5781,6 @@ encode_presence({presence,
                               __TopXMLNS,
                               [encode_presence_status(Status, __TopXMLNS)
                                | _acc]).
-
-'encode_presence_$show'(undefined, __TopXMLNS, _acc) ->
-    _acc;
-'encode_presence_$show'(Show, __TopXMLNS, _acc) ->
-    [encode_presence_show(Show, __TopXMLNS) | _acc].
 
 'encode_presence_$priority'(undefined, __TopXMLNS,
                             _acc) ->
@@ -6056,12 +6058,12 @@ encode_presence_show_cdata(_val, _acc) ->
 
 decode_message(__TopXMLNS, __Opts,
                {xmlel, <<"message">>, _attrs, _els}) ->
-    {Thread, Subject, Body, __Els} =
+    {Subject, Thread, Body, __Els} =
         decode_message_els(__TopXMLNS,
                            __Opts,
                            _els,
-                           undefined,
                            [],
+                           undefined,
                            [],
                            []),
     {Id, Type, From, To, Lang} =
@@ -6084,15 +6086,15 @@ decode_message(__TopXMLNS, __Opts,
      __Els,
      #{}}.
 
-decode_message_els(__TopXMLNS, __Opts, [], Thread,
-                   Subject, Body, __Els) ->
-    {Thread,
-     lists:reverse(Subject),
+decode_message_els(__TopXMLNS, __Opts, [], Subject,
+                   Thread, Body, __Els) ->
+    {lists:reverse(Subject),
+     Thread,
      lists:reverse(Body),
      lists:reverse(__Els)};
 decode_message_els(__TopXMLNS, __Opts,
                    [{xmlel, <<"subject">>, _attrs, _} = _el | _els],
-                   Thread, Subject, Body, __Els) ->
+                   Subject, Thread, Body, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -6101,47 +6103,47 @@ decode_message_els(__TopXMLNS, __Opts,
             decode_message_els(__TopXMLNS,
                                __Opts,
                                _els,
-                               Thread,
                                [decode_message_subject(<<"jabber:client">>,
                                                        __Opts,
                                                        _el)
                                 | Subject],
+                               Thread,
                                Body,
                                __Els);
         <<"jabber:server">> ->
             decode_message_els(__TopXMLNS,
                                __Opts,
                                _els,
-                               Thread,
                                [decode_message_subject(<<"jabber:server">>,
                                                        __Opts,
                                                        _el)
                                 | Subject],
+                               Thread,
                                Body,
                                __Els);
         <<"jabber:component:accept">> ->
             decode_message_els(__TopXMLNS,
                                __Opts,
                                _els,
-                               Thread,
                                [decode_message_subject(<<"jabber:component:accept">>,
                                                        __Opts,
                                                        _el)
                                 | Subject],
+                               Thread,
                                Body,
                                __Els);
         _ ->
             decode_message_els(__TopXMLNS,
                                __Opts,
                                _els,
-                               Thread,
                                Subject,
+                               Thread,
                                Body,
                                [_el | __Els])
     end;
 decode_message_els(__TopXMLNS, __Opts,
-                   [{xmlel, <<"thread">>, _attrs, _} = _el | _els], Thread,
-                   Subject, Body, __Els) ->
+                   [{xmlel, <<"thread">>, _attrs, _} = _el | _els],
+                   Subject, Thread, Body, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -6150,44 +6152,44 @@ decode_message_els(__TopXMLNS, __Opts,
             decode_message_els(__TopXMLNS,
                                __Opts,
                                _els,
+                               Subject,
                                decode_message_thread(<<"jabber:client">>,
                                                      __Opts,
                                                      _el),
-                               Subject,
                                Body,
                                __Els);
         <<"jabber:server">> ->
             decode_message_els(__TopXMLNS,
                                __Opts,
                                _els,
+                               Subject,
                                decode_message_thread(<<"jabber:server">>,
                                                      __Opts,
                                                      _el),
-                               Subject,
                                Body,
                                __Els);
         <<"jabber:component:accept">> ->
             decode_message_els(__TopXMLNS,
                                __Opts,
                                _els,
+                               Subject,
                                decode_message_thread(<<"jabber:component:accept">>,
                                                      __Opts,
                                                      _el),
-                               Subject,
                                Body,
                                __Els);
         _ ->
             decode_message_els(__TopXMLNS,
                                __Opts,
                                _els,
-                               Thread,
                                Subject,
+                               Thread,
                                Body,
                                [_el | __Els])
     end;
 decode_message_els(__TopXMLNS, __Opts,
-                   [{xmlel, <<"body">>, _attrs, _} = _el | _els], Thread,
-                   Subject, Body, __Els) ->
+                   [{xmlel, <<"body">>, _attrs, _} = _el | _els], Subject,
+                   Thread, Body, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -6196,8 +6198,8 @@ decode_message_els(__TopXMLNS, __Opts,
             decode_message_els(__TopXMLNS,
                                __Opts,
                                _els,
-                               Thread,
                                Subject,
+                               Thread,
                                [decode_message_body(<<"jabber:client">>,
                                                     __Opts,
                                                     _el)
@@ -6207,8 +6209,8 @@ decode_message_els(__TopXMLNS, __Opts,
             decode_message_els(__TopXMLNS,
                                __Opts,
                                _els,
-                               Thread,
                                Subject,
+                               Thread,
                                [decode_message_body(<<"jabber:server">>,
                                                     __Opts,
                                                     _el)
@@ -6218,8 +6220,8 @@ decode_message_els(__TopXMLNS, __Opts,
             decode_message_els(__TopXMLNS,
                                __Opts,
                                _els,
-                               Thread,
                                Subject,
+                               Thread,
                                [decode_message_body(<<"jabber:component:accept">>,
                                                     __Opts,
                                                     _el)
@@ -6229,21 +6231,21 @@ decode_message_els(__TopXMLNS, __Opts,
             decode_message_els(__TopXMLNS,
                                __Opts,
                                _els,
-                               Thread,
                                Subject,
+                               Thread,
                                Body,
                                [_el | __Els])
     end;
 decode_message_els(__TopXMLNS, __Opts,
-                   [{xmlel, _name, _attrs, _} = _el | _els], Thread,
-                   Subject, Body, __Els) ->
+                   [{xmlel, _name, _attrs, _} = _el | _els], Subject,
+                   Thread, Body, __Els) ->
     case proplists:get_bool(ignore_els, __Opts) of
         true ->
             decode_message_els(__TopXMLNS,
                                __Opts,
                                _els,
-                               Thread,
                                Subject,
+                               Thread,
                                Body,
                                [_el | __Els]);
         false ->
@@ -6255,16 +6257,16 @@ decode_message_els(__TopXMLNS, __Opts,
                     decode_message_els(__TopXMLNS,
                                        __Opts,
                                        _els,
-                                       Thread,
                                        Subject,
+                                       Thread,
                                        Body,
                                        [_el | __Els]);
                 Mod ->
                     decode_message_els(__TopXMLNS,
                                        __Opts,
                                        _els,
-                                       Thread,
                                        Subject,
+                                       Thread,
                                        Body,
                                        [Mod:do_decode(_name,
                                                       __XMLNS,
@@ -6274,12 +6276,12 @@ decode_message_els(__TopXMLNS, __Opts,
             end
     end;
 decode_message_els(__TopXMLNS, __Opts, [_ | _els],
-                   Thread, Subject, Body, __Els) ->
+                   Subject, Thread, Body, __Els) ->
     decode_message_els(__TopXMLNS,
                        __Opts,
                        _els,
-                       Thread,
                        Subject,
+                       Thread,
                        Body,
                        __Els).
 
@@ -6370,11 +6372,11 @@ encode_message({message,
     _els = [xmpp_codec:encode(_el, __NewTopXMLNS)
             || _el <- __Els]
                ++
-               lists:reverse('encode_message_$thread'(Thread,
-                                                      __NewTopXMLNS,
-                                                      'encode_message_$subject'(Subject,
-                                                                                __NewTopXMLNS,
-                                                                                'encode_message_$body'(Body,
+               lists:reverse('encode_message_$body'(Body,
+                                                    __NewTopXMLNS,
+                                                    'encode_message_$thread'(Thread,
+                                                                             __NewTopXMLNS,
+                                                                             'encode_message_$subject'(Subject,
                                                                                                        __NewTopXMLNS,
                                                                                                        [])))),
     _attrs = 'encode_message_attr_xml:lang'(Lang,
@@ -6386,11 +6388,6 @@ encode_message({message,
                                                                                                                                                                        __TopXMLNS)))))),
     {xmlel, <<"message">>, _attrs, _els}.
 
-'encode_message_$thread'(undefined, __TopXMLNS, _acc) ->
-    _acc;
-'encode_message_$thread'(Thread, __TopXMLNS, _acc) ->
-    [encode_message_thread(Thread, __TopXMLNS) | _acc].
-
 'encode_message_$subject'([], __TopXMLNS, _acc) -> _acc;
 'encode_message_$subject'([Subject | _els], __TopXMLNS,
                           _acc) ->
@@ -6398,6 +6395,11 @@ encode_message({message,
                               __TopXMLNS,
                               [encode_message_subject(Subject, __TopXMLNS)
                                | _acc]).
+
+'encode_message_$thread'(undefined, __TopXMLNS, _acc) ->
+    _acc;
+'encode_message_$thread'(Thread, __TopXMLNS, _acc) ->
+    [encode_message_thread(Thread, __TopXMLNS) | _acc].
 
 'encode_message_$body'([], __TopXMLNS, _acc) -> _acc;
 'encode_message_$body'([Body | _els], __TopXMLNS,

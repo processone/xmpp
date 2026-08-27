@@ -1496,12 +1496,12 @@ encode_pubsub_error_closed_node({ps_error,
 
 decode_pubsub_owner(__TopXMLNS, __Opts,
                     {xmlel, <<"pubsub">>, _attrs, _els}) ->
-    {Subscriptions,
-     Affiliations,
+    {Affiliations,
+     Configure,
      Default,
-     Purge,
      Delete,
-     Configure} =
+     Purge,
+     Subscriptions} =
         decode_pubsub_owner_els(__TopXMLNS,
                                 __Opts,
                                 _els,
@@ -1520,18 +1520,18 @@ decode_pubsub_owner(__TopXMLNS, __Opts,
      Subscriptions}.
 
 decode_pubsub_owner_els(__TopXMLNS, __Opts, [],
-                        Subscriptions, Affiliations, Default, Purge, Delete,
-                        Configure) ->
-    {Subscriptions,
-     Affiliations,
+                        Affiliations, Configure, Default, Delete, Purge,
+                        Subscriptions) ->
+    {Affiliations,
+     Configure,
      Default,
-     Purge,
      Delete,
-     Configure};
+     Purge,
+     Subscriptions};
 decode_pubsub_owner_els(__TopXMLNS, __Opts,
                         [{xmlel, <<"affiliations">>, _attrs, _} = _el | _els],
-                        Subscriptions, Affiliations, Default, Purge, Delete,
-                        Configure) ->
+                        Affiliations, Configure, Default, Delete, Purge,
+                        Subscriptions) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -1540,29 +1540,29 @@ decode_pubsub_owner_els(__TopXMLNS, __Opts,
             decode_pubsub_owner_els(__TopXMLNS,
                                     __Opts,
                                     _els,
-                                    Subscriptions,
                                     decode_pubsub_owner_affiliations(<<"http://jabber.org/protocol/pubsub#owner">>,
                                                                      __Opts,
                                                                      _el),
+                                    Configure,
                                     Default,
-                                    Purge,
                                     Delete,
-                                    Configure);
+                                    Purge,
+                                    Subscriptions);
         _ ->
             decode_pubsub_owner_els(__TopXMLNS,
                                     __Opts,
                                     _els,
-                                    Subscriptions,
                                     Affiliations,
+                                    Configure,
                                     Default,
-                                    Purge,
                                     Delete,
-                                    Configure)
+                                    Purge,
+                                    Subscriptions)
     end;
 decode_pubsub_owner_els(__TopXMLNS, __Opts,
                         [{xmlel, <<"configure">>, _attrs, _} = _el | _els],
-                        Subscriptions, Affiliations, Default, Purge, Delete,
-                        Configure) ->
+                        Affiliations, Configure, Default, Delete, Purge,
+                        Subscriptions) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -1571,41 +1571,41 @@ decode_pubsub_owner_els(__TopXMLNS, __Opts,
             decode_pubsub_owner_els(__TopXMLNS,
                                     __Opts,
                                     _els,
-                                    Subscriptions,
                                     Affiliations,
-                                    Default,
-                                    Purge,
-                                    Delete,
                                     decode_pubsub_configure(<<"http://jabber.org/protocol/pubsub">>,
                                                             __Opts,
-                                                            _el));
+                                                            _el),
+                                    Default,
+                                    Delete,
+                                    Purge,
+                                    Subscriptions);
         <<"http://jabber.org/protocol/pubsub#owner">> ->
             decode_pubsub_owner_els(__TopXMLNS,
                                     __Opts,
                                     _els,
-                                    Subscriptions,
                                     Affiliations,
-                                    Default,
-                                    Purge,
-                                    Delete,
                                     decode_pubsub_configure(<<"http://jabber.org/protocol/pubsub#owner">>,
                                                             __Opts,
-                                                            _el));
+                                                            _el),
+                                    Default,
+                                    Delete,
+                                    Purge,
+                                    Subscriptions);
         _ ->
             decode_pubsub_owner_els(__TopXMLNS,
                                     __Opts,
                                     _els,
-                                    Subscriptions,
                                     Affiliations,
+                                    Configure,
                                     Default,
-                                    Purge,
                                     Delete,
-                                    Configure)
+                                    Purge,
+                                    Subscriptions)
     end;
 decode_pubsub_owner_els(__TopXMLNS, __Opts,
                         [{xmlel, <<"default">>, _attrs, _} = _el | _els],
-                        Subscriptions, Affiliations, Default, Purge, Delete,
-                        Configure) ->
+                        Affiliations, Configure, Default, Delete, Purge,
+                        Subscriptions) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -1614,41 +1614,41 @@ decode_pubsub_owner_els(__TopXMLNS, __Opts,
             decode_pubsub_owner_els(__TopXMLNS,
                                     __Opts,
                                     _els,
-                                    Subscriptions,
                                     Affiliations,
+                                    Configure,
                                     decode_pubsub_default(<<"http://jabber.org/protocol/pubsub">>,
                                                           __Opts,
                                                           _el),
-                                    Purge,
                                     Delete,
-                                    Configure);
+                                    Purge,
+                                    Subscriptions);
         <<"http://jabber.org/protocol/pubsub#owner">> ->
             decode_pubsub_owner_els(__TopXMLNS,
                                     __Opts,
                                     _els,
-                                    Subscriptions,
                                     Affiliations,
+                                    Configure,
                                     decode_pubsub_default(<<"http://jabber.org/protocol/pubsub#owner">>,
                                                           __Opts,
                                                           _el),
-                                    Purge,
                                     Delete,
-                                    Configure);
+                                    Purge,
+                                    Subscriptions);
         _ ->
             decode_pubsub_owner_els(__TopXMLNS,
                                     __Opts,
                                     _els,
-                                    Subscriptions,
                                     Affiliations,
+                                    Configure,
                                     Default,
-                                    Purge,
                                     Delete,
-                                    Configure)
+                                    Purge,
+                                    Subscriptions)
     end;
 decode_pubsub_owner_els(__TopXMLNS, __Opts,
                         [{xmlel, <<"delete">>, _attrs, _} = _el | _els],
-                        Subscriptions, Affiliations, Default, Purge, Delete,
-                        Configure) ->
+                        Affiliations, Configure, Default, Delete, Purge,
+                        Subscriptions) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -1657,53 +1657,53 @@ decode_pubsub_owner_els(__TopXMLNS, __Opts,
             decode_pubsub_owner_els(__TopXMLNS,
                                     __Opts,
                                     _els,
-                                    Subscriptions,
                                     Affiliations,
+                                    Configure,
                                     Default,
-                                    Purge,
                                     decode_pubsub_delete(<<"http://jabber.org/protocol/pubsub">>,
                                                          __Opts,
                                                          _el),
-                                    Configure);
+                                    Purge,
+                                    Subscriptions);
         <<"http://jabber.org/protocol/pubsub#owner">> ->
             decode_pubsub_owner_els(__TopXMLNS,
                                     __Opts,
                                     _els,
-                                    Subscriptions,
                                     Affiliations,
+                                    Configure,
                                     Default,
-                                    Purge,
                                     decode_pubsub_delete(<<"http://jabber.org/protocol/pubsub#owner">>,
                                                          __Opts,
                                                          _el),
-                                    Configure);
+                                    Purge,
+                                    Subscriptions);
         <<"http://jabber.org/protocol/pubsub#event">> ->
             decode_pubsub_owner_els(__TopXMLNS,
                                     __Opts,
                                     _els,
-                                    Subscriptions,
                                     Affiliations,
+                                    Configure,
                                     Default,
-                                    Purge,
                                     decode_pubsub_delete(<<"http://jabber.org/protocol/pubsub#event">>,
                                                          __Opts,
                                                          _el),
-                                    Configure);
+                                    Purge,
+                                    Subscriptions);
         _ ->
             decode_pubsub_owner_els(__TopXMLNS,
                                     __Opts,
                                     _els,
-                                    Subscriptions,
                                     Affiliations,
+                                    Configure,
                                     Default,
-                                    Purge,
                                     Delete,
-                                    Configure)
+                                    Purge,
+                                    Subscriptions)
     end;
 decode_pubsub_owner_els(__TopXMLNS, __Opts,
                         [{xmlel, <<"purge">>, _attrs, _} = _el | _els],
-                        Subscriptions, Affiliations, Default, Purge, Delete,
-                        Configure) ->
+                        Affiliations, Configure, Default, Delete, Purge,
+                        Subscriptions) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -1712,53 +1712,53 @@ decode_pubsub_owner_els(__TopXMLNS, __Opts,
             decode_pubsub_owner_els(__TopXMLNS,
                                     __Opts,
                                     _els,
-                                    Subscriptions,
                                     Affiliations,
+                                    Configure,
                                     Default,
+                                    Delete,
                                     decode_pubsub_purge(<<"http://jabber.org/protocol/pubsub">>,
                                                         __Opts,
                                                         _el),
-                                    Delete,
-                                    Configure);
+                                    Subscriptions);
         <<"http://jabber.org/protocol/pubsub#owner">> ->
             decode_pubsub_owner_els(__TopXMLNS,
                                     __Opts,
                                     _els,
-                                    Subscriptions,
                                     Affiliations,
+                                    Configure,
                                     Default,
+                                    Delete,
                                     decode_pubsub_purge(<<"http://jabber.org/protocol/pubsub#owner">>,
                                                         __Opts,
                                                         _el),
-                                    Delete,
-                                    Configure);
+                                    Subscriptions);
         <<"http://jabber.org/protocol/pubsub#event">> ->
             decode_pubsub_owner_els(__TopXMLNS,
                                     __Opts,
                                     _els,
-                                    Subscriptions,
                                     Affiliations,
+                                    Configure,
                                     Default,
+                                    Delete,
                                     decode_pubsub_purge(<<"http://jabber.org/protocol/pubsub#event">>,
                                                         __Opts,
                                                         _el),
-                                    Delete,
-                                    Configure);
+                                    Subscriptions);
         _ ->
             decode_pubsub_owner_els(__TopXMLNS,
                                     __Opts,
                                     _els,
-                                    Subscriptions,
                                     Affiliations,
+                                    Configure,
                                     Default,
-                                    Purge,
                                     Delete,
-                                    Configure)
+                                    Purge,
+                                    Subscriptions)
     end;
 decode_pubsub_owner_els(__TopXMLNS, __Opts,
                         [{xmlel, <<"subscriptions">>, _attrs, _} = _el | _els],
-                        Subscriptions, Affiliations, Default, Purge, Delete,
-                        Configure) ->
+                        Affiliations, Configure, Default, Delete, Purge,
+                        Subscriptions) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -1767,49 +1767,49 @@ decode_pubsub_owner_els(__TopXMLNS, __Opts,
             decode_pubsub_owner_els(__TopXMLNS,
                                     __Opts,
                                     _els,
+                                    Affiliations,
+                                    Configure,
+                                    Default,
+                                    Delete,
+                                    Purge,
                                     decode_pubsub_subscriptions(<<"http://jabber.org/protocol/pubsub">>,
                                                                 __Opts,
-                                                                _el),
-                                    Affiliations,
-                                    Default,
-                                    Purge,
-                                    Delete,
-                                    Configure);
+                                                                _el));
         <<"http://jabber.org/protocol/pubsub#owner">> ->
             decode_pubsub_owner_els(__TopXMLNS,
                                     __Opts,
                                     _els,
+                                    Affiliations,
+                                    Configure,
+                                    Default,
+                                    Delete,
+                                    Purge,
                                     decode_pubsub_subscriptions(<<"http://jabber.org/protocol/pubsub#owner">>,
                                                                 __Opts,
-                                                                _el),
-                                    Affiliations,
-                                    Default,
-                                    Purge,
-                                    Delete,
-                                    Configure);
+                                                                _el));
         _ ->
             decode_pubsub_owner_els(__TopXMLNS,
                                     __Opts,
                                     _els,
-                                    Subscriptions,
                                     Affiliations,
+                                    Configure,
                                     Default,
-                                    Purge,
                                     Delete,
-                                    Configure)
+                                    Purge,
+                                    Subscriptions)
     end;
 decode_pubsub_owner_els(__TopXMLNS, __Opts, [_ | _els],
-                        Subscriptions, Affiliations, Default, Purge, Delete,
-                        Configure) ->
+                        Affiliations, Configure, Default, Delete, Purge,
+                        Subscriptions) ->
     decode_pubsub_owner_els(__TopXMLNS,
                             __Opts,
                             _els,
-                            Subscriptions,
                             Affiliations,
+                            Configure,
                             Default,
-                            Purge,
                             Delete,
-                            Configure).
+                            Purge,
+                            Subscriptions).
 
 encode_pubsub_owner({pubsub_owner,
                      Affiliations,
@@ -1826,28 +1826,20 @@ encode_pubsub_owner({pubsub_owner,
     _els =
         lists:reverse('encode_pubsub_owner_$subscriptions'(Subscriptions,
                                                            __NewTopXMLNS,
-                                                           'encode_pubsub_owner_$affiliations'(Affiliations,
-                                                                                               __NewTopXMLNS,
-                                                                                               'encode_pubsub_owner_$default'(Default,
-                                                                                                                              __NewTopXMLNS,
-                                                                                                                              'encode_pubsub_owner_$purge'(Purge,
-                                                                                                                                                           __NewTopXMLNS,
-                                                                                                                                                           'encode_pubsub_owner_$delete'(Delete,
-                                                                                                                                                                                         __NewTopXMLNS,
-                                                                                                                                                                                         'encode_pubsub_owner_$configure'(Configure,
+                                                           'encode_pubsub_owner_$purge'(Purge,
+                                                                                        __NewTopXMLNS,
+                                                                                        'encode_pubsub_owner_$delete'(Delete,
+                                                                                                                      __NewTopXMLNS,
+                                                                                                                      'encode_pubsub_owner_$default'(Default,
+                                                                                                                                                     __NewTopXMLNS,
+                                                                                                                                                     'encode_pubsub_owner_$configure'(Configure,
+                                                                                                                                                                                      __NewTopXMLNS,
+                                                                                                                                                                                      'encode_pubsub_owner_$affiliations'(Affiliations,
                                                                                                                                                                                                                           __NewTopXMLNS,
                                                                                                                                                                                                                           []))))))),
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
                                         __TopXMLNS),
     {xmlel, <<"pubsub">>, _attrs, _els}.
-
-'encode_pubsub_owner_$subscriptions'(undefined,
-                                     __TopXMLNS, _acc) ->
-    _acc;
-'encode_pubsub_owner_$subscriptions'(Subscriptions,
-                                     __TopXMLNS, _acc) ->
-    [encode_pubsub_subscriptions(Subscriptions, __TopXMLNS)
-     | _acc].
 
 'encode_pubsub_owner_$affiliations'(undefined,
                                     __TopXMLNS, _acc) ->
@@ -1858,18 +1850,19 @@ encode_pubsub_owner({pubsub_owner,
                                       __TopXMLNS)
      | _acc].
 
+'encode_pubsub_owner_$configure'(undefined, __TopXMLNS,
+                                 _acc) ->
+    _acc;
+'encode_pubsub_owner_$configure'(Configure, __TopXMLNS,
+                                 _acc) ->
+    [encode_pubsub_configure(Configure, __TopXMLNS) | _acc].
+
 'encode_pubsub_owner_$default'(undefined, __TopXMLNS,
                                _acc) ->
     _acc;
 'encode_pubsub_owner_$default'(Default, __TopXMLNS,
                                _acc) ->
     [encode_pubsub_default(Default, __TopXMLNS) | _acc].
-
-'encode_pubsub_owner_$purge'(undefined, __TopXMLNS,
-                             _acc) ->
-    _acc;
-'encode_pubsub_owner_$purge'(Purge, __TopXMLNS, _acc) ->
-    [encode_pubsub_purge(Purge, __TopXMLNS) | _acc].
 
 'encode_pubsub_owner_$delete'(undefined, __TopXMLNS,
                               _acc) ->
@@ -1878,31 +1871,38 @@ encode_pubsub_owner({pubsub_owner,
                               _acc) ->
     [encode_pubsub_delete(Delete, __TopXMLNS) | _acc].
 
-'encode_pubsub_owner_$configure'(undefined, __TopXMLNS,
-                                 _acc) ->
+'encode_pubsub_owner_$purge'(undefined, __TopXMLNS,
+                             _acc) ->
     _acc;
-'encode_pubsub_owner_$configure'(Configure, __TopXMLNS,
-                                 _acc) ->
-    [encode_pubsub_configure(Configure, __TopXMLNS) | _acc].
+'encode_pubsub_owner_$purge'(Purge, __TopXMLNS, _acc) ->
+    [encode_pubsub_purge(Purge, __TopXMLNS) | _acc].
+
+'encode_pubsub_owner_$subscriptions'(undefined,
+                                     __TopXMLNS, _acc) ->
+    _acc;
+'encode_pubsub_owner_$subscriptions'(Subscriptions,
+                                     __TopXMLNS, _acc) ->
+    [encode_pubsub_subscriptions(Subscriptions, __TopXMLNS)
+     | _acc].
 
 decode_pubsub(__TopXMLNS, __Opts,
               {xmlel, <<"pubsub">>, _attrs, _els}) ->
-    {Publish_options,
-     Items,
-     Options,
+    {Subscriptions,
      Affiliations,
-     Subscriptions,
-     Default,
-     Retract,
-     Purge,
-     Delete,
-     Configure,
-     Create,
-     Unsubscribe,
      Subscribe,
-     Publish,
+     Unsubscribe,
+     Options,
+     Items,
+     Retract,
+     Create,
+     Configure,
+     Publish_options,
+     Default,
+     Delete,
+     Purge,
+     Subscription,
      Rsm,
-     Subscription} =
+     Publish} =
         decode_pubsub_els(__TopXMLNS,
                           __Opts,
                           _els,
@@ -1940,33 +1940,32 @@ decode_pubsub(__TopXMLNS, __Opts,
      Purge,
      Rsm}.
 
-decode_pubsub_els(__TopXMLNS, __Opts, [],
-                  Publish_options, Items, Options, Affiliations,
-                  Subscriptions, Default, Retract, Purge, Delete,
-                  Configure, Create, Unsubscribe, Subscribe, Publish, Rsm,
-                  Subscription) ->
-    {Publish_options,
-     Items,
-     Options,
+decode_pubsub_els(__TopXMLNS, __Opts, [], Subscriptions,
+                  Affiliations, Subscribe, Unsubscribe, Options, Items,
+                  Retract, Create, Configure, Publish_options, Default,
+                  Delete, Purge, Subscription, Rsm, Publish) ->
+    {Subscriptions,
      Affiliations,
-     Subscriptions,
-     Default,
-     Retract,
-     Purge,
-     Delete,
-     Configure,
-     Create,
-     Unsubscribe,
      Subscribe,
-     Publish,
+     Unsubscribe,
+     Options,
+     Items,
+     Retract,
+     Create,
+     Configure,
+     Publish_options,
+     Default,
+     Delete,
+     Purge,
+     Subscription,
      Rsm,
-     Subscription};
+     Publish};
 decode_pubsub_els(__TopXMLNS, __Opts,
                   [{xmlel, <<"subscriptions">>, _attrs, _} = _el | _els],
-                  Publish_options, Items, Options, Affiliations,
-                  Subscriptions, Default, Retract, Purge, Delete,
-                  Configure, Create, Unsubscribe, Subscribe, Publish, Rsm,
-                  Subscription) ->
+                  Subscriptions, Affiliations, Subscribe, Unsubscribe,
+                  Options, Items, Retract, Create, Configure,
+                  Publish_options, Default, Delete, Purge, Subscription,
+                  Rsm, Publish) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -1975,73 +1974,73 @@ decode_pubsub_els(__TopXMLNS, __Opts,
             decode_pubsub_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Publish_options,
-                              Items,
-                              Options,
-                              Affiliations,
                               decode_pubsub_subscriptions(<<"http://jabber.org/protocol/pubsub">>,
                                                           __Opts,
                                                           _el),
-                              Default,
-                              Retract,
-                              Purge,
-                              Delete,
-                              Configure,
-                              Create,
-                              Unsubscribe,
+                              Affiliations,
                               Subscribe,
-                              Publish,
+                              Unsubscribe,
+                              Options,
+                              Items,
+                              Retract,
+                              Create,
+                              Configure,
+                              Publish_options,
+                              Default,
+                              Delete,
+                              Purge,
+                              Subscription,
                               Rsm,
-                              Subscription);
+                              Publish);
         <<"http://jabber.org/protocol/pubsub#owner">> ->
             decode_pubsub_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Publish_options,
-                              Items,
-                              Options,
-                              Affiliations,
                               decode_pubsub_subscriptions(<<"http://jabber.org/protocol/pubsub#owner">>,
                                                           __Opts,
                                                           _el),
-                              Default,
-                              Retract,
-                              Purge,
-                              Delete,
-                              Configure,
-                              Create,
-                              Unsubscribe,
+                              Affiliations,
                               Subscribe,
-                              Publish,
+                              Unsubscribe,
+                              Options,
+                              Items,
+                              Retract,
+                              Create,
+                              Configure,
+                              Publish_options,
+                              Default,
+                              Delete,
+                              Purge,
+                              Subscription,
                               Rsm,
-                              Subscription);
+                              Publish);
         _ ->
             decode_pubsub_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Publish_options,
-                              Items,
-                              Options,
-                              Affiliations,
                               Subscriptions,
-                              Default,
-                              Retract,
-                              Purge,
-                              Delete,
-                              Configure,
-                              Create,
-                              Unsubscribe,
+                              Affiliations,
                               Subscribe,
-                              Publish,
+                              Unsubscribe,
+                              Options,
+                              Items,
+                              Retract,
+                              Create,
+                              Configure,
+                              Publish_options,
+                              Default,
+                              Delete,
+                              Purge,
+                              Subscription,
                               Rsm,
-                              Subscription)
+                              Publish)
     end;
 decode_pubsub_els(__TopXMLNS, __Opts,
                   [{xmlel, <<"affiliations">>, _attrs, _} = _el | _els],
-                  Publish_options, Items, Options, Affiliations,
-                  Subscriptions, Default, Retract, Purge, Delete,
-                  Configure, Create, Unsubscribe, Subscribe, Publish, Rsm,
-                  Subscription) ->
+                  Subscriptions, Affiliations, Subscribe, Unsubscribe,
+                  Options, Items, Retract, Create, Configure,
+                  Publish_options, Default, Delete, Purge, Subscription,
+                  Rsm, Publish) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -2050,51 +2049,51 @@ decode_pubsub_els(__TopXMLNS, __Opts,
             decode_pubsub_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Publish_options,
-                              Items,
-                              Options,
+                              Subscriptions,
                               decode_pubsub_affiliations(<<"http://jabber.org/protocol/pubsub">>,
                                                          __Opts,
                                                          _el),
-                              Subscriptions,
-                              Default,
-                              Retract,
-                              Purge,
-                              Delete,
-                              Configure,
-                              Create,
-                              Unsubscribe,
                               Subscribe,
-                              Publish,
+                              Unsubscribe,
+                              Options,
+                              Items,
+                              Retract,
+                              Create,
+                              Configure,
+                              Publish_options,
+                              Default,
+                              Delete,
+                              Purge,
+                              Subscription,
                               Rsm,
-                              Subscription);
+                              Publish);
         _ ->
             decode_pubsub_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Publish_options,
-                              Items,
-                              Options,
-                              Affiliations,
                               Subscriptions,
-                              Default,
-                              Retract,
-                              Purge,
-                              Delete,
-                              Configure,
-                              Create,
-                              Unsubscribe,
+                              Affiliations,
                               Subscribe,
-                              Publish,
+                              Unsubscribe,
+                              Options,
+                              Items,
+                              Retract,
+                              Create,
+                              Configure,
+                              Publish_options,
+                              Default,
+                              Delete,
+                              Purge,
+                              Subscription,
                               Rsm,
-                              Subscription)
+                              Publish)
     end;
 decode_pubsub_els(__TopXMLNS, __Opts,
                   [{xmlel, <<"subscribe">>, _attrs, _} = _el | _els],
-                  Publish_options, Items, Options, Affiliations,
-                  Subscriptions, Default, Retract, Purge, Delete,
-                  Configure, Create, Unsubscribe, Subscribe, Publish, Rsm,
-                  Subscription) ->
+                  Subscriptions, Affiliations, Subscribe, Unsubscribe,
+                  Options, Items, Retract, Create, Configure,
+                  Publish_options, Default, Delete, Purge, Subscription,
+                  Rsm, Publish) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -2103,51 +2102,51 @@ decode_pubsub_els(__TopXMLNS, __Opts,
             decode_pubsub_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Publish_options,
-                              Items,
-                              Options,
-                              Affiliations,
                               Subscriptions,
-                              Default,
-                              Retract,
-                              Purge,
-                              Delete,
-                              Configure,
-                              Create,
-                              Unsubscribe,
+                              Affiliations,
                               decode_pubsub_subscribe(<<"http://jabber.org/protocol/pubsub">>,
                                                       __Opts,
                                                       _el),
-                              Publish,
+                              Unsubscribe,
+                              Options,
+                              Items,
+                              Retract,
+                              Create,
+                              Configure,
+                              Publish_options,
+                              Default,
+                              Delete,
+                              Purge,
+                              Subscription,
                               Rsm,
-                              Subscription);
+                              Publish);
         _ ->
             decode_pubsub_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Publish_options,
-                              Items,
-                              Options,
-                              Affiliations,
                               Subscriptions,
-                              Default,
-                              Retract,
-                              Purge,
-                              Delete,
-                              Configure,
-                              Create,
-                              Unsubscribe,
+                              Affiliations,
                               Subscribe,
-                              Publish,
+                              Unsubscribe,
+                              Options,
+                              Items,
+                              Retract,
+                              Create,
+                              Configure,
+                              Publish_options,
+                              Default,
+                              Delete,
+                              Purge,
+                              Subscription,
                               Rsm,
-                              Subscription)
+                              Publish)
     end;
 decode_pubsub_els(__TopXMLNS, __Opts,
                   [{xmlel, <<"unsubscribe">>, _attrs, _} = _el | _els],
-                  Publish_options, Items, Options, Affiliations,
-                  Subscriptions, Default, Retract, Purge, Delete,
-                  Configure, Create, Unsubscribe, Subscribe, Publish, Rsm,
-                  Subscription) ->
+                  Subscriptions, Affiliations, Subscribe, Unsubscribe,
+                  Options, Items, Retract, Create, Configure,
+                  Publish_options, Default, Delete, Purge, Subscription,
+                  Rsm, Publish) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -2156,51 +2155,51 @@ decode_pubsub_els(__TopXMLNS, __Opts,
             decode_pubsub_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Publish_options,
-                              Items,
-                              Options,
-                              Affiliations,
                               Subscriptions,
-                              Default,
-                              Retract,
-                              Purge,
-                              Delete,
-                              Configure,
-                              Create,
+                              Affiliations,
+                              Subscribe,
                               decode_pubsub_unsubscribe(<<"http://jabber.org/protocol/pubsub">>,
                                                         __Opts,
                                                         _el),
-                              Subscribe,
-                              Publish,
+                              Options,
+                              Items,
+                              Retract,
+                              Create,
+                              Configure,
+                              Publish_options,
+                              Default,
+                              Delete,
+                              Purge,
+                              Subscription,
                               Rsm,
-                              Subscription);
+                              Publish);
         _ ->
             decode_pubsub_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Publish_options,
-                              Items,
-                              Options,
-                              Affiliations,
                               Subscriptions,
-                              Default,
-                              Retract,
-                              Purge,
-                              Delete,
-                              Configure,
-                              Create,
-                              Unsubscribe,
+                              Affiliations,
                               Subscribe,
-                              Publish,
+                              Unsubscribe,
+                              Options,
+                              Items,
+                              Retract,
+                              Create,
+                              Configure,
+                              Publish_options,
+                              Default,
+                              Delete,
+                              Purge,
+                              Subscription,
                               Rsm,
-                              Subscription)
+                              Publish)
     end;
 decode_pubsub_els(__TopXMLNS, __Opts,
                   [{xmlel, <<"options">>, _attrs, _} = _el | _els],
-                  Publish_options, Items, Options, Affiliations,
-                  Subscriptions, Default, Retract, Purge, Delete,
-                  Configure, Create, Unsubscribe, Subscribe, Publish, Rsm,
-                  Subscription) ->
+                  Subscriptions, Affiliations, Subscribe, Unsubscribe,
+                  Options, Items, Retract, Create, Configure,
+                  Publish_options, Default, Delete, Purge, Subscription,
+                  Rsm, Publish) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -2209,51 +2208,51 @@ decode_pubsub_els(__TopXMLNS, __Opts,
             decode_pubsub_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Publish_options,
-                              Items,
+                              Subscriptions,
+                              Affiliations,
+                              Subscribe,
+                              Unsubscribe,
                               decode_pubsub_options(<<"http://jabber.org/protocol/pubsub">>,
                                                     __Opts,
                                                     _el),
-                              Affiliations,
-                              Subscriptions,
-                              Default,
+                              Items,
                               Retract,
-                              Purge,
-                              Delete,
-                              Configure,
                               Create,
-                              Unsubscribe,
-                              Subscribe,
-                              Publish,
+                              Configure,
+                              Publish_options,
+                              Default,
+                              Delete,
+                              Purge,
+                              Subscription,
                               Rsm,
-                              Subscription);
+                              Publish);
         _ ->
             decode_pubsub_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Publish_options,
-                              Items,
-                              Options,
-                              Affiliations,
                               Subscriptions,
-                              Default,
-                              Retract,
-                              Purge,
-                              Delete,
-                              Configure,
-                              Create,
-                              Unsubscribe,
+                              Affiliations,
                               Subscribe,
-                              Publish,
+                              Unsubscribe,
+                              Options,
+                              Items,
+                              Retract,
+                              Create,
+                              Configure,
+                              Publish_options,
+                              Default,
+                              Delete,
+                              Purge,
+                              Subscription,
                               Rsm,
-                              Subscription)
+                              Publish)
     end;
 decode_pubsub_els(__TopXMLNS, __Opts,
                   [{xmlel, <<"items">>, _attrs, _} = _el | _els],
-                  Publish_options, Items, Options, Affiliations,
-                  Subscriptions, Default, Retract, Purge, Delete,
-                  Configure, Create, Unsubscribe, Subscribe, Publish, Rsm,
-                  Subscription) ->
+                  Subscriptions, Affiliations, Subscribe, Unsubscribe,
+                  Options, Items, Retract, Create, Configure,
+                  Publish_options, Default, Delete, Purge, Subscription,
+                  Rsm, Publish) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -2262,73 +2261,73 @@ decode_pubsub_els(__TopXMLNS, __Opts,
             decode_pubsub_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Publish_options,
+                              Subscriptions,
+                              Affiliations,
+                              Subscribe,
+                              Unsubscribe,
+                              Options,
                               decode_pubsub_items(<<"http://jabber.org/protocol/pubsub">>,
                                                   __Opts,
                                                   _el),
-                              Options,
-                              Affiliations,
-                              Subscriptions,
-                              Default,
                               Retract,
-                              Purge,
-                              Delete,
-                              Configure,
                               Create,
-                              Unsubscribe,
-                              Subscribe,
-                              Publish,
+                              Configure,
+                              Publish_options,
+                              Default,
+                              Delete,
+                              Purge,
+                              Subscription,
                               Rsm,
-                              Subscription);
+                              Publish);
         <<"http://jabber.org/protocol/pubsub#event">> ->
             decode_pubsub_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Publish_options,
+                              Subscriptions,
+                              Affiliations,
+                              Subscribe,
+                              Unsubscribe,
+                              Options,
                               decode_pubsub_items(<<"http://jabber.org/protocol/pubsub#event">>,
                                                   __Opts,
                                                   _el),
-                              Options,
-                              Affiliations,
-                              Subscriptions,
-                              Default,
                               Retract,
-                              Purge,
-                              Delete,
-                              Configure,
                               Create,
-                              Unsubscribe,
-                              Subscribe,
-                              Publish,
+                              Configure,
+                              Publish_options,
+                              Default,
+                              Delete,
+                              Purge,
+                              Subscription,
                               Rsm,
-                              Subscription);
+                              Publish);
         _ ->
             decode_pubsub_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Publish_options,
-                              Items,
-                              Options,
-                              Affiliations,
                               Subscriptions,
-                              Default,
-                              Retract,
-                              Purge,
-                              Delete,
-                              Configure,
-                              Create,
-                              Unsubscribe,
+                              Affiliations,
                               Subscribe,
-                              Publish,
+                              Unsubscribe,
+                              Options,
+                              Items,
+                              Retract,
+                              Create,
+                              Configure,
+                              Publish_options,
+                              Default,
+                              Delete,
+                              Purge,
+                              Subscription,
                               Rsm,
-                              Subscription)
+                              Publish)
     end;
 decode_pubsub_els(__TopXMLNS, __Opts,
                   [{xmlel, <<"retract">>, _attrs, _} = _el | _els],
-                  Publish_options, Items, Options, Affiliations,
-                  Subscriptions, Default, Retract, Purge, Delete,
-                  Configure, Create, Unsubscribe, Subscribe, Publish, Rsm,
-                  Subscription) ->
+                  Subscriptions, Affiliations, Subscribe, Unsubscribe,
+                  Options, Items, Retract, Create, Configure,
+                  Publish_options, Default, Delete, Purge, Subscription,
+                  Rsm, Publish) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -2337,51 +2336,51 @@ decode_pubsub_els(__TopXMLNS, __Opts,
             decode_pubsub_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Publish_options,
-                              Items,
-                              Options,
-                              Affiliations,
                               Subscriptions,
-                              Default,
+                              Affiliations,
+                              Subscribe,
+                              Unsubscribe,
+                              Options,
+                              Items,
                               decode_pubsub_retract(<<"http://jabber.org/protocol/pubsub">>,
                                                     __Opts,
                                                     _el),
-                              Purge,
-                              Delete,
-                              Configure,
                               Create,
-                              Unsubscribe,
-                              Subscribe,
-                              Publish,
+                              Configure,
+                              Publish_options,
+                              Default,
+                              Delete,
+                              Purge,
+                              Subscription,
                               Rsm,
-                              Subscription);
+                              Publish);
         _ ->
             decode_pubsub_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Publish_options,
-                              Items,
-                              Options,
-                              Affiliations,
                               Subscriptions,
-                              Default,
-                              Retract,
-                              Purge,
-                              Delete,
-                              Configure,
-                              Create,
-                              Unsubscribe,
+                              Affiliations,
                               Subscribe,
-                              Publish,
+                              Unsubscribe,
+                              Options,
+                              Items,
+                              Retract,
+                              Create,
+                              Configure,
+                              Publish_options,
+                              Default,
+                              Delete,
+                              Purge,
+                              Subscription,
                               Rsm,
-                              Subscription)
+                              Publish)
     end;
 decode_pubsub_els(__TopXMLNS, __Opts,
                   [{xmlel, <<"create">>, _attrs, _} = _el | _els],
-                  Publish_options, Items, Options, Affiliations,
-                  Subscriptions, Default, Retract, Purge, Delete,
-                  Configure, Create, Unsubscribe, Subscribe, Publish, Rsm,
-                  Subscription) ->
+                  Subscriptions, Affiliations, Subscribe, Unsubscribe,
+                  Options, Items, Retract, Create, Configure,
+                  Publish_options, Default, Delete, Purge, Subscription,
+                  Rsm, Publish) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -2390,73 +2389,73 @@ decode_pubsub_els(__TopXMLNS, __Opts,
             decode_pubsub_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Publish_options,
-                              Items,
-                              Options,
-                              Affiliations,
                               Subscriptions,
-                              Default,
+                              Affiliations,
+                              Subscribe,
+                              Unsubscribe,
+                              Options,
+                              Items,
                               Retract,
-                              Purge,
-                              Delete,
-                              Configure,
                               decode_pubsub_create(<<"http://jabber.org/protocol/pubsub">>,
                                                    __Opts,
                                                    _el),
-                              Unsubscribe,
-                              Subscribe,
-                              Publish,
+                              Configure,
+                              Publish_options,
+                              Default,
+                              Delete,
+                              Purge,
+                              Subscription,
                               Rsm,
-                              Subscription);
+                              Publish);
         <<"http://jabber.org/protocol/pubsub#event">> ->
             decode_pubsub_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Publish_options,
-                              Items,
-                              Options,
-                              Affiliations,
                               Subscriptions,
-                              Default,
+                              Affiliations,
+                              Subscribe,
+                              Unsubscribe,
+                              Options,
+                              Items,
                               Retract,
-                              Purge,
-                              Delete,
-                              Configure,
                               decode_pubsub_create(<<"http://jabber.org/protocol/pubsub#event">>,
                                                    __Opts,
                                                    _el),
-                              Unsubscribe,
-                              Subscribe,
-                              Publish,
+                              Configure,
+                              Publish_options,
+                              Default,
+                              Delete,
+                              Purge,
+                              Subscription,
                               Rsm,
-                              Subscription);
+                              Publish);
         _ ->
             decode_pubsub_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Publish_options,
-                              Items,
-                              Options,
-                              Affiliations,
                               Subscriptions,
-                              Default,
-                              Retract,
-                              Purge,
-                              Delete,
-                              Configure,
-                              Create,
-                              Unsubscribe,
+                              Affiliations,
                               Subscribe,
-                              Publish,
+                              Unsubscribe,
+                              Options,
+                              Items,
+                              Retract,
+                              Create,
+                              Configure,
+                              Publish_options,
+                              Default,
+                              Delete,
+                              Purge,
+                              Subscription,
                               Rsm,
-                              Subscription)
+                              Publish)
     end;
 decode_pubsub_els(__TopXMLNS, __Opts,
                   [{xmlel, <<"configure">>, _attrs, _} = _el | _els],
-                  Publish_options, Items, Options, Affiliations,
-                  Subscriptions, Default, Retract, Purge, Delete,
-                  Configure, Create, Unsubscribe, Subscribe, Publish, Rsm,
-                  Subscription) ->
+                  Subscriptions, Affiliations, Subscribe, Unsubscribe,
+                  Options, Items, Retract, Create, Configure,
+                  Publish_options, Default, Delete, Purge, Subscription,
+                  Rsm, Publish) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -2465,74 +2464,74 @@ decode_pubsub_els(__TopXMLNS, __Opts,
             decode_pubsub_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Publish_options,
-                              Items,
-                              Options,
-                              Affiliations,
                               Subscriptions,
-                              Default,
+                              Affiliations,
+                              Subscribe,
+                              Unsubscribe,
+                              Options,
+                              Items,
                               Retract,
-                              Purge,
-                              Delete,
+                              Create,
                               decode_pubsub_configure(<<"http://jabber.org/protocol/pubsub">>,
                                                       __Opts,
                                                       _el),
-                              Create,
-                              Unsubscribe,
-                              Subscribe,
-                              Publish,
+                              Publish_options,
+                              Default,
+                              Delete,
+                              Purge,
+                              Subscription,
                               Rsm,
-                              Subscription);
+                              Publish);
         <<"http://jabber.org/protocol/pubsub#owner">> ->
             decode_pubsub_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Publish_options,
-                              Items,
-                              Options,
-                              Affiliations,
                               Subscriptions,
-                              Default,
+                              Affiliations,
+                              Subscribe,
+                              Unsubscribe,
+                              Options,
+                              Items,
                               Retract,
-                              Purge,
-                              Delete,
+                              Create,
                               decode_pubsub_configure(<<"http://jabber.org/protocol/pubsub#owner">>,
                                                       __Opts,
                                                       _el),
-                              Create,
-                              Unsubscribe,
-                              Subscribe,
-                              Publish,
+                              Publish_options,
+                              Default,
+                              Delete,
+                              Purge,
+                              Subscription,
                               Rsm,
-                              Subscription);
+                              Publish);
         _ ->
             decode_pubsub_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Publish_options,
-                              Items,
-                              Options,
-                              Affiliations,
                               Subscriptions,
-                              Default,
-                              Retract,
-                              Purge,
-                              Delete,
-                              Configure,
-                              Create,
-                              Unsubscribe,
+                              Affiliations,
                               Subscribe,
-                              Publish,
+                              Unsubscribe,
+                              Options,
+                              Items,
+                              Retract,
+                              Create,
+                              Configure,
+                              Publish_options,
+                              Default,
+                              Delete,
+                              Purge,
+                              Subscription,
                               Rsm,
-                              Subscription)
+                              Publish)
     end;
 decode_pubsub_els(__TopXMLNS, __Opts,
                   [{xmlel, <<"publish-options">>, _attrs, _} = _el
                    | _els],
-                  Publish_options, Items, Options, Affiliations,
-                  Subscriptions, Default, Retract, Purge, Delete,
-                  Configure, Create, Unsubscribe, Subscribe, Publish, Rsm,
-                  Subscription) ->
+                  Subscriptions, Affiliations, Subscribe, Unsubscribe,
+                  Options, Items, Retract, Create, Configure,
+                  Publish_options, Default, Delete, Purge, Subscription,
+                  Rsm, Publish) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -2541,51 +2540,51 @@ decode_pubsub_els(__TopXMLNS, __Opts,
             decode_pubsub_els(__TopXMLNS,
                               __Opts,
                               _els,
+                              Subscriptions,
+                              Affiliations,
+                              Subscribe,
+                              Unsubscribe,
+                              Options,
+                              Items,
+                              Retract,
+                              Create,
+                              Configure,
                               decode_pubsub_publish_options(<<"http://jabber.org/protocol/pubsub">>,
                                                             __Opts,
                                                             _el),
-                              Items,
-                              Options,
-                              Affiliations,
-                              Subscriptions,
                               Default,
-                              Retract,
-                              Purge,
                               Delete,
-                              Configure,
-                              Create,
-                              Unsubscribe,
-                              Subscribe,
-                              Publish,
+                              Purge,
+                              Subscription,
                               Rsm,
-                              Subscription);
+                              Publish);
         _ ->
             decode_pubsub_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Publish_options,
-                              Items,
-                              Options,
-                              Affiliations,
                               Subscriptions,
-                              Default,
-                              Retract,
-                              Purge,
-                              Delete,
-                              Configure,
-                              Create,
-                              Unsubscribe,
+                              Affiliations,
                               Subscribe,
-                              Publish,
+                              Unsubscribe,
+                              Options,
+                              Items,
+                              Retract,
+                              Create,
+                              Configure,
+                              Publish_options,
+                              Default,
+                              Delete,
+                              Purge,
+                              Subscription,
                               Rsm,
-                              Subscription)
+                              Publish)
     end;
 decode_pubsub_els(__TopXMLNS, __Opts,
                   [{xmlel, <<"default">>, _attrs, _} = _el | _els],
-                  Publish_options, Items, Options, Affiliations,
-                  Subscriptions, Default, Retract, Purge, Delete,
-                  Configure, Create, Unsubscribe, Subscribe, Publish, Rsm,
-                  Subscription) ->
+                  Subscriptions, Affiliations, Subscribe, Unsubscribe,
+                  Options, Items, Retract, Create, Configure,
+                  Publish_options, Default, Delete, Purge, Subscription,
+                  Rsm, Publish) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -2594,73 +2593,73 @@ decode_pubsub_els(__TopXMLNS, __Opts,
             decode_pubsub_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Publish_options,
-                              Items,
-                              Options,
-                              Affiliations,
                               Subscriptions,
+                              Affiliations,
+                              Subscribe,
+                              Unsubscribe,
+                              Options,
+                              Items,
+                              Retract,
+                              Create,
+                              Configure,
+                              Publish_options,
                               decode_pubsub_default(<<"http://jabber.org/protocol/pubsub">>,
                                                     __Opts,
                                                     _el),
-                              Retract,
-                              Purge,
                               Delete,
-                              Configure,
-                              Create,
-                              Unsubscribe,
-                              Subscribe,
-                              Publish,
+                              Purge,
+                              Subscription,
                               Rsm,
-                              Subscription);
+                              Publish);
         <<"http://jabber.org/protocol/pubsub#owner">> ->
             decode_pubsub_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Publish_options,
-                              Items,
-                              Options,
-                              Affiliations,
                               Subscriptions,
+                              Affiliations,
+                              Subscribe,
+                              Unsubscribe,
+                              Options,
+                              Items,
+                              Retract,
+                              Create,
+                              Configure,
+                              Publish_options,
                               decode_pubsub_default(<<"http://jabber.org/protocol/pubsub#owner">>,
                                                     __Opts,
                                                     _el),
-                              Retract,
-                              Purge,
                               Delete,
-                              Configure,
-                              Create,
-                              Unsubscribe,
-                              Subscribe,
-                              Publish,
+                              Purge,
+                              Subscription,
                               Rsm,
-                              Subscription);
+                              Publish);
         _ ->
             decode_pubsub_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Publish_options,
-                              Items,
-                              Options,
-                              Affiliations,
                               Subscriptions,
-                              Default,
-                              Retract,
-                              Purge,
-                              Delete,
-                              Configure,
-                              Create,
-                              Unsubscribe,
+                              Affiliations,
                               Subscribe,
-                              Publish,
+                              Unsubscribe,
+                              Options,
+                              Items,
+                              Retract,
+                              Create,
+                              Configure,
+                              Publish_options,
+                              Default,
+                              Delete,
+                              Purge,
+                              Subscription,
                               Rsm,
-                              Subscription)
+                              Publish)
     end;
 decode_pubsub_els(__TopXMLNS, __Opts,
                   [{xmlel, <<"delete">>, _attrs, _} = _el | _els],
-                  Publish_options, Items, Options, Affiliations,
-                  Subscriptions, Default, Retract, Purge, Delete,
-                  Configure, Create, Unsubscribe, Subscribe, Publish, Rsm,
-                  Subscription) ->
+                  Subscriptions, Affiliations, Subscribe, Unsubscribe,
+                  Options, Items, Retract, Create, Configure,
+                  Publish_options, Default, Delete, Purge, Subscription,
+                  Rsm, Publish) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -2669,95 +2668,95 @@ decode_pubsub_els(__TopXMLNS, __Opts,
             decode_pubsub_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Publish_options,
-                              Items,
-                              Options,
-                              Affiliations,
                               Subscriptions,
-                              Default,
+                              Affiliations,
+                              Subscribe,
+                              Unsubscribe,
+                              Options,
+                              Items,
                               Retract,
-                              Purge,
+                              Create,
+                              Configure,
+                              Publish_options,
+                              Default,
                               decode_pubsub_delete(<<"http://jabber.org/protocol/pubsub">>,
                                                    __Opts,
                                                    _el),
-                              Configure,
-                              Create,
-                              Unsubscribe,
-                              Subscribe,
-                              Publish,
+                              Purge,
+                              Subscription,
                               Rsm,
-                              Subscription);
+                              Publish);
         <<"http://jabber.org/protocol/pubsub#owner">> ->
             decode_pubsub_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Publish_options,
-                              Items,
-                              Options,
-                              Affiliations,
                               Subscriptions,
-                              Default,
+                              Affiliations,
+                              Subscribe,
+                              Unsubscribe,
+                              Options,
+                              Items,
                               Retract,
-                              Purge,
+                              Create,
+                              Configure,
+                              Publish_options,
+                              Default,
                               decode_pubsub_delete(<<"http://jabber.org/protocol/pubsub#owner">>,
                                                    __Opts,
                                                    _el),
-                              Configure,
-                              Create,
-                              Unsubscribe,
-                              Subscribe,
-                              Publish,
+                              Purge,
+                              Subscription,
                               Rsm,
-                              Subscription);
+                              Publish);
         <<"http://jabber.org/protocol/pubsub#event">> ->
             decode_pubsub_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Publish_options,
-                              Items,
-                              Options,
-                              Affiliations,
                               Subscriptions,
-                              Default,
+                              Affiliations,
+                              Subscribe,
+                              Unsubscribe,
+                              Options,
+                              Items,
                               Retract,
-                              Purge,
+                              Create,
+                              Configure,
+                              Publish_options,
+                              Default,
                               decode_pubsub_delete(<<"http://jabber.org/protocol/pubsub#event">>,
                                                    __Opts,
                                                    _el),
-                              Configure,
-                              Create,
-                              Unsubscribe,
-                              Subscribe,
-                              Publish,
+                              Purge,
+                              Subscription,
                               Rsm,
-                              Subscription);
+                              Publish);
         _ ->
             decode_pubsub_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Publish_options,
-                              Items,
-                              Options,
-                              Affiliations,
                               Subscriptions,
-                              Default,
-                              Retract,
-                              Purge,
-                              Delete,
-                              Configure,
-                              Create,
-                              Unsubscribe,
+                              Affiliations,
                               Subscribe,
-                              Publish,
+                              Unsubscribe,
+                              Options,
+                              Items,
+                              Retract,
+                              Create,
+                              Configure,
+                              Publish_options,
+                              Default,
+                              Delete,
+                              Purge,
+                              Subscription,
                               Rsm,
-                              Subscription)
+                              Publish)
     end;
 decode_pubsub_els(__TopXMLNS, __Opts,
                   [{xmlel, <<"purge">>, _attrs, _} = _el | _els],
-                  Publish_options, Items, Options, Affiliations,
-                  Subscriptions, Default, Retract, Purge, Delete,
-                  Configure, Create, Unsubscribe, Subscribe, Publish, Rsm,
-                  Subscription) ->
+                  Subscriptions, Affiliations, Subscribe, Unsubscribe,
+                  Options, Items, Retract, Create, Configure,
+                  Publish_options, Default, Delete, Purge, Subscription,
+                  Rsm, Publish) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -2766,95 +2765,95 @@ decode_pubsub_els(__TopXMLNS, __Opts,
             decode_pubsub_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Publish_options,
-                              Items,
-                              Options,
-                              Affiliations,
                               Subscriptions,
-                              Default,
+                              Affiliations,
+                              Subscribe,
+                              Unsubscribe,
+                              Options,
+                              Items,
                               Retract,
+                              Create,
+                              Configure,
+                              Publish_options,
+                              Default,
+                              Delete,
                               decode_pubsub_purge(<<"http://jabber.org/protocol/pubsub">>,
                                                   __Opts,
                                                   _el),
-                              Delete,
-                              Configure,
-                              Create,
-                              Unsubscribe,
-                              Subscribe,
-                              Publish,
+                              Subscription,
                               Rsm,
-                              Subscription);
+                              Publish);
         <<"http://jabber.org/protocol/pubsub#owner">> ->
             decode_pubsub_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Publish_options,
-                              Items,
-                              Options,
-                              Affiliations,
                               Subscriptions,
-                              Default,
+                              Affiliations,
+                              Subscribe,
+                              Unsubscribe,
+                              Options,
+                              Items,
                               Retract,
+                              Create,
+                              Configure,
+                              Publish_options,
+                              Default,
+                              Delete,
                               decode_pubsub_purge(<<"http://jabber.org/protocol/pubsub#owner">>,
                                                   __Opts,
                                                   _el),
-                              Delete,
-                              Configure,
-                              Create,
-                              Unsubscribe,
-                              Subscribe,
-                              Publish,
+                              Subscription,
                               Rsm,
-                              Subscription);
+                              Publish);
         <<"http://jabber.org/protocol/pubsub#event">> ->
             decode_pubsub_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Publish_options,
-                              Items,
-                              Options,
-                              Affiliations,
                               Subscriptions,
-                              Default,
+                              Affiliations,
+                              Subscribe,
+                              Unsubscribe,
+                              Options,
+                              Items,
                               Retract,
+                              Create,
+                              Configure,
+                              Publish_options,
+                              Default,
+                              Delete,
                               decode_pubsub_purge(<<"http://jabber.org/protocol/pubsub#event">>,
                                                   __Opts,
                                                   _el),
-                              Delete,
-                              Configure,
-                              Create,
-                              Unsubscribe,
-                              Subscribe,
-                              Publish,
+                              Subscription,
                               Rsm,
-                              Subscription);
+                              Publish);
         _ ->
             decode_pubsub_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Publish_options,
-                              Items,
-                              Options,
-                              Affiliations,
                               Subscriptions,
-                              Default,
-                              Retract,
-                              Purge,
-                              Delete,
-                              Configure,
-                              Create,
-                              Unsubscribe,
+                              Affiliations,
                               Subscribe,
-                              Publish,
+                              Unsubscribe,
+                              Options,
+                              Items,
+                              Retract,
+                              Create,
+                              Configure,
+                              Publish_options,
+                              Default,
+                              Delete,
+                              Purge,
+                              Subscription,
                               Rsm,
-                              Subscription)
+                              Publish)
     end;
 decode_pubsub_els(__TopXMLNS, __Opts,
                   [{xmlel, <<"subscription">>, _attrs, _} = _el | _els],
-                  Publish_options, Items, Options, Affiliations,
-                  Subscriptions, Default, Retract, Purge, Delete,
-                  Configure, Create, Unsubscribe, Subscribe, Publish, Rsm,
-                  Subscription) ->
+                  Subscriptions, Affiliations, Subscribe, Unsubscribe,
+                  Options, Items, Retract, Create, Configure,
+                  Publish_options, Default, Delete, Purge, Subscription,
+                  Rsm, Publish) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -2863,95 +2862,95 @@ decode_pubsub_els(__TopXMLNS, __Opts,
             decode_pubsub_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Publish_options,
-                              Items,
-                              Options,
-                              Affiliations,
                               Subscriptions,
-                              Default,
-                              Retract,
-                              Purge,
-                              Delete,
-                              Configure,
-                              Create,
-                              Unsubscribe,
+                              Affiliations,
                               Subscribe,
-                              Publish,
-                              Rsm,
+                              Unsubscribe,
+                              Options,
+                              Items,
+                              Retract,
+                              Create,
+                              Configure,
+                              Publish_options,
+                              Default,
+                              Delete,
+                              Purge,
                               decode_pubsub_subscription(<<"http://jabber.org/protocol/pubsub">>,
                                                          __Opts,
-                                                         _el));
+                                                         _el),
+                              Rsm,
+                              Publish);
         <<"http://jabber.org/protocol/pubsub#owner">> ->
             decode_pubsub_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Publish_options,
-                              Items,
-                              Options,
-                              Affiliations,
                               Subscriptions,
-                              Default,
-                              Retract,
-                              Purge,
-                              Delete,
-                              Configure,
-                              Create,
-                              Unsubscribe,
+                              Affiliations,
                               Subscribe,
-                              Publish,
-                              Rsm,
+                              Unsubscribe,
+                              Options,
+                              Items,
+                              Retract,
+                              Create,
+                              Configure,
+                              Publish_options,
+                              Default,
+                              Delete,
+                              Purge,
                               decode_pubsub_subscription(<<"http://jabber.org/protocol/pubsub#owner">>,
                                                          __Opts,
-                                                         _el));
+                                                         _el),
+                              Rsm,
+                              Publish);
         <<"http://jabber.org/protocol/pubsub#event">> ->
             decode_pubsub_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Publish_options,
-                              Items,
-                              Options,
-                              Affiliations,
                               Subscriptions,
-                              Default,
-                              Retract,
-                              Purge,
-                              Delete,
-                              Configure,
-                              Create,
-                              Unsubscribe,
+                              Affiliations,
                               Subscribe,
-                              Publish,
-                              Rsm,
+                              Unsubscribe,
+                              Options,
+                              Items,
+                              Retract,
+                              Create,
+                              Configure,
+                              Publish_options,
+                              Default,
+                              Delete,
+                              Purge,
                               decode_pubsub_subscription(<<"http://jabber.org/protocol/pubsub#event">>,
                                                          __Opts,
-                                                         _el));
+                                                         _el),
+                              Rsm,
+                              Publish);
         _ ->
             decode_pubsub_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Publish_options,
-                              Items,
-                              Options,
-                              Affiliations,
                               Subscriptions,
-                              Default,
-                              Retract,
-                              Purge,
-                              Delete,
-                              Configure,
-                              Create,
-                              Unsubscribe,
+                              Affiliations,
                               Subscribe,
-                              Publish,
+                              Unsubscribe,
+                              Options,
+                              Items,
+                              Retract,
+                              Create,
+                              Configure,
+                              Publish_options,
+                              Default,
+                              Delete,
+                              Purge,
+                              Subscription,
                               Rsm,
-                              Subscription)
+                              Publish)
     end;
 decode_pubsub_els(__TopXMLNS, __Opts,
                   [{xmlel, <<"set">>, _attrs, _} = _el | _els],
-                  Publish_options, Items, Options, Affiliations,
-                  Subscriptions, Default, Retract, Purge, Delete,
-                  Configure, Create, Unsubscribe, Subscribe, Publish, Rsm,
-                  Subscription) ->
+                  Subscriptions, Affiliations, Subscribe, Unsubscribe,
+                  Options, Items, Retract, Create, Configure,
+                  Publish_options, Default, Delete, Purge, Subscription,
+                  Rsm, Publish) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -2960,51 +2959,51 @@ decode_pubsub_els(__TopXMLNS, __Opts,
             decode_pubsub_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Publish_options,
-                              Items,
-                              Options,
-                              Affiliations,
                               Subscriptions,
-                              Default,
-                              Retract,
-                              Purge,
-                              Delete,
-                              Configure,
-                              Create,
-                              Unsubscribe,
+                              Affiliations,
                               Subscribe,
-                              Publish,
+                              Unsubscribe,
+                              Options,
+                              Items,
+                              Retract,
+                              Create,
+                              Configure,
+                              Publish_options,
+                              Default,
+                              Delete,
+                              Purge,
+                              Subscription,
                               xep0059:decode_rsm_set(<<"http://jabber.org/protocol/rsm">>,
                                                      __Opts,
                                                      _el),
-                              Subscription);
+                              Publish);
         _ ->
             decode_pubsub_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Publish_options,
-                              Items,
-                              Options,
-                              Affiliations,
                               Subscriptions,
-                              Default,
-                              Retract,
-                              Purge,
-                              Delete,
-                              Configure,
-                              Create,
-                              Unsubscribe,
+                              Affiliations,
                               Subscribe,
-                              Publish,
+                              Unsubscribe,
+                              Options,
+                              Items,
+                              Retract,
+                              Create,
+                              Configure,
+                              Publish_options,
+                              Default,
+                              Delete,
+                              Purge,
+                              Subscription,
                               Rsm,
-                              Subscription)
+                              Publish)
     end;
 decode_pubsub_els(__TopXMLNS, __Opts,
                   [{xmlel, <<"publish">>, _attrs, _} = _el | _els],
-                  Publish_options, Items, Options, Affiliations,
-                  Subscriptions, Default, Retract, Purge, Delete,
-                  Configure, Create, Unsubscribe, Subscribe, Publish, Rsm,
-                  Subscription) ->
+                  Subscriptions, Affiliations, Subscribe, Unsubscribe,
+                  Options, Items, Retract, Create, Configure,
+                  Publish_options, Default, Delete, Purge, Subscription,
+                  Rsm, Publish) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -3013,69 +3012,69 @@ decode_pubsub_els(__TopXMLNS, __Opts,
             decode_pubsub_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Publish_options,
-                              Items,
-                              Options,
-                              Affiliations,
                               Subscriptions,
-                              Default,
-                              Retract,
-                              Purge,
-                              Delete,
-                              Configure,
-                              Create,
-                              Unsubscribe,
+                              Affiliations,
                               Subscribe,
+                              Unsubscribe,
+                              Options,
+                              Items,
+                              Retract,
+                              Create,
+                              Configure,
+                              Publish_options,
+                              Default,
+                              Delete,
+                              Purge,
+                              Subscription,
+                              Rsm,
                               decode_pubsub_publish(<<"http://jabber.org/protocol/pubsub">>,
                                                     __Opts,
-                                                    _el),
-                              Rsm,
-                              Subscription);
+                                                    _el));
         _ ->
             decode_pubsub_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Publish_options,
-                              Items,
-                              Options,
-                              Affiliations,
                               Subscriptions,
-                              Default,
-                              Retract,
-                              Purge,
-                              Delete,
-                              Configure,
-                              Create,
-                              Unsubscribe,
+                              Affiliations,
                               Subscribe,
-                              Publish,
+                              Unsubscribe,
+                              Options,
+                              Items,
+                              Retract,
+                              Create,
+                              Configure,
+                              Publish_options,
+                              Default,
+                              Delete,
+                              Purge,
+                              Subscription,
                               Rsm,
-                              Subscription)
+                              Publish)
     end;
 decode_pubsub_els(__TopXMLNS, __Opts, [_ | _els],
-                  Publish_options, Items, Options, Affiliations,
-                  Subscriptions, Default, Retract, Purge, Delete,
-                  Configure, Create, Unsubscribe, Subscribe, Publish, Rsm,
-                  Subscription) ->
+                  Subscriptions, Affiliations, Subscribe, Unsubscribe,
+                  Options, Items, Retract, Create, Configure,
+                  Publish_options, Default, Delete, Purge, Subscription,
+                  Rsm, Publish) ->
     decode_pubsub_els(__TopXMLNS,
                       __Opts,
                       _els,
-                      Publish_options,
-                      Items,
-                      Options,
-                      Affiliations,
                       Subscriptions,
-                      Default,
-                      Retract,
-                      Purge,
-                      Delete,
-                      Configure,
-                      Create,
-                      Unsubscribe,
+                      Affiliations,
                       Subscribe,
-                      Publish,
+                      Unsubscribe,
+                      Options,
+                      Items,
+                      Retract,
+                      Create,
+                      Configure,
+                      Publish_options,
+                      Default,
+                      Delete,
+                      Purge,
+                      Subscription,
                       Rsm,
-                      Subscription).
+                      Publish).
 
 encode_pubsub({pubsub,
                Subscriptions,
@@ -3099,43 +3098,100 @@ encode_pubsub({pubsub,
         xmpp_codec:choose_top_xmlns(<<"http://jabber.org/protocol/pubsub">>,
                                     [],
                                     __TopXMLNS),
-    _els =
-        lists:reverse('encode_pubsub_$publish_options'(Publish_options,
-                                                       __NewTopXMLNS,
-                                                       'encode_pubsub_$items'(Items,
-                                                                              __NewTopXMLNS,
-                                                                              'encode_pubsub_$options'(Options,
-                                                                                                       __NewTopXMLNS,
-                                                                                                       'encode_pubsub_$affiliations'(Affiliations,
-                                                                                                                                     __NewTopXMLNS,
-                                                                                                                                     'encode_pubsub_$subscriptions'(Subscriptions,
-                                                                                                                                                                    __NewTopXMLNS,
-                                                                                                                                                                    'encode_pubsub_$default'(Default,
-                                                                                                                                                                                             __NewTopXMLNS,
-                                                                                                                                                                                             'encode_pubsub_$retract'(Retract,
-                                                                                                                                                                                                                      __NewTopXMLNS,
-                                                                                                                                                                                                                      'encode_pubsub_$purge'(Purge,
-                                                                                                                                                                                                                                             __NewTopXMLNS,
-                                                                                                                                                                                                                                             'encode_pubsub_$delete'(Delete,
-                                                                                                                                                                                                                                                                     __NewTopXMLNS,
-                                                                                                                                                                                                                                                                     'encode_pubsub_$configure'(Configure,
-                                                                                                                                                                                                                                                                                                __NewTopXMLNS,
-                                                                                                                                                                                                                                                                                                'encode_pubsub_$create'(Create,
-                                                                                                                                                                                                                                                                                                                        __NewTopXMLNS,
-                                                                                                                                                                                                                                                                                                                        'encode_pubsub_$unsubscribe'(Unsubscribe,
-                                                                                                                                                                                                                                                                                                                                                     __NewTopXMLNS,
-                                                                                                                                                                                                                                                                                                                                                     'encode_pubsub_$subscribe'(Subscribe,
-                                                                                                                                                                                                                                                                                                                                                                                __NewTopXMLNS,
-                                                                                                                                                                                                                                                                                                                                                                                'encode_pubsub_$publish'(Publish,
-                                                                                                                                                                                                                                                                                                                                                                                                         __NewTopXMLNS,
-                                                                                                                                                                                                                                                                                                                                                                                                         'encode_pubsub_$rsm'(Rsm,
-                                                                                                                                                                                                                                                                                                                                                                                                                              __NewTopXMLNS,
-                                                                                                                                                                                                                                                                                                                                                                                                                              'encode_pubsub_$subscription'(Subscription,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                            __NewTopXMLNS,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                            []))))))))))))))))),
+    _els = lists:reverse('encode_pubsub_$publish'(Publish,
+                                                  __NewTopXMLNS,
+                                                  'encode_pubsub_$rsm'(Rsm,
+                                                                       __NewTopXMLNS,
+                                                                       'encode_pubsub_$subscription'(Subscription,
+                                                                                                     __NewTopXMLNS,
+                                                                                                     'encode_pubsub_$purge'(Purge,
+                                                                                                                            __NewTopXMLNS,
+                                                                                                                            'encode_pubsub_$delete'(Delete,
+                                                                                                                                                    __NewTopXMLNS,
+                                                                                                                                                    'encode_pubsub_$default'(Default,
+                                                                                                                                                                             __NewTopXMLNS,
+                                                                                                                                                                             'encode_pubsub_$publish_options'(Publish_options,
+                                                                                                                                                                                                              __NewTopXMLNS,
+                                                                                                                                                                                                              'encode_pubsub_$configure'(Configure,
+                                                                                                                                                                                                                                         __NewTopXMLNS,
+                                                                                                                                                                                                                                         'encode_pubsub_$create'(Create,
+                                                                                                                                                                                                                                                                 __NewTopXMLNS,
+                                                                                                                                                                                                                                                                 'encode_pubsub_$retract'(Retract,
+                                                                                                                                                                                                                                                                                          __NewTopXMLNS,
+                                                                                                                                                                                                                                                                                          'encode_pubsub_$items'(Items,
+                                                                                                                                                                                                                                                                                                                 __NewTopXMLNS,
+                                                                                                                                                                                                                                                                                                                 'encode_pubsub_$options'(Options,
+                                                                                                                                                                                                                                                                                                                                          __NewTopXMLNS,
+                                                                                                                                                                                                                                                                                                                                          'encode_pubsub_$unsubscribe'(Unsubscribe,
+                                                                                                                                                                                                                                                                                                                                                                       __NewTopXMLNS,
+                                                                                                                                                                                                                                                                                                                                                                       'encode_pubsub_$subscribe'(Subscribe,
+                                                                                                                                                                                                                                                                                                                                                                                                  __NewTopXMLNS,
+                                                                                                                                                                                                                                                                                                                                                                                                  'encode_pubsub_$affiliations'(Affiliations,
+                                                                                                                                                                                                                                                                                                                                                                                                                                __NewTopXMLNS,
+                                                                                                                                                                                                                                                                                                                                                                                                                                'encode_pubsub_$subscriptions'(Subscriptions,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                               __NewTopXMLNS,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                               []))))))))))))))))),
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
                                         __TopXMLNS),
     {xmlel, <<"pubsub">>, _attrs, _els}.
+
+'encode_pubsub_$subscriptions'(undefined, __TopXMLNS,
+                               _acc) ->
+    _acc;
+'encode_pubsub_$subscriptions'(Subscriptions,
+                               __TopXMLNS, _acc) ->
+    [encode_pubsub_subscriptions(Subscriptions, __TopXMLNS)
+     | _acc].
+
+'encode_pubsub_$affiliations'(undefined, __TopXMLNS,
+                              _acc) ->
+    _acc;
+'encode_pubsub_$affiliations'(Affiliations, __TopXMLNS,
+                              _acc) ->
+    [encode_pubsub_affiliations(Affiliations, __TopXMLNS)
+     | _acc].
+
+'encode_pubsub_$subscribe'(undefined, __TopXMLNS,
+                           _acc) ->
+    _acc;
+'encode_pubsub_$subscribe'(Subscribe, __TopXMLNS,
+                           _acc) ->
+    [encode_pubsub_subscribe(Subscribe, __TopXMLNS) | _acc].
+
+'encode_pubsub_$unsubscribe'(undefined, __TopXMLNS,
+                             _acc) ->
+    _acc;
+'encode_pubsub_$unsubscribe'(Unsubscribe, __TopXMLNS,
+                             _acc) ->
+    [encode_pubsub_unsubscribe(Unsubscribe, __TopXMLNS)
+     | _acc].
+
+'encode_pubsub_$options'(undefined, __TopXMLNS, _acc) ->
+    _acc;
+'encode_pubsub_$options'(Options, __TopXMLNS, _acc) ->
+    [encode_pubsub_options(Options, __TopXMLNS) | _acc].
+
+'encode_pubsub_$items'(undefined, __TopXMLNS, _acc) ->
+    _acc;
+'encode_pubsub_$items'(Items, __TopXMLNS, _acc) ->
+    [encode_pubsub_items(Items, __TopXMLNS) | _acc].
+
+'encode_pubsub_$retract'(undefined, __TopXMLNS, _acc) ->
+    _acc;
+'encode_pubsub_$retract'(Retract, __TopXMLNS, _acc) ->
+    [encode_pubsub_retract(Retract, __TopXMLNS) | _acc].
+
+'encode_pubsub_$create'(undefined, __TopXMLNS, _acc) ->
+    _acc;
+'encode_pubsub_$create'(Create, __TopXMLNS, _acc) ->
+    [encode_pubsub_create(Create, __TopXMLNS) | _acc].
+
+'encode_pubsub_$configure'(undefined, __TopXMLNS,
+                           _acc) ->
+    _acc;
+'encode_pubsub_$configure'(Configure, __TopXMLNS,
+                           _acc) ->
+    [encode_pubsub_configure(Configure, __TopXMLNS) | _acc].
 
 'encode_pubsub_$publish_options'(undefined, __TopXMLNS,
                                  _acc) ->
@@ -3146,88 +3202,20 @@ encode_pubsub({pubsub,
                                    __TopXMLNS)
      | _acc].
 
-'encode_pubsub_$items'(undefined, __TopXMLNS, _acc) ->
-    _acc;
-'encode_pubsub_$items'(Items, __TopXMLNS, _acc) ->
-    [encode_pubsub_items(Items, __TopXMLNS) | _acc].
-
-'encode_pubsub_$options'(undefined, __TopXMLNS, _acc) ->
-    _acc;
-'encode_pubsub_$options'(Options, __TopXMLNS, _acc) ->
-    [encode_pubsub_options(Options, __TopXMLNS) | _acc].
-
-'encode_pubsub_$affiliations'(undefined, __TopXMLNS,
-                              _acc) ->
-    _acc;
-'encode_pubsub_$affiliations'(Affiliations, __TopXMLNS,
-                              _acc) ->
-    [encode_pubsub_affiliations(Affiliations, __TopXMLNS)
-     | _acc].
-
-'encode_pubsub_$subscriptions'(undefined, __TopXMLNS,
-                               _acc) ->
-    _acc;
-'encode_pubsub_$subscriptions'(Subscriptions,
-                               __TopXMLNS, _acc) ->
-    [encode_pubsub_subscriptions(Subscriptions, __TopXMLNS)
-     | _acc].
-
 'encode_pubsub_$default'(undefined, __TopXMLNS, _acc) ->
     _acc;
 'encode_pubsub_$default'(Default, __TopXMLNS, _acc) ->
     [encode_pubsub_default(Default, __TopXMLNS) | _acc].
-
-'encode_pubsub_$retract'(undefined, __TopXMLNS, _acc) ->
-    _acc;
-'encode_pubsub_$retract'(Retract, __TopXMLNS, _acc) ->
-    [encode_pubsub_retract(Retract, __TopXMLNS) | _acc].
-
-'encode_pubsub_$purge'(undefined, __TopXMLNS, _acc) ->
-    _acc;
-'encode_pubsub_$purge'(Purge, __TopXMLNS, _acc) ->
-    [encode_pubsub_purge(Purge, __TopXMLNS) | _acc].
 
 'encode_pubsub_$delete'(undefined, __TopXMLNS, _acc) ->
     _acc;
 'encode_pubsub_$delete'(Delete, __TopXMLNS, _acc) ->
     [encode_pubsub_delete(Delete, __TopXMLNS) | _acc].
 
-'encode_pubsub_$configure'(undefined, __TopXMLNS,
-                           _acc) ->
+'encode_pubsub_$purge'(undefined, __TopXMLNS, _acc) ->
     _acc;
-'encode_pubsub_$configure'(Configure, __TopXMLNS,
-                           _acc) ->
-    [encode_pubsub_configure(Configure, __TopXMLNS) | _acc].
-
-'encode_pubsub_$create'(undefined, __TopXMLNS, _acc) ->
-    _acc;
-'encode_pubsub_$create'(Create, __TopXMLNS, _acc) ->
-    [encode_pubsub_create(Create, __TopXMLNS) | _acc].
-
-'encode_pubsub_$unsubscribe'(undefined, __TopXMLNS,
-                             _acc) ->
-    _acc;
-'encode_pubsub_$unsubscribe'(Unsubscribe, __TopXMLNS,
-                             _acc) ->
-    [encode_pubsub_unsubscribe(Unsubscribe, __TopXMLNS)
-     | _acc].
-
-'encode_pubsub_$subscribe'(undefined, __TopXMLNS,
-                           _acc) ->
-    _acc;
-'encode_pubsub_$subscribe'(Subscribe, __TopXMLNS,
-                           _acc) ->
-    [encode_pubsub_subscribe(Subscribe, __TopXMLNS) | _acc].
-
-'encode_pubsub_$publish'(undefined, __TopXMLNS, _acc) ->
-    _acc;
-'encode_pubsub_$publish'(Publish, __TopXMLNS, _acc) ->
-    [encode_pubsub_publish(Publish, __TopXMLNS) | _acc].
-
-'encode_pubsub_$rsm'(undefined, __TopXMLNS, _acc) ->
-    _acc;
-'encode_pubsub_$rsm'(Rsm, __TopXMLNS, _acc) ->
-    [xep0059:encode_rsm_set(Rsm, __TopXMLNS) | _acc].
+'encode_pubsub_$purge'(Purge, __TopXMLNS, _acc) ->
+    [encode_pubsub_purge(Purge, __TopXMLNS) | _acc].
 
 'encode_pubsub_$subscription'(undefined, __TopXMLNS,
                               _acc) ->
@@ -3236,6 +3224,16 @@ encode_pubsub({pubsub,
                               _acc) ->
     [encode_pubsub_subscription(Subscription, __TopXMLNS)
      | _acc].
+
+'encode_pubsub_$rsm'(undefined, __TopXMLNS, _acc) ->
+    _acc;
+'encode_pubsub_$rsm'(Rsm, __TopXMLNS, _acc) ->
+    [xep0059:encode_rsm_set(Rsm, __TopXMLNS) | _acc].
+
+'encode_pubsub_$publish'(undefined, __TopXMLNS, _acc) ->
+    _acc;
+'encode_pubsub_$publish'(Publish, __TopXMLNS, _acc) ->
+    [encode_pubsub_publish(Publish, __TopXMLNS) | _acc].
 
 decode_pubsub_purge(__TopXMLNS, __Opts,
                     {xmlel, <<"purge">>, _attrs, _els}) ->
@@ -4516,11 +4514,11 @@ encode_pubsub_subscriptions_attr_node(_val, _acc) ->
 decode_pubsub_event(__TopXMLNS, __Opts,
                     {xmlel, <<"event">>, _attrs, _els}) ->
     {Items,
-     Create,
-     Delete,
+     Subscription,
      Purge,
-     Configuration,
-     Subscription} =
+     Delete,
+     Create,
+     Configuration} =
         decode_pubsub_event_els(__TopXMLNS,
                                 __Opts,
                                 _els,
@@ -4539,16 +4537,16 @@ decode_pubsub_event(__TopXMLNS, __Opts,
      Configuration}.
 
 decode_pubsub_event_els(__TopXMLNS, __Opts, [], Items,
-                        Create, Delete, Purge, Configuration, Subscription) ->
+                        Subscription, Purge, Delete, Create, Configuration) ->
     {Items,
-     Create,
-     Delete,
+     Subscription,
      Purge,
-     Configuration,
-     Subscription};
+     Delete,
+     Create,
+     Configuration};
 decode_pubsub_event_els(__TopXMLNS, __Opts,
                         [{xmlel, <<"items">>, _attrs, _} = _el | _els], Items,
-                        Create, Delete, Purge, Configuration, Subscription) ->
+                        Subscription, Purge, Delete, Create, Configuration) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -4560,11 +4558,11 @@ decode_pubsub_event_els(__TopXMLNS, __Opts,
                                     decode_pubsub_items(<<"http://jabber.org/protocol/pubsub">>,
                                                         __Opts,
                                                         _el),
-                                    Create,
-                                    Delete,
+                                    Subscription,
                                     Purge,
-                                    Configuration,
-                                    Subscription);
+                                    Delete,
+                                    Create,
+                                    Configuration);
         <<"http://jabber.org/protocol/pubsub#event">> ->
             decode_pubsub_event_els(__TopXMLNS,
                                     __Opts,
@@ -4572,26 +4570,26 @@ decode_pubsub_event_els(__TopXMLNS, __Opts,
                                     decode_pubsub_items(<<"http://jabber.org/protocol/pubsub#event">>,
                                                         __Opts,
                                                         _el),
-                                    Create,
-                                    Delete,
+                                    Subscription,
                                     Purge,
-                                    Configuration,
-                                    Subscription);
+                                    Delete,
+                                    Create,
+                                    Configuration);
         _ ->
             decode_pubsub_event_els(__TopXMLNS,
                                     __Opts,
                                     _els,
                                     Items,
-                                    Create,
-                                    Delete,
+                                    Subscription,
                                     Purge,
-                                    Configuration,
-                                    Subscription)
+                                    Delete,
+                                    Create,
+                                    Configuration)
     end;
 decode_pubsub_event_els(__TopXMLNS, __Opts,
                         [{xmlel, <<"subscription">>, _attrs, _} = _el | _els],
-                        Items, Create, Delete, Purge, Configuration,
-                        Subscription) ->
+                        Items, Subscription, Purge, Delete, Create,
+                        Configuration) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -4601,51 +4599,51 @@ decode_pubsub_event_els(__TopXMLNS, __Opts,
                                     __Opts,
                                     _els,
                                     Items,
-                                    Create,
-                                    Delete,
-                                    Purge,
-                                    Configuration,
                                     decode_pubsub_subscription(<<"http://jabber.org/protocol/pubsub">>,
                                                                __Opts,
-                                                               _el));
+                                                               _el),
+                                    Purge,
+                                    Delete,
+                                    Create,
+                                    Configuration);
         <<"http://jabber.org/protocol/pubsub#owner">> ->
             decode_pubsub_event_els(__TopXMLNS,
                                     __Opts,
                                     _els,
                                     Items,
-                                    Create,
-                                    Delete,
-                                    Purge,
-                                    Configuration,
                                     decode_pubsub_subscription(<<"http://jabber.org/protocol/pubsub#owner">>,
                                                                __Opts,
-                                                               _el));
+                                                               _el),
+                                    Purge,
+                                    Delete,
+                                    Create,
+                                    Configuration);
         <<"http://jabber.org/protocol/pubsub#event">> ->
             decode_pubsub_event_els(__TopXMLNS,
                                     __Opts,
                                     _els,
                                     Items,
-                                    Create,
-                                    Delete,
-                                    Purge,
-                                    Configuration,
                                     decode_pubsub_subscription(<<"http://jabber.org/protocol/pubsub#event">>,
                                                                __Opts,
-                                                               _el));
+                                                               _el),
+                                    Purge,
+                                    Delete,
+                                    Create,
+                                    Configuration);
         _ ->
             decode_pubsub_event_els(__TopXMLNS,
                                     __Opts,
                                     _els,
                                     Items,
-                                    Create,
-                                    Delete,
+                                    Subscription,
                                     Purge,
-                                    Configuration,
-                                    Subscription)
+                                    Delete,
+                                    Create,
+                                    Configuration)
     end;
 decode_pubsub_event_els(__TopXMLNS, __Opts,
                         [{xmlel, <<"purge">>, _attrs, _} = _el | _els], Items,
-                        Create, Delete, Purge, Configuration, Subscription) ->
+                        Subscription, Purge, Delete, Create, Configuration) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -4655,51 +4653,51 @@ decode_pubsub_event_els(__TopXMLNS, __Opts,
                                     __Opts,
                                     _els,
                                     Items,
-                                    Create,
-                                    Delete,
+                                    Subscription,
                                     decode_pubsub_purge(<<"http://jabber.org/protocol/pubsub">>,
                                                         __Opts,
                                                         _el),
-                                    Configuration,
-                                    Subscription);
+                                    Delete,
+                                    Create,
+                                    Configuration);
         <<"http://jabber.org/protocol/pubsub#owner">> ->
             decode_pubsub_event_els(__TopXMLNS,
                                     __Opts,
                                     _els,
                                     Items,
-                                    Create,
-                                    Delete,
+                                    Subscription,
                                     decode_pubsub_purge(<<"http://jabber.org/protocol/pubsub#owner">>,
                                                         __Opts,
                                                         _el),
-                                    Configuration,
-                                    Subscription);
+                                    Delete,
+                                    Create,
+                                    Configuration);
         <<"http://jabber.org/protocol/pubsub#event">> ->
             decode_pubsub_event_els(__TopXMLNS,
                                     __Opts,
                                     _els,
                                     Items,
-                                    Create,
-                                    Delete,
+                                    Subscription,
                                     decode_pubsub_purge(<<"http://jabber.org/protocol/pubsub#event">>,
                                                         __Opts,
                                                         _el),
-                                    Configuration,
-                                    Subscription);
+                                    Delete,
+                                    Create,
+                                    Configuration);
         _ ->
             decode_pubsub_event_els(__TopXMLNS,
                                     __Opts,
                                     _els,
                                     Items,
-                                    Create,
-                                    Delete,
+                                    Subscription,
                                     Purge,
-                                    Configuration,
-                                    Subscription)
+                                    Delete,
+                                    Create,
+                                    Configuration)
     end;
 decode_pubsub_event_els(__TopXMLNS, __Opts,
                         [{xmlel, <<"delete">>, _attrs, _} = _el | _els], Items,
-                        Create, Delete, Purge, Configuration, Subscription) ->
+                        Subscription, Purge, Delete, Create, Configuration) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -4709,51 +4707,51 @@ decode_pubsub_event_els(__TopXMLNS, __Opts,
                                     __Opts,
                                     _els,
                                     Items,
-                                    Create,
+                                    Subscription,
+                                    Purge,
                                     decode_pubsub_delete(<<"http://jabber.org/protocol/pubsub">>,
                                                          __Opts,
                                                          _el),
-                                    Purge,
-                                    Configuration,
-                                    Subscription);
+                                    Create,
+                                    Configuration);
         <<"http://jabber.org/protocol/pubsub#owner">> ->
             decode_pubsub_event_els(__TopXMLNS,
                                     __Opts,
                                     _els,
                                     Items,
-                                    Create,
+                                    Subscription,
+                                    Purge,
                                     decode_pubsub_delete(<<"http://jabber.org/protocol/pubsub#owner">>,
                                                          __Opts,
                                                          _el),
-                                    Purge,
-                                    Configuration,
-                                    Subscription);
+                                    Create,
+                                    Configuration);
         <<"http://jabber.org/protocol/pubsub#event">> ->
             decode_pubsub_event_els(__TopXMLNS,
                                     __Opts,
                                     _els,
                                     Items,
-                                    Create,
+                                    Subscription,
+                                    Purge,
                                     decode_pubsub_delete(<<"http://jabber.org/protocol/pubsub#event">>,
                                                          __Opts,
                                                          _el),
-                                    Purge,
-                                    Configuration,
-                                    Subscription);
+                                    Create,
+                                    Configuration);
         _ ->
             decode_pubsub_event_els(__TopXMLNS,
                                     __Opts,
                                     _els,
                                     Items,
-                                    Create,
-                                    Delete,
+                                    Subscription,
                                     Purge,
-                                    Configuration,
-                                    Subscription)
+                                    Delete,
+                                    Create,
+                                    Configuration)
     end;
 decode_pubsub_event_els(__TopXMLNS, __Opts,
                         [{xmlel, <<"create">>, _attrs, _} = _el | _els], Items,
-                        Create, Delete, Purge, Configuration, Subscription) ->
+                        Subscription, Purge, Delete, Create, Configuration) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -4763,40 +4761,40 @@ decode_pubsub_event_els(__TopXMLNS, __Opts,
                                     __Opts,
                                     _els,
                                     Items,
+                                    Subscription,
+                                    Purge,
+                                    Delete,
                                     decode_pubsub_create(<<"http://jabber.org/protocol/pubsub">>,
                                                          __Opts,
                                                          _el),
-                                    Delete,
-                                    Purge,
-                                    Configuration,
-                                    Subscription);
+                                    Configuration);
         <<"http://jabber.org/protocol/pubsub#event">> ->
             decode_pubsub_event_els(__TopXMLNS,
                                     __Opts,
                                     _els,
                                     Items,
+                                    Subscription,
+                                    Purge,
+                                    Delete,
                                     decode_pubsub_create(<<"http://jabber.org/protocol/pubsub#event">>,
                                                          __Opts,
                                                          _el),
-                                    Delete,
-                                    Purge,
-                                    Configuration,
-                                    Subscription);
+                                    Configuration);
         _ ->
             decode_pubsub_event_els(__TopXMLNS,
                                     __Opts,
                                     _els,
                                     Items,
-                                    Create,
-                                    Delete,
+                                    Subscription,
                                     Purge,
-                                    Configuration,
-                                    Subscription)
+                                    Delete,
+                                    Create,
+                                    Configuration)
     end;
 decode_pubsub_event_els(__TopXMLNS, __Opts,
                         [{xmlel, <<"configuration">>, _attrs, _} = _el | _els],
-                        Items, Create, Delete, Purge, Configuration,
-                        Subscription) ->
+                        Items, Subscription, Purge, Delete, Create,
+                        Configuration) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -4806,36 +4804,36 @@ decode_pubsub_event_els(__TopXMLNS, __Opts,
                                     __Opts,
                                     _els,
                                     Items,
-                                    Create,
-                                    Delete,
+                                    Subscription,
                                     Purge,
+                                    Delete,
+                                    Create,
                                     decode_pubsub_event_configuration(<<"http://jabber.org/protocol/pubsub#event">>,
                                                                       __Opts,
-                                                                      _el),
-                                    Subscription);
+                                                                      _el));
         _ ->
             decode_pubsub_event_els(__TopXMLNS,
                                     __Opts,
                                     _els,
                                     Items,
-                                    Create,
-                                    Delete,
+                                    Subscription,
                                     Purge,
-                                    Configuration,
-                                    Subscription)
+                                    Delete,
+                                    Create,
+                                    Configuration)
     end;
 decode_pubsub_event_els(__TopXMLNS, __Opts, [_ | _els],
-                        Items, Create, Delete, Purge, Configuration,
-                        Subscription) ->
+                        Items, Subscription, Purge, Delete, Create,
+                        Configuration) ->
     decode_pubsub_event_els(__TopXMLNS,
                             __Opts,
                             _els,
                             Items,
-                            Create,
-                            Delete,
+                            Subscription,
                             Purge,
-                            Configuration,
-                            Subscription).
+                            Delete,
+                            Create,
+                            Configuration).
 
 encode_pubsub_event({ps_event,
                      Items,
@@ -4849,19 +4847,20 @@ encode_pubsub_event({ps_event,
         xmpp_codec:choose_top_xmlns(<<"http://jabber.org/protocol/pubsub#event">>,
                                     [],
                                     __TopXMLNS),
-    _els = lists:reverse('encode_pubsub_event_$items'(Items,
-                                                      __NewTopXMLNS,
-                                                      'encode_pubsub_event_$create'(Create,
-                                                                                    __NewTopXMLNS,
-                                                                                    'encode_pubsub_event_$delete'(Delete,
-                                                                                                                  __NewTopXMLNS,
-                                                                                                                  'encode_pubsub_event_$purge'(Purge,
-                                                                                                                                               __NewTopXMLNS,
-                                                                                                                                               'encode_pubsub_event_$configuration'(Configuration,
-                                                                                                                                                                                    __NewTopXMLNS,
-                                                                                                                                                                                    'encode_pubsub_event_$subscription'(Subscription,
-                                                                                                                                                                                                                        __NewTopXMLNS,
-                                                                                                                                                                                                                        []))))))),
+    _els =
+        lists:reverse('encode_pubsub_event_$configuration'(Configuration,
+                                                           __NewTopXMLNS,
+                                                           'encode_pubsub_event_$create'(Create,
+                                                                                         __NewTopXMLNS,
+                                                                                         'encode_pubsub_event_$delete'(Delete,
+                                                                                                                       __NewTopXMLNS,
+                                                                                                                       'encode_pubsub_event_$purge'(Purge,
+                                                                                                                                                    __NewTopXMLNS,
+                                                                                                                                                    'encode_pubsub_event_$subscription'(Subscription,
+                                                                                                                                                                                        __NewTopXMLNS,
+                                                                                                                                                                                        'encode_pubsub_event_$items'(Items,
+                                                                                                                                                                                                                     __NewTopXMLNS,
+                                                                                                                                                                                                                     []))))))),
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
                                         __TopXMLNS),
     {xmlel, <<"event">>, _attrs, _els}.
@@ -4872,12 +4871,19 @@ encode_pubsub_event({ps_event,
 'encode_pubsub_event_$items'(Items, __TopXMLNS, _acc) ->
     [encode_pubsub_items(Items, __TopXMLNS) | _acc].
 
-'encode_pubsub_event_$create'(undefined, __TopXMLNS,
-                              _acc) ->
+'encode_pubsub_event_$subscription'(undefined,
+                                    __TopXMLNS, _acc) ->
     _acc;
-'encode_pubsub_event_$create'(Create, __TopXMLNS,
-                              _acc) ->
-    [encode_pubsub_create(Create, __TopXMLNS) | _acc].
+'encode_pubsub_event_$subscription'(Subscription,
+                                    __TopXMLNS, _acc) ->
+    [encode_pubsub_subscription(Subscription, __TopXMLNS)
+     | _acc].
+
+'encode_pubsub_event_$purge'(undefined, __TopXMLNS,
+                             _acc) ->
+    _acc;
+'encode_pubsub_event_$purge'(Purge, __TopXMLNS, _acc) ->
+    [encode_pubsub_purge(Purge, __TopXMLNS) | _acc].
 
 'encode_pubsub_event_$delete'(undefined, __TopXMLNS,
                               _acc) ->
@@ -4886,11 +4892,12 @@ encode_pubsub_event({ps_event,
                               _acc) ->
     [encode_pubsub_delete(Delete, __TopXMLNS) | _acc].
 
-'encode_pubsub_event_$purge'(undefined, __TopXMLNS,
-                             _acc) ->
+'encode_pubsub_event_$create'(undefined, __TopXMLNS,
+                              _acc) ->
     _acc;
-'encode_pubsub_event_$purge'(Purge, __TopXMLNS, _acc) ->
-    [encode_pubsub_purge(Purge, __TopXMLNS) | _acc].
+'encode_pubsub_event_$create'(Create, __TopXMLNS,
+                              _acc) ->
+    [encode_pubsub_create(Create, __TopXMLNS) | _acc].
 
 'encode_pubsub_event_$configuration'(undefined,
                                      __TopXMLNS, _acc) ->
@@ -4901,17 +4908,9 @@ encode_pubsub_event({ps_event,
                                        __TopXMLNS)
      | _acc].
 
-'encode_pubsub_event_$subscription'(undefined,
-                                    __TopXMLNS, _acc) ->
-    _acc;
-'encode_pubsub_event_$subscription'(Subscription,
-                                    __TopXMLNS, _acc) ->
-    [encode_pubsub_subscription(Subscription, __TopXMLNS)
-     | _acc].
-
 decode_pubsub_items(__TopXMLNS, __Opts,
                     {xmlel, <<"items">>, _attrs, _els}) ->
-    {Items, Retract} = decode_pubsub_items_els(__TopXMLNS,
+    {Retract, Items} = decode_pubsub_items_els(__TopXMLNS,
                                                __Opts,
                                                _els,
                                                [],
@@ -4931,12 +4930,12 @@ decode_pubsub_items(__TopXMLNS, __Opts,
      Subid,
      Retract}.
 
-decode_pubsub_items_els(__TopXMLNS, __Opts, [], Items,
-                        Retract) ->
-    {lists:reverse(Items), lists:reverse(Retract)};
+decode_pubsub_items_els(__TopXMLNS, __Opts, [], Retract,
+                        Items) ->
+    {lists:reverse(Retract), lists:reverse(Items)};
 decode_pubsub_items_els(__TopXMLNS, __Opts,
-                        [{xmlel, <<"retract">>, _attrs, _} = _el | _els], Items,
-                        Retract) ->
+                        [{xmlel, <<"retract">>, _attrs, _} = _el | _els],
+                        Retract, Items) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -4945,21 +4944,21 @@ decode_pubsub_items_els(__TopXMLNS, __Opts,
             decode_pubsub_items_els(__TopXMLNS,
                                     __Opts,
                                     _els,
-                                    Items,
                                     [decode_pubsub_event_retract(<<"http://jabber.org/protocol/pubsub#event">>,
                                                                  __Opts,
                                                                  _el)
-                                     | Retract]);
+                                     | Retract],
+                                    Items);
         _ ->
             decode_pubsub_items_els(__TopXMLNS,
                                     __Opts,
                                     _els,
-                                    Items,
-                                    Retract)
+                                    Retract,
+                                    Items)
     end;
 decode_pubsub_items_els(__TopXMLNS, __Opts,
-                        [{xmlel, <<"item">>, _attrs, _} = _el | _els], Items,
-                        Retract) ->
+                        [{xmlel, <<"item">>, _attrs, _} = _el | _els], Retract,
+                        Items) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -4968,34 +4967,34 @@ decode_pubsub_items_els(__TopXMLNS, __Opts,
             decode_pubsub_items_els(__TopXMLNS,
                                     __Opts,
                                     _els,
+                                    Retract,
                                     [decode_pubsub_item(<<"http://jabber.org/protocol/pubsub">>,
                                                         __Opts,
                                                         _el)
-                                     | Items],
-                                    Retract);
+                                     | Items]);
         <<"http://jabber.org/protocol/pubsub#event">> ->
             decode_pubsub_items_els(__TopXMLNS,
                                     __Opts,
                                     _els,
+                                    Retract,
                                     [decode_pubsub_item(<<"http://jabber.org/protocol/pubsub#event">>,
                                                         __Opts,
                                                         _el)
-                                     | Items],
-                                    Retract);
+                                     | Items]);
         _ ->
             decode_pubsub_items_els(__TopXMLNS,
                                     __Opts,
                                     _els,
-                                    Items,
-                                    Retract)
+                                    Retract,
+                                    Items)
     end;
 decode_pubsub_items_els(__TopXMLNS, __Opts, [_ | _els],
-                        Items, Retract) ->
+                        Retract, Items) ->
     decode_pubsub_items_els(__TopXMLNS,
                             __Opts,
                             _els,
-                            Items,
-                            Retract).
+                            Retract,
+                            Items).
 
 decode_pubsub_items_attrs(__TopXMLNS,
                           [{<<"xmlns">>, _val} | _attrs], _Xmlns, Max_items,
@@ -5073,15 +5072,6 @@ encode_pubsub_items({ps_items,
                                                                                                                                         __TopXMLNS)))),
     {xmlel, <<"items">>, _attrs, _els}.
 
-'encode_pubsub_items_$items'([], __TopXMLNS, _acc) ->
-    _acc;
-'encode_pubsub_items_$items'([Items | _els], __TopXMLNS,
-                             _acc) ->
-    'encode_pubsub_items_$items'(_els,
-                                 __TopXMLNS,
-                                 [encode_pubsub_item(Items, __TopXMLNS)
-                                  | _acc]).
-
 'encode_pubsub_items_$retract'([], __TopXMLNS, _acc) ->
     _acc;
 'encode_pubsub_items_$retract'([Retract | _els],
@@ -5091,6 +5081,15 @@ encode_pubsub_items({ps_items,
                                    [encode_pubsub_event_retract(Retract,
                                                                 __TopXMLNS)
                                     | _acc]).
+
+'encode_pubsub_items_$items'([], __TopXMLNS, _acc) ->
+    _acc;
+'encode_pubsub_items_$items'([Items | _els], __TopXMLNS,
+                             _acc) ->
+    'encode_pubsub_items_$items'(_els,
+                                 __TopXMLNS,
+                                 [encode_pubsub_item(Items, __TopXMLNS)
+                                  | _acc]).
 
 decode_pubsub_items_attr_xmlns(__TopXMLNS, undefined) ->
     <<>>;

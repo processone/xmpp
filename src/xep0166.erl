@@ -507,9 +507,9 @@ encode_jingle({jingle,
     _els = [xmpp_codec:encode(_el, __NewTopXMLNS)
             || _el <- __Els]
                ++
-               lists:reverse('encode_jingle_$content'(Content,
-                                                      __NewTopXMLNS,
-                                                      'encode_jingle_$reason'(Reason,
+               lists:reverse('encode_jingle_$reason'(Reason,
+                                                     __NewTopXMLNS,
+                                                     'encode_jingle_$content'(Content,
                                                                               __NewTopXMLNS,
                                                                               []))),
     _attrs = encode_jingle_attr_responder(Responder,
@@ -1326,9 +1326,9 @@ encode_jingle_reason({jingle_reason,
     _els = [xmpp_codec:encode(_el, __NewTopXMLNS)
             || _el <- __Els]
                ++
-               lists:reverse('encode_jingle_reason_$text'(Text,
-                                                          __NewTopXMLNS,
-                                                          'encode_jingle_reason_$reason'(Reason,
+               lists:reverse('encode_jingle_reason_$reason'(Reason,
+                                                            __NewTopXMLNS,
+                                                            'encode_jingle_reason_$text'(Text,
                                                                                          __NewTopXMLNS,
                                                                                          []))),
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,

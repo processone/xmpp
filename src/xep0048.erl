@@ -158,9 +158,9 @@ encode_bookmarks_storage({bookmark_storage,
                                     [],
                                     __TopXMLNS),
     _els =
-        lists:reverse('encode_bookmarks_storage_$conference'(Conference,
-                                                             __NewTopXMLNS,
-                                                             'encode_bookmarks_storage_$url'(Url,
+        lists:reverse('encode_bookmarks_storage_$url'(Url,
+                                                      __NewTopXMLNS,
+                                                      'encode_bookmarks_storage_$conference'(Conference,
                                                                                              __NewTopXMLNS,
                                                                                              []))),
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
@@ -249,7 +249,7 @@ encode_bookmark_url_attr_url(_val, _acc) ->
 
 decode_bookmark_conference(__TopXMLNS, __Opts,
                            {xmlel, <<"conference">>, _attrs, _els}) ->
-    {Password, Nick} =
+    {Nick, Password} =
         decode_bookmark_conference_els(__TopXMLNS,
                                        __Opts,
                                        _els,
@@ -269,11 +269,11 @@ decode_bookmark_conference(__TopXMLNS, __Opts,
      Password}.
 
 decode_bookmark_conference_els(__TopXMLNS, __Opts, [],
-                               Password, Nick) ->
-    {Password, Nick};
+                               Nick, Password) ->
+    {Nick, Password};
 decode_bookmark_conference_els(__TopXMLNS, __Opts,
                                [{xmlel, <<"nick">>, _attrs, _} = _el | _els],
-                               Password, Nick) ->
+                               Nick, Password) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -282,21 +282,21 @@ decode_bookmark_conference_els(__TopXMLNS, __Opts,
             decode_bookmark_conference_els(__TopXMLNS,
                                            __Opts,
                                            _els,
-                                           Password,
                                            decode_conference_nick(<<"storage:bookmarks">>,
                                                                   __Opts,
-                                                                  _el));
+                                                                  _el),
+                                           Password);
         _ ->
             decode_bookmark_conference_els(__TopXMLNS,
                                            __Opts,
                                            _els,
-                                           Password,
-                                           Nick)
+                                           Nick,
+                                           Password)
     end;
 decode_bookmark_conference_els(__TopXMLNS, __Opts,
                                [{xmlel, <<"password">>, _attrs, _} = _el
                                 | _els],
-                               Password, Nick) ->
+                               Nick, Password) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -305,24 +305,24 @@ decode_bookmark_conference_els(__TopXMLNS, __Opts,
             decode_bookmark_conference_els(__TopXMLNS,
                                            __Opts,
                                            _els,
+                                           Nick,
                                            decode_conference_password(<<"storage:bookmarks">>,
                                                                       __Opts,
-                                                                      _el),
-                                           Nick);
+                                                                      _el));
         _ ->
             decode_bookmark_conference_els(__TopXMLNS,
                                            __Opts,
                                            _els,
-                                           Password,
-                                           Nick)
+                                           Nick,
+                                           Password)
     end;
 decode_bookmark_conference_els(__TopXMLNS, __Opts,
-                               [_ | _els], Password, Nick) ->
+                               [_ | _els], Nick, Password) ->
     decode_bookmark_conference_els(__TopXMLNS,
                                    __Opts,
                                    _els,
-                                   Password,
-                                   Nick).
+                                   Nick,
+                                   Password).
 
 decode_bookmark_conference_attrs(__TopXMLNS,
                                  [{<<"name">>, _val} | _attrs], _Name, Jid,
@@ -387,6 +387,13 @@ encode_bookmark_conference({bookmark_conference,
                                                                                                                                                      __TopXMLNS)))),
     {xmlel, <<"conference">>, _attrs, _els}.
 
+'encode_bookmark_conference_$nick'(undefined,
+                                   __TopXMLNS, _acc) ->
+    _acc;
+'encode_bookmark_conference_$nick'(Nick, __TopXMLNS,
+                                   _acc) ->
+    [encode_conference_nick(Nick, __TopXMLNS) | _acc].
+
 'encode_bookmark_conference_$password'(undefined,
                                        __TopXMLNS, _acc) ->
     _acc;
@@ -394,13 +401,6 @@ encode_bookmark_conference({bookmark_conference,
                                        __TopXMLNS, _acc) ->
     [encode_conference_password(Password, __TopXMLNS)
      | _acc].
-
-'encode_bookmark_conference_$nick'(undefined,
-                                   __TopXMLNS, _acc) ->
-    _acc;
-'encode_bookmark_conference_$nick'(Nick, __TopXMLNS,
-                                   _acc) ->
-    [encode_conference_nick(Nick, __TopXMLNS) | _acc].
 
 decode_bookmark_conference_attr_name(__TopXMLNS,
                                      undefined) ->

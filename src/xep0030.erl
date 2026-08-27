@@ -172,9 +172,9 @@ encode_disco_items({disco_items, Node, Items, Rsm},
         xmpp_codec:choose_top_xmlns(<<"http://jabber.org/protocol/disco#items">>,
                                     [],
                                     __TopXMLNS),
-    _els = lists:reverse('encode_disco_items_$items'(Items,
-                                                     __NewTopXMLNS,
-                                                     'encode_disco_items_$rsm'(Rsm,
+    _els = lists:reverse('encode_disco_items_$rsm'(Rsm,
+                                                   __NewTopXMLNS,
+                                                   'encode_disco_items_$items'(Items,
                                                                                __NewTopXMLNS,
                                                                                []))),
     _attrs = encode_disco_items_attr_node(Node,
@@ -294,7 +294,7 @@ encode_disco_item_attr_node(_val, _acc) ->
 
 decode_disco_info(__TopXMLNS, __Opts,
                   {xmlel, <<"query">>, _attrs, _els}) ->
-    {Xdata, Features, Identities} =
+    {Identities, Features, Xdata} =
         decode_disco_info_els(__TopXMLNS,
                               __Opts,
                               _els,
@@ -306,14 +306,14 @@ decode_disco_info(__TopXMLNS, __Opts,
                                    undefined),
     {disco_info, Node, Identities, Features, Xdata}.
 
-decode_disco_info_els(__TopXMLNS, __Opts, [], Xdata,
-                      Features, Identities) ->
-    {lists:reverse(Xdata),
+decode_disco_info_els(__TopXMLNS, __Opts, [],
+                      Identities, Features, Xdata) ->
+    {lists:reverse(Identities),
      lists:reverse(Features),
-     lists:reverse(Identities)};
+     lists:reverse(Xdata)};
 decode_disco_info_els(__TopXMLNS, __Opts,
                       [{xmlel, <<"identity">>, _attrs, _} = _el | _els],
-                      Xdata, Features, Identities) ->
+                      Identities, Features, Xdata) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -322,23 +322,23 @@ decode_disco_info_els(__TopXMLNS, __Opts,
             decode_disco_info_els(__TopXMLNS,
                                   __Opts,
                                   _els,
-                                  Xdata,
-                                  Features,
                                   [decode_disco_identity(<<"http://jabber.org/protocol/disco#info">>,
                                                          __Opts,
                                                          _el)
-                                   | Identities]);
+                                   | Identities],
+                                  Features,
+                                  Xdata);
         _ ->
             decode_disco_info_els(__TopXMLNS,
                                   __Opts,
                                   _els,
-                                  Xdata,
+                                  Identities,
                                   Features,
-                                  Identities)
+                                  Xdata)
     end;
 decode_disco_info_els(__TopXMLNS, __Opts,
-                      [{xmlel, <<"feature">>, _attrs, _} = _el | _els], Xdata,
-                      Features, Identities) ->
+                      [{xmlel, <<"feature">>, _attrs, _} = _el | _els],
+                      Identities, Features, Xdata) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -347,23 +347,23 @@ decode_disco_info_els(__TopXMLNS, __Opts,
             decode_disco_info_els(__TopXMLNS,
                                   __Opts,
                                   _els,
-                                  Xdata,
+                                  Identities,
                                   [decode_disco_feature(<<"http://jabber.org/protocol/disco#info">>,
                                                         __Opts,
                                                         _el)
                                    | Features],
-                                  Identities);
+                                  Xdata);
         _ ->
             decode_disco_info_els(__TopXMLNS,
                                   __Opts,
                                   _els,
-                                  Xdata,
+                                  Identities,
                                   Features,
-                                  Identities)
+                                  Xdata)
     end;
 decode_disco_info_els(__TopXMLNS, __Opts,
-                      [{xmlel, <<"x">>, _attrs, _} = _el | _els], Xdata,
-                      Features, Identities) ->
+                      [{xmlel, <<"x">>, _attrs, _} = _el | _els], Identities,
+                      Features, Xdata) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -372,28 +372,28 @@ decode_disco_info_els(__TopXMLNS, __Opts,
             decode_disco_info_els(__TopXMLNS,
                                   __Opts,
                                   _els,
+                                  Identities,
+                                  Features,
                                   [xep0004:decode_xdata(<<"jabber:x:data">>,
                                                         __Opts,
                                                         _el)
-                                   | Xdata],
-                                  Features,
-                                  Identities);
+                                   | Xdata]);
         _ ->
             decode_disco_info_els(__TopXMLNS,
                                   __Opts,
                                   _els,
-                                  Xdata,
+                                  Identities,
                                   Features,
-                                  Identities)
+                                  Xdata)
     end;
 decode_disco_info_els(__TopXMLNS, __Opts, [_ | _els],
-                      Xdata, Features, Identities) ->
+                      Identities, Features, Xdata) ->
     decode_disco_info_els(__TopXMLNS,
                           __Opts,
                           _els,
-                          Xdata,
+                          Identities,
                           Features,
-                          Identities).
+                          Xdata).
 
 decode_disco_info_attrs(__TopXMLNS,
                         [{<<"node">>, _val} | _attrs], _Node) ->
@@ -426,14 +426,15 @@ encode_disco_info({disco_info,
                                                                     __TopXMLNS)),
     {xmlel, <<"query">>, _attrs, _els}.
 
-'encode_disco_info_$xdata'([], __TopXMLNS, _acc) ->
+'encode_disco_info_$identities'([], __TopXMLNS, _acc) ->
     _acc;
-'encode_disco_info_$xdata'([Xdata | _els], __TopXMLNS,
-                           _acc) ->
-    'encode_disco_info_$xdata'(_els,
-                               __TopXMLNS,
-                               [xep0004:encode_xdata(Xdata, __TopXMLNS)
-                                | _acc]).
+'encode_disco_info_$identities'([Identities | _els],
+                                __TopXMLNS, _acc) ->
+    'encode_disco_info_$identities'(_els,
+                                    __TopXMLNS,
+                                    [encode_disco_identity(Identities,
+                                                           __TopXMLNS)
+                                     | _acc]).
 
 'encode_disco_info_$features'([], __TopXMLNS, _acc) ->
     _acc;
@@ -444,15 +445,14 @@ encode_disco_info({disco_info,
                                   [encode_disco_feature(Features, __TopXMLNS)
                                    | _acc]).
 
-'encode_disco_info_$identities'([], __TopXMLNS, _acc) ->
+'encode_disco_info_$xdata'([], __TopXMLNS, _acc) ->
     _acc;
-'encode_disco_info_$identities'([Identities | _els],
-                                __TopXMLNS, _acc) ->
-    'encode_disco_info_$identities'(_els,
-                                    __TopXMLNS,
-                                    [encode_disco_identity(Identities,
-                                                           __TopXMLNS)
-                                     | _acc]).
+'encode_disco_info_$xdata'([Xdata | _els], __TopXMLNS,
+                           _acc) ->
+    'encode_disco_info_$xdata'(_els,
+                               __TopXMLNS,
+                               [xep0004:encode_xdata(Xdata, __TopXMLNS)
+                                | _acc]).
 
 decode_disco_info_attr_node(__TopXMLNS, undefined) ->
     <<>>;

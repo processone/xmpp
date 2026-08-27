@@ -67,20 +67,20 @@ enc_enum(Atom) -> erlang:atom_to_binary(Atom, utf8).
 
 decode_offline(__TopXMLNS, __Opts,
                {xmlel, <<"offline">>, _attrs, _els}) ->
-    {Items, Purge, Fetch} = decode_offline_els(__TopXMLNS,
+    {Purge, Fetch, Items} = decode_offline_els(__TopXMLNS,
                                                __Opts,
                                                _els,
-                                               [],
                                                false,
-                                               false),
+                                               false,
+                                               []),
     {offline, Items, Purge, Fetch}.
 
-decode_offline_els(__TopXMLNS, __Opts, [], Items, Purge,
-                   Fetch) ->
-    {lists:reverse(Items), Purge, Fetch};
+decode_offline_els(__TopXMLNS, __Opts, [], Purge, Fetch,
+                   Items) ->
+    {Purge, Fetch, lists:reverse(Items)};
 decode_offline_els(__TopXMLNS, __Opts,
-                   [{xmlel, <<"purge">>, _attrs, _} = _el | _els], Items,
-                   Purge, Fetch) ->
+                   [{xmlel, <<"purge">>, _attrs, _} = _el | _els], Purge,
+                   Fetch, Items) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -89,22 +89,22 @@ decode_offline_els(__TopXMLNS, __Opts,
             decode_offline_els(__TopXMLNS,
                                __Opts,
                                _els,
-                               Items,
                                decode_offline_purge(<<"http://jabber.org/protocol/offline">>,
                                                     __Opts,
                                                     _el),
-                               Fetch);
+                               Fetch,
+                               Items);
         _ ->
             decode_offline_els(__TopXMLNS,
                                __Opts,
                                _els,
-                               Items,
                                Purge,
-                               Fetch)
+                               Fetch,
+                               Items)
     end;
 decode_offline_els(__TopXMLNS, __Opts,
-                   [{xmlel, <<"fetch">>, _attrs, _} = _el | _els], Items,
-                   Purge, Fetch) ->
+                   [{xmlel, <<"fetch">>, _attrs, _} = _el | _els], Purge,
+                   Fetch, Items) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -113,22 +113,22 @@ decode_offline_els(__TopXMLNS, __Opts,
             decode_offline_els(__TopXMLNS,
                                __Opts,
                                _els,
-                               Items,
                                Purge,
                                decode_offline_fetch(<<"http://jabber.org/protocol/offline">>,
                                                     __Opts,
-                                                    _el));
+                                                    _el),
+                               Items);
         _ ->
             decode_offline_els(__TopXMLNS,
                                __Opts,
                                _els,
-                               Items,
                                Purge,
-                               Fetch)
+                               Fetch,
+                               Items)
     end;
 decode_offline_els(__TopXMLNS, __Opts,
-                   [{xmlel, <<"item">>, _attrs, _} = _el | _els], Items,
-                   Purge, Fetch) ->
+                   [{xmlel, <<"item">>, _attrs, _} = _el | _els], Purge,
+                   Fetch, Items) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -137,28 +137,28 @@ decode_offline_els(__TopXMLNS, __Opts,
             decode_offline_els(__TopXMLNS,
                                __Opts,
                                _els,
+                               Purge,
+                               Fetch,
                                [decode_offline_item(<<"http://jabber.org/protocol/offline">>,
                                                     __Opts,
                                                     _el)
-                                | Items],
-                               Purge,
-                               Fetch);
+                                | Items]);
         _ ->
             decode_offline_els(__TopXMLNS,
                                __Opts,
                                _els,
-                               Items,
                                Purge,
-                               Fetch)
+                               Fetch,
+                               Items)
     end;
 decode_offline_els(__TopXMLNS, __Opts, [_ | _els],
-                   Items, Purge, Fetch) ->
+                   Purge, Fetch, Items) ->
     decode_offline_els(__TopXMLNS,
                        __Opts,
                        _els,
-                       Items,
                        Purge,
-                       Fetch).
+                       Fetch,
+                       Items).
 
 encode_offline({offline, Items, Purge, Fetch},
                __TopXMLNS) ->
@@ -168,21 +168,14 @@ encode_offline({offline, Items, Purge, Fetch},
                                     __TopXMLNS),
     _els = lists:reverse('encode_offline_$items'(Items,
                                                  __NewTopXMLNS,
-                                                 'encode_offline_$purge'(Purge,
+                                                 'encode_offline_$fetch'(Fetch,
                                                                          __NewTopXMLNS,
-                                                                         'encode_offline_$fetch'(Fetch,
+                                                                         'encode_offline_$purge'(Purge,
                                                                                                  __NewTopXMLNS,
                                                                                                  [])))),
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
                                         __TopXMLNS),
     {xmlel, <<"offline">>, _attrs, _els}.
-
-'encode_offline_$items'([], __TopXMLNS, _acc) -> _acc;
-'encode_offline_$items'([Items | _els], __TopXMLNS,
-                        _acc) ->
-    'encode_offline_$items'(_els,
-                            __TopXMLNS,
-                            [encode_offline_item(Items, __TopXMLNS) | _acc]).
 
 'encode_offline_$purge'(false, __TopXMLNS, _acc) ->
     _acc;
@@ -193,6 +186,13 @@ encode_offline({offline, Items, Purge, Fetch},
     _acc;
 'encode_offline_$fetch'(Fetch, __TopXMLNS, _acc) ->
     [encode_offline_fetch(Fetch, __TopXMLNS) | _acc].
+
+'encode_offline_$items'([], __TopXMLNS, _acc) -> _acc;
+'encode_offline_$items'([Items | _els], __TopXMLNS,
+                        _acc) ->
+    'encode_offline_$items'(_els,
+                            __TopXMLNS,
+                            [encode_offline_item(Items, __TopXMLNS) | _acc]).
 
 decode_offline_item(__TopXMLNS, __Opts,
                     {xmlel, <<"item">>, _attrs, _els}) ->

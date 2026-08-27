@@ -218,7 +218,7 @@ encode_message_moderate_reason_cdata(_val, _acc) ->
 
 decode_message_moderated_21(__TopXMLNS, __Opts,
                             {xmlel, <<"moderated">>, _attrs, _els}) ->
-    {Occupant_id, Reason, __Els} =
+    {Reason, Occupant_id, __Els} =
         decode_message_moderated_21_els(__TopXMLNS,
                                         __Opts,
                                         _els,
@@ -231,11 +231,11 @@ decode_message_moderated_21(__TopXMLNS, __Opts,
     {message_moderated_21, By, Reason, __Els, Occupant_id}.
 
 decode_message_moderated_21_els(__TopXMLNS, __Opts, [],
-                                Occupant_id, Reason, __Els) ->
-    {Occupant_id, Reason, lists:reverse(__Els)};
+                                Reason, Occupant_id, __Els) ->
+    {Reason, Occupant_id, lists:reverse(__Els)};
 decode_message_moderated_21_els(__TopXMLNS, __Opts,
                                 [{xmlel, <<"reason">>, _attrs, _} = _el | _els],
-                                Occupant_id, Reason, __Els) ->
+                                Reason, Occupant_id, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -244,23 +244,23 @@ decode_message_moderated_21_els(__TopXMLNS, __Opts,
             decode_message_moderated_21_els(__TopXMLNS,
                                             __Opts,
                                             _els,
-                                            Occupant_id,
                                             decode_message_moderate_reason_21(<<"urn:xmpp:message-moderate:0">>,
                                                                               __Opts,
                                                                               _el),
+                                            Occupant_id,
                                             __Els);
         _ ->
             decode_message_moderated_21_els(__TopXMLNS,
                                             __Opts,
                                             _els,
-                                            Occupant_id,
                                             Reason,
+                                            Occupant_id,
                                             [_el | __Els])
     end;
 decode_message_moderated_21_els(__TopXMLNS, __Opts,
                                 [{xmlel, <<"occupant-id">>, _attrs, _} = _el
                                  | _els],
-                                Occupant_id, Reason, __Els) ->
+                                Reason, Occupant_id, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -269,29 +269,29 @@ decode_message_moderated_21_els(__TopXMLNS, __Opts,
             decode_message_moderated_21_els(__TopXMLNS,
                                             __Opts,
                                             _els,
+                                            Reason,
                                             xep0421:decode_occupant_id(<<"urn:xmpp:occupant-id:0">>,
                                                                        __Opts,
                                                                        _el),
-                                            Reason,
                                             __Els);
         _ ->
             decode_message_moderated_21_els(__TopXMLNS,
                                             __Opts,
                                             _els,
-                                            Occupant_id,
                                             Reason,
+                                            Occupant_id,
                                             [_el | __Els])
     end;
 decode_message_moderated_21_els(__TopXMLNS, __Opts,
                                 [{xmlel, _name, _attrs, _} = _el | _els],
-                                Occupant_id, Reason, __Els) ->
+                                Reason, Occupant_id, __Els) ->
     case proplists:get_bool(ignore_els, __Opts) of
         true ->
             decode_message_moderated_21_els(__TopXMLNS,
                                             __Opts,
                                             _els,
-                                            Occupant_id,
                                             Reason,
+                                            Occupant_id,
                                             [_el | __Els]);
         false ->
             __XMLNS = xmpp_codec:get_attr(<<"xmlns">>,
@@ -302,15 +302,15 @@ decode_message_moderated_21_els(__TopXMLNS, __Opts,
                     decode_message_moderated_21_els(__TopXMLNS,
                                                     __Opts,
                                                     _els,
-                                                    Occupant_id,
                                                     Reason,
+                                                    Occupant_id,
                                                     [_el | __Els]);
                 Mod ->
                     decode_message_moderated_21_els(__TopXMLNS,
                                                     __Opts,
                                                     _els,
-                                                    Occupant_id,
                                                     Reason,
+                                                    Occupant_id,
                                                     [Mod:do_decode(_name,
                                                                    __XMLNS,
                                                                    _el,
@@ -319,12 +319,12 @@ decode_message_moderated_21_els(__TopXMLNS, __Opts,
             end
     end;
 decode_message_moderated_21_els(__TopXMLNS, __Opts,
-                                [_ | _els], Occupant_id, Reason, __Els) ->
+                                [_ | _els], Reason, Occupant_id, __Els) ->
     decode_message_moderated_21_els(__TopXMLNS,
                                     __Opts,
                                     _els,
-                                    Occupant_id,
                                     Reason,
+                                    Occupant_id,
                                     __Els).
 
 decode_message_moderated_21_attrs(__TopXMLNS,
@@ -363,20 +363,20 @@ encode_message_moderated_21({message_moderated_21,
                                                                             __TopXMLNS)),
     {xmlel, <<"moderated">>, _attrs, _els}.
 
-'encode_message_moderated_21_$occupant_id'(undefined,
-                                           __TopXMLNS, _acc) ->
-    _acc;
-'encode_message_moderated_21_$occupant_id'(Occupant_id,
-                                           __TopXMLNS, _acc) ->
-    [xep0421:encode_occupant_id(Occupant_id, __TopXMLNS)
-     | _acc].
-
 'encode_message_moderated_21_$reason'(undefined,
                                       __TopXMLNS, _acc) ->
     _acc;
 'encode_message_moderated_21_$reason'(Reason,
                                       __TopXMLNS, _acc) ->
     [encode_message_moderate_reason_21(Reason, __TopXMLNS)
+     | _acc].
+
+'encode_message_moderated_21_$occupant_id'(undefined,
+                                           __TopXMLNS, _acc) ->
+    _acc;
+'encode_message_moderated_21_$occupant_id'(Occupant_id,
+                                           __TopXMLNS, _acc) ->
+    [xep0421:encode_occupant_id(Occupant_id, __TopXMLNS)
      | _acc].
 
 decode_message_moderated_21_attr_by(__TopXMLNS,
@@ -401,7 +401,7 @@ encode_message_moderated_21_attr_by(_val, _acc) ->
 
 decode_message_moderate_21(__TopXMLNS, __Opts,
                            {xmlel, <<"moderate">>, _attrs, _els}) ->
-    {Retract, Reason} =
+    {Reason, Retract} =
         decode_message_moderate_21_els(__TopXMLNS,
                                        __Opts,
                                        _els,
@@ -410,11 +410,11 @@ decode_message_moderate_21(__TopXMLNS, __Opts,
     {message_moderate_21, Reason, Retract}.
 
 decode_message_moderate_21_els(__TopXMLNS, __Opts, [],
-                               Retract, Reason) ->
-    {Retract, Reason};
+                               Reason, Retract) ->
+    {Reason, Retract};
 decode_message_moderate_21_els(__TopXMLNS, __Opts,
                                [{xmlel, <<"reason">>, _attrs, _} = _el | _els],
-                               Retract, Reason) ->
+                               Reason, Retract) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -423,20 +423,20 @@ decode_message_moderate_21_els(__TopXMLNS, __Opts,
             decode_message_moderate_21_els(__TopXMLNS,
                                            __Opts,
                                            _els,
-                                           Retract,
                                            decode_message_moderate_reason_21(<<"urn:xmpp:message-moderate:0">>,
                                                                              __Opts,
-                                                                             _el));
+                                                                             _el),
+                                           Retract);
         _ ->
             decode_message_moderate_21_els(__TopXMLNS,
                                            __Opts,
                                            _els,
-                                           Retract,
-                                           Reason)
+                                           Reason,
+                                           Retract)
     end;
 decode_message_moderate_21_els(__TopXMLNS, __Opts,
                                [{xmlel, <<"retract">>, _attrs, _} = _el | _els],
-                               Retract, Reason) ->
+                               Reason, Retract) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -445,24 +445,24 @@ decode_message_moderate_21_els(__TopXMLNS, __Opts,
             decode_message_moderate_21_els(__TopXMLNS,
                                            __Opts,
                                            _els,
+                                           Reason,
                                            xep0424:decode_message_retract(<<"urn:xmpp:message-retract:1">>,
                                                                           __Opts,
-                                                                          _el),
-                                           Reason);
+                                                                          _el));
         _ ->
             decode_message_moderate_21_els(__TopXMLNS,
                                            __Opts,
                                            _els,
-                                           Retract,
-                                           Reason)
+                                           Reason,
+                                           Retract)
     end;
 decode_message_moderate_21_els(__TopXMLNS, __Opts,
-                               [_ | _els], Retract, Reason) ->
+                               [_ | _els], Reason, Retract) ->
     decode_message_moderate_21_els(__TopXMLNS,
                                    __Opts,
                                    _els,
-                                   Retract,
-                                   Reason).
+                                   Reason,
+                                   Retract).
 
 encode_message_moderate_21({message_moderate_21,
                             Reason,
@@ -482,20 +482,20 @@ encode_message_moderate_21({message_moderate_21,
                                         __TopXMLNS),
     {xmlel, <<"moderate">>, _attrs, _els}.
 
-'encode_message_moderate_21_$retract'(undefined,
-                                      __TopXMLNS, _acc) ->
-    _acc;
-'encode_message_moderate_21_$retract'(Retract,
-                                      __TopXMLNS, _acc) ->
-    [xep0424:encode_message_retract(Retract, __TopXMLNS)
-     | _acc].
-
 'encode_message_moderate_21_$reason'(undefined,
                                      __TopXMLNS, _acc) ->
     _acc;
 'encode_message_moderate_21_$reason'(Reason, __TopXMLNS,
                                      _acc) ->
     [encode_message_moderate_reason_21(Reason, __TopXMLNS)
+     | _acc].
+
+'encode_message_moderate_21_$retract'(undefined,
+                                      __TopXMLNS, _acc) ->
+    _acc;
+'encode_message_moderate_21_$retract'(Retract,
+                                      __TopXMLNS, _acc) ->
+    [xep0424:encode_message_retract(Retract, __TopXMLNS)
      | _acc].
 
 decode_message_moderated(__TopXMLNS, __Opts,
@@ -639,7 +639,7 @@ encode_message_moderated_attr_by(_val, _acc) ->
 
 decode_message_moderate(__TopXMLNS, __Opts,
                         {xmlel, <<"moderate">>, _attrs, _els}) ->
-    {Retract, Reason} =
+    {Reason, Retract} =
         decode_message_moderate_els(__TopXMLNS,
                                     __Opts,
                                     _els,
@@ -651,11 +651,11 @@ decode_message_moderate(__TopXMLNS, __Opts,
     {message_moderate, Id, Reason, Retract}.
 
 decode_message_moderate_els(__TopXMLNS, __Opts, [],
-                            Retract, Reason) ->
-    {Retract, Reason};
+                            Reason, Retract) ->
+    {Reason, Retract};
 decode_message_moderate_els(__TopXMLNS, __Opts,
                             [{xmlel, <<"reason">>, _attrs, _} = _el | _els],
-                            Retract, Reason) ->
+                            Reason, Retract) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -664,20 +664,20 @@ decode_message_moderate_els(__TopXMLNS, __Opts,
             decode_message_moderate_els(__TopXMLNS,
                                         __Opts,
                                         _els,
-                                        Retract,
                                         decode_message_moderate_reason(<<"urn:xmpp:message-moderate:1">>,
                                                                        __Opts,
-                                                                       _el));
+                                                                       _el),
+                                        Retract);
         _ ->
             decode_message_moderate_els(__TopXMLNS,
                                         __Opts,
                                         _els,
-                                        Retract,
-                                        Reason)
+                                        Reason,
+                                        Retract)
     end;
 decode_message_moderate_els(__TopXMLNS, __Opts,
                             [{xmlel, <<"retract">>, _attrs, _} = _el | _els],
-                            Retract, Reason) ->
+                            Reason, Retract) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -686,24 +686,24 @@ decode_message_moderate_els(__TopXMLNS, __Opts,
             decode_message_moderate_els(__TopXMLNS,
                                         __Opts,
                                         _els,
+                                        Reason,
                                         xep0424:decode_message_retract(<<"urn:xmpp:message-retract:1">>,
                                                                        __Opts,
-                                                                       _el),
-                                        Reason);
+                                                                       _el));
         _ ->
             decode_message_moderate_els(__TopXMLNS,
                                         __Opts,
                                         _els,
-                                        Retract,
-                                        Reason)
+                                        Reason,
+                                        Retract)
     end;
 decode_message_moderate_els(__TopXMLNS, __Opts,
-                            [_ | _els], Retract, Reason) ->
+                            [_ | _els], Reason, Retract) ->
     decode_message_moderate_els(__TopXMLNS,
                                 __Opts,
                                 _els,
-                                Retract,
-                                Reason).
+                                Reason,
+                                Retract).
 
 decode_message_moderate_attrs(__TopXMLNS,
                               [{<<"id">>, _val} | _attrs], _Id) ->
@@ -734,20 +734,20 @@ encode_message_moderate({message_moderate,
                                                                         __TopXMLNS)),
     {xmlel, <<"moderate">>, _attrs, _els}.
 
-'encode_message_moderate_$retract'(undefined,
-                                   __TopXMLNS, _acc) ->
-    _acc;
-'encode_message_moderate_$retract'(Retract, __TopXMLNS,
-                                   _acc) ->
-    [xep0424:encode_message_retract(Retract, __TopXMLNS)
-     | _acc].
-
 'encode_message_moderate_$reason'(undefined, __TopXMLNS,
                                   _acc) ->
     _acc;
 'encode_message_moderate_$reason'(Reason, __TopXMLNS,
                                   _acc) ->
     [encode_message_moderate_reason(Reason, __TopXMLNS)
+     | _acc].
+
+'encode_message_moderate_$retract'(undefined,
+                                   __TopXMLNS, _acc) ->
+    _acc;
+'encode_message_moderate_$retract'(Retract, __TopXMLNS,
+                                   _acc) ->
+    [xep0424:encode_message_retract(Retract, __TopXMLNS)
      | _acc].
 
 decode_message_moderate_attr_id(__TopXMLNS,

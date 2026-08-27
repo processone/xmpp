@@ -50,23 +50,23 @@ records() -> [{xevent, 5}].
 
 decode_xevent(__TopXMLNS, __Opts,
               {xmlel, <<"x">>, _attrs, _els}) ->
-    {Id, Displayed, Delivered, Offline, Composing} =
+    {Offline, Delivered, Displayed, Composing, Id} =
         decode_xevent_els(__TopXMLNS,
                           __Opts,
                           _els,
-                          undefined,
                           false,
                           false,
                           false,
-                          false),
+                          false,
+                          undefined),
     {xevent, Offline, Delivered, Displayed, Composing, Id}.
 
-decode_xevent_els(__TopXMLNS, __Opts, [], Id, Displayed,
-                  Delivered, Offline, Composing) ->
-    {Id, Displayed, Delivered, Offline, Composing};
+decode_xevent_els(__TopXMLNS, __Opts, [], Offline,
+                  Delivered, Displayed, Composing, Id) ->
+    {Offline, Delivered, Displayed, Composing, Id};
 decode_xevent_els(__TopXMLNS, __Opts,
-                  [{xmlel, <<"offline">>, _attrs, _} = _el | _els], Id,
-                  Displayed, Delivered, Offline, Composing) ->
+                  [{xmlel, <<"offline">>, _attrs, _} = _el | _els],
+                  Offline, Delivered, Displayed, Composing, Id) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -75,26 +75,26 @@ decode_xevent_els(__TopXMLNS, __Opts,
             decode_xevent_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Id,
-                              Displayed,
-                              Delivered,
                               decode_xevent_offline(<<"jabber:x:event">>,
                                                     __Opts,
                                                     _el),
-                              Composing);
+                              Delivered,
+                              Displayed,
+                              Composing,
+                              Id);
         _ ->
             decode_xevent_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Id,
-                              Displayed,
-                              Delivered,
                               Offline,
-                              Composing)
+                              Delivered,
+                              Displayed,
+                              Composing,
+                              Id)
     end;
 decode_xevent_els(__TopXMLNS, __Opts,
-                  [{xmlel, <<"delivered">>, _attrs, _} = _el | _els], Id,
-                  Displayed, Delivered, Offline, Composing) ->
+                  [{xmlel, <<"delivered">>, _attrs, _} = _el | _els],
+                  Offline, Delivered, Displayed, Composing, Id) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -103,26 +103,26 @@ decode_xevent_els(__TopXMLNS, __Opts,
             decode_xevent_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Id,
-                              Displayed,
+                              Offline,
                               decode_xevent_delivered(<<"jabber:x:event">>,
                                                       __Opts,
                                                       _el),
-                              Offline,
-                              Composing);
+                              Displayed,
+                              Composing,
+                              Id);
         _ ->
             decode_xevent_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Id,
-                              Displayed,
-                              Delivered,
                               Offline,
-                              Composing)
+                              Delivered,
+                              Displayed,
+                              Composing,
+                              Id)
     end;
 decode_xevent_els(__TopXMLNS, __Opts,
-                  [{xmlel, <<"displayed">>, _attrs, _} = _el | _els], Id,
-                  Displayed, Delivered, Offline, Composing) ->
+                  [{xmlel, <<"displayed">>, _attrs, _} = _el | _els],
+                  Offline, Delivered, Displayed, Composing, Id) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -131,26 +131,26 @@ decode_xevent_els(__TopXMLNS, __Opts,
             decode_xevent_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Id,
+                              Offline,
+                              Delivered,
                               decode_xevent_displayed(<<"jabber:x:event">>,
                                                       __Opts,
                                                       _el),
-                              Delivered,
-                              Offline,
-                              Composing);
+                              Composing,
+                              Id);
         _ ->
             decode_xevent_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Id,
-                              Displayed,
-                              Delivered,
                               Offline,
-                              Composing)
+                              Delivered,
+                              Displayed,
+                              Composing,
+                              Id)
     end;
 decode_xevent_els(__TopXMLNS, __Opts,
-                  [{xmlel, <<"composing">>, _attrs, _} = _el | _els], Id,
-                  Displayed, Delivered, Offline, Composing) ->
+                  [{xmlel, <<"composing">>, _attrs, _} = _el | _els],
+                  Offline, Delivered, Displayed, Composing, Id) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -159,26 +159,26 @@ decode_xevent_els(__TopXMLNS, __Opts,
             decode_xevent_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Id,
-                              Displayed,
-                              Delivered,
                               Offline,
+                              Delivered,
+                              Displayed,
                               decode_xevent_composing(<<"jabber:x:event">>,
                                                       __Opts,
-                                                      _el));
+                                                      _el),
+                              Id);
         _ ->
             decode_xevent_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Id,
-                              Displayed,
-                              Delivered,
                               Offline,
-                              Composing)
+                              Delivered,
+                              Displayed,
+                              Composing,
+                              Id)
     end;
 decode_xevent_els(__TopXMLNS, __Opts,
-                  [{xmlel, <<"id">>, _attrs, _} = _el | _els], Id,
-                  Displayed, Delivered, Offline, Composing) ->
+                  [{xmlel, <<"id">>, _attrs, _} = _el | _els], Offline,
+                  Delivered, Displayed, Composing, Id) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -187,33 +187,33 @@ decode_xevent_els(__TopXMLNS, __Opts,
             decode_xevent_els(__TopXMLNS,
                               __Opts,
                               _els,
+                              Offline,
+                              Delivered,
+                              Displayed,
+                              Composing,
                               decode_xevent_id(<<"jabber:x:event">>,
                                                __Opts,
-                                               _el),
-                              Displayed,
-                              Delivered,
-                              Offline,
-                              Composing);
+                                               _el));
         _ ->
             decode_xevent_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Id,
-                              Displayed,
-                              Delivered,
                               Offline,
-                              Composing)
+                              Delivered,
+                              Displayed,
+                              Composing,
+                              Id)
     end;
-decode_xevent_els(__TopXMLNS, __Opts, [_ | _els], Id,
-                  Displayed, Delivered, Offline, Composing) ->
+decode_xevent_els(__TopXMLNS, __Opts, [_ | _els],
+                  Offline, Delivered, Displayed, Composing, Id) ->
     decode_xevent_els(__TopXMLNS,
                       __Opts,
                       _els,
-                      Id,
-                      Displayed,
-                      Delivered,
                       Offline,
-                      Composing).
+                      Delivered,
+                      Displayed,
+                      Composing,
+                      Id).
 
 encode_xevent({xevent,
                Offline,
@@ -228,29 +228,23 @@ encode_xevent({xevent,
                                     __TopXMLNS),
     _els = lists:reverse('encode_xevent_$id'(Id,
                                              __NewTopXMLNS,
-                                             'encode_xevent_$displayed'(Displayed,
+                                             'encode_xevent_$composing'(Composing,
                                                                         __NewTopXMLNS,
-                                                                        'encode_xevent_$delivered'(Delivered,
+                                                                        'encode_xevent_$displayed'(Displayed,
                                                                                                    __NewTopXMLNS,
-                                                                                                   'encode_xevent_$offline'(Offline,
-                                                                                                                            __NewTopXMLNS,
-                                                                                                                            'encode_xevent_$composing'(Composing,
+                                                                                                   'encode_xevent_$delivered'(Delivered,
+                                                                                                                              __NewTopXMLNS,
+                                                                                                                              'encode_xevent_$offline'(Offline,
                                                                                                                                                        __NewTopXMLNS,
                                                                                                                                                        [])))))),
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
                                         __TopXMLNS),
     {xmlel, <<"x">>, _attrs, _els}.
 
-'encode_xevent_$id'(undefined, __TopXMLNS, _acc) ->
+'encode_xevent_$offline'(false, __TopXMLNS, _acc) ->
     _acc;
-'encode_xevent_$id'(Id, __TopXMLNS, _acc) ->
-    [encode_xevent_id(Id, __TopXMLNS) | _acc].
-
-'encode_xevent_$displayed'(false, __TopXMLNS, _acc) ->
-    _acc;
-'encode_xevent_$displayed'(Displayed, __TopXMLNS,
-                           _acc) ->
-    [encode_xevent_displayed(Displayed, __TopXMLNS) | _acc].
+'encode_xevent_$offline'(Offline, __TopXMLNS, _acc) ->
+    [encode_xevent_offline(Offline, __TopXMLNS) | _acc].
 
 'encode_xevent_$delivered'(false, __TopXMLNS, _acc) ->
     _acc;
@@ -258,16 +252,22 @@ encode_xevent({xevent,
                            _acc) ->
     [encode_xevent_delivered(Delivered, __TopXMLNS) | _acc].
 
-'encode_xevent_$offline'(false, __TopXMLNS, _acc) ->
+'encode_xevent_$displayed'(false, __TopXMLNS, _acc) ->
     _acc;
-'encode_xevent_$offline'(Offline, __TopXMLNS, _acc) ->
-    [encode_xevent_offline(Offline, __TopXMLNS) | _acc].
+'encode_xevent_$displayed'(Displayed, __TopXMLNS,
+                           _acc) ->
+    [encode_xevent_displayed(Displayed, __TopXMLNS) | _acc].
 
 'encode_xevent_$composing'(false, __TopXMLNS, _acc) ->
     _acc;
 'encode_xevent_$composing'(Composing, __TopXMLNS,
                            _acc) ->
     [encode_xevent_composing(Composing, __TopXMLNS) | _acc].
+
+'encode_xevent_$id'(undefined, __TopXMLNS, _acc) ->
+    _acc;
+'encode_xevent_$id'(Id, __TopXMLNS, _acc) ->
+    [encode_xevent_id(Id, __TopXMLNS) | _acc].
 
 decode_xevent_id(__TopXMLNS, __Opts,
                  {xmlel, <<"id">>, _attrs, _els}) ->

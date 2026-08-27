@@ -541,7 +541,7 @@ encode_upload_max_file_size_cdata(_val, _acc) ->
 
 decode_upload_slot_0(__TopXMLNS, __Opts,
                      {xmlel, <<"slot">>, _attrs, _els}) ->
-    {Put, Get} = decode_upload_slot_0_els(__TopXMLNS,
+    {Get, Put} = decode_upload_slot_0_els(__TopXMLNS,
                                           __Opts,
                                           _els,
                                           error,
@@ -551,23 +551,23 @@ decode_upload_slot_0(__TopXMLNS, __Opts,
                                        undefined),
     {upload_slot_0, Get, Put, Xmlns}.
 
-decode_upload_slot_0_els(__TopXMLNS, __Opts, [], Put,
-                         Get) ->
-    {case Put of
-         error ->
-             erlang:error({xmpp_codec,
-                           {missing_tag, <<"put">>, __TopXMLNS}});
-         {value, Put1} -> Put1
-     end,
-     case Get of
+decode_upload_slot_0_els(__TopXMLNS, __Opts, [], Get,
+                         Put) ->
+    {case Get of
          error ->
              erlang:error({xmpp_codec,
                            {missing_tag, <<"get">>, __TopXMLNS}});
          {value, Get1} -> Get1
+     end,
+     case Put of
+         error ->
+             erlang:error({xmpp_codec,
+                           {missing_tag, <<"put">>, __TopXMLNS}});
+         {value, Put1} -> Put1
      end};
 decode_upload_slot_0_els(__TopXMLNS, __Opts,
-                         [{xmlel, <<"get">>, _attrs, _} = _el | _els], Put,
-                         Get) ->
+                         [{xmlel, <<"get">>, _attrs, _} = _el | _els], Get,
+                         Put) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -576,48 +576,48 @@ decode_upload_slot_0_els(__TopXMLNS, __Opts,
             decode_upload_slot_0_els(__TopXMLNS,
                                      __Opts,
                                      _els,
-                                     Put,
                                      {value,
                                       decode_upload_get_0(<<"urn:xmpp:http:upload:0">>,
+                                                          __Opts,
+                                                          _el)},
+                                     Put);
+        _ ->
+            decode_upload_slot_0_els(__TopXMLNS,
+                                     __Opts,
+                                     _els,
+                                     Get,
+                                     Put)
+    end;
+decode_upload_slot_0_els(__TopXMLNS, __Opts,
+                         [{xmlel, <<"put">>, _attrs, _} = _el | _els], Get,
+                         Put) ->
+    case xmpp_codec:get_attr(<<"xmlns">>,
+                             _attrs,
+                             __TopXMLNS)
+        of
+        <<"urn:xmpp:http:upload:0">> ->
+            decode_upload_slot_0_els(__TopXMLNS,
+                                     __Opts,
+                                     _els,
+                                     Get,
+                                     {value,
+                                      decode_upload_put_0(<<"urn:xmpp:http:upload:0">>,
                                                           __Opts,
                                                           _el)});
         _ ->
             decode_upload_slot_0_els(__TopXMLNS,
                                      __Opts,
                                      _els,
-                                     Put,
-                                     Get)
-    end;
-decode_upload_slot_0_els(__TopXMLNS, __Opts,
-                         [{xmlel, <<"put">>, _attrs, _} = _el | _els], Put,
-                         Get) ->
-    case xmpp_codec:get_attr(<<"xmlns">>,
-                             _attrs,
-                             __TopXMLNS)
-        of
-        <<"urn:xmpp:http:upload:0">> ->
-            decode_upload_slot_0_els(__TopXMLNS,
-                                     __Opts,
-                                     _els,
-                                     {value,
-                                      decode_upload_put_0(<<"urn:xmpp:http:upload:0">>,
-                                                          __Opts,
-                                                          _el)},
-                                     Get);
-        _ ->
-            decode_upload_slot_0_els(__TopXMLNS,
-                                     __Opts,
-                                     _els,
-                                     Put,
-                                     Get)
+                                     Get,
+                                     Put)
     end;
 decode_upload_slot_0_els(__TopXMLNS, __Opts, [_ | _els],
-                         Put, Get) ->
+                         Get, Put) ->
     decode_upload_slot_0_els(__TopXMLNS,
                              __Opts,
                              _els,
-                             Put,
-                             Get).
+                             Get,
+                             Put).
 
 decode_upload_slot_0_attrs(__TopXMLNS,
                            [{<<"xmlns">>, _val} | _attrs], _Xmlns) ->
@@ -642,11 +642,11 @@ encode_upload_slot_0({upload_slot_0, Get, Put, Xmlns},
                                         __TopXMLNS),
     {xmlel, <<"slot">>, _attrs, _els}.
 
-'encode_upload_slot_0_$put'(Put, __TopXMLNS, _acc) ->
-    [encode_upload_put_0(Put, __TopXMLNS) | _acc].
-
 'encode_upload_slot_0_$get'(Get, __TopXMLNS, _acc) ->
     [encode_upload_get_0(Get, __TopXMLNS) | _acc].
+
+'encode_upload_slot_0_$put'(Put, __TopXMLNS, _acc) ->
+    [encode_upload_put_0(Put, __TopXMLNS) | _acc].
 
 decode_upload_slot_0_attr_xmlns(__TopXMLNS,
                                 undefined) ->
@@ -984,7 +984,7 @@ encode_upload_request_0_attr_size(_val, _acc) ->
 
 decode_upload_slot(__TopXMLNS, __Opts,
                    {xmlel, <<"slot">>, _attrs, _els}) ->
-    {Put, Get} = decode_upload_slot_els(__TopXMLNS,
+    {Get, Put} = decode_upload_slot_els(__TopXMLNS,
                                         __Opts,
                                         _els,
                                         undefined,
@@ -994,12 +994,12 @@ decode_upload_slot(__TopXMLNS, __Opts,
                                      undefined),
     {upload_slot, Get, Put, Xmlns}.
 
-decode_upload_slot_els(__TopXMLNS, __Opts, [], Put,
-                       Get) ->
-    {Put, Get};
+decode_upload_slot_els(__TopXMLNS, __Opts, [], Get,
+                       Put) ->
+    {Get, Put};
 decode_upload_slot_els(__TopXMLNS, __Opts,
-                       [{xmlel, <<"get">>, _attrs, _} = _el | _els], Put,
-                       Get) ->
+                       [{xmlel, <<"get">>, _attrs, _} = _el | _els], Get,
+                       Put) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -1008,28 +1008,28 @@ decode_upload_slot_els(__TopXMLNS, __Opts,
             decode_upload_slot_els(__TopXMLNS,
                                    __Opts,
                                    _els,
-                                   Put,
                                    decode_upload_get(<<"urn:xmpp:http:upload">>,
                                                      __Opts,
-                                                     _el));
+                                                     _el),
+                                   Put);
         <<"eu:siacs:conversations:http:upload">> ->
             decode_upload_slot_els(__TopXMLNS,
                                    __Opts,
                                    _els,
-                                   Put,
                                    decode_upload_get(<<"eu:siacs:conversations:http:upload">>,
                                                      __Opts,
-                                                     _el));
+                                                     _el),
+                                   Put);
         _ ->
             decode_upload_slot_els(__TopXMLNS,
                                    __Opts,
                                    _els,
-                                   Put,
-                                   Get)
+                                   Get,
+                                   Put)
     end;
 decode_upload_slot_els(__TopXMLNS, __Opts,
-                       [{xmlel, <<"put">>, _attrs, _} = _el | _els], Put,
-                       Get) ->
+                       [{xmlel, <<"put">>, _attrs, _} = _el | _els], Get,
+                       Put) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -1038,32 +1038,32 @@ decode_upload_slot_els(__TopXMLNS, __Opts,
             decode_upload_slot_els(__TopXMLNS,
                                    __Opts,
                                    _els,
+                                   Get,
                                    decode_upload_put(<<"urn:xmpp:http:upload">>,
                                                      __Opts,
-                                                     _el),
-                                   Get);
+                                                     _el));
         <<"eu:siacs:conversations:http:upload">> ->
             decode_upload_slot_els(__TopXMLNS,
                                    __Opts,
                                    _els,
+                                   Get,
                                    decode_upload_put(<<"eu:siacs:conversations:http:upload">>,
                                                      __Opts,
-                                                     _el),
-                                   Get);
+                                                     _el));
         _ ->
             decode_upload_slot_els(__TopXMLNS,
                                    __Opts,
                                    _els,
-                                   Put,
-                                   Get)
+                                   Get,
+                                   Put)
     end;
 decode_upload_slot_els(__TopXMLNS, __Opts, [_ | _els],
-                       Put, Get) ->
+                       Get, Put) ->
     decode_upload_slot_els(__TopXMLNS,
                            __Opts,
                            _els,
-                           Put,
-                           Get).
+                           Get,
+                           Put).
 
 decode_upload_slot_attrs(__TopXMLNS,
                          [{<<"xmlns">>, _val} | _attrs], _Xmlns) ->
@@ -1089,17 +1089,17 @@ encode_upload_slot({upload_slot, Get, Put, Xmlns},
                                         __TopXMLNS),
     {xmlel, <<"slot">>, _attrs, _els}.
 
-'encode_upload_slot_$put'(undefined, __TopXMLNS,
-                          _acc) ->
-    _acc;
-'encode_upload_slot_$put'(Put, __TopXMLNS, _acc) ->
-    [encode_upload_put(Put, __TopXMLNS) | _acc].
-
 'encode_upload_slot_$get'(undefined, __TopXMLNS,
                           _acc) ->
     _acc;
 'encode_upload_slot_$get'(Get, __TopXMLNS, _acc) ->
     [encode_upload_get(Get, __TopXMLNS) | _acc].
+
+'encode_upload_slot_$put'(undefined, __TopXMLNS,
+                          _acc) ->
+    _acc;
+'encode_upload_slot_$put'(Put, __TopXMLNS, _acc) ->
+    [encode_upload_put(Put, __TopXMLNS) | _acc].
 
 decode_upload_slot_attr_xmlns(__TopXMLNS, undefined) ->
     <<>>;
@@ -1183,36 +1183,36 @@ encode_upload_get_cdata(_val, _acc) ->
 
 decode_upload_request(__TopXMLNS, __Opts,
                       {xmlel, <<"request">>, _attrs, _els}) ->
-    {Content_type, Size, Filename} =
+    {Filename, Size, Content_type} =
         decode_upload_request_els(__TopXMLNS,
                                   __Opts,
                                   _els,
-                                  <<>>,
                                   error,
-                                  error),
+                                  error,
+                                  <<>>),
     Xmlns = decode_upload_request_attrs(__TopXMLNS,
                                         _attrs,
                                         undefined),
     {upload_request, Filename, Size, Content_type, Xmlns}.
 
 decode_upload_request_els(__TopXMLNS, __Opts, [],
-                          Content_type, Size, Filename) ->
-    {Content_type,
+                          Filename, Size, Content_type) ->
+    {case Filename of
+         error ->
+             erlang:error({xmpp_codec,
+                           {missing_tag, <<"filename">>, __TopXMLNS}});
+         {value, Filename1} -> Filename1
+     end,
      case Size of
          error ->
              erlang:error({xmpp_codec,
                            {missing_tag, <<"size">>, __TopXMLNS}});
          {value, Size1} -> Size1
      end,
-     case Filename of
-         error ->
-             erlang:error({xmpp_codec,
-                           {missing_tag, <<"filename">>, __TopXMLNS}});
-         {value, Filename1} -> Filename1
-     end};
+     Content_type};
 decode_upload_request_els(__TopXMLNS, __Opts,
                           [{xmlel, <<"filename">>, _attrs, _} = _el | _els],
-                          Content_type, Size, Filename) ->
+                          Filename, Size, Content_type) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -1221,33 +1221,33 @@ decode_upload_request_els(__TopXMLNS, __Opts,
             decode_upload_request_els(__TopXMLNS,
                                       __Opts,
                                       _els,
-                                      Content_type,
-                                      Size,
                                       {value,
                                        decode_upload_filename(<<"urn:xmpp:http:upload">>,
                                                               __Opts,
-                                                              _el)});
+                                                              _el)},
+                                      Size,
+                                      Content_type);
         <<"eu:siacs:conversations:http:upload">> ->
             decode_upload_request_els(__TopXMLNS,
                                       __Opts,
                                       _els,
-                                      Content_type,
-                                      Size,
                                       {value,
                                        decode_upload_filename(<<"eu:siacs:conversations:http:upload">>,
                                                               __Opts,
-                                                              _el)});
+                                                              _el)},
+                                      Size,
+                                      Content_type);
         _ ->
             decode_upload_request_els(__TopXMLNS,
                                       __Opts,
                                       _els,
-                                      Content_type,
+                                      Filename,
                                       Size,
-                                      Filename)
+                                      Content_type)
     end;
 decode_upload_request_els(__TopXMLNS, __Opts,
                           [{xmlel, <<"size">>, _attrs, _} = _el | _els],
-                          Content_type, Size, Filename) ->
+                          Filename, Size, Content_type) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -1256,33 +1256,33 @@ decode_upload_request_els(__TopXMLNS, __Opts,
             decode_upload_request_els(__TopXMLNS,
                                       __Opts,
                                       _els,
-                                      Content_type,
+                                      Filename,
                                       {value,
                                        decode_upload_size(<<"urn:xmpp:http:upload">>,
                                                           __Opts,
                                                           _el)},
-                                      Filename);
+                                      Content_type);
         <<"eu:siacs:conversations:http:upload">> ->
             decode_upload_request_els(__TopXMLNS,
                                       __Opts,
                                       _els,
-                                      Content_type,
+                                      Filename,
                                       {value,
                                        decode_upload_size(<<"eu:siacs:conversations:http:upload">>,
                                                           __Opts,
                                                           _el)},
-                                      Filename);
+                                      Content_type);
         _ ->
             decode_upload_request_els(__TopXMLNS,
                                       __Opts,
                                       _els,
-                                      Content_type,
+                                      Filename,
                                       Size,
-                                      Filename)
+                                      Content_type)
     end;
 decode_upload_request_els(__TopXMLNS, __Opts,
                           [{xmlel, <<"content-type">>, _attrs, _} = _el | _els],
-                          Content_type, Size, Filename) ->
+                          Filename, Size, Content_type) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -1291,36 +1291,36 @@ decode_upload_request_els(__TopXMLNS, __Opts,
             decode_upload_request_els(__TopXMLNS,
                                       __Opts,
                                       _els,
+                                      Filename,
+                                      Size,
                                       decode_upload_content_type(<<"urn:xmpp:http:upload">>,
                                                                  __Opts,
-                                                                 _el),
-                                      Size,
-                                      Filename);
+                                                                 _el));
         <<"eu:siacs:conversations:http:upload">> ->
             decode_upload_request_els(__TopXMLNS,
                                       __Opts,
                                       _els,
+                                      Filename,
+                                      Size,
                                       decode_upload_content_type(<<"eu:siacs:conversations:http:upload">>,
                                                                  __Opts,
-                                                                 _el),
-                                      Size,
-                                      Filename);
+                                                                 _el));
         _ ->
             decode_upload_request_els(__TopXMLNS,
                                       __Opts,
                                       _els,
-                                      Content_type,
+                                      Filename,
                                       Size,
-                                      Filename)
+                                      Content_type)
     end;
 decode_upload_request_els(__TopXMLNS, __Opts,
-                          [_ | _els], Content_type, Size, Filename) ->
+                          [_ | _els], Filename, Size, Content_type) ->
     decode_upload_request_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Content_type,
+                              Filename,
                               Size,
-                              Filename).
+                              Content_type).
 
 decode_upload_request_attrs(__TopXMLNS,
                             [{<<"xmlns">>, _val} | _attrs], _Xmlns) ->
@@ -1353,6 +1353,13 @@ encode_upload_request({upload_request,
                                         __TopXMLNS),
     {xmlel, <<"request">>, _attrs, _els}.
 
+'encode_upload_request_$filename'(Filename, __TopXMLNS,
+                                  _acc) ->
+    [encode_upload_filename(Filename, __TopXMLNS) | _acc].
+
+'encode_upload_request_$size'(Size, __TopXMLNS, _acc) ->
+    [encode_upload_size(Size, __TopXMLNS) | _acc].
+
 'encode_upload_request_$content-type'(<<>>, __TopXMLNS,
                                       _acc) ->
     _acc;
@@ -1360,13 +1367,6 @@ encode_upload_request({upload_request,
                                       __TopXMLNS, _acc) ->
     [encode_upload_content_type(Content_type, __TopXMLNS)
      | _acc].
-
-'encode_upload_request_$size'(Size, __TopXMLNS, _acc) ->
-    [encode_upload_size(Size, __TopXMLNS) | _acc].
-
-'encode_upload_request_$filename'(Filename, __TopXMLNS,
-                                  _acc) ->
-    [encode_upload_filename(Filename, __TopXMLNS) | _acc].
 
 decode_upload_request_attr_xmlns(__TopXMLNS,
                                  undefined) ->

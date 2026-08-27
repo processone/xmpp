@@ -519,25 +519,25 @@ encode_jingle_ft_description({jingle_ft_description,
 
 decode_jingle_ft_file(__TopXMLNS, __Opts,
                       {xmlel, <<"file">>, _attrs, _els}) ->
-    {Desc,
+    {Date,
+     Desc,
+     Hash,
      Hash_used,
-     Range,
-     Size,
-     Name,
      Media_type,
-     Date,
-     Hash} =
+     Name,
+     Size,
+     Range} =
         decode_jingle_ft_file_els(__TopXMLNS,
                                   __Opts,
                                   _els,
+                                  undefined,
+                                  [],
                                   [],
                                   undefined,
                                   undefined,
                                   undefined,
                                   undefined,
-                                  undefined,
-                                  undefined,
-                                  []),
+                                  undefined),
     {jingle_ft_file,
      Date,
      Desc,
@@ -548,21 +548,21 @@ decode_jingle_ft_file(__TopXMLNS, __Opts,
      Size,
      Range}.
 
-decode_jingle_ft_file_els(__TopXMLNS, __Opts, [], Desc,
-                          Hash_used, Range, Size, Name, Media_type, Date,
-                          Hash) ->
-    {lists:reverse(Desc),
+decode_jingle_ft_file_els(__TopXMLNS, __Opts, [], Date,
+                          Desc, Hash, Hash_used, Media_type, Name, Size,
+                          Range) ->
+    {Date,
+     lists:reverse(Desc),
+     lists:reverse(Hash),
      Hash_used,
-     Range,
-     Size,
-     Name,
      Media_type,
-     Date,
-     lists:reverse(Hash)};
+     Name,
+     Size,
+     Range};
 decode_jingle_ft_file_els(__TopXMLNS, __Opts,
-                          [{xmlel, <<"date">>, _attrs, _} = _el | _els], Desc,
-                          Hash_used, Range, Size, Name, Media_type, Date,
-                          Hash) ->
+                          [{xmlel, <<"date">>, _attrs, _} = _el | _els], Date,
+                          Desc, Hash, Hash_used, Media_type, Name, Size,
+                          Range) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -571,33 +571,33 @@ decode_jingle_ft_file_els(__TopXMLNS, __Opts,
             decode_jingle_ft_file_els(__TopXMLNS,
                                       __Opts,
                                       _els,
-                                      Desc,
-                                      Hash_used,
-                                      Range,
-                                      Size,
-                                      Name,
-                                      Media_type,
                                       decode_jingle_ft_date(<<"urn:xmpp:jingle:apps:file-transfer:5">>,
                                                             __Opts,
                                                             _el),
-                                      Hash);
+                                      Desc,
+                                      Hash,
+                                      Hash_used,
+                                      Media_type,
+                                      Name,
+                                      Size,
+                                      Range);
         _ ->
             decode_jingle_ft_file_els(__TopXMLNS,
                                       __Opts,
                                       _els,
-                                      Desc,
-                                      Hash_used,
-                                      Range,
-                                      Size,
-                                      Name,
-                                      Media_type,
                                       Date,
-                                      Hash)
+                                      Desc,
+                                      Hash,
+                                      Hash_used,
+                                      Media_type,
+                                      Name,
+                                      Size,
+                                      Range)
     end;
 decode_jingle_ft_file_els(__TopXMLNS, __Opts,
-                          [{xmlel, <<"desc">>, _attrs, _} = _el | _els], Desc,
-                          Hash_used, Range, Size, Name, Media_type, Date,
-                          Hash) ->
+                          [{xmlel, <<"desc">>, _attrs, _} = _el | _els], Date,
+                          Desc, Hash, Hash_used, Media_type, Name, Size,
+                          Range) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -606,34 +606,34 @@ decode_jingle_ft_file_els(__TopXMLNS, __Opts,
             decode_jingle_ft_file_els(__TopXMLNS,
                                       __Opts,
                                       _els,
+                                      Date,
                                       [decode_jingle_ft_desc(<<"urn:xmpp:jingle:apps:file-transfer:5">>,
                                                              __Opts,
                                                              _el)
                                        | Desc],
+                                      Hash,
                                       Hash_used,
-                                      Range,
-                                      Size,
-                                      Name,
                                       Media_type,
-                                      Date,
-                                      Hash);
+                                      Name,
+                                      Size,
+                                      Range);
         _ ->
             decode_jingle_ft_file_els(__TopXMLNS,
                                       __Opts,
                                       _els,
-                                      Desc,
-                                      Hash_used,
-                                      Range,
-                                      Size,
-                                      Name,
-                                      Media_type,
                                       Date,
-                                      Hash)
+                                      Desc,
+                                      Hash,
+                                      Hash_used,
+                                      Media_type,
+                                      Name,
+                                      Size,
+                                      Range)
     end;
 decode_jingle_ft_file_els(__TopXMLNS, __Opts,
-                          [{xmlel, <<"hash">>, _attrs, _} = _el | _els], Desc,
-                          Hash_used, Range, Size, Name, Media_type, Date,
-                          Hash) ->
+                          [{xmlel, <<"hash">>, _attrs, _} = _el | _els], Date,
+                          Desc, Hash, Hash_used, Media_type, Name, Size,
+                          Range) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -642,34 +642,34 @@ decode_jingle_ft_file_els(__TopXMLNS, __Opts,
             decode_jingle_ft_file_els(__TopXMLNS,
                                       __Opts,
                                       _els,
-                                      Desc,
-                                      Hash_used,
-                                      Range,
-                                      Size,
-                                      Name,
-                                      Media_type,
                                       Date,
+                                      Desc,
                                       [xep0300:decode_hash(<<"urn:xmpp:hashes:2">>,
                                                            __Opts,
                                                            _el)
-                                       | Hash]);
+                                       | Hash],
+                                      Hash_used,
+                                      Media_type,
+                                      Name,
+                                      Size,
+                                      Range);
         _ ->
             decode_jingle_ft_file_els(__TopXMLNS,
                                       __Opts,
                                       _els,
-                                      Desc,
-                                      Hash_used,
-                                      Range,
-                                      Size,
-                                      Name,
-                                      Media_type,
                                       Date,
-                                      Hash)
+                                      Desc,
+                                      Hash,
+                                      Hash_used,
+                                      Media_type,
+                                      Name,
+                                      Size,
+                                      Range)
     end;
 decode_jingle_ft_file_els(__TopXMLNS, __Opts,
                           [{xmlel, <<"hash-used">>, _attrs, _} = _el | _els],
-                          Desc, Hash_used, Range, Size, Name, Media_type, Date,
-                          Hash) ->
+                          Date, Desc, Hash, Hash_used, Media_type, Name, Size,
+                          Range) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -678,33 +678,33 @@ decode_jingle_ft_file_els(__TopXMLNS, __Opts,
             decode_jingle_ft_file_els(__TopXMLNS,
                                       __Opts,
                                       _els,
+                                      Date,
                                       Desc,
+                                      Hash,
                                       xep0300:decode_hash_used(<<"urn:xmpp:hashes:2">>,
                                                                __Opts,
                                                                _el),
-                                      Range,
-                                      Size,
-                                      Name,
                                       Media_type,
-                                      Date,
-                                      Hash);
+                                      Name,
+                                      Size,
+                                      Range);
         _ ->
             decode_jingle_ft_file_els(__TopXMLNS,
                                       __Opts,
                                       _els,
-                                      Desc,
-                                      Hash_used,
-                                      Range,
-                                      Size,
-                                      Name,
-                                      Media_type,
                                       Date,
-                                      Hash)
+                                      Desc,
+                                      Hash,
+                                      Hash_used,
+                                      Media_type,
+                                      Name,
+                                      Size,
+                                      Range)
     end;
 decode_jingle_ft_file_els(__TopXMLNS, __Opts,
                           [{xmlel, <<"media-type">>, _attrs, _} = _el | _els],
-                          Desc, Hash_used, Range, Size, Name, Media_type, Date,
-                          Hash) ->
+                          Date, Desc, Hash, Hash_used, Media_type, Name, Size,
+                          Range) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -713,33 +713,33 @@ decode_jingle_ft_file_els(__TopXMLNS, __Opts,
             decode_jingle_ft_file_els(__TopXMLNS,
                                       __Opts,
                                       _els,
+                                      Date,
                                       Desc,
+                                      Hash,
                                       Hash_used,
-                                      Range,
-                                      Size,
-                                      Name,
                                       decode_jingle_ft_media_type(<<"urn:xmpp:jingle:apps:file-transfer:5">>,
                                                                   __Opts,
                                                                   _el),
-                                      Date,
-                                      Hash);
+                                      Name,
+                                      Size,
+                                      Range);
         _ ->
             decode_jingle_ft_file_els(__TopXMLNS,
                                       __Opts,
                                       _els,
-                                      Desc,
-                                      Hash_used,
-                                      Range,
-                                      Size,
-                                      Name,
-                                      Media_type,
                                       Date,
-                                      Hash)
+                                      Desc,
+                                      Hash,
+                                      Hash_used,
+                                      Media_type,
+                                      Name,
+                                      Size,
+                                      Range)
     end;
 decode_jingle_ft_file_els(__TopXMLNS, __Opts,
-                          [{xmlel, <<"name">>, _attrs, _} = _el | _els], Desc,
-                          Hash_used, Range, Size, Name, Media_type, Date,
-                          Hash) ->
+                          [{xmlel, <<"name">>, _attrs, _} = _el | _els], Date,
+                          Desc, Hash, Hash_used, Media_type, Name, Size,
+                          Range) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -748,33 +748,33 @@ decode_jingle_ft_file_els(__TopXMLNS, __Opts,
             decode_jingle_ft_file_els(__TopXMLNS,
                                       __Opts,
                                       _els,
+                                      Date,
                                       Desc,
+                                      Hash,
                                       Hash_used,
-                                      Range,
-                                      Size,
+                                      Media_type,
                                       decode_jingle_ft_name(<<"urn:xmpp:jingle:apps:file-transfer:5">>,
                                                             __Opts,
                                                             _el),
-                                      Media_type,
-                                      Date,
-                                      Hash);
+                                      Size,
+                                      Range);
         _ ->
             decode_jingle_ft_file_els(__TopXMLNS,
                                       __Opts,
                                       _els,
-                                      Desc,
-                                      Hash_used,
-                                      Range,
-                                      Size,
-                                      Name,
-                                      Media_type,
                                       Date,
-                                      Hash)
+                                      Desc,
+                                      Hash,
+                                      Hash_used,
+                                      Media_type,
+                                      Name,
+                                      Size,
+                                      Range)
     end;
 decode_jingle_ft_file_els(__TopXMLNS, __Opts,
-                          [{xmlel, <<"size">>, _attrs, _} = _el | _els], Desc,
-                          Hash_used, Range, Size, Name, Media_type, Date,
-                          Hash) ->
+                          [{xmlel, <<"size">>, _attrs, _} = _el | _els], Date,
+                          Desc, Hash, Hash_used, Media_type, Name, Size,
+                          Range) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -783,33 +783,33 @@ decode_jingle_ft_file_els(__TopXMLNS, __Opts,
             decode_jingle_ft_file_els(__TopXMLNS,
                                       __Opts,
                                       _els,
+                                      Date,
                                       Desc,
+                                      Hash,
                                       Hash_used,
-                                      Range,
+                                      Media_type,
+                                      Name,
                                       decode_jingle_ft_size(<<"urn:xmpp:jingle:apps:file-transfer:5">>,
                                                             __Opts,
                                                             _el),
-                                      Name,
-                                      Media_type,
-                                      Date,
-                                      Hash);
+                                      Range);
         _ ->
             decode_jingle_ft_file_els(__TopXMLNS,
                                       __Opts,
                                       _els,
-                                      Desc,
-                                      Hash_used,
-                                      Range,
-                                      Size,
-                                      Name,
-                                      Media_type,
                                       Date,
-                                      Hash)
+                                      Desc,
+                                      Hash,
+                                      Hash_used,
+                                      Media_type,
+                                      Name,
+                                      Size,
+                                      Range)
     end;
 decode_jingle_ft_file_els(__TopXMLNS, __Opts,
-                          [{xmlel, <<"range">>, _attrs, _} = _el | _els], Desc,
-                          Hash_used, Range, Size, Name, Media_type, Date,
-                          Hash) ->
+                          [{xmlel, <<"range">>, _attrs, _} = _el | _els], Date,
+                          Desc, Hash, Hash_used, Media_type, Name, Size,
+                          Range) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -818,43 +818,43 @@ decode_jingle_ft_file_els(__TopXMLNS, __Opts,
             decode_jingle_ft_file_els(__TopXMLNS,
                                       __Opts,
                                       _els,
+                                      Date,
                                       Desc,
+                                      Hash,
                                       Hash_used,
+                                      Media_type,
+                                      Name,
+                                      Size,
                                       decode_jingle_ft_range(<<"urn:xmpp:jingle:apps:file-transfer:5">>,
                                                              __Opts,
-                                                             _el),
-                                      Size,
-                                      Name,
-                                      Media_type,
-                                      Date,
-                                      Hash);
+                                                             _el));
         _ ->
             decode_jingle_ft_file_els(__TopXMLNS,
                                       __Opts,
                                       _els,
-                                      Desc,
-                                      Hash_used,
-                                      Range,
-                                      Size,
-                                      Name,
-                                      Media_type,
                                       Date,
-                                      Hash)
+                                      Desc,
+                                      Hash,
+                                      Hash_used,
+                                      Media_type,
+                                      Name,
+                                      Size,
+                                      Range)
     end;
 decode_jingle_ft_file_els(__TopXMLNS, __Opts,
-                          [_ | _els], Desc, Hash_used, Range, Size, Name,
-                          Media_type, Date, Hash) ->
+                          [_ | _els], Date, Desc, Hash, Hash_used, Media_type,
+                          Name, Size, Range) ->
     decode_jingle_ft_file_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Desc,
-                              Hash_used,
-                              Range,
-                              Size,
-                              Name,
-                              Media_type,
                               Date,
-                              Hash).
+                              Desc,
+                              Hash,
+                              Hash_used,
+                              Media_type,
+                              Name,
+                              Size,
+                              Range).
 
 encode_jingle_ft_file({jingle_ft_file,
                        Date,
@@ -870,26 +870,33 @@ encode_jingle_ft_file({jingle_ft_file,
         xmpp_codec:choose_top_xmlns(<<"urn:xmpp:jingle:apps:file-transfer:5">>,
                                     [],
                                     __TopXMLNS),
-    _els = lists:reverse('encode_jingle_ft_file_$desc'(Desc,
-                                                       __NewTopXMLNS,
-                                                       'encode_jingle_ft_file_$hash-used'(Hash_used,
-                                                                                          __NewTopXMLNS,
-                                                                                          'encode_jingle_ft_file_$range'(Range,
-                                                                                                                         __NewTopXMLNS,
-                                                                                                                         'encode_jingle_ft_file_$size'(Size,
-                                                                                                                                                       __NewTopXMLNS,
-                                                                                                                                                       'encode_jingle_ft_file_$name'(Name,
-                                                                                                                                                                                     __NewTopXMLNS,
-                                                                                                                                                                                     'encode_jingle_ft_file_$media-type'(Media_type,
-                                                                                                                                                                                                                         __NewTopXMLNS,
-                                                                                                                                                                                                                         'encode_jingle_ft_file_$date'(Date,
-                                                                                                                                                                                                                                                       __NewTopXMLNS,
-                                                                                                                                                                                                                                                       'encode_jingle_ft_file_$hash'(Hash,
-                                                                                                                                                                                                                                                                                     __NewTopXMLNS,
-                                                                                                                                                                                                                                                                                     []))))))))),
+    _els =
+        lists:reverse('encode_jingle_ft_file_$range'(Range,
+                                                     __NewTopXMLNS,
+                                                     'encode_jingle_ft_file_$size'(Size,
+                                                                                   __NewTopXMLNS,
+                                                                                   'encode_jingle_ft_file_$name'(Name,
+                                                                                                                 __NewTopXMLNS,
+                                                                                                                 'encode_jingle_ft_file_$media-type'(Media_type,
+                                                                                                                                                     __NewTopXMLNS,
+                                                                                                                                                     'encode_jingle_ft_file_$hash-used'(Hash_used,
+                                                                                                                                                                                        __NewTopXMLNS,
+                                                                                                                                                                                        'encode_jingle_ft_file_$hash'(Hash,
+                                                                                                                                                                                                                      __NewTopXMLNS,
+                                                                                                                                                                                                                      'encode_jingle_ft_file_$desc'(Desc,
+                                                                                                                                                                                                                                                    __NewTopXMLNS,
+                                                                                                                                                                                                                                                    'encode_jingle_ft_file_$date'(Date,
+                                                                                                                                                                                                                                                                                  __NewTopXMLNS,
+                                                                                                                                                                                                                                                                                  []))))))))),
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
                                         __TopXMLNS),
     {xmlel, <<"file">>, _attrs, _els}.
+
+'encode_jingle_ft_file_$date'(undefined, __TopXMLNS,
+                              _acc) ->
+    _acc;
+'encode_jingle_ft_file_$date'(Date, __TopXMLNS, _acc) ->
+    [encode_jingle_ft_date(Date, __TopXMLNS) | _acc].
 
 'encode_jingle_ft_file_$desc'([], __TopXMLNS, _acc) ->
     _acc;
@@ -900,6 +907,15 @@ encode_jingle_ft_file({jingle_ft_file,
                                   [encode_jingle_ft_desc(Desc, __TopXMLNS)
                                    | _acc]).
 
+'encode_jingle_ft_file_$hash'([], __TopXMLNS, _acc) ->
+    _acc;
+'encode_jingle_ft_file_$hash'([Hash | _els], __TopXMLNS,
+                              _acc) ->
+    'encode_jingle_ft_file_$hash'(_els,
+                                  __TopXMLNS,
+                                  [xep0300:encode_hash(Hash, __TopXMLNS)
+                                   | _acc]).
+
 'encode_jingle_ft_file_$hash-used'(undefined,
                                    __TopXMLNS, _acc) ->
     _acc;
@@ -907,25 +923,6 @@ encode_jingle_ft_file({jingle_ft_file,
                                    __TopXMLNS, _acc) ->
     [xep0300:encode_hash_used(Hash_used, __TopXMLNS)
      | _acc].
-
-'encode_jingle_ft_file_$range'(undefined, __TopXMLNS,
-                               _acc) ->
-    _acc;
-'encode_jingle_ft_file_$range'(Range, __TopXMLNS,
-                               _acc) ->
-    [encode_jingle_ft_range(Range, __TopXMLNS) | _acc].
-
-'encode_jingle_ft_file_$size'(undefined, __TopXMLNS,
-                              _acc) ->
-    _acc;
-'encode_jingle_ft_file_$size'(Size, __TopXMLNS, _acc) ->
-    [encode_jingle_ft_size(Size, __TopXMLNS) | _acc].
-
-'encode_jingle_ft_file_$name'(undefined, __TopXMLNS,
-                              _acc) ->
-    _acc;
-'encode_jingle_ft_file_$name'(Name, __TopXMLNS, _acc) ->
-    [encode_jingle_ft_name(Name, __TopXMLNS) | _acc].
 
 'encode_jingle_ft_file_$media-type'(undefined,
                                     __TopXMLNS, _acc) ->
@@ -935,20 +932,24 @@ encode_jingle_ft_file({jingle_ft_file,
     [encode_jingle_ft_media_type(Media_type, __TopXMLNS)
      | _acc].
 
-'encode_jingle_ft_file_$date'(undefined, __TopXMLNS,
+'encode_jingle_ft_file_$name'(undefined, __TopXMLNS,
                               _acc) ->
     _acc;
-'encode_jingle_ft_file_$date'(Date, __TopXMLNS, _acc) ->
-    [encode_jingle_ft_date(Date, __TopXMLNS) | _acc].
+'encode_jingle_ft_file_$name'(Name, __TopXMLNS, _acc) ->
+    [encode_jingle_ft_name(Name, __TopXMLNS) | _acc].
 
-'encode_jingle_ft_file_$hash'([], __TopXMLNS, _acc) ->
-    _acc;
-'encode_jingle_ft_file_$hash'([Hash | _els], __TopXMLNS,
+'encode_jingle_ft_file_$size'(undefined, __TopXMLNS,
                               _acc) ->
-    'encode_jingle_ft_file_$hash'(_els,
-                                  __TopXMLNS,
-                                  [xep0300:encode_hash(Hash, __TopXMLNS)
-                                   | _acc]).
+    _acc;
+'encode_jingle_ft_file_$size'(Size, __TopXMLNS, _acc) ->
+    [encode_jingle_ft_size(Size, __TopXMLNS) | _acc].
+
+'encode_jingle_ft_file_$range'(undefined, __TopXMLNS,
+                               _acc) ->
+    _acc;
+'encode_jingle_ft_file_$range'(Range, __TopXMLNS,
+                               _acc) ->
+    [encode_jingle_ft_range(Range, __TopXMLNS) | _acc].
 
 decode_jingle_ft_range(__TopXMLNS, __Opts,
                        {xmlel, <<"range">>, _attrs, _els}) ->

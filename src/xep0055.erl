@@ -67,16 +67,16 @@ records() -> [{search_item, 5}, {search, 7}].
 
 decode_search(__TopXMLNS, __Opts,
               {xmlel, <<"query">>, _attrs, _els}) ->
-    {Xdata, Items, Instructions, Last, First, Nick, Email} =
+    {Instructions, First, Last, Nick, Email, Items, Xdata} =
         decode_search_els(__TopXMLNS,
                           __Opts,
                           _els,
                           undefined,
+                          undefined,
+                          undefined,
+                          undefined,
+                          undefined,
                           [],
-                          undefined,
-                          undefined,
-                          undefined,
-                          undefined,
                           undefined),
     {search,
      Instructions,
@@ -87,18 +87,18 @@ decode_search(__TopXMLNS, __Opts,
      Items,
      Xdata}.
 
-decode_search_els(__TopXMLNS, __Opts, [], Xdata, Items,
-                  Instructions, Last, First, Nick, Email) ->
-    {Xdata,
-     lists:reverse(Items),
-     Instructions,
-     Last,
+decode_search_els(__TopXMLNS, __Opts, [], Instructions,
+                  First, Last, Nick, Email, Items, Xdata) ->
+    {Instructions,
      First,
+     Last,
      Nick,
-     Email};
+     Email,
+     lists:reverse(Items),
+     Xdata};
 decode_search_els(__TopXMLNS, __Opts,
                   [{xmlel, <<"instructions">>, _attrs, _} = _el | _els],
-                  Xdata, Items, Instructions, Last, First, Nick, Email) ->
+                  Instructions, First, Last, Nick, Email, Items, Xdata) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -107,30 +107,30 @@ decode_search_els(__TopXMLNS, __Opts,
             decode_search_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Xdata,
-                              Items,
                               decode_search_instructions(<<"jabber:iq:search">>,
                                                          __Opts,
                                                          _el),
-                              Last,
                               First,
+                              Last,
                               Nick,
-                              Email);
+                              Email,
+                              Items,
+                              Xdata);
         _ ->
             decode_search_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Xdata,
-                              Items,
                               Instructions,
-                              Last,
                               First,
+                              Last,
                               Nick,
-                              Email)
+                              Email,
+                              Items,
+                              Xdata)
     end;
 decode_search_els(__TopXMLNS, __Opts,
-                  [{xmlel, <<"first">>, _attrs, _} = _el | _els], Xdata,
-                  Items, Instructions, Last, First, Nick, Email) ->
+                  [{xmlel, <<"first">>, _attrs, _} = _el | _els],
+                  Instructions, First, Last, Nick, Email, Items, Xdata) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -139,30 +139,30 @@ decode_search_els(__TopXMLNS, __Opts,
             decode_search_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Xdata,
-                              Items,
                               Instructions,
-                              Last,
                               decode_search_first(<<"jabber:iq:search">>,
                                                   __Opts,
                                                   _el),
+                              Last,
                               Nick,
-                              Email);
+                              Email,
+                              Items,
+                              Xdata);
         _ ->
             decode_search_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Xdata,
-                              Items,
                               Instructions,
-                              Last,
                               First,
+                              Last,
                               Nick,
-                              Email)
+                              Email,
+                              Items,
+                              Xdata)
     end;
 decode_search_els(__TopXMLNS, __Opts,
-                  [{xmlel, <<"last">>, _attrs, _} = _el | _els], Xdata,
-                  Items, Instructions, Last, First, Nick, Email) ->
+                  [{xmlel, <<"last">>, _attrs, _} = _el | _els],
+                  Instructions, First, Last, Nick, Email, Items, Xdata) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -171,30 +171,30 @@ decode_search_els(__TopXMLNS, __Opts,
             decode_search_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Xdata,
-                              Items,
                               Instructions,
+                              First,
                               decode_search_last(<<"jabber:iq:search">>,
                                                  __Opts,
                                                  _el),
-                              First,
                               Nick,
-                              Email);
+                              Email,
+                              Items,
+                              Xdata);
         _ ->
             decode_search_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Xdata,
-                              Items,
                               Instructions,
-                              Last,
                               First,
+                              Last,
                               Nick,
-                              Email)
+                              Email,
+                              Items,
+                              Xdata)
     end;
 decode_search_els(__TopXMLNS, __Opts,
-                  [{xmlel, <<"nick">>, _attrs, _} = _el | _els], Xdata,
-                  Items, Instructions, Last, First, Nick, Email) ->
+                  [{xmlel, <<"nick">>, _attrs, _} = _el | _els],
+                  Instructions, First, Last, Nick, Email, Items, Xdata) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -203,30 +203,30 @@ decode_search_els(__TopXMLNS, __Opts,
             decode_search_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Xdata,
-                              Items,
                               Instructions,
-                              Last,
                               First,
+                              Last,
                               decode_search_nick(<<"jabber:iq:search">>,
                                                  __Opts,
                                                  _el),
-                              Email);
+                              Email,
+                              Items,
+                              Xdata);
         _ ->
             decode_search_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Xdata,
-                              Items,
                               Instructions,
-                              Last,
                               First,
+                              Last,
                               Nick,
-                              Email)
+                              Email,
+                              Items,
+                              Xdata)
     end;
 decode_search_els(__TopXMLNS, __Opts,
-                  [{xmlel, <<"email">>, _attrs, _} = _el | _els], Xdata,
-                  Items, Instructions, Last, First, Nick, Email) ->
+                  [{xmlel, <<"email">>, _attrs, _} = _el | _els],
+                  Instructions, First, Last, Nick, Email, Items, Xdata) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -235,30 +235,30 @@ decode_search_els(__TopXMLNS, __Opts,
             decode_search_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Xdata,
-                              Items,
                               Instructions,
-                              Last,
                               First,
+                              Last,
                               Nick,
                               decode_search_email(<<"jabber:iq:search">>,
                                                   __Opts,
-                                                  _el));
+                                                  _el),
+                              Items,
+                              Xdata);
         _ ->
             decode_search_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Xdata,
-                              Items,
                               Instructions,
-                              Last,
                               First,
+                              Last,
                               Nick,
-                              Email)
+                              Email,
+                              Items,
+                              Xdata)
     end;
 decode_search_els(__TopXMLNS, __Opts,
-                  [{xmlel, <<"item">>, _attrs, _} = _el | _els], Xdata,
-                  Items, Instructions, Last, First, Nick, Email) ->
+                  [{xmlel, <<"item">>, _attrs, _} = _el | _els],
+                  Instructions, First, Last, Nick, Email, Items, Xdata) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -267,31 +267,31 @@ decode_search_els(__TopXMLNS, __Opts,
             decode_search_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Xdata,
+                              Instructions,
+                              First,
+                              Last,
+                              Nick,
+                              Email,
                               [decode_search_item(<<"jabber:iq:search">>,
                                                   __Opts,
                                                   _el)
                                | Items],
-                              Instructions,
-                              Last,
-                              First,
-                              Nick,
-                              Email);
+                              Xdata);
         _ ->
             decode_search_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Xdata,
-                              Items,
                               Instructions,
-                              Last,
                               First,
+                              Last,
                               Nick,
-                              Email)
+                              Email,
+                              Items,
+                              Xdata)
     end;
 decode_search_els(__TopXMLNS, __Opts,
-                  [{xmlel, <<"x">>, _attrs, _} = _el | _els], Xdata,
-                  Items, Instructions, Last, First, Nick, Email) ->
+                  [{xmlel, <<"x">>, _attrs, _} = _el | _els],
+                  Instructions, First, Last, Nick, Email, Items, Xdata) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -300,39 +300,39 @@ decode_search_els(__TopXMLNS, __Opts,
             decode_search_els(__TopXMLNS,
                               __Opts,
                               _els,
+                              Instructions,
+                              First,
+                              Last,
+                              Nick,
+                              Email,
+                              Items,
                               xep0004:decode_xdata(<<"jabber:x:data">>,
                                                    __Opts,
-                                                   _el),
-                              Items,
-                              Instructions,
-                              Last,
-                              First,
-                              Nick,
-                              Email);
+                                                   _el));
         _ ->
             decode_search_els(__TopXMLNS,
                               __Opts,
                               _els,
-                              Xdata,
-                              Items,
                               Instructions,
-                              Last,
                               First,
+                              Last,
                               Nick,
-                              Email)
+                              Email,
+                              Items,
+                              Xdata)
     end;
-decode_search_els(__TopXMLNS, __Opts, [_ | _els], Xdata,
-                  Items, Instructions, Last, First, Nick, Email) ->
+decode_search_els(__TopXMLNS, __Opts, [_ | _els],
+                  Instructions, First, Last, Nick, Email, Items, Xdata) ->
     decode_search_els(__TopXMLNS,
                       __Opts,
                       _els,
-                      Xdata,
-                      Items,
                       Instructions,
-                      Last,
                       First,
+                      Last,
                       Nick,
-                      Email).
+                      Email,
+                      Items,
+                      Xdata).
 
 encode_search({search,
                Instructions,
@@ -351,32 +351,20 @@ encode_search({search,
                                                 __NewTopXMLNS,
                                                 'encode_search_$items'(Items,
                                                                        __NewTopXMLNS,
-                                                                       'encode_search_$instructions'(Instructions,
-                                                                                                     __NewTopXMLNS,
-                                                                                                     'encode_search_$last'(Last,
-                                                                                                                           __NewTopXMLNS,
-                                                                                                                           'encode_search_$first'(First,
-                                                                                                                                                  __NewTopXMLNS,
-                                                                                                                                                  'encode_search_$nick'(Nick,
-                                                                                                                                                                        __NewTopXMLNS,
-                                                                                                                                                                        'encode_search_$email'(Email,
+                                                                       'encode_search_$email'(Email,
+                                                                                              __NewTopXMLNS,
+                                                                                              'encode_search_$nick'(Nick,
+                                                                                                                    __NewTopXMLNS,
+                                                                                                                    'encode_search_$last'(Last,
+                                                                                                                                          __NewTopXMLNS,
+                                                                                                                                          'encode_search_$first'(First,
+                                                                                                                                                                 __NewTopXMLNS,
+                                                                                                                                                                 'encode_search_$instructions'(Instructions,
                                                                                                                                                                                                __NewTopXMLNS,
                                                                                                                                                                                                [])))))))),
     _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
                                         __TopXMLNS),
     {xmlel, <<"query">>, _attrs, _els}.
-
-'encode_search_$xdata'(undefined, __TopXMLNS, _acc) ->
-    _acc;
-'encode_search_$xdata'(Xdata, __TopXMLNS, _acc) ->
-    [xep0004:encode_xdata(Xdata, __TopXMLNS) | _acc].
-
-'encode_search_$items'([], __TopXMLNS, _acc) -> _acc;
-'encode_search_$items'([Items | _els], __TopXMLNS,
-                       _acc) ->
-    'encode_search_$items'(_els,
-                           __TopXMLNS,
-                           [encode_search_item(Items, __TopXMLNS) | _acc]).
 
 'encode_search_$instructions'(undefined, __TopXMLNS,
                               _acc) ->
@@ -386,15 +374,15 @@ encode_search({search,
     [encode_search_instructions(Instructions, __TopXMLNS)
      | _acc].
 
-'encode_search_$last'(undefined, __TopXMLNS, _acc) ->
-    _acc;
-'encode_search_$last'(Last, __TopXMLNS, _acc) ->
-    [encode_search_last(Last, __TopXMLNS) | _acc].
-
 'encode_search_$first'(undefined, __TopXMLNS, _acc) ->
     _acc;
 'encode_search_$first'(First, __TopXMLNS, _acc) ->
     [encode_search_first(First, __TopXMLNS) | _acc].
+
+'encode_search_$last'(undefined, __TopXMLNS, _acc) ->
+    _acc;
+'encode_search_$last'(Last, __TopXMLNS, _acc) ->
+    [encode_search_last(Last, __TopXMLNS) | _acc].
 
 'encode_search_$nick'(undefined, __TopXMLNS, _acc) ->
     _acc;
@@ -406,9 +394,21 @@ encode_search({search,
 'encode_search_$email'(Email, __TopXMLNS, _acc) ->
     [encode_search_email(Email, __TopXMLNS) | _acc].
 
+'encode_search_$items'([], __TopXMLNS, _acc) -> _acc;
+'encode_search_$items'([Items | _els], __TopXMLNS,
+                       _acc) ->
+    'encode_search_$items'(_els,
+                           __TopXMLNS,
+                           [encode_search_item(Items, __TopXMLNS) | _acc]).
+
+'encode_search_$xdata'(undefined, __TopXMLNS, _acc) ->
+    _acc;
+'encode_search_$xdata'(Xdata, __TopXMLNS, _acc) ->
+    [xep0004:encode_xdata(Xdata, __TopXMLNS) | _acc].
+
 decode_search_item(__TopXMLNS, __Opts,
                    {xmlel, <<"item">>, _attrs, _els}) ->
-    {Last, First, Nick, Email} =
+    {First, Last, Nick, Email} =
         decode_search_item_els(__TopXMLNS,
                                __Opts,
                                _els,
@@ -421,12 +421,12 @@ decode_search_item(__TopXMLNS, __Opts,
                                    undefined),
     {search_item, Jid, First, Last, Nick, Email}.
 
-decode_search_item_els(__TopXMLNS, __Opts, [], Last,
-                       First, Nick, Email) ->
-    {Last, First, Nick, Email};
+decode_search_item_els(__TopXMLNS, __Opts, [], First,
+                       Last, Nick, Email) ->
+    {First, Last, Nick, Email};
 decode_search_item_els(__TopXMLNS, __Opts,
-                       [{xmlel, <<"first">>, _attrs, _} = _el | _els], Last,
-                       First, Nick, Email) ->
+                       [{xmlel, <<"first">>, _attrs, _} = _el | _els], First,
+                       Last, Nick, Email) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -435,24 +435,24 @@ decode_search_item_els(__TopXMLNS, __Opts,
             decode_search_item_els(__TopXMLNS,
                                    __Opts,
                                    _els,
-                                   Last,
                                    decode_search_first(<<"jabber:iq:search">>,
                                                        __Opts,
                                                        _el),
+                                   Last,
                                    Nick,
                                    Email);
         _ ->
             decode_search_item_els(__TopXMLNS,
                                    __Opts,
                                    _els,
-                                   Last,
                                    First,
+                                   Last,
                                    Nick,
                                    Email)
     end;
 decode_search_item_els(__TopXMLNS, __Opts,
-                       [{xmlel, <<"last">>, _attrs, _} = _el | _els], Last,
-                       First, Nick, Email) ->
+                       [{xmlel, <<"last">>, _attrs, _} = _el | _els], First,
+                       Last, Nick, Email) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -461,24 +461,24 @@ decode_search_item_els(__TopXMLNS, __Opts,
             decode_search_item_els(__TopXMLNS,
                                    __Opts,
                                    _els,
+                                   First,
                                    decode_search_last(<<"jabber:iq:search">>,
                                                       __Opts,
                                                       _el),
-                                   First,
                                    Nick,
                                    Email);
         _ ->
             decode_search_item_els(__TopXMLNS,
                                    __Opts,
                                    _els,
-                                   Last,
                                    First,
+                                   Last,
                                    Nick,
                                    Email)
     end;
 decode_search_item_els(__TopXMLNS, __Opts,
-                       [{xmlel, <<"nick">>, _attrs, _} = _el | _els], Last,
-                       First, Nick, Email) ->
+                       [{xmlel, <<"nick">>, _attrs, _} = _el | _els], First,
+                       Last, Nick, Email) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -487,8 +487,8 @@ decode_search_item_els(__TopXMLNS, __Opts,
             decode_search_item_els(__TopXMLNS,
                                    __Opts,
                                    _els,
-                                   Last,
                                    First,
+                                   Last,
                                    decode_search_nick(<<"jabber:iq:search">>,
                                                       __Opts,
                                                       _el),
@@ -497,14 +497,14 @@ decode_search_item_els(__TopXMLNS, __Opts,
             decode_search_item_els(__TopXMLNS,
                                    __Opts,
                                    _els,
-                                   Last,
                                    First,
+                                   Last,
                                    Nick,
                                    Email)
     end;
 decode_search_item_els(__TopXMLNS, __Opts,
-                       [{xmlel, <<"email">>, _attrs, _} = _el | _els], Last,
-                       First, Nick, Email) ->
+                       [{xmlel, <<"email">>, _attrs, _} = _el | _els], First,
+                       Last, Nick, Email) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
                              _attrs,
                              __TopXMLNS)
@@ -513,8 +513,8 @@ decode_search_item_els(__TopXMLNS, __Opts,
             decode_search_item_els(__TopXMLNS,
                                    __Opts,
                                    _els,
-                                   Last,
                                    First,
+                                   Last,
                                    Nick,
                                    decode_search_email(<<"jabber:iq:search">>,
                                                        __Opts,
@@ -523,18 +523,18 @@ decode_search_item_els(__TopXMLNS, __Opts,
             decode_search_item_els(__TopXMLNS,
                                    __Opts,
                                    _els,
-                                   Last,
                                    First,
+                                   Last,
                                    Nick,
                                    Email)
     end;
 decode_search_item_els(__TopXMLNS, __Opts, [_ | _els],
-                       Last, First, Nick, Email) ->
+                       First, Last, Nick, Email) ->
     decode_search_item_els(__TopXMLNS,
                            __Opts,
                            _els,
-                           Last,
                            First,
+                           Last,
                            Nick,
                            Email).
 
@@ -558,13 +558,13 @@ encode_search_item({search_item,
         xmpp_codec:choose_top_xmlns(<<"jabber:iq:search">>,
                                     [],
                                     __TopXMLNS),
-    _els = lists:reverse('encode_search_item_$last'(Last,
-                                                    __NewTopXMLNS,
-                                                    'encode_search_item_$first'(First,
+    _els = lists:reverse('encode_search_item_$email'(Email,
+                                                     __NewTopXMLNS,
+                                                     'encode_search_item_$nick'(Nick,
                                                                                 __NewTopXMLNS,
-                                                                                'encode_search_item_$nick'(Nick,
+                                                                                'encode_search_item_$last'(Last,
                                                                                                            __NewTopXMLNS,
-                                                                                                           'encode_search_item_$email'(Email,
+                                                                                                           'encode_search_item_$first'(First,
                                                                                                                                        __NewTopXMLNS,
                                                                                                                                        []))))),
     _attrs = encode_search_item_attr_jid(Jid,
@@ -572,17 +572,17 @@ encode_search_item({search_item,
                                                                     __TopXMLNS)),
     {xmlel, <<"item">>, _attrs, _els}.
 
-'encode_search_item_$last'(undefined, __TopXMLNS,
-                           _acc) ->
-    _acc;
-'encode_search_item_$last'(Last, __TopXMLNS, _acc) ->
-    [encode_search_last(Last, __TopXMLNS) | _acc].
-
 'encode_search_item_$first'(undefined, __TopXMLNS,
                             _acc) ->
     _acc;
 'encode_search_item_$first'(First, __TopXMLNS, _acc) ->
     [encode_search_first(First, __TopXMLNS) | _acc].
+
+'encode_search_item_$last'(undefined, __TopXMLNS,
+                           _acc) ->
+    _acc;
+'encode_search_item_$last'(Last, __TopXMLNS, _acc) ->
+    [encode_search_last(Last, __TopXMLNS) | _acc].
 
 'encode_search_item_$nick'(undefined, __TopXMLNS,
                            _acc) ->
