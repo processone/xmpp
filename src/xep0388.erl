@@ -636,32 +636,6 @@ decode_sasl2_continue_els(__TopXMLNS, __Opts,
                                       [_el | __Els])
     end;
 decode_sasl2_continue_els(__TopXMLNS, __Opts,
-                          [{xmlel, <<"text">>, _attrs, _} = _el | _els],
-                          Additional_data, Tasks, Text, __Els) ->
-    case xmpp_codec:get_attr(<<"xmlns">>,
-                             _attrs,
-                             __TopXMLNS)
-        of
-        <<"urn:xmpp:sasl:2">> ->
-            decode_sasl2_continue_els(__TopXMLNS,
-                                      __Opts,
-                                      _els,
-                                      Additional_data,
-                                      Tasks,
-                                      decode_sasl2_text(<<"urn:xmpp:sasl:2">>,
-                                                        __Opts,
-                                                        _el),
-                                      __Els);
-        _ ->
-            decode_sasl2_continue_els(__TopXMLNS,
-                                      __Opts,
-                                      _els,
-                                      Additional_data,
-                                      Tasks,
-                                      Text,
-                                      [_el | __Els])
-    end;
-decode_sasl2_continue_els(__TopXMLNS, __Opts,
                           [{xmlel, <<"tasks">>, _attrs, _} = _el | _els],
                           Additional_data, Tasks, Text, __Els) ->
     case xmpp_codec:get_attr(<<"xmlns">>,
@@ -677,6 +651,32 @@ decode_sasl2_continue_els(__TopXMLNS, __Opts,
                                                          __Opts,
                                                          _el),
                                       Text,
+                                      __Els);
+        _ ->
+            decode_sasl2_continue_els(__TopXMLNS,
+                                      __Opts,
+                                      _els,
+                                      Additional_data,
+                                      Tasks,
+                                      Text,
+                                      [_el | __Els])
+    end;
+decode_sasl2_continue_els(__TopXMLNS, __Opts,
+                          [{xmlel, <<"text">>, _attrs, _} = _el | _els],
+                          Additional_data, Tasks, Text, __Els) ->
+    case xmpp_codec:get_attr(<<"xmlns">>,
+                             _attrs,
+                             __TopXMLNS)
+        of
+        <<"urn:xmpp:sasl:2">> ->
+            decode_sasl2_continue_els(__TopXMLNS,
+                                      __Opts,
+                                      _els,
+                                      Additional_data,
+                                      Tasks,
+                                      decode_sasl2_text(<<"urn:xmpp:sasl:2">>,
+                                                        __Opts,
+                                                        _el),
                                       __Els);
         _ ->
             decode_sasl2_continue_els(__TopXMLNS,
