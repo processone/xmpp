@@ -5529,11 +5529,11 @@
 	   refs = [#ref{name = sasl2_additional_data,
 	                label = '$additional_data',
 	                min = 0, max = 1},
-                   #ref{name = sasl2_text,
-                        label = '$text',
-                        min = 0, max = 1},
                    #ref{name = sasl2_tasks,
                         label = '$tasks',
+                        min = 0, max = 1},
+                   #ref{name = sasl2_text,
+                        label = '$text',
                         min = 0, max = 1}],
            result = {sasl2_continue, '$additional_data', '$text', '$tasks', '$_els'}}).
 
