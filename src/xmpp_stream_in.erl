@@ -1783,10 +1783,7 @@ lists_intersection(L1, L2) ->
 
 -spec identity([xmpp_sasl:sasl_property()]) -> binary().
 identity(Props) ->
-    case proplists:get_value(authzid, Props, <<>>) of
-	<<>> -> proplists:get_value(username, Props, <<>>);
-	AuthzId -> AuthzId
-    end.
+	proplists:get_value(username, Props, <<>>).
 
 -spec sha(binary()) -> binary().
 sha(Data) ->
