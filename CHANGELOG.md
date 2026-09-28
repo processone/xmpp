@@ -1,5 +1,6 @@
 # Version 1.13.5
 
+* Updating fast_xml to version 1.1.61.
 * Make children order in generated stanzas be consistent with schema definitions
 * Use username instead of authzid as ID of authenticated account
 
