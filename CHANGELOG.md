@@ -1,6 +1,11 @@
+# Version 1.13.5
+
+* Make children order in generated stanzas be consistent with schema definitions
+* Use username instead of authzid as ID of authenticated account
+
 # Version 1.13.4
 
-* Add support for XEP-0513 Explicit Metnions
+* Add support for XEP-0513 Explicit Mentions
 * Use constant time comparison in SCRAM 
 
 # Version 1.13.3
