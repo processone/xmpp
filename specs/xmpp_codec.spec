@@ -5791,6 +5791,10 @@
 						  enc = {enc_int, []}},
 					#attr{name = <<"occupantid">>,
 						  label = '$occupantid'},
+					#attr{name = <<"jid">>,
+						  label = '$jid',
+						  dec = {jid, decode, []},
+						  enc = {jid, encode, []}},
 					#attr{name = <<"mentions">>,
 						  label = '$mentions',
 					      enc = {enc_mention_type, []},
@@ -5810,7 +5814,7 @@
 		                min = 0,
 						max = 1,
 						default = false}],
-			result = {mention, '$begin', '$end', '$occupantid', '$mentions', '$uri', '$hreflang', '$active', '$noping'}}).
+			result = {mention, '$begin', '$end', '$occupantid', '$jid', '$mentions', '$uri', '$hreflang', '$active', '$noping'}}).
 
 -xml(mention_active,
 	 #elem{name = <<"active">>,

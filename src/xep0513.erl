@@ -28,20 +28,22 @@ tags() ->
      {<<"active">>, <<"urn:xmpp:mentions:0">>},
      {<<"mention">>, <<"urn:xmpp:mentions:0">>}].
 
-do_encode({mention, _, _, _, _, _, _, _, _} = Mention,
+do_encode({mention, _, _, _, _, _, _, _, _, _} =
+              Mention,
           TopXMLNS) ->
     encode_mention(Mention, TopXMLNS).
 
-do_get_name({mention, _, _, _, _, _, _, _, _}) ->
+do_get_name({mention, _, _, _, _, _, _, _, _, _}) ->
     <<"mention">>.
 
-do_get_ns({mention, _, _, _, _, _, _, _, _}) ->
+do_get_ns({mention, _, _, _, _, _, _, _, _, _}) ->
     <<"urn:xmpp:mentions:0">>.
 
-pp(mention, 8) ->
+pp(mention, 9) ->
     ['begin',
      'end',
      occupantid,
+     jid,
      mentions,
      uri,
      hreflang,
@@ -49,7 +51,7 @@ pp(mention, 8) ->
      noping];
 pp(_, _) -> no.
 
-records() -> [{mention, 8}].
+records() -> [{mention, 9}].
 
 dec_int(Val, Min, Max) ->
     case erlang:binary_to_integer(Val) of
@@ -138,9 +140,10 @@ decode_mention(__TopXMLNS, __Opts,
                                           _els,
                                           false,
                                           false),
-    {Begin, End, Occupantid, Mentions, Uri, Hreflang} =
+    {Begin, End, Occupantid, Jid, Mentions, Uri, Hreflang} =
         decode_mention_attrs(__TopXMLNS,
                              _attrs,
+                             undefined,
                              undefined,
                              undefined,
                              undefined,
@@ -151,6 +154,7 @@ decode_mention(__TopXMLNS, __Opts,
      Begin,
      End,
      Occupantid,
+     Jid,
      Mentions,
      Uri,
      Hreflang,
@@ -214,85 +218,105 @@ decode_mention_els(__TopXMLNS, __Opts, [_ | _els],
 
 decode_mention_attrs(__TopXMLNS,
                      [{<<"begin">>, _val} | _attrs], _Begin, End, Occupantid,
-                     Mentions, Uri, Hreflang) ->
+                     Jid, Mentions, Uri, Hreflang) ->
     decode_mention_attrs(__TopXMLNS,
                          _attrs,
                          _val,
                          End,
                          Occupantid,
+                         Jid,
                          Mentions,
                          Uri,
                          Hreflang);
 decode_mention_attrs(__TopXMLNS,
                      [{<<"end">>, _val} | _attrs], Begin, _End, Occupantid,
-                     Mentions, Uri, Hreflang) ->
+                     Jid, Mentions, Uri, Hreflang) ->
     decode_mention_attrs(__TopXMLNS,
                          _attrs,
                          Begin,
                          _val,
                          Occupantid,
+                         Jid,
                          Mentions,
                          Uri,
                          Hreflang);
 decode_mention_attrs(__TopXMLNS,
                      [{<<"occupantid">>, _val} | _attrs], Begin, End,
-                     _Occupantid, Mentions, Uri, Hreflang) ->
+                     _Occupantid, Jid, Mentions, Uri, Hreflang) ->
     decode_mention_attrs(__TopXMLNS,
                          _attrs,
                          Begin,
                          End,
+                         _val,
+                         Jid,
+                         Mentions,
+                         Uri,
+                         Hreflang);
+decode_mention_attrs(__TopXMLNS,
+                     [{<<"jid">>, _val} | _attrs], Begin, End, Occupantid,
+                     _Jid, Mentions, Uri, Hreflang) ->
+    decode_mention_attrs(__TopXMLNS,
+                         _attrs,
+                         Begin,
+                         End,
+                         Occupantid,
                          _val,
                          Mentions,
                          Uri,
                          Hreflang);
 decode_mention_attrs(__TopXMLNS,
                      [{<<"mentions">>, _val} | _attrs], Begin, End,
-                     Occupantid, _Mentions, Uri, Hreflang) ->
+                     Occupantid, Jid, _Mentions, Uri, Hreflang) ->
     decode_mention_attrs(__TopXMLNS,
                          _attrs,
                          Begin,
                          End,
                          Occupantid,
+                         Jid,
                          _val,
                          Uri,
                          Hreflang);
 decode_mention_attrs(__TopXMLNS,
                      [{<<"uri">>, _val} | _attrs], Begin, End, Occupantid,
-                     Mentions, _Uri, Hreflang) ->
+                     Jid, Mentions, _Uri, Hreflang) ->
     decode_mention_attrs(__TopXMLNS,
                          _attrs,
                          Begin,
                          End,
                          Occupantid,
+                         Jid,
                          Mentions,
                          _val,
                          Hreflang);
 decode_mention_attrs(__TopXMLNS,
                      [{<<"hreflang">>, _val} | _attrs], Begin, End,
-                     Occupantid, Mentions, Uri, _Hreflang) ->
+                     Occupantid, Jid, Mentions, Uri, _Hreflang) ->
     decode_mention_attrs(__TopXMLNS,
                          _attrs,
                          Begin,
                          End,
                          Occupantid,
+                         Jid,
                          Mentions,
                          Uri,
                          _val);
 decode_mention_attrs(__TopXMLNS, [_ | _attrs], Begin,
-                     End, Occupantid, Mentions, Uri, Hreflang) ->
+                     End, Occupantid, Jid, Mentions, Uri, Hreflang) ->
     decode_mention_attrs(__TopXMLNS,
                          _attrs,
                          Begin,
                          End,
                          Occupantid,
+                         Jid,
                          Mentions,
                          Uri,
                          Hreflang);
 decode_mention_attrs(__TopXMLNS, [], Begin, End,
-                     Occupantid, Mentions, Uri, Hreflang) ->
+                     Occupantid, Jid, Mentions, Uri, Hreflang) ->
     {decode_mention_attr_begin(__TopXMLNS, Begin),
      decode_mention_attr_end(__TopXMLNS, End),
      decode_mention_attr_occupantid(__TopXMLNS, Occupantid),
+     decode_mention_attr_jid(__TopXMLNS, Jid),
      decode_mention_attr_mentions(__TopXMLNS, Mentions),
      decode_mention_attr_uri(__TopXMLNS, Uri),
      decode_mention_attr_hreflang(__TopXMLNS, Hreflang)}.
@@ -301,6 +325,7 @@ encode_mention({mention,
                 Begin,
                 End,
                 Occupantid,
+                Jid,
                 Mentions,
                 Uri,
                 Hreflang,
@@ -319,11 +344,12 @@ encode_mention({mention,
     _attrs = encode_mention_attr_hreflang(Hreflang,
                                           encode_mention_attr_uri(Uri,
                                                                   encode_mention_attr_mentions(Mentions,
-                                                                                               encode_mention_attr_occupantid(Occupantid,
-                                                                                                                              encode_mention_attr_end(End,
-                                                                                                                                                      encode_mention_attr_begin(Begin,
-                                                                                                                                                                                xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
-                                                                                                                                                                                                           __TopXMLNS))))))),
+                                                                                               encode_mention_attr_jid(Jid,
+                                                                                                                       encode_mention_attr_occupantid(Occupantid,
+                                                                                                                                                      encode_mention_attr_end(End,
+                                                                                                                                                                              encode_mention_attr_begin(Begin,
+                                                                                                                                                                                                        xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
+                                                                                                                                                                                                                                   __TopXMLNS)))))))),
     {xmlel, <<"mention">>, _attrs, _els}.
 
 'encode_mention_$active'(false, __TopXMLNS, _acc) ->
@@ -380,6 +406,24 @@ decode_mention_attr_occupantid(__TopXMLNS, _val) ->
 encode_mention_attr_occupantid(<<>>, _acc) -> _acc;
 encode_mention_attr_occupantid(_val, _acc) ->
     [{<<"occupantid">>, _val} | _acc].
+
+decode_mention_attr_jid(__TopXMLNS, undefined) ->
+    undefined;
+decode_mention_attr_jid(__TopXMLNS, _val) ->
+    try jid:decode(_val) of
+        _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value,
+                           <<"jid">>,
+                           <<"mention">>,
+                           __TopXMLNS}})
+    end.
+
+encode_mention_attr_jid(undefined, _acc) -> _acc;
+encode_mention_attr_jid(_val, _acc) ->
+    [{<<"jid">>, jid:encode(_val)} | _acc].
 
 decode_mention_attr_mentions(__TopXMLNS, undefined) ->
     undefined;

@@ -891,6 +891,7 @@
 -record(mention, {'begin' :: 'undefined' | non_neg_integer(),
                   'end' :: 'undefined' | non_neg_integer(),
                   occupantid = <<>> :: binary(),
+                  jid :: undefined | jid:jid(),
                   mentions :: atom() | binary(),
                   uri = <<>> :: binary(),
                   hreflang = <<>> :: binary(),
