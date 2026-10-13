@@ -179,6 +179,9 @@
 -define(NS_REPORTING_0, <<"urn:xmpp:reporting:0">>).
 -define(NS_REPORTING_REASON_ABUSE_0, <<"urn:xmpp:reporting:reason:abuse:0">>).
 -define(NS_REPORTING_REASON_SPAM_0, <<"urn:xmpp:reporting:reason:spam:0">>).
+-define(NS_REPORTING_1, <<"urn:xmpp:reporting:1">>).
+-define(NS_REPORTING_REASON_ABUSE, <<"urn:xmpp:reporting:reason:abuse">>).
+-define(NS_REPORTING_REASON_SPAM, <<"urn:xmpp:reporting:reason:spam">>).
 -define(NS_JIDPREP_0, <<"urn:xmpp:jidprep:0">>).
 -define(NS_SIC_0, <<"urn:xmpp:sic:0">>).
 -define(NS_SIC_1, <<"urn:xmpp:sic:1">>).
