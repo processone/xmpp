@@ -250,17 +250,39 @@
 			  dec = {xmpp_lang, check, []},
 			  label = '$lang'}]}).
 
+-xml(report_origin,
+     #elem{name = <<"report-origin">>,
+           xmlns = <<"urn:xmpp:reporting:1">>,
+	   module = 'xep0377',
+           result = true}).
+
+-xml(third_party,
+     #elem{name = <<"third-party">>,
+           xmlns = <<"urn:xmpp:reporting:1">>,
+	   module = 'xep0377',
+	   result = true}).
+
 -xml(report,
      #elem{name = <<"report">>,
 	   xmlns = <<"urn:xmpp:reporting:1">>,
 	   module = 'xep0377',
-	   result = {report, '$reason', '$text'},
+	   result = {report, '$reason', '$text', '$report_origin', '$third_party', '$stanza_ids'},
            attrs = [#attr{name = <<"reason">>,
                           required = true,
                           enc = {enc_reporting_reason, []},
                           dec = {dec_reporting_reason, []}}],
 	   refs = [#ref{name = report_text,
-			label = '$text'}]}).
+			label = '$text'},
+                   #ref{name = report_origin,
+                        label = '$report_origin',
+                        default = false,
+                        min = 0, max = 1},
+                   #ref{name = third_party,
+                        label = '$third_party',
+                        default = false,
+                        min = 0, max = 1},
+                   #ref{name = stanza_id,
+                        label = '$stanza_ids'}]}).
 
 -xml(disco_identity,
      #elem{name = <<"identity">>,
