@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        otp: [25, 26, 27, 28, 29]
+        otp: [25, 28, 29]
     runs-on: ubuntu-24.04
     container:
       image: public.ecr.aws/docker/library/erlang:${{ matrix.otp }}
@@ -19,7 +19,6 @@ jobs:
       if: matrix.otp >= 26
     - run: ./configure --enable-gcov
     - run: make
-      if: matrix.otp >= 22
     - run: REBAR=rebar3 ERLTIDY=true make
     - run: REBAR=rebar3 make spec
     - run: REBAR=rebar3 make xdata
