@@ -366,7 +366,6 @@ get_mod(<<"subscriptions">>,
         <<"http://jabber.org/protocol/pubsub#owner">>) ->
     xep0060;
 get_mod(<<"prefs">>, <<"urn:xmpp:mam:1">>) -> xep0313;
-get_mod(<<"sm">>, <<"urn:xmpp:sm:2">>) -> xep0198;
 get_mod(<<"item">>, <<"jabber:iq:privacy">>) -> xep0016;
 get_mod(<<"feature-not-implemented">>,
         <<"urn:ietf:params:xml:ns:xmpp-stanzas">>) ->
@@ -710,6 +709,9 @@ get_mod(<<"unknown-session">>,
 get_mod(<<"candidate-used">>,
         <<"urn:xmpp:jingle:transports:s5b:1">>) ->
     xep0260;
+get_mod(<<"third-party">>,
+        <<"urn:xmpp:reporting:1">>) ->
+    xep0377;
 get_mod(<<"not-well-formed">>,
         <<"urn:ietf:params:xml:ns:xmpp-streams">>) ->
     rfc6120;
@@ -1403,6 +1405,9 @@ get_mod(<<"file-too-large">>,
     xep0363;
 get_mod(<<"conference">>, <<"urn:xmpp:bookmarks:1">>) ->
     xep0402;
+get_mod(<<"report-origin">>,
+        <<"urn:xmpp:reporting:1">>) ->
+    xep0377;
 get_mod(<<"storage">>, <<"storage:bookmarks">>) ->
     xep0048;
 get_mod(<<"LINE">>, <<"vcard-temp">>) -> xep0054;
@@ -1788,6 +1793,7 @@ get_mod(<<"query">>, <<"jabber:iq:version">>) ->
     xep0092;
 get_mod(<<"archived">>, <<"urn:xmpp:mam:tmp">>) ->
     xep0313;
+get_mod(<<"sm">>, <<"urn:xmpp:sm:2">>) -> xep0198;
 get_mod(Name, XMLNS) ->
     xmpp_codec_external:lookup(Name, XMLNS).
 
@@ -1843,6 +1849,7 @@ get_mod({xdata_option, _, _}) -> xep0004;
 get_mod({mix_presence, _, _, _}) -> xep0403;
 get_mod({x509_cert_chain, _, _}) -> xep0417;
 get_mod({sasl2_failure, _, _, _}) -> xep0388;
+get_mod({report, _, _, _, _, _}) -> xep0377;
 get_mod({vcard_geo, _, _}) -> xep0054;
 get_mod({xevent, _, _, _, _, _}) -> xep0022;
 get_mod({jingle_content, _, _, _, _, _}) -> xep0166;
@@ -2133,7 +2140,6 @@ get_mod({x509_csr, _, _}) -> xep0417;
 get_mod({services, _, _}) -> xep0215;
 get_mod({avatar_info, _, _, _, _, _, _}) -> xep0084;
 get_mod({privacy_list, _, _}) -> xep0016;
-get_mod({report, _, _}) -> xep0377;
 get_mod({unified_push_registered, _, _}) -> unifiedpush;
 get_mod({message_thread, _, _}) -> rfc6120;
 get_mod({forwarded, _, _}) -> xep0297;

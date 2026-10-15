@@ -514,10 +514,6 @@
 -record(privileged_iq, {iq :: 'undefined' | #iq{}}).
 -type privileged_iq() :: #privileged_iq{}.
 
--record(vcard_geo, {lat :: 'undefined' | binary(),
-                    lon :: 'undefined' | binary()}).
--type vcard_geo() :: #vcard_geo{}.
-
 -record(time, {tzo :: 'undefined' | {integer(),integer()},
                utc :: undefined | erlang:timestamp()}).
 -type time() :: #time{}.
@@ -748,20 +744,6 @@
 -record(compress_failure, {reason :: 'processing-failed' | 'setup-failed' | 'undefined' | 'unsupported-method'}).
 -type compress_failure() :: #compress_failure{}.
 
--record(report, {reason :: 'abuse' | 'spam',
-                 text = [] :: [#text{}]}).
--type report() :: #report{}.
-
--record(block_item, {jid :: jid:jid(),
-                     spam_report :: 'undefined' | #report{}}).
--type block_item() :: #block_item{}.
-
--record(unblock, {items = [] :: [#block_item{}]}).
--type unblock() :: #unblock{}.
-
--record(block, {items = [] :: [#block_item{}]}).
--type block() :: #block{}.
-
 -record(nick, {name = <<>> :: binary()}).
 -type nick() :: #nick{}.
 
@@ -952,9 +934,6 @@
 -record(compressed, {}).
 -type compressed() :: #compressed{}.
 
--record(block_list, {items = [] :: [#block_item{}]}).
--type block_list() :: #block_list{}.
-
 -record(identity, {category = <<>> :: binary(),
                    type = <<>> :: binary(),
                    lang = <<>> :: binary(),
@@ -1016,6 +995,26 @@
                       binval :: 'undefined' | binary(),
                       extval :: 'undefined' | binary()}).
 -type vcard_photo() :: #vcard_photo{}.
+
+-record(report, {reason :: 'abuse' | 'spam',
+                 text = [] :: [#text{}],
+                 report_origin = false :: boolean(),
+                 third_party = false :: boolean(),
+                 stanza_ids = [] :: [#stanza_id{}]}).
+-type report() :: #report{}.
+
+-record(block_item, {jid :: jid:jid(),
+                     spam_report :: 'undefined' | #report{}}).
+-type block_item() :: #block_item{}.
+
+-record(block_list, {items = [] :: [#block_item{}]}).
+-type block_list() :: #block_list{}.
+
+-record(unblock, {items = [] :: [#block_item{}]}).
+-type unblock() :: #unblock{}.
+
+-record(block, {items = [] :: [#block_item{}]}).
+-type block() :: #block{}.
 
 -record(jingle_ft_received, {creator :: 'initiator' | 'responder' | 'undefined',
                              name = <<>> :: binary()}).
@@ -1107,10 +1106,6 @@
 -record(delegation, {delegated = [] :: [#delegated{}],
                      forwarded :: 'undefined' | #forwarded{}}).
 -type delegation() :: #delegation{}.
-
--record(sasl_failure, {reason :: 'aborted' | 'account-disabled' | 'bad-protocol' | 'credentials-expired' | 'encryption-required' | 'incorrect-encoding' | 'invalid-authzid' | 'invalid-mechanism' | 'malformed-request' | 'mechanism-too-weak' | 'not-authorized' | 'temporary-auth-failure' | 'undefined',
-                       text = [] :: [#text{}]}).
--type sasl_failure() :: #sasl_failure{}.
 
 -record(sasl2_response, {text = <<>> :: binary()}).
 -type sasl2_response() :: #sasl2_response{}.
@@ -1238,11 +1233,6 @@
                             data = <<>> :: binary()}).
 -type unified_push_push() :: #unified_push_push{}.
 
--record(sasl2_failure, {reason :: 'aborted' | 'account-disabled' | 'bad-protocol' | 'credentials-expired' | 'encryption-required' | 'incorrect-encoding' | 'invalid-authzid' | 'invalid-mechanism' | 'malformed-request' | 'mechanism-too-weak' | 'not-authorized' | 'temporary-auth-failure' | 'undefined',
-                        text :: 'undefined' | binary(),
-                        sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
--type sasl2_failure() :: #sasl2_failure{}.
-
 -record(muc, {history :: 'undefined' | #muc_history{},
               password :: 'undefined' | binary()}).
 -type muc() :: #muc{}.
@@ -1305,38 +1295,6 @@
                       items = [] :: [#disco_item{}],
                       rsm :: 'undefined' | #rsm_set{}}).
 -type disco_items() :: #disco_items{}.
-
--record(vcard_temp, {version :: 'undefined' | binary(),
-                     fn :: 'undefined' | binary(),
-                     n :: 'undefined' | #vcard_name{},
-                     nickname :: 'undefined' | binary(),
-                     photo :: 'undefined' | #vcard_photo{},
-                     bday :: 'undefined' | binary(),
-                     adr = [] :: [#vcard_adr{}],
-                     label = [] :: [#vcard_label{}],
-                     tel = [] :: [#vcard_tel{}],
-                     email = [] :: [#vcard_email{}],
-                     jabberid :: 'undefined' | binary(),
-                     mailer :: 'undefined' | binary(),
-                     tz :: 'undefined' | binary(),
-                     geo :: 'undefined' | #vcard_geo{},
-                     title :: 'undefined' | binary(),
-                     role :: 'undefined' | binary(),
-                     logo :: 'undefined' | #vcard_logo{},
-                     org :: 'undefined' | #vcard_org{},
-                     categories = [] :: [binary()],
-                     note :: 'undefined' | binary(),
-                     prodid :: 'undefined' | binary(),
-                     rev :: 'undefined' | binary(),
-                     sort_string :: 'undefined' | binary(),
-                     sound :: 'undefined' | #vcard_sound{},
-                     uid :: 'undefined' | binary(),
-                     url :: 'undefined' | binary(),
-                     class :: 'confidential' | 'private' | 'public' | 'undefined',
-                     key :: 'undefined' | #vcard_key{},
-                     desc :: 'undefined' | binary(),
-                     sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
--type vcard_temp() :: #vcard_temp{}.
 
 -record(sasl_mechanisms, {list = [] :: [binary()]}).
 -type sasl_mechanisms() :: #sasl_mechanisms{}.
@@ -1401,19 +1359,6 @@
                            xmlns = <<>> :: binary()}).
 -type mix_client_leave() :: #mix_client_leave{}.
 
--record(sm_failed, {reason :: atom() | #gone{} | #redirect{},
-                    text = [] :: [#text{}],
-                    h :: 'undefined' | non_neg_integer(),
-                    xmlns = <<>> :: binary()}).
--type sm_failed() :: #sm_failed{}.
-
--record(stanza_error, {type :: 'auth' | 'cancel' | 'continue' | 'modify' | 'wait',
-                       by :: undefined | jid:jid(),
-                       reason :: atom() | #gone{} | #redirect{},
-                       text = [] :: [#text{}],
-                       sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
--type stanza_error() :: #stanza_error{}.
-
 -record(muc_admin, {items = [] :: [#muc_item{}]}).
 -type muc_admin() :: #muc_admin{}.
 
@@ -1464,6 +1409,64 @@
                    xdata :: 'undefined' | #xdata{},
                    sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
 -type register() :: #register{}.
+
+-record(sasl2_failure, {reason :: 'aborted' | 'account-disabled' | 'bad-protocol' | 'credentials-expired' | 'encryption-required' | 'incorrect-encoding' | 'invalid-authzid' | 'invalid-mechanism' | 'malformed-request' | 'mechanism-too-weak' | 'not-authorized' | 'temporary-auth-failure' | 'undefined',
+                        text :: 'undefined' | binary(),
+                        sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
+-type sasl2_failure() :: #sasl2_failure{}.
+
+-record(sasl_failure, {reason :: 'aborted' | 'account-disabled' | 'bad-protocol' | 'credentials-expired' | 'encryption-required' | 'incorrect-encoding' | 'invalid-authzid' | 'invalid-mechanism' | 'malformed-request' | 'mechanism-too-weak' | 'not-authorized' | 'temporary-auth-failure' | 'undefined',
+                       text = [] :: [#text{}]}).
+-type sasl_failure() :: #sasl_failure{}.
+
+-record(sm_failed, {reason :: atom() | #gone{} | #redirect{},
+                    text = [] :: [#text{}],
+                    h :: 'undefined' | non_neg_integer(),
+                    xmlns = <<>> :: binary()}).
+-type sm_failed() :: #sm_failed{}.
+
+-record(stanza_error, {type :: 'auth' | 'cancel' | 'continue' | 'modify' | 'wait',
+                       by :: undefined | jid:jid(),
+                       reason :: atom() | #gone{} | #redirect{},
+                       text = [] :: [#text{}],
+                       sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
+-type stanza_error() :: #stanza_error{}.
+
+-record(vcard_geo, {lat :: 'undefined' | binary(),
+                    lon :: 'undefined' | binary()}).
+-type vcard_geo() :: #vcard_geo{}.
+
+-record(vcard_temp, {version :: 'undefined' | binary(),
+                     fn :: 'undefined' | binary(),
+                     n :: 'undefined' | #vcard_name{},
+                     nickname :: 'undefined' | binary(),
+                     photo :: 'undefined' | #vcard_photo{},
+                     bday :: 'undefined' | binary(),
+                     adr = [] :: [#vcard_adr{}],
+                     label = [] :: [#vcard_label{}],
+                     tel = [] :: [#vcard_tel{}],
+                     email = [] :: [#vcard_email{}],
+                     jabberid :: 'undefined' | binary(),
+                     mailer :: 'undefined' | binary(),
+                     tz :: 'undefined' | binary(),
+                     geo :: 'undefined' | #vcard_geo{},
+                     title :: 'undefined' | binary(),
+                     role :: 'undefined' | binary(),
+                     logo :: 'undefined' | #vcard_logo{},
+                     org :: 'undefined' | #vcard_org{},
+                     categories = [] :: [binary()],
+                     note :: 'undefined' | binary(),
+                     prodid :: 'undefined' | binary(),
+                     rev :: 'undefined' | binary(),
+                     sort_string :: 'undefined' | binary(),
+                     sound :: 'undefined' | #vcard_sound{},
+                     uid :: 'undefined' | binary(),
+                     url :: 'undefined' | binary(),
+                     class :: 'confidential' | 'private' | 'public' | 'undefined',
+                     key :: 'undefined' | #vcard_key{},
+                     desc :: 'undefined' | binary(),
+                     sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
+-type vcard_temp() :: #vcard_temp{}.
 
 -type xmpp_element() :: address() |
                         addresses() |
