@@ -1172,7 +1172,7 @@ process_sasl2_success(Props, ServerOut,
 	true ->
 	    AuthModule = proplists:get_value(auth_module, Props),
 	    ExtraAuthInfo = proplists:get_value(extra_info, Props),
-	    State0 = State#{sasl2_axtra_auth_info => ExtraAuthInfo},
+	    State0 = State#{sasl2_extra_auth_info => ExtraAuthInfo},
 	    State1 = try callback(handle_auth_success, User, Mech, AuthModule, State0)
 		     catch _:{?MODULE, undef} -> State0
 		     end,
