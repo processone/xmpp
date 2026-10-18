@@ -72,7 +72,11 @@
 		   remote_server => binary(),
 		   sasl_mech => binary(),
 		   sasl_state => xmpp_sasl:sasl_state(),
+		   user_agent => user_agent(),
 		   _ => _}.
+-type user_agent() :: #{id => binary(),
+			software => binary(),
+			device => binary()}.
 -type stream_state() :: accepting | wait_for_stream | wait_for_handshake |
 			wait_for_starttls | wait_for_sasl_request |
 			wait_for_sasl_response | wait_for_bind |
@@ -84,7 +88,7 @@
 		       internal_failure.
 -type noreply() :: {noreply, state(), timeout()}.
 -type next_state() :: noreply() | {stop, term(), state()}.
--export_type([state/0, stop_reason/0]).
+-export_type([state/0, stop_reason/0, user_agent/0]).
 -callback init(list()) -> {ok, state()} | {error, term()} | ignore.
 -callback handle_cast(term(), state()) -> state().
 -callback handle_call(term(), term(), state()) -> state().
@@ -1095,7 +1099,12 @@ process_sasl_abort(State) ->
 process_sasl2_request(#sasl2_authenticate{mechanism = Mech, initial_response = ClientIn,
 					  user_agent = UA} = Pkt,
 		     #{lserver := LServer} = State) ->
-    State1 = State#{sasl_mech => Mech},
+    State1 = case UA of
+		 #sasl2_user_agent{} ->
+		     State#{sasl_mech => Mech, user_agent => user_agent(UA)};
+		 _ ->
+		     State#{sasl_mech => Mech}
+	     end,
     FastMechs = try callback(fast_mechanisms, State)
 		catch _:{?MODULE, undef} -> []
 		end,
@@ -1329,7 +1338,7 @@ process_sasl2_failure(Err, User,
 		true -> State2;
 		false ->
 		    State3 = map_remove_keys(State2, [sasl2_inline_els, sasl2_ua_id,
-						      sasl_state, sasl_mech]),
+						      user_agent, sasl_state, sasl_mech]),
 		    State3#{stream_state => wait_for_sasl_request}
 	    end
     end.
@@ -1788,6 +1797,14 @@ identity(Props) ->
 -spec sha(binary()) -> binary().
 sha(Data) ->
     xmpp_util:hex(crypto:hash(sha, Data)).
+
+-spec user_agent(sasl2_user_agent()) -> user_agent().
+user_agent(#sasl2_user_agent{id = ID, software = Software, device = Device}) ->
+    maps:filter(fun(_, undefined) -> false;
+		   (_, <<>>) -> false;
+		   (_, _) -> true
+		end,
+		#{id => ID, software => Software, device => Device}).
 
 map_remove_keys(Map, []) ->
     Map;
