@@ -284,6 +284,91 @@
                    #ref{name = stanza_id,
                         label = '$stanza_ids'}]}).
 
+-xml(reported_at,
+    #elem{name = <<"reported-at">>,
+          xmlns = <<"urn:xmpp:incidents:report:0">>,
+          module = 'xepXXXX',
+          result = '$cdata',
+          cdata = #cdata{required = true,
+                         enc = {enc_utc, []},
+                         dec = {dec_utc, []}}
+         }).
+
+-xml(report_jid,
+     #elem{name = <<"jid">>,
+           xmlns = <<"urn:xmpp:incidents:report:0">>,
+           module = 'xepXXXX',
+           result = '$cdata',
+           cdata = #cdata{dec = {jid, decode, []},
+                          enc = {jid, encode, []}}}).
+
+-xml(reported_ip,
+    #elem{name = <<"ip">>,
+          xmlns = <<"urn:xmpp:incidents:report:0">>,
+          module = 'xepXXXX',
+          result = {reported_ip, '$type', '$cdata'},
+          attrs = [#attr{name = <<"type">>,
+                        required = true,
+                          enc = {enc_enum, []},
+                          dec = {dec_enum, [[server, client]]}
+                        }],
+          cdata = #cdata{required = true,
+                         dec = {dec_ip, []},
+                         enc = {enc_ip, []}}}).
+
+-xml(reported_entity,
+     #elem{name = <<"reported-entity">>,
+           xmlns = <<"urn:xmpp:incidents:report:0">>,
+           module = 'xepXXXX',
+           result = {reported_entity, '$jid', '$ip'},
+           refs = [#ref{name = report_jid, label = '$jid', min = 1, max = 1},
+                   #ref{name = reported_ip, label = '$ip', min = 0, max = 1}]}).
+
+-xml(reporter_id,
+     #elem{name = <<"id">>,
+           xmlns = <<"urn:xmpp:incidents:report:0">>,
+           module = 'xepXXXX',
+           result = '$cdata',
+           cdata = #cdata{required = true}
+          }
+     ).
+
+-xml(reporter,
+     #elem{name = <<"reporter">>,
+           xmlns = <<"urn:xmpp:incidents:report:0">>,
+           module = 'xepXXXX',
+           result = {reporter, '$jid', '$id'},
+           refs = [#ref{name = report_jid, label = '$jid', min = 0, max = 1},
+                   #ref{name = reporter_id, label = '$id', min = 0, max = 1}]
+          }).
+
+-xml(stanzas,
+     #elem{name = <<"stanzas">>,
+           xmlns = <<"urn:xmpp:incidents:report:0">>,
+           module = 'xepXXXX',
+           result = '$forwarded',
+           refs = [#ref{name = forwarded, label = '$forwarded'}]
+          }).
+
+-xml(received_report,
+     #elem{
+        name = <<"received-report">>,
+        xmlns = <<"urn:xmpp:incidents:report:0">>,
+        module = 'xepXXXX',
+        result = {received_report, '$id', '$report', '$reported_at', '$reported_entity', '$reporter', '$stanzas'},
+        attrs = [#attr{name = <<"id">>, required = true}],
+        refs = [#ref{name = report, label = '$report',
+                     min = 1, max = 1},
+                #ref{name = reported_at, label = '$reported_at',
+                     min = 1, max = 1},
+                #ref{name = reported_entity, label = '$reported_entity',
+                     min = 1, max = 1},
+                #ref{name = reporter, label = '$reporter',
+                     min = 0, max = 1},
+                #ref{name = stanzas, label = '$stanzas',
+                     min = 0, max = 1}
+               ]}).
+
 -xml(disco_identity,
      #elem{name = <<"identity">>,
            xmlns = <<"http://jabber.org/protocol/disco#info">>,
