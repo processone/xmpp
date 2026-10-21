@@ -11,8 +11,7 @@ jobs:
       matrix:
         otp: [25, 28, 29]
     runs-on: ubuntu-24.04
-    container:
-      image: public.ecr.aws/docker/library/erlang:${{ matrix.otp }}
+    container: erlang:${{ matrix.otp }}
     steps:
     - uses: actions/checkout@v6
     - run: sed -i 's|applications, \[|applications, \[erl_tidy, |g' src/xmpp.app.src
