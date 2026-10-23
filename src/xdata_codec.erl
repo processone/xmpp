@@ -46,14 +46,15 @@
 		enc_mfas = [] :: [{binary(), mfargs()}],
 		specs = [] :: [{binary(), string()}],
 		ignore_unknown = false :: boolean(),
+		ignore_empty = false :: boolean(),
 		required = [] :: [{binary(), boolean()} | binary()],
 		defaults = [] :: [{binary(), any()}]}).
 
 -define(is_multi_type(T),
-	((T == 'list-multi') or (T == 'jid-multi') or (T == 'text-multi'))).
+	((T == 'list-multi') orelse (T == 'jid-multi') orelse (T == 'text-multi'))).
 
 -define(is_list_type(T),
-	((T == 'list-single') or (T == 'list-multi'))).
+	((T == 'list-single') orelse (T == 'list-multi'))).
 
 %%%===================================================================
 %%% API
@@ -100,6 +101,7 @@ compile_file(Path, Opts) ->
 		       enc_mfas = proplists:get_value(encode, Config, []),
 		       specs = proplists:get_value(specs, Config, []),
 		       ignore_unknown = proplists:get_bool(ignore_unknown, Config),
+		       ignore_empty = proplists:get_bool(ignore_empty, Config),
 		       required = proplists:get_value(required, Config, []),
 		       defaults = proplists:get_value(defaults, Config, [])},
 	#xmlel{} = El = fxml_stream:parse_element(Data),
@@ -478,11 +480,17 @@ mk_decoder([#xdata_field{var = Var, type = Type} = F|Fs], State) ->
 	 [Var, ValVar, DecFun, DelRequired,
 	  var_to_rec_field(Var, State), Var]),
     if not ?is_multi_type(Type) ->
-	    emit("do_decode([#xdata_field{var = ~p, values = []} = F|Fs],"
-		 "       XMLNS, Required, Acc) ->"
-		 "  do_decode([F#xdata_field{var = ~p, values = [<<>>]}|Fs],"
-		 "         XMLNS, Required, Acc);",
-		 [Var, Var]),
+    	case State#state.ignore_empty of
+    		true ->
+    			emit("do_decode([#xdata_field{var = ~p, values = []} = F|Fs],"
+    				"       XMLNS, Required, Acc) ->"
+		 			"  do_decode(Fs, XMLNS, Required, Acc);", [Var]);
+			false ->
+    			emit("do_decode([#xdata_field{var = ~p, values = []} = F|Fs],"
+    				"       XMLNS, Required, Acc) ->"
+		 			"  do_decode([F#xdata_field{var = ~p, values = [<<>>]}|Fs],"
+		 			"         XMLNS, Required, Acc);", [Var, Var])
+		end,
 	    emit("do_decode([#xdata_field{var = ~p}|_], XMLNS, _, _) ->"
 		 "  erlang:error({?MODULE, {too_many_values, ~p, XMLNS}});",
 		 [Var, Var]);

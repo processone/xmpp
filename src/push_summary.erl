@@ -236,12 +236,7 @@ do_decode([#xdata_field{var = <<"message-count">>,
                F
            | Fs],
           XMLNS, Required, Acc) ->
-    do_decode([F#xdata_field{var = <<"message-count">>,
-                             values = [<<>>]}
-               | Fs],
-              XMLNS,
-              Required,
-              Acc);
+    do_decode(Fs, XMLNS, Required, Acc);
 do_decode([#xdata_field{var = <<"message-count">>} | _],
           XMLNS, _, _) ->
     erlang:error({?MODULE,
@@ -271,13 +266,7 @@ do_decode([#xdata_field{var =
                F
            | Fs],
           XMLNS, Required, Acc) ->
-    do_decode([F#xdata_field{var =
-                                 <<"pending-subscription-count">>,
-                             values = [<<>>]}
-               | Fs],
-              XMLNS,
-              Required,
-              Acc);
+    do_decode(Fs, XMLNS, Required, Acc);
 do_decode([#xdata_field{var =
                             <<"pending-subscription-count">>}
            | _],
@@ -306,13 +295,7 @@ do_decode([#xdata_field{var = <<"last-message-sender">>,
                F
            | Fs],
           XMLNS, Required, Acc) ->
-    do_decode([F#xdata_field{var =
-                                 <<"last-message-sender">>,
-                             values = [<<>>]}
-               | Fs],
-              XMLNS,
-              Required,
-              Acc);
+    do_decode(Fs, XMLNS, Required, Acc);
 do_decode([#xdata_field{var = <<"last-message-sender">>}
            | _],
           XMLNS, _, _) ->
@@ -338,12 +321,7 @@ do_decode([#xdata_field{var = <<"last-message-body">>,
                F
            | Fs],
           XMLNS, Required, Acc) ->
-    do_decode([F#xdata_field{var = <<"last-message-body">>,
-                             values = [<<>>]}
-               | Fs],
-              XMLNS,
-              Required,
-              Acc);
+    do_decode(Fs, XMLNS, Required, Acc);
 do_decode([#xdata_field{var = <<"last-message-body">>}
            | _],
           XMLNS, _, _) ->
