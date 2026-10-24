@@ -50,10 +50,10 @@
 		defaults = [] :: [{binary(), any()}]}).
 
 -define(is_multi_type(T),
-	((T == 'list-multi') or (T == 'jid-multi') or (T == 'text-multi'))).
+	((T == 'list-multi') orelse (T == 'jid-multi') orelse (T == 'text-multi'))).
 
 -define(is_list_type(T),
-	((T == 'list-single') or (T == 'list-multi'))).
+	((T == 'list-single') orelse (T == 'list-multi'))).
 
 %%%===================================================================
 %%% API
@@ -509,7 +509,7 @@ mk_decoder([], State) ->
 mk_encoders(Fs, State) ->
     lists:foreach(
       fun(#xdata_field{var = Var, desc = Desc,
-		       label = Label, type = Type} = F) ->
+		       label = Label, type = Type, sub_els = SubEls} = F) ->
 	      Spec0 = mk_typespec(F, State),
 	      Spec1 = case default(F, State) of
 			  undefined -> Spec0 ++ " | undefined";
@@ -538,16 +538,31 @@ mk_encoders(Fs, State) ->
 			   "'encode_~s'(Value, Lang, IsRequired) ->",
 			   [FieldName, Spec1, FieldName])
 	      end,
-	      emit("  Values = ~s,"
-		   "  Opts = ~s,"
-		   "  #xdata_field{var = ~p,"
-		   "               values = Values,"
-		   "               required = IsRequired,"
-		   "               type = ~p,"
-		   "               options = Opts,"
-		   "               desc = ~s,"
-		   "               label = ~s}.~n",
-		   [EncVals, EncOpts, Var, Type, DescStr, LabelStr])
+              if
+		  ?is_multi_type(Type) andalso SubEls =/= [] ->
+		      emit("  Values = ~s,"
+			   "  Opts = ~s,"
+			   "  #xdata_field{var = ~p,"
+			   "               values = Values,"
+			   "               required = IsRequired,"
+			   "               type = ~p,"
+			   "               options = Opts,"
+			   "               desc = ~s,"
+			   "               label = ~s,"
+			   "               sub_els = ~p}.~n",
+			   [EncVals, EncOpts, Var, Type, DescStr, LabelStr, SubEls]);
+		  true ->
+		      emit("  Values = ~s,"
+			   "  Opts = ~s,"
+			   "  #xdata_field{var = ~p,"
+			   "               values = Values,"
+			   "               required = IsRequired,"
+			   "               type = ~p,"
+			   "               options = Opts,"
+			   "               desc = ~s,"
+			   "               label = ~s}.~n",
+			   [EncVals, EncOpts, Var, Type, DescStr, LabelStr])
+	      end
       end, Fs).
 
 mk_encoded_values(#xdata_field{var = Var, type = Type,
