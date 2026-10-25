@@ -3237,6 +3237,44 @@
 			  enc = {enc_bool, []}}],
 	   refs = [#ref{name = rsm_set, min = 0, max = 1, label = '$rsm'}]}).
 
+
+-xml(mam_metadata_start,
+     #elem{name = <<"start">>,
+           xmlns = <<"urn:xmpp:mam:2">>,
+           module = 'xep0313',
+           result = {mam_metadata_start, '$id', '$timestamp'},
+           attrs = [#attr{name = <<"id">>,
+                          label = '$id',
+                          required = true},
+                    #attr{name = <<"timestamp">>,
+                          label = '$timestamp',
+                          required = true,
+                          dec = {dec_utc, []},
+                          enc = {enc_utc, []}}]}).
+
+-xml(mam_metadata_end,
+     #elem{name = <<"end">>,
+           xmlns = <<"urn:xmpp:mam:2">>,
+           module = 'xep0313',
+           result = {mam_metadata_end, '$id', '$timestamp'},
+           attrs = [#attr{name = <<"id">>,
+                          label = '$id',
+                          required = true},
+                    #attr{name = <<"timestamp">>,
+                          label = '$timestamp',
+                          required = true,
+                          dec = {dec_utc, []},
+                          enc = {enc_utc, []}}]}).
+
+-xml(mam_metadata,
+     #elem{name = <<"metadata">>,
+           xmlns = [<<"urn:xmpp:mam:2">>],
+           module = 'xep0313',
+           result = {mam_metadata, '$start', '$end'},
+           refs = [#ref{name = mam_metadata_start, label = '$start', min=0, max=1},
+                   #ref{name = mam_metadata_end, label = '$end', min=0, max=1}]
+          }).
+
 -xml(forwarded,
      #elem{name = <<"forwarded">>,
            xmlns = <<"urn:xmpp:forward:0">>,
