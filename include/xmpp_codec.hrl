@@ -211,12 +211,6 @@
 -record(x509_challenge_failed, {}).
 -type x509_challenge_failed() :: #x509_challenge_failed{}.
 
--record(thumbnail, {uri = <<>> :: binary(),
-                    'media-type' = <<>> :: binary(),
-                    width :: 'undefined' | non_neg_integer(),
-                    height :: 'undefined' | non_neg_integer()}).
--type thumbnail() :: #thumbnail{}.
-
 -record(x509_csr, {name = <<>> :: binary(),
                    der = <<>> :: binary()}).
 -type x509_csr() :: #x509_csr{}.
@@ -482,16 +476,6 @@
                        nick = <<>> :: binary()}).
 -type mix_presence() :: #mix_presence{}.
 
--record(privacy_item, {order :: non_neg_integer(),
-                       action :: 'allow' | 'deny',
-                       type :: 'group' | 'jid' | 'subscription' | 'undefined',
-                       value = <<>> :: binary(),
-                       message = false :: boolean(),
-                       iq = false :: boolean(),
-                       presence_in = false :: boolean(),
-                       presence_out = false :: boolean()}).
--type privacy_item() :: #privacy_item{}.
-
 -record(upload_retry, {stamp :: undefined | erlang:timestamp()}).
 -type upload_retry() :: #upload_retry{}.
 
@@ -613,16 +597,6 @@
                             occupant_id :: 'undefined' | #occupant_id{}}).
 -type message_moderated() :: #message_moderated{}.
 
--record(message_retract, {id = <<>> :: binary(),
-                          reason :: 'undefined' | binary(),
-                          moderated :: 'undefined' | #message_moderated{}}).
--type message_retract() :: #message_retract{}.
-
--record(message_moderate, {id = <<>> :: binary(),
-                           reason :: 'undefined' | binary(),
-                           retract :: 'undefined' | #message_retract{}}).
--type message_moderate() :: #message_moderate{}.
-
 -record(hash_used, {algo = <<>> :: binary()}).
 -type hash_used() :: #hash_used{}.
 
@@ -695,6 +669,10 @@
 -record(referenced_stanza, {by :: undefined | jid:jid(),
                             id = <<>> :: binary()}).
 -type referenced_stanza() :: #referenced_stanza{}.
+
+-record(reported_ip, {type :: 'client' | 'server',
+                      cdata :: inet:ip_address()}).
+-type reported_ip() :: #reported_ip{}.
 
 -record(sm_r, {xmlns = <<>> :: binary()}).
 -type sm_r() :: #sm_r{}.
@@ -1200,14 +1178,6 @@
                     items = [] :: [#muc_item{}]}).
 -type muc_owner() :: #muc_owner{}.
 
--record(pubsub_owner, {affiliations :: 'undefined' | {binary(),[#ps_affiliation{}]},
-                       configure :: 'undefined' | {binary(),'undefined' | #xdata{}},
-                       default :: 'undefined' | {binary(),'undefined' | #xdata{}},
-                       delete :: 'undefined' | {binary(),binary()},
-                       purge :: 'undefined' | binary(),
-                       subscriptions :: 'undefined' | {binary(),[#ps_subscription{}]}}).
--type pubsub_owner() :: #pubsub_owner{}.
-
 -record(ps_options, {node = <<>> :: binary(),
                      jid :: undefined | jid:jid(),
                      subid = <<>> :: binary(),
@@ -1233,6 +1203,22 @@
                       digest :: 'undefined' | binary(),
                       resource :: 'undefined' | binary()}).
 -type legacy_auth() :: #legacy_auth{}.
+
+-record(reporter, {jid :: undefined | jid:jid(),
+                   id :: 'undefined' | binary()}).
+-type reporter() :: #reporter{}.
+
+-record(reported_entity, {jid :: jid:jid(),
+                          ip :: 'undefined' | #reported_ip{}}).
+-type reported_entity() :: #reported_entity{}.
+
+-record(received_report, {id = <<>> :: binary(),
+                          report :: #report{},
+                          reported_at :: erlang:timestamp(),
+                          reported_entity :: #reported_entity{},
+                          reporter :: 'undefined' | #reporter{},
+                          stanzas :: 'undefined' | [#forwarded{}]}).
+-type received_report() :: #received_report{}.
 
 -record(unified_push_push, {application = <<>> :: binary(),
                             instance = <<>> :: binary(),
@@ -1342,10 +1328,6 @@
                                occupant_id :: 'undefined' | #occupant_id{}}).
 -type message_moderated_21() :: #message_moderated_21{}.
 
--record(message_moderate_21, {reason :: 'undefined' | binary(),
-                              retract :: 'undefined' | #message_retract{}}).
--type message_moderate_21() :: #message_moderate_21{}.
-
 -record(address, {type :: 'bcc' | 'cc' | 'noreply' | 'ofrom' | 'replyroom' | 'replyto' | 'to',
                   jid :: undefined | jid:jid(),
                   desc = <<>> :: binary(),
@@ -1375,15 +1357,6 @@
                        ver :: 'undefined' | binary(),
                        mix_annotate = false :: boolean()}).
 -type roster_query() :: #roster_query{}.
-
--record(privacy_list, {name = <<>> :: binary(),
-                       items = [] :: [#privacy_item{}]}).
--type privacy_list() :: #privacy_list{}.
-
--record(privacy_query, {lists = [] :: [#privacy_list{}],
-                        default :: 'none' | 'undefined' | binary(),
-                        active :: 'none' | 'undefined' | binary()}).
--type privacy_query() :: #privacy_query{}.
 
 -record(preauth, {token = <<>> :: binary()}).
 -type preauth() :: #preauth{}.
@@ -1442,6 +1415,34 @@
                     lon :: 'undefined' | binary()}).
 -type vcard_geo() :: #vcard_geo{}.
 
+-record(oob_x, {url :: binary(),
+                desc = <<>> :: binary(),
+                sid = <<>> :: binary(),
+                sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
+-type oob_x() :: #oob_x{}.
+
+-record(pubsub_owner, {affiliations :: 'undefined' | {binary(),[#ps_affiliation{}]},
+                       configure :: 'undefined' | {binary(),'undefined' | #xdata{}},
+                       default :: 'undefined' | {binary(),'undefined' | #xdata{}},
+                       delete :: 'undefined' | {binary(),binary()},
+                       purge :: 'undefined' | binary(),
+                       subscriptions :: 'undefined' | {binary(),[#ps_subscription{}]}}).
+-type pubsub_owner() :: #pubsub_owner{}.
+
+-record(message_retract, {id = <<>> :: binary(),
+                          reason :: 'undefined' | binary(),
+                          moderated :: 'undefined' | #message_moderated{}}).
+-type message_retract() :: #message_retract{}.
+
+-record(message_moderate_21, {reason :: 'undefined' | binary(),
+                              retract :: 'undefined' | #message_retract{}}).
+-type message_moderate_21() :: #message_moderate_21{}.
+
+-record(message_moderate, {id = <<>> :: binary(),
+                           reason :: 'undefined' | binary(),
+                           retract :: 'undefined' | #message_retract{}}).
+-type message_moderate() :: #message_moderate{}.
+
 -record(vcard_temp, {version :: 'undefined' | binary(),
                      fn :: 'undefined' | binary(),
                      n :: 'undefined' | #vcard_name{},
@@ -1474,11 +1475,30 @@
                      sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
 -type vcard_temp() :: #vcard_temp{}.
 
--record(oob_x, {url :: binary(),
-                desc = <<>> :: binary(),
-                sid = <<>> :: binary(),
-                sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
--type oob_x() :: #oob_x{}.
+-record(privacy_item, {order :: non_neg_integer(),
+                       action :: 'allow' | 'deny',
+                       type :: 'group' | 'jid' | 'subscription' | 'undefined',
+                       value = <<>> :: binary(),
+                       message = false :: boolean(),
+                       iq = false :: boolean(),
+                       presence_in = false :: boolean(),
+                       presence_out = false :: boolean()}).
+-type privacy_item() :: #privacy_item{}.
+
+-record(privacy_list, {name = <<>> :: binary(),
+                       items = [] :: [#privacy_item{}]}).
+-type privacy_list() :: #privacy_list{}.
+
+-record(privacy_query, {lists = [] :: [#privacy_list{}],
+                        default :: 'none' | 'undefined' | binary(),
+                        active :: 'none' | 'undefined' | binary()}).
+-type privacy_query() :: #privacy_query{}.
+
+-record(thumbnail, {uri = <<>> :: binary(),
+                    'media-type' = <<>> :: binary(),
+                    width :: 'undefined' | non_neg_integer(),
+                    height :: 'undefined' | non_neg_integer()}).
+-type thumbnail() :: #thumbnail{}.
 
 -type xmpp_element() :: address() |
                         addresses() |
@@ -1660,10 +1680,14 @@
                         push_notification() |
                         receipt_request() |
                         receipt_response() |
+                        received_report() |
                         redirect() |
                         referenced_stanza() |
                         register() |
                         report() |
+                        reported_entity() |
+                        reported_ip() |
+                        reporter() |
                         roster_item() |
                         roster_query() |
                         rosterver_feature() |
