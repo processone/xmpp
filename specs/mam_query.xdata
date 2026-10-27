@@ -1,5 +1,5 @@
 <form_type>
-  <name>urn:xmpp:mam:1</name>
+  <name>urn:xmpp:mam:2</name>
   <doc>XEP-0313</doc>
   <desc>Form to query message archives</desc>
   <field var='with'
@@ -14,6 +14,17 @@
   <field var='withtext'
 	 type='text-single'
 	 label='Search the text (obsolete)'/>
+  <field var='after-id'
+         type='text-single'
+         label='Only results after given id'/>
+  <field var='before-id'
+         type='text-single'
+         label='Only results before given id'/>
+  <field var='ids'
+         type='list-multi'
+         label='List of stanza ids to retrieve'>
+    <validate xmlns='http://jabber.org/protocol/xdata-validate' datatype='xs:string'>
+  <open/></validate></field>
 </form_type>
 
 <!--

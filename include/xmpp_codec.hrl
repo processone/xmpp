@@ -274,6 +274,10 @@
 -record(gone, {uri = <<>> :: binary()}).
 -type gone() :: #gone{}.
 
+-record(mam_metadata_end, {id = <<>> :: binary(),
+                           timestamp :: erlang:timestamp()}).
+-type mam_metadata_end() :: #mam_metadata_end{}.
+
 -record(message_thread, {parent = <<>> :: binary(),
                          data = <<>> :: binary()}).
 -type message_thread() :: #message_thread{}.
@@ -310,6 +314,10 @@
                     previd = <<>> :: binary(),
                     xmlns = <<>> :: binary()}).
 -type sm_resume() :: #sm_resume{}.
+
+-record(mam_metadata_start, {id = <<>> :: binary(),
+                             timestamp :: erlang:timestamp()}).
+-type mam_metadata_start() :: #mam_metadata_start{}.
 
 -record(jingle_content, {creator :: 'initiator' | 'responder',
                          disposition = <<>> :: binary(),
@@ -383,6 +391,10 @@
                 from :: undefined | jid:jid(),
                 desc = <<>> :: binary()}).
 -type delay() :: #delay{}.
+
+-record(mam_metadata, {start :: 'undefined' | #mam_metadata_start{},
+                       'end' :: 'undefined' | #mam_metadata_end{}}).
+-type mam_metadata() :: #mam_metadata{}.
 
 -record(handshake, {data = <<>> :: binary()}).
 -type handshake() :: #handshake{}.
@@ -914,12 +926,6 @@
 
 -record(muc_hats, {hats = [] :: [#muc_hat{}]}).
 -type muc_hats() :: #muc_hats{}.
-
--record(oob_x, {url :: binary(),
-                desc = <<>> :: binary(),
-                sid = <<>> :: binary(),
-                sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
--type oob_x() :: #oob_x{}.
 
 -record(x509_ca_list, {certs = [] :: [binary()]}).
 -type x509_ca_list() :: #x509_ca_list{}.
@@ -1468,6 +1474,12 @@
                      sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
 -type vcard_temp() :: #vcard_temp{}.
 
+-record(oob_x, {url :: binary(),
+                desc = <<>> :: binary(),
+                sid = <<>> :: binary(),
+                sub_els = [] :: [xmpp_element() | fxml:xmlel()]}).
+-type oob_x() :: #oob_x{}.
+
 -type xmpp_element() :: address() |
                         addresses() |
                         adhoc_actions() |
@@ -1557,6 +1569,9 @@
                         legacy_auth_feature() |
                         mam_archived() |
                         mam_fin() |
+                        mam_metadata() |
+                        mam_metadata_end() |
+                        mam_metadata_start() |
                         mam_prefs() |
                         mam_query() |
                         mam_result() |
