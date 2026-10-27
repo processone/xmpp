@@ -5,6 +5,16 @@
 
 -compile(export_all).
 
+do_decode(<<"metadata">>, <<"urn:xmpp:mam:2">>, El,
+          Opts) ->
+    decode_mam_metadata(<<"urn:xmpp:mam:2">>, Opts, El);
+do_decode(<<"end">>, <<"urn:xmpp:mam:2">>, El, Opts) ->
+    decode_mam_metadata_end(<<"urn:xmpp:mam:2">>, Opts, El);
+do_decode(<<"start">>, <<"urn:xmpp:mam:2">>, El,
+          Opts) ->
+    decode_mam_metadata_start(<<"urn:xmpp:mam:2">>,
+                              Opts,
+                              El);
 do_decode(<<"fin">>, <<"urn:xmpp:mam:0">>, El, Opts) ->
     decode_mam_fin(<<"urn:xmpp:mam:0">>, Opts, El);
 do_decode(<<"fin">>, <<"urn:xmpp:mam:1">>, El, Opts) ->
@@ -104,7 +114,10 @@ do_decode(Name, XMLNS, _, _) ->
     erlang:error({xmpp_codec, {unknown_tag, Name, XMLNS}}).
 
 tags() ->
-    [{<<"fin">>, <<"urn:xmpp:mam:0">>},
+    [{<<"metadata">>, <<"urn:xmpp:mam:2">>},
+     {<<"end">>, <<"urn:xmpp:mam:2">>},
+     {<<"start">>, <<"urn:xmpp:mam:2">>},
+     {<<"fin">>, <<"urn:xmpp:mam:0">>},
      {<<"fin">>, <<"urn:xmpp:mam:1">>},
      {<<"fin">>, <<"urn:xmpp:mam:2">>},
      {<<"prefs">>, <<"urn:xmpp:mam:0">>},
@@ -150,10 +163,20 @@ do_encode({mam_result, _, _, _, _} = Result,
 do_encode({mam_prefs, _, _, _, _} = Prefs, TopXMLNS) ->
     encode_mam_prefs(Prefs, TopXMLNS);
 do_encode({mam_fin, _, _, _, _, _} = Fin, TopXMLNS) ->
-    encode_mam_fin(Fin, TopXMLNS).
+    encode_mam_fin(Fin, TopXMLNS);
+do_encode({mam_metadata_start, _, _} = Start,
+          TopXMLNS) ->
+    encode_mam_metadata_start(Start, TopXMLNS);
+do_encode({mam_metadata_end, _, _} = End, TopXMLNS) ->
+    encode_mam_metadata_end(End, TopXMLNS);
+do_encode({mam_metadata, _, _} = Metadata, TopXMLNS) ->
+    encode_mam_metadata(Metadata, TopXMLNS).
 
 do_get_name({mam_archived, _, _}) -> <<"archived">>;
 do_get_name({mam_fin, _, _, _, _, _}) -> <<"fin">>;
+do_get_name({mam_metadata, _, _}) -> <<"metadata">>;
+do_get_name({mam_metadata_end, _, _}) -> <<"end">>;
+do_get_name({mam_metadata_start, _, _}) -> <<"start">>;
 do_get_name({mam_prefs, _, _, _, _}) -> <<"prefs">>;
 do_get_name({mam_query, _, _, _, _, _, _, _, _, _}) ->
     <<"query">>;
@@ -162,6 +185,11 @@ do_get_name({mam_result, _, _, _, _}) -> <<"result">>.
 do_get_ns({mam_archived, _, _}) ->
     <<"urn:xmpp:mam:tmp">>;
 do_get_ns({mam_fin, Xmlns, _, _, _, _}) -> Xmlns;
+do_get_ns({mam_metadata, _, _}) -> <<"urn:xmpp:mam:2">>;
+do_get_ns({mam_metadata_end, _, _}) ->
+    <<"urn:xmpp:mam:2">>;
+do_get_ns({mam_metadata_start, _, _}) ->
+    <<"urn:xmpp:mam:2">>;
 do_get_ns({mam_prefs, Xmlns, _, _, _}) -> Xmlns;
 do_get_ns({mam_query, Xmlns, _, _, _, _, _, _, _, _}) ->
     Xmlns;
@@ -192,6 +220,9 @@ pp(mam_archived, 2) -> [by, id];
 pp(mam_result, 4) -> [xmlns, queryid, id, sub_els];
 pp(mam_prefs, 4) -> [xmlns, default, always, never];
 pp(mam_fin, 5) -> [xmlns, id, rsm, stable, complete];
+pp(mam_metadata_start, 2) -> [id, timestamp];
+pp(mam_metadata_end, 2) -> [id, timestamp];
+pp(mam_metadata, 2) -> [start, 'end'];
 pp(_, _) -> no.
 
 records() ->
@@ -199,7 +230,10 @@ records() ->
      {mam_archived, 2},
      {mam_result, 4},
      {mam_prefs, 4},
-     {mam_fin, 5}].
+     {mam_fin, 5},
+     {mam_metadata_start, 2},
+     {mam_metadata_end, 2},
+     {mam_metadata, 2}].
 
 dec_bool(<<"false">>) -> false;
 dec_bool(<<"0">>) -> false;
@@ -220,6 +254,262 @@ enc_bool(true) -> <<"true">>.
 enc_enum(Atom) -> erlang:atom_to_binary(Atom, utf8).
 
 enc_utc(Val) -> xmpp_util:encode_timestamp(Val).
+
+decode_mam_metadata(__TopXMLNS, __Opts,
+                    {xmlel, <<"metadata">>, _attrs, _els}) ->
+    {Start, End} = decode_mam_metadata_els(__TopXMLNS,
+                                           __Opts,
+                                           _els,
+                                           undefined,
+                                           undefined),
+    {mam_metadata, Start, End}.
+
+decode_mam_metadata_els(__TopXMLNS, __Opts, [], Start,
+                        End) ->
+    {Start, End};
+decode_mam_metadata_els(__TopXMLNS, __Opts,
+                        [{xmlel, <<"start">>, _attrs, _} = _el | _els], Start,
+                        End) ->
+    case xmpp_codec:get_attr(<<"xmlns">>,
+                             _attrs,
+                             __TopXMLNS)
+        of
+        <<"urn:xmpp:mam:2">> ->
+            decode_mam_metadata_els(__TopXMLNS,
+                                    __Opts,
+                                    _els,
+                                    decode_mam_metadata_start(<<"urn:xmpp:mam:2">>,
+                                                              __Opts,
+                                                              _el),
+                                    End);
+        _ ->
+            decode_mam_metadata_els(__TopXMLNS,
+                                    __Opts,
+                                    _els,
+                                    Start,
+                                    End)
+    end;
+decode_mam_metadata_els(__TopXMLNS, __Opts,
+                        [{xmlel, <<"end">>, _attrs, _} = _el | _els], Start,
+                        End) ->
+    case xmpp_codec:get_attr(<<"xmlns">>,
+                             _attrs,
+                             __TopXMLNS)
+        of
+        <<"urn:xmpp:mam:2">> ->
+            decode_mam_metadata_els(__TopXMLNS,
+                                    __Opts,
+                                    _els,
+                                    Start,
+                                    decode_mam_metadata_end(<<"urn:xmpp:mam:2">>,
+                                                            __Opts,
+                                                            _el));
+        _ ->
+            decode_mam_metadata_els(__TopXMLNS,
+                                    __Opts,
+                                    _els,
+                                    Start,
+                                    End)
+    end;
+decode_mam_metadata_els(__TopXMLNS, __Opts, [_ | _els],
+                        Start, End) ->
+    decode_mam_metadata_els(__TopXMLNS,
+                            __Opts,
+                            _els,
+                            Start,
+                            End).
+
+encode_mam_metadata({mam_metadata, Start, End},
+                    __TopXMLNS) ->
+    __NewTopXMLNS = xmpp_codec:choose_top_xmlns(<<>>,
+                                                [<<"urn:xmpp:mam:2">>],
+                                                __TopXMLNS),
+    _els = lists:reverse('encode_mam_metadata_$end'(End,
+                                                    __NewTopXMLNS,
+                                                    'encode_mam_metadata_$start'(Start,
+                                                                                 __NewTopXMLNS,
+                                                                                 []))),
+    _attrs = xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
+                                        __TopXMLNS),
+    {xmlel, <<"metadata">>, _attrs, _els}.
+
+'encode_mam_metadata_$start'(undefined, __TopXMLNS,
+                             _acc) ->
+    _acc;
+'encode_mam_metadata_$start'(Start, __TopXMLNS, _acc) ->
+    [encode_mam_metadata_start(Start, __TopXMLNS) | _acc].
+
+'encode_mam_metadata_$end'(undefined, __TopXMLNS,
+                           _acc) ->
+    _acc;
+'encode_mam_metadata_$end'(End, __TopXMLNS, _acc) ->
+    [encode_mam_metadata_end(End, __TopXMLNS) | _acc].
+
+decode_mam_metadata_end(__TopXMLNS, __Opts,
+                        {xmlel, <<"end">>, _attrs, _els}) ->
+    {Id, Timestamp} =
+        decode_mam_metadata_end_attrs(__TopXMLNS,
+                                      _attrs,
+                                      undefined,
+                                      undefined),
+    {mam_metadata_end, Id, Timestamp}.
+
+decode_mam_metadata_end_attrs(__TopXMLNS,
+                              [{<<"id">>, _val} | _attrs], _Id, Timestamp) ->
+    decode_mam_metadata_end_attrs(__TopXMLNS,
+                                  _attrs,
+                                  _val,
+                                  Timestamp);
+decode_mam_metadata_end_attrs(__TopXMLNS,
+                              [{<<"timestamp">>, _val} | _attrs], Id,
+                              _Timestamp) ->
+    decode_mam_metadata_end_attrs(__TopXMLNS,
+                                  _attrs,
+                                  Id,
+                                  _val);
+decode_mam_metadata_end_attrs(__TopXMLNS, [_ | _attrs],
+                              Id, Timestamp) ->
+    decode_mam_metadata_end_attrs(__TopXMLNS,
+                                  _attrs,
+                                  Id,
+                                  Timestamp);
+decode_mam_metadata_end_attrs(__TopXMLNS, [], Id,
+                              Timestamp) ->
+    {decode_mam_metadata_end_attr_id(__TopXMLNS, Id),
+     decode_mam_metadata_end_attr_timestamp(__TopXMLNS,
+                                            Timestamp)}.
+
+encode_mam_metadata_end({mam_metadata_end,
+                         Id,
+                         Timestamp},
+                        __TopXMLNS) ->
+    __NewTopXMLNS =
+        xmpp_codec:choose_top_xmlns(<<"urn:xmpp:mam:2">>,
+                                    [],
+                                    __TopXMLNS),
+    _els = [],
+    _attrs =
+        encode_mam_metadata_end_attr_timestamp(Timestamp,
+                                               encode_mam_metadata_end_attr_id(Id,
+                                                                               xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
+                                                                                                          __TopXMLNS))),
+    {xmlel, <<"end">>, _attrs, _els}.
+
+decode_mam_metadata_end_attr_id(__TopXMLNS,
+                                undefined) ->
+    erlang:error({xmpp_codec,
+                  {missing_attr, <<"id">>, <<"end">>, __TopXMLNS}});
+decode_mam_metadata_end_attr_id(__TopXMLNS, _val) ->
+    _val.
+
+encode_mam_metadata_end_attr_id(_val, _acc) ->
+    [{<<"id">>, _val} | _acc].
+
+decode_mam_metadata_end_attr_timestamp(__TopXMLNS,
+                                       undefined) ->
+    erlang:error({xmpp_codec,
+                  {missing_attr,
+                   <<"timestamp">>,
+                   <<"end">>,
+                   __TopXMLNS}});
+decode_mam_metadata_end_attr_timestamp(__TopXMLNS,
+                                       _val) ->
+    try dec_utc(_val) of
+        _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value,
+                           <<"timestamp">>,
+                           <<"end">>,
+                           __TopXMLNS}})
+    end.
+
+encode_mam_metadata_end_attr_timestamp(_val, _acc) ->
+    [{<<"timestamp">>, enc_utc(_val)} | _acc].
+
+decode_mam_metadata_start(__TopXMLNS, __Opts,
+                          {xmlel, <<"start">>, _attrs, _els}) ->
+    {Id, Timestamp} =
+        decode_mam_metadata_start_attrs(__TopXMLNS,
+                                        _attrs,
+                                        undefined,
+                                        undefined),
+    {mam_metadata_start, Id, Timestamp}.
+
+decode_mam_metadata_start_attrs(__TopXMLNS,
+                                [{<<"id">>, _val} | _attrs], _Id, Timestamp) ->
+    decode_mam_metadata_start_attrs(__TopXMLNS,
+                                    _attrs,
+                                    _val,
+                                    Timestamp);
+decode_mam_metadata_start_attrs(__TopXMLNS,
+                                [{<<"timestamp">>, _val} | _attrs], Id,
+                                _Timestamp) ->
+    decode_mam_metadata_start_attrs(__TopXMLNS,
+                                    _attrs,
+                                    Id,
+                                    _val);
+decode_mam_metadata_start_attrs(__TopXMLNS,
+                                [_ | _attrs], Id, Timestamp) ->
+    decode_mam_metadata_start_attrs(__TopXMLNS,
+                                    _attrs,
+                                    Id,
+                                    Timestamp);
+decode_mam_metadata_start_attrs(__TopXMLNS, [], Id,
+                                Timestamp) ->
+    {decode_mam_metadata_start_attr_id(__TopXMLNS, Id),
+     decode_mam_metadata_start_attr_timestamp(__TopXMLNS,
+                                              Timestamp)}.
+
+encode_mam_metadata_start({mam_metadata_start,
+                           Id,
+                           Timestamp},
+                          __TopXMLNS) ->
+    __NewTopXMLNS =
+        xmpp_codec:choose_top_xmlns(<<"urn:xmpp:mam:2">>,
+                                    [],
+                                    __TopXMLNS),
+    _els = [],
+    _attrs =
+        encode_mam_metadata_start_attr_timestamp(Timestamp,
+                                                 encode_mam_metadata_start_attr_id(Id,
+                                                                                   xmpp_codec:enc_xmlns_attrs(__NewTopXMLNS,
+                                                                                                              __TopXMLNS))),
+    {xmlel, <<"start">>, _attrs, _els}.
+
+decode_mam_metadata_start_attr_id(__TopXMLNS,
+                                  undefined) ->
+    erlang:error({xmpp_codec,
+                  {missing_attr, <<"id">>, <<"start">>, __TopXMLNS}});
+decode_mam_metadata_start_attr_id(__TopXMLNS, _val) ->
+    _val.
+
+encode_mam_metadata_start_attr_id(_val, _acc) ->
+    [{<<"id">>, _val} | _acc].
+
+decode_mam_metadata_start_attr_timestamp(__TopXMLNS,
+                                         undefined) ->
+    erlang:error({xmpp_codec,
+                  {missing_attr,
+                   <<"timestamp">>,
+                   <<"start">>,
+                   __TopXMLNS}});
+decode_mam_metadata_start_attr_timestamp(__TopXMLNS,
+                                         _val) ->
+    try dec_utc(_val) of
+        _res -> _res
+    catch
+        error:_ ->
+            erlang:error({xmpp_codec,
+                          {bad_attr_value,
+                           <<"timestamp">>,
+                           <<"start">>,
+                           __TopXMLNS}})
+    end.
+
+encode_mam_metadata_start_attr_timestamp(_val, _acc) ->
+    [{<<"timestamp">>, enc_utc(_val)} | _acc].
 
 decode_mam_fin(__TopXMLNS, __Opts,
                {xmlel, <<"fin">>, _attrs, _els}) ->

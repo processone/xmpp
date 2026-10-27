@@ -270,6 +270,7 @@ get_mod(<<"error">>, <<"jabber:component:accept">>) ->
 get_mod(<<"password">>, <<"jabber:iq:auth">>) ->
     xep0078;
 get_mod(<<"TZ">>, <<"vcard-temp">>) -> xep0054;
+get_mod(<<"end">>, <<"urn:xmpp:mam:2">>) -> xep0313;
 get_mod(<<"content">>, <<"urn:xmpp:jingle:1">>) ->
     xep0166;
 get_mod(<<"nick">>, <<"storage:bookmarks">>) -> xep0048;
@@ -346,6 +347,7 @@ get_mod(<<"pubsub">>,
         <<"http://jabber.org/protocol/pubsub">>) ->
     xep0060;
 get_mod(<<"tzo">>, <<"urn:xmpp:time">>) -> xep0202;
+get_mod(<<"start">>, <<"urn:xmpp:mam:2">>) -> xep0313;
 get_mod(<<"unsupported-info">>,
         <<"urn:xmpp:jingle:errors:1">>) ->
     xep0166;
@@ -1351,6 +1353,8 @@ get_mod(<<"status">>, <<"jabber:client">>) -> rfc6120;
 get_mod(<<"item">>,
         <<"http://jabber.org/protocol/pubsub#event">>) ->
     xep0060;
+get_mod(<<"metadata">>, <<"urn:xmpp:mam:2">>) ->
+    xep0313;
 get_mod(<<"resumed">>, <<"urn:xmpp:sm:3">>) -> xep0198;
 get_mod(<<"jid">>, <<"urn:xmpp:mix:core:0">>) ->
     xep0369;
@@ -1952,16 +1956,11 @@ get_mod({adhoc_command, _, _, _, _, _, _, _, _}) ->
     xep0050;
 get_mod({media, _, _, _}) -> xep0221;
 get_mod({oob_x, _, _, _, _}) -> xep0066;
-get_mod({identity, _, _, _, _}) -> xep0030;
-get_mod({redirect, _}) -> rfc6120;
-get_mod({muc_history, _, _, _, _}) -> xep0045;
 get_mod({muc_owner, _, _, _}) -> xep0045;
 get_mod({mix_setnick, _, _}) -> xep0369;
 get_mod({mark_received, _}) -> xep0333;
 get_mod({mark_displayed, _}) -> xep0333;
 get_mod({mark_acknowledged, _}) -> xep0333;
-get_mod({jingle_ft_file, _, _, _, _, _, _, _, _}) ->
-    xep0234;
 get_mod({bookmark_url, _, _}) -> xep0048;
 get_mod({gone, _}) -> rfc6120;
 get_mod({sasl_response, _}) -> rfc6120;
@@ -2057,6 +2056,7 @@ get_mod({markable}) -> xep0333;
 get_mod({message_moderated_21, _, _, _, _}) -> xep0425;
 get_mod({bind, _, _}) -> rfc6120;
 get_mod({rsm_first, _, _}) -> xep0059;
+get_mod({mam_metadata_start, _, _}) -> xep0313;
 get_mod({caps, _, _, _, _}) -> xep0115;
 get_mod({xdata, _, _, _, _, _, _}) -> xep0004;
 get_mod({ps_options, _, _, _, _}) -> xep0060;
@@ -2125,6 +2125,7 @@ get_mod({inbox_fin, _, _, _, _}) -> xep0430;
 get_mod({csi, _}) -> xep0352;
 get_mod({pep_bookmarks_conference, _, _, _, _, _}) ->
     xep0402;
+get_mod({mam_metadata, _, _}) -> xep0313;
 get_mod({sm_a, _, _}) -> xep0198;
 get_mod({jingle_s5b_transport, _, _, _, _, _, _, _}) ->
     xep0260;
@@ -2142,6 +2143,7 @@ get_mod({avatar_info, _, _, _, _, _, _}) -> xep0084;
 get_mod({privacy_list, _, _}) -> xep0016;
 get_mod({unified_push_registered, _, _}) -> unifiedpush;
 get_mod({message_thread, _, _}) -> rfc6120;
+get_mod({mam_metadata_end, _, _}) -> xep0313;
 get_mod({forwarded, _, _}) -> xep0297;
 get_mod({feature_sm, _}) -> xep0198;
 get_mod({stanza_id, _, _}) -> xep0359;
@@ -2193,4 +2195,9 @@ get_mod({muc_subscriptions, _}) -> p1_mucsub;
 get_mod({mix, _, _, _, _}) -> xep0369;
 get_mod({addresses, _}) -> xep0033;
 get_mod({ibb_data, _, _, _}) -> xep0047;
+get_mod({identity, _, _, _, _}) -> xep0030;
+get_mod({redirect, _}) -> rfc6120;
+get_mod({muc_history, _, _, _, _}) -> xep0045;
+get_mod({jingle_ft_file, _, _, _, _, _, _, _, _}) ->
+    xep0234;
 get_mod(Record) -> xmpp_codec_external:lookup(Record).

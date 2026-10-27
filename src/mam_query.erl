@@ -1,6 +1,6 @@
 %% Created automatically by xdata generator (xdata_codec.erl)
 %% Source: mam_query.xdata
-%% Form type: urn:xmpp:mam:1
+%% Form type: urn:xmpp:mam:2
 %% Document: XEP-0313
 
 -module(mam_query).
@@ -67,7 +67,13 @@
 -spec encode(form(), binary()) -> [xdata_field()].
 
 -spec encode(form(), binary(),
-             [with | start | 'end' | withtext]) -> [xdata_field()].
+             [with |
+              start |
+              'end' |
+              withtext |
+              'after-id' |
+              'before-id' |
+              ids]) -> [xdata_field()].
 
 dec_int(Val) -> dec_int(Val, infinity, infinity).
 
@@ -158,7 +164,7 @@ io_format_error({missing_required_var, Var, Type}) ->
      [Var, Type]}.
 
 decode(Fs) ->
-    decode(Fs, [<<"urn:xmpp:mam:1">>], [], []).
+    decode(Fs, [<<"urn:xmpp:mam:2">>], [], []).
 
 decode(Fs, XMLNSList) -> decode(Fs, XMLNSList, [], []).
 
@@ -197,11 +203,29 @@ encode(List, Lang, Required) ->
                   [encode_withtext(Val,
                                    Lang,
                                    lists:member(withtext, Required))];
+              {'after-id', Val} ->
+                  ['encode_after-id'(Val,
+                                     Lang,
+                                     lists:member('after-id', Required))];
+              {'before-id', Val} ->
+                  ['encode_before-id'(Val,
+                                      Lang,
+                                      lists:member('before-id', Required))];
+              {ids, Val} ->
+                  [encode_ids(Val,
+                              default,
+                              Lang,
+                              lists:member(ids, Required))];
+              {ids, Val, Opts} ->
+                  [encode_ids(Val,
+                              Opts,
+                              Lang,
+                              lists:member(ids, Required))];
               #xdata_field{} -> [Opt]
           end
           || Opt <- List],
     FormType = #xdata_field{var = <<"FORM_TYPE">>,
-                            type = hidden, values = [<<"urn:xmpp:mam:1">>]},
+                            type = hidden, values = [<<"urn:xmpp:mam:2">>]},
     [FormType | lists:flatten(Fs)].
 
 do_decode([#xdata_field{var = <<"with">>,
@@ -322,6 +346,81 @@ do_decode([#xdata_field{var = <<"withtext">>} | _],
           XMLNS, _, _) ->
     erlang:error({?MODULE,
                   {too_many_values, <<"withtext">>, XMLNS}});
+do_decode([#xdata_field{var = <<"after-id">>,
+                        values = [Value]}
+           | Fs],
+          XMLNS, Required, Acc) ->
+    try Value of
+        Result ->
+            do_decode(Fs,
+                      XMLNS,
+                      lists:delete(<<"after-id">>, Required),
+                      [{'after-id', Result} | Acc])
+    catch
+        _:_ ->
+            erlang:error({?MODULE,
+                          {bad_var_value, <<"after-id">>, XMLNS}})
+    end;
+do_decode([#xdata_field{var = <<"after-id">>,
+                        values = []} =
+               F
+           | Fs],
+          XMLNS, Required, Acc) ->
+    do_decode([F#xdata_field{var = <<"after-id">>,
+                             values = [<<>>]}
+               | Fs],
+              XMLNS,
+              Required,
+              Acc);
+do_decode([#xdata_field{var = <<"after-id">>} | _],
+          XMLNS, _, _) ->
+    erlang:error({?MODULE,
+                  {too_many_values, <<"after-id">>, XMLNS}});
+do_decode([#xdata_field{var = <<"before-id">>,
+                        values = [Value]}
+           | Fs],
+          XMLNS, Required, Acc) ->
+    try Value of
+        Result ->
+            do_decode(Fs,
+                      XMLNS,
+                      lists:delete(<<"before-id">>, Required),
+                      [{'before-id', Result} | Acc])
+    catch
+        _:_ ->
+            erlang:error({?MODULE,
+                          {bad_var_value, <<"before-id">>, XMLNS}})
+    end;
+do_decode([#xdata_field{var = <<"before-id">>,
+                        values = []} =
+               F
+           | Fs],
+          XMLNS, Required, Acc) ->
+    do_decode([F#xdata_field{var = <<"before-id">>,
+                             values = [<<>>]}
+               | Fs],
+              XMLNS,
+              Required,
+              Acc);
+do_decode([#xdata_field{var = <<"before-id">>} | _],
+          XMLNS, _, _) ->
+    erlang:error({?MODULE,
+                  {too_many_values, <<"before-id">>, XMLNS}});
+do_decode([#xdata_field{var = <<"ids">>,
+                        values = Values}
+           | Fs],
+          XMLNS, Required, Acc) ->
+    try [Value || Value <- Values] of
+        Result ->
+            do_decode(Fs,
+                      XMLNS,
+                      lists:delete(<<"ids">>, Required),
+                      [{ids, Result} | Acc])
+    catch
+        _:_ ->
+            erlang:error({?MODULE,
+                          {bad_var_value, <<"ids">>, XMLNS}})
+    end;
 do_decode([#xdata_field{var = Var} | Fs], XMLNS,
           Required, Acc) ->
     if Var /= <<"FORM_TYPE">> ->
@@ -389,3 +488,60 @@ encode_withtext(Value, Lang, IsRequired) ->
                  options = Opts, desc = <<>>,
                  label =
                      xmpp_tr:tr(Lang, ?T("Search the text (obsolete)"))}.
+
+-spec 'encode_after-id'(binary(), binary(),
+                        boolean()) -> xdata_field().
+
+'encode_after-id'(Value, Lang, IsRequired) ->
+    Values = case Value of
+                 <<>> -> [];
+                 Value -> [Value]
+             end,
+    Opts = [],
+    #xdata_field{var = <<"after-id">>, values = Values,
+                 required = IsRequired, type = 'text-single',
+                 options = Opts, desc = <<>>,
+                 label =
+                     xmpp_tr:tr(Lang, ?T("Only results after given id"))}.
+
+-spec 'encode_before-id'(binary(), binary(),
+                         boolean()) -> xdata_field().
+
+'encode_before-id'(Value, Lang, IsRequired) ->
+    Values = case Value of
+                 <<>> -> [];
+                 Value -> [Value]
+             end,
+    Opts = [],
+    #xdata_field{var = <<"before-id">>, values = Values,
+                 required = IsRequired, type = 'text-single',
+                 options = Opts, desc = <<>>,
+                 label =
+                     xmpp_tr:tr(Lang, ?T("Only results before given id"))}.
+
+-spec encode_ids([binary()],
+                 default | options(binary()), binary(),
+                 boolean()) -> xdata_field().
+
+encode_ids(Value, Options, Lang, IsRequired) ->
+    Values = case Value of
+                 [] -> [];
+                 Value -> Value
+             end,
+    Opts = if Options == default -> [];
+              true ->
+                  [#xdata_option{label = xmpp_tr:tr(Lang, L), value = V}
+                   || {L, V} <- Options]
+           end,
+    #xdata_field{var = <<"ids">>, values = Values,
+                 required = IsRequired, type = 'list-multi',
+                 options = Opts, desc = <<>>,
+                 label =
+                     xmpp_tr:tr(Lang, ?T("List of stanza ids to retrieve")),
+                 sub_els =
+                     [{xmlel,
+                       <<"validate">>,
+                       [{<<"xmlns">>,
+                         <<"http://jabber.org/protocol/xdata-validate">>},
+                        {<<"datatype">>, <<"xs:string">>}],
+                       [{xmlcdata, <<>>}, {xmlel, <<"open">>, [], []}]}]}.
