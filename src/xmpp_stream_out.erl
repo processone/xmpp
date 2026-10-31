@@ -1261,8 +1261,7 @@ a_lookup([{Addr, Port, TLS}|HostPorts], State, Acc, Err)
   when is_tuple(Addr) ->
     a_lookup([{inet:ntoa(Addr), Port, TLS}|HostPorts], State, Acc, Err);
 a_lookup([{Host, Port, TLS}|HostPorts], State, Acc, Err) ->
-    Retries = get_dns_retries(State),
-    case a_lookup(Host, Port, TLS, State, Retries) of
+    case a_lookup(Host, Port, TLS) of
 	{error, Reason} ->
 	    a_lookup(HostPorts, State, Acc, {error, Reason});
 	{ok, AddrPorts} ->
@@ -1273,24 +1272,14 @@ a_lookup([], _State, [], Err) ->
 a_lookup([], _State, Acc, _) ->
     {ok, Acc}.
 
--spec a_lookup(inet:hostname(), inet:port_number(), boolean(),
-	       state(), integer()) -> {ok, [addr_info()]} | network_error().
-a_lookup(_Host, _Port, _TLS, _State, Retries) when Retries < 1 ->
-    {error, timeout};
-a_lookup(Host, Port, TLS, State, Retries) ->
-    Timeout = get_dns_timeout(State),
-    Start = current_time(),
+-spec a_lookup(inet:hostname(), inet:port_number(), boolean())
+      -> {ok, [addr_info()]} | network_error().
+a_lookup(Host, Port, TLS) ->
     case net:getaddrinfo(Host, integer_to_list(Port)) of
-	{error, nxdomain} = Err ->
-	    %% net:getaddrinfo/2 doesn't return {error, timeout},
-	    %% so we should check if 'nxdomain' is in fact a result
-	    %% of a timeout.
-	    End = current_time(),
-	    if (End - Start) >= Timeout ->
-		    a_lookup(Host, Port, TLS, State, Retries - 1);
-	       true ->
-		    Err
-	    end;
+	{error, eagain} ->
+	    {error, timeout};
+	{error, enoname} ->
+	    {error, nxdomain};
 	{error, _} = Err ->
 	    Err;
 	{ok, AddressInfos} ->
