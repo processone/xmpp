@@ -1249,7 +1249,7 @@ do_srv_lookup(SRVName, State, Retries) ->
 -ifndef(USE_GETHOSTBYNAME).
 % New getaddrinfo based lookups (getaddrinfo available in OTP 22, but connect(SockAddr, ...) introduced in OTP 24.3)
 -spec a_lookup([host_port()], state()) ->
-		      {ok, [addr_info()]} | network_error().
+		      {ok, [ip_port()]} | {ok, [addr_info()]} | network_error().
 a_lookup(HostPorts, State) ->
     case application:get_env(xmpp, use_gethostbyname, false) of
         false ->
@@ -1307,6 +1307,8 @@ a_lookup_gai(Host, Port, TLS, State, Retries) ->
         {ok, FilteredAddressInfos}
     end.
 -else.
+-spec a_lookup([host_port()], state()) ->
+		      {ok, ip_port()} | {ok, [addr_info()]} | network_error().
 a_lookup(HostPorts, State) ->
     a_lookup_ghbn(HostPorts, State).
 -endif.
