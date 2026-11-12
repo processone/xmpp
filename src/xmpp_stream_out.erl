@@ -620,13 +620,13 @@ process_features(StreamFeatures,
 	    TLSRequired = is_starttls_required(State1),
 	    TLSAvailable = is_starttls_available(State1),
 	    try xmpp:try_subtag(StreamFeatures, #starttls{}) of
-		false when TLSRequired and not Encrypted ->
+		false when TLSRequired andalso not Encrypted ->
 		    Txt = <<"Use of STARTTLS required">>,
 		    send_pkt(State1, xmpp:serr_policy_violation(Txt, Lang));
-		#starttls{required = true} when not TLSAvailable and not Encrypted ->
+		#starttls{required = true} when not TLSAvailable andalso not Encrypted ->
 		    Txt = <<"STARTTLS is disabled in local configuration">>,
 		    send_pkt(State1, xmpp:serr_unsupported_feature(Txt, Lang));
-		#starttls{} when TLSAvailable and not Encrypted ->
+		#starttls{} when TLSAvailable andalso not Encrypted ->
 		    State2 = State1#{stream_state => wait_for_starttls_response},
 		    send_pkt(State2, #starttls{});
 		_ ->
@@ -725,7 +725,7 @@ process_stream_downgrade(StreamStart,
 			 #{lang := Lang,
 			   stream_encrypted := Encrypted} = State) ->
     TLSRequired = is_starttls_required(State),
-    if not Encrypted and TLSRequired ->
+    if not Encrypted andalso TLSRequired ->
 	    Txt = <<"Use of STARTTLS required">>,
 	    send_pkt(State, xmpp:serr_policy_violation(Txt, Lang));
        true ->
@@ -1137,7 +1137,7 @@ idna_to_ascii(<<$[, _/binary>> = Host) ->
     %% We remove brackets here
     case binary:last(Host) of
 	$] ->
-	    IPv6 = binary_to_list(binary:part(Host, {1, size(Host)-2})),
+	    IPv6 = binary_to_list(binary:part(Host, {1, byte_size(Host)-2})),
 	    case inet:parse_ipv6strict_address(IPv6) of
 		{ok, _} -> IPv6;
 		{error, _} -> false
@@ -1246,38 +1246,47 @@ do_srv_lookup(SRVName, State, Retries) ->
 	{error, nxdomain}
     end.
 
-
 -ifndef(USE_GETHOSTBYNAME).
 % New getaddrinfo based lookups (getaddrinfo available in OTP 22, but connect(SockAddr, ...) introduced in OTP 24.3)
 -spec a_lookup([host_port()], state()) ->
 		      {ok, [addr_info()]} | network_error().
 a_lookup(HostPorts, State) ->
-    a_lookup(HostPorts, State, [], {error, nxdomain}).
+    case application:get_env(xmpp, use_gethostbyname, false) of
+        false ->
+            a_lookup_gai(HostPorts, State);
+        _ ->
+            a_lookup_ghbn(HostPorts, State)
+    end.
 
--spec a_lookup([{inet:hostname() | inet:ip_address(), inet:port_number(),
+-spec a_lookup_gai([host_port()], state()) ->
+		      {ok, [addr_info()]} | network_error().
+a_lookup_gai(HostPorts, State) ->
+    a_lookup_gai(HostPorts, State, [], {error, nxdomain}).
+
+-spec a_lookup_gai([{inet:hostname() | inet:ip_address(), inet:port_number(),
 		 boolean()}],
 	       state(), [addr_info()], network_error()) -> {ok, [addr_info()]} | network_error().
-a_lookup([{Addr, Port, TLS}|HostPorts], State, Acc, Err)
+a_lookup_gai([{Addr, Port, TLS}|HostPorts], State, Acc, Err)
   when is_tuple(Addr) ->
-    a_lookup([{inet:ntoa(Addr), Port, TLS}|HostPorts], State, Acc, Err);
-a_lookup([{Host, Port, TLS}|HostPorts], State, Acc, Err) ->
+    a_lookup_gai([{inet:ntoa(Addr), Port, TLS}|HostPorts], State, Acc, Err);
+a_lookup_gai([{Host, Port, TLS}|HostPorts], State, Acc, Err) ->
     Retries = get_dns_retries(State),
-    case a_lookup(Host, Port, TLS, State, Retries) of
+    case a_lookup_gai(Host, Port, TLS, State, Retries) of
 	{error, Reason} ->
-	    a_lookup(HostPorts, State, Acc, {error, Reason});
+	    a_lookup_gai(HostPorts, State, Acc, {error, Reason});
 	{ok, AddrPorts} ->
-	    a_lookup(HostPorts, State, Acc ++ AddrPorts, Err)
+	    a_lookup_gai(HostPorts, State, Acc ++ AddrPorts, Err)
     end;
-a_lookup([], _State, [], Err) ->
+a_lookup_gai([], _State, [], Err) ->
     Err;
-a_lookup([], _State, Acc, _) ->
+a_lookup_gai([], _State, Acc, _) ->
     {ok, Acc}.
 
--spec a_lookup(inet:hostname(), inet:port_number(), boolean(),
+-spec a_lookup_gai(inet:hostname(), inet:port_number(), boolean(),
 	       state(), integer()) -> {ok, [addr_info()]} | network_error().
-a_lookup(_Host, _Port, _TLS, _State, Retries) when Retries < 1 ->
+a_lookup_gai(_Host, _Port, _TLS, _State, Retries) when Retries < 1 ->
     {error, timeout};
-a_lookup(Host, Port, TLS, State, Retries) ->
+a_lookup_gai(Host, Port, TLS, State, Retries) ->
     Timeout = get_dns_timeout(State),
     Start = current_time(),
     case net:getaddrinfo(Host, integer_to_list(Port)) of
@@ -1287,7 +1296,7 @@ a_lookup(Host, Port, TLS, State, Retries) ->
 	    %% of a timeout.
 	    End = current_time(),
 	    if (End - Start) >= Timeout ->
-		    a_lookup(Host, Port, TLS, State, Retries - 1);
+		    a_lookup_gai(Host, Port, TLS, State, Retries - 1);
 	       true ->
 		    Err
 	    end;
@@ -1297,21 +1306,24 @@ a_lookup(Host, Port, TLS, State, Retries) ->
         FilteredAddressInfos  = [{Addr, TLSVal} || #{protocol := Protocol} = Addr <- AddressInfos, TLSVal <- [TLS], Protocol == tcp],
         {ok, FilteredAddressInfos}
     end.
-
 -else.
-% Old gethostbyname lookups
--spec a_lookup([host_port()], state()) ->
-		      {ok, [ip_port()]} | network_error().
 a_lookup(HostPorts, State) ->
+    a_lookup_ghbn(HostPorts, State).
+-endif.
+
+% Old gethostbyname lookups
+-spec a_lookup_ghbn([host_port()], state()) ->
+		      {ok, [ip_port()]} | network_error().
+a_lookup_ghbn(HostPorts, State) ->
     HostPortFamilies = [{Host, Port, TLS, Family}
 			|| {Host, Port, TLS} <- HostPorts,
 			   Family <- get_address_families(State)],
-    a_lookup(HostPortFamilies, State, [], {error, nxdomain}).
+    a_lookup_ghbn(HostPortFamilies, State, [], {error, nxdomain}).
 
--spec a_lookup([{inet:hostname() | inet:ip_address(), inet:port_number(),
+-spec a_lookup_ghbn([{inet:hostname() | inet:ip_address(), inet:port_number(),
 		 boolean(), inet:address_family()}],
 	       state(), [ip_port()], network_error()) -> {ok, [ip_port()]} | network_error().
-a_lookup([{Addr, Port, TLS, Family}|HostPortFamilies], State, Acc, Err)
+a_lookup_ghbn([{Addr, Port, TLS, Family}|HostPortFamilies], State, Acc, Err)
   when is_tuple(Addr) ->
     Acc1 = if tuple_size(Addr) == 4 andalso Family == inet ->
 		   [{Addr, Port, TLS}|Acc];
@@ -1320,25 +1332,25 @@ a_lookup([{Addr, Port, TLS, Family}|HostPortFamilies], State, Acc, Err)
 	      true ->
 		   Acc
 	   end,
-    a_lookup(HostPortFamilies, State, Acc1, Err);
-a_lookup([{Host, Port, TLS, Family}|HostPortFamilies], State, Acc, Err) ->
+    a_lookup_ghbn(HostPortFamilies, State, Acc1, Err);
+a_lookup_ghbn([{Host, Port, TLS, Family}|HostPortFamilies], State, Acc, Err) ->
     Retries = get_dns_retries(State),
-    case a_lookup(Host, Port, TLS, Family, State, Retries) of
+    case a_lookup_ghbn(Host, Port, TLS, Family, State, Retries) of
 	{error, Reason} ->
-	    a_lookup(HostPortFamilies, State, Acc, {error, Reason});
+	    a_lookup_ghbn(HostPortFamilies, State, Acc, {error, Reason});
 	{ok, AddrPorts} ->
-	    a_lookup(HostPortFamilies, State, Acc ++ AddrPorts, Err)
+	    a_lookup_ghbn(HostPortFamilies, State, Acc ++ AddrPorts, Err)
     end;
-a_lookup([], _State, [], Err) ->
+a_lookup_ghbn([], _State, [], Err) ->
     Err;
-a_lookup([], _State, Acc, _) ->
+a_lookup_ghbn([], _State, Acc, _) ->
     {ok, Acc}.
 
--spec a_lookup(inet:hostname(), inet:port_number(), boolean(), inet:address_family(),
+-spec a_lookup_ghbn(inet:hostname(), inet:port_number(), boolean(), inet:address_family(),
 	       state(), integer()) -> {ok, [ip_port()]} | network_error().
-a_lookup(_Host, _Port, _TLS, _Family, _State, Retries) when Retries < 1 ->
+a_lookup_ghbn(_Host, _Port, _TLS, _Family, _State, Retries) when Retries < 1 ->
     {error, timeout};
-a_lookup(Host, Port, TLS, Family, State, Retries) ->
+a_lookup_ghbn(Host, Port, TLS, Family, State, Retries) ->
     Timeout = get_dns_timeout(State),
     Start = current_time(),
     case inet:gethostbyname(Host, Family, Timeout) of
@@ -1350,7 +1362,7 @@ a_lookup(Host, Port, TLS, Family, State, Retries) ->
 	    %% it ignores DNS configuration settings (e.g. /etc/hosts)
 	    End = current_time(),
 	    if (End - Start) >= Timeout ->
-		    a_lookup(Host, Port, TLS, Family, State, Retries - 1);
+		    a_lookup_ghbn(Host, Port, TLS, Family, State, Retries - 1);
 	       true ->
 		    Err
 	    end;
@@ -1375,7 +1387,6 @@ host_entry_to_addr_ports(#hostent{h_addr_list = AddrList}, Port, TLS) ->
 	[] -> {error, nxdomain};
 	_ -> {ok, AddrPorts}
     end.
--endif.
 
 -spec h_addr_list_to_host_ports(h_addr_list()) -> {ok, [host_port(),...]} |
 						  {error, nxdomain}.
@@ -1420,8 +1431,7 @@ connect(AddrPorts, State) ->
             {error, {socket, Why}}
     end.
 
--ifndef(USE_GETHOSTBYNAME).
--spec connect([addr_info()], state(), network_error()) ->
+-spec connect([ip_port() | addr_info()], state(), network_error()) ->
 		     {ok, term(), ip_port(), [addr_info()]} | network_error().
 connect([{#{family := Type, addr := SockAddr}, TLS}|AddressInfos], State, _) ->
     #{addr := Addr, port := Port} = SockAddr,
@@ -1441,11 +1451,6 @@ connect([{#{family := Type, addr := SockAddr}, TLS}|AddressInfos], State, _) ->
     catch _:badarg ->
 	    connect(AddressInfos, State, {error, einval})
     end;
-connect([], _State, Err) ->
-    Err.
--else.
--spec connect([ip_port()], state(), network_error()) ->
-		     {ok, term(), ip_port(), [ip_port()]} | network_error().
 connect([{Addr, Port, TLS}|AddrPorts], State, _) ->
     Type = get_addr_type(Addr),
     Opts = [binary, {packet, 0},
@@ -1470,7 +1475,6 @@ connect([], _State, Err) ->
 -spec get_addr_type(inet:ip_address()) -> inet:address_family().
 get_addr_type({_, _, _, _}) -> inet;
 get_addr_type({_, _, _, _, _, _, _, _}) -> inet6.
--endif.
 
 -spec get_dns_timeout(state()) -> timeout().
 get_dns_timeout(State) ->
@@ -1492,13 +1496,11 @@ get_default_port(#{xmlns := NS} = State) ->
 	  _:{?MODULE, undef} when NS == ?NS_CLIENT -> 5222
     end.
 
--ifdef(USE_GETHOSTBYNAME).
 -spec get_address_families(state()) -> [inet:address_family()].
 get_address_families(State) ->
     try callback(address_families, State)
     catch _:{?MODULE, undef} -> [inet, inet6]
     end.
--endif.
 
 -spec get_connect_timeout(state()) -> timeout().
 get_connect_timeout(State) ->
