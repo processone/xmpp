@@ -20,7 +20,7 @@
 -module(xmpp_config).
 
 %% API
--export([debug/1, fqdn/1]).
+-export([debug/1, fqdn/1, anonymous_username/1]).
 
 %%%===================================================================
 %%% API
@@ -28,6 +28,10 @@
 -spec fqdn(any()) -> {ok, [binary()]}.
 fqdn(_) ->
     {ok, []}.
+
+-spec anonymous_username(any()) -> {ok, undefined | {binary(), pos_integer()}}.
+anonymous_username(_) ->
+    {ok, undefined}.
 
 -spec debug(any()) -> {ok, boolean()}.
 debug(_) ->

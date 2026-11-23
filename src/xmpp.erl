@@ -104,7 +104,8 @@
 -type reason_text() :: binary() | {io:format(), list()}.
 -type lang() :: binary().
 -type decode_option() :: ignore_els.
--type config_option() :: {debug, boolean()} | {fqdn, [binary()]}.
+-type config_option() :: {debug, boolean()} | {fqdn, [binary()]} |
+			 {anonymous_username, undefined | {binary(), pos_integer()}}.
 
 -export_type([decode_option/0, config_option/0]).
 
@@ -119,6 +120,7 @@ start(_StartType, _StartArgs) ->
 	p1_options:start_link(xmpp_config),
 	p1_options:insert(xmpp_config, debug, global, false),
 	p1_options:insert(xmpp_config, fqdn, global, []),
+	p1_options:insert(xmpp_config, anonymous_username, global, undefined),
 	xmpp_sup:start_link()
     catch _:{badmatch, Err} ->
 	    Err
@@ -629,6 +631,11 @@ set_config(Options) ->
 		  false ->
 		      erlang:error(badarg)
 	      end;
+	 ({anonymous_username, undefined}) ->
+	      p1_options:insert(xmpp_config, anonymous_username, global, undefined);
+	 ({anonymous_username, {Prefix, Hex}})
+	    when is_binary(Prefix), is_integer(Hex), Hex > 0 ->
+	      p1_options:insert(xmpp_config, anonymous_username, global, {Prefix, Hex});
 	 (_) ->
 	      erlang:error(badarg)
       end, Options),
@@ -638,7 +645,8 @@ set_config(Options) ->
 get_config() ->
     {ok, Debug} = xmpp_config:debug(global),
     {ok, Domains} = xmpp_config:fqdn(global),
-    [{debug, Debug}, {fqdn, Domains}].
+    {ok, AnonymousUsername} = xmpp_config:anonymous_username(global),
+    [{debug, Debug}, {fqdn, Domains}, {anonymous_username, AnonymousUsername}].
 
 %%%===================================================================
 %%% Functions to construct general XMPP errors
