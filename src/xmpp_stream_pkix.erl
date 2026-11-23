@@ -88,9 +88,7 @@ format_error(Other) ->
 -spec get_cert_domains(cert()) -> [binary()].
 get_cert_domains(Cert) ->
     TBSCert = Cert#'OTPCertificate'.tbsCertificate,
-    {rdnSequence, Subject} = TBSCert#'OTPTBSCertificate'.subject,
     Extensions = TBSCert#'OTPTBSCertificate'.extensions,
-    get_domain_from_subject(lists:flatten(Subject)) ++
 	get_domains_from_san(Extensions).
 
 %%%===================================================================
@@ -134,24 +132,6 @@ verify_cert(Socket) ->
 	    {error, get_cert_failed}
     end.
 
--spec get_domain_from_subject([#'AttributeTypeAndValue'{}]) -> [binary()].
-get_domain_from_subject(AttrVals) ->
-    case lists:keyfind(?'id-at-commonName',
-		       #'AttributeTypeAndValue'.type,
-		       AttrVals) of
-	#'AttributeTypeAndValue'{value = {_, S}} ->
-	    try jid:decode(iolist_to_binary(S)) of
-		#jid{luser = <<"">>, lresource = <<"">>, lserver = Domain} ->
-		    [Domain];
-		_ ->
-		    []
-	    catch _:{bad_jid, _} ->
-		    []
-	    end;
-	_ ->
-	    []
-    end.
-
 -spec get_domains_from_san([#'Extension'{}] | asn1_NOVALUE) -> [binary()].
 get_domains_from_san(Extensions) when is_list(Extensions) ->
     case lists:keyfind(?'id-ce-subjectAltName',
@@ -189,7 +169,7 @@ get_domains_from_san(_) ->
 
 -spec decode_xmpp_addr({atom(), any(), any()}) -> {ok, jid()} | error.
 decode_xmpp_addr({Record, ?'id-on-xmppAddr', XmppAddr})
-  when (Record == 'AnotherName') or (Record == 'INSTANCE OF') ->
+  when (Record == 'AnotherName') orelse (Record == 'INSTANCE OF') ->
     try 'XmppAddr':decode('XmppAddr', XmppAddr) of
 	{ok, JIDStr} ->
 	    try {ok, jid:decode(iolist_to_binary(JIDStr))}
