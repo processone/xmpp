@@ -45,6 +45,10 @@
 -endif.
 
 -include("xmpp.hrl").
+
+%% SASL2 mechanisms offered to a client stream that names no user
+-define(SASL2_NO_USER_MECHS, [<<"ANONYMOUS">>]).
+
 -type state() :: #{owner := pid(),
 		   mod := module(),
 		   socket := xmpp_socket:socket(),
@@ -667,6 +671,10 @@ process_stream(#stream_start{to = #jid{server = Server, lserver = LServer},
 		 #jid{luser = LUser}
 		     when NS == ?NS_CLIENT, LUser /= <<>> ->
 		     State1#{sasl2_stream_from => From};
+		 _ when NS == ?NS_CLIENT ->
+		     %% No user named: offer SASL2 with the mechanisms that
+		     %% need no stored credentials of a user (XEP-0388)
+		     State1#{sasl2_stream_from => undefined};
 		 _ ->
 		     State1
 	     end,
@@ -1105,8 +1113,13 @@ process_sasl2_request(#sasl2_authenticate{mechanism = Mech, initial_response = C
 		 _ ->
 		     State#{sasl_mech => Mech}
 	     end,
-    FastMechs = try callback(fast_mechanisms, State)
-		catch _:{?MODULE, undef} -> []
+    FastMechs = case State of
+		    #{sasl2_stream_from := #jid{}} ->
+			try callback(fast_mechanisms, State)
+			catch _:{?MODULE, undef} -> []
+			end;
+		    _ ->
+			[]
 		end,
     {Mechs, PlusDisabled} = get_sasl_mechanisms(State1, sasl2),
     MechsAll = Mechs ++ FastMechs,
@@ -1174,8 +1187,12 @@ process_sasl2_result({error, Reason, User}, State) ->
 process_sasl2_success(Props, ServerOut,
 		     #{sasl_mech := Mech,
 		       sasl2_inline_els := InlineEls,
-		       sasl2_stream_from := #jid{luser = InitUser}} = State) ->
+		       sasl2_stream_from := From} = State) ->
     User = identity(Props),
+    InitUser = case From of
+		   #jid{luser = U} -> U;
+		   undefined -> User
+	       end,
     if InitUser /= User ->
 	process_sasl2_failure(not_authorized, User, State);
 	true ->
@@ -1376,12 +1393,18 @@ send_features(#{stream_version := {1,0},
 	    case {Encrypted, Sasl2, AllowUnencryptedSasl2, TLSAvailable} of
 		{false, true, true, true} ->
 		    St = prepare_password_fun_sasl2(State2),
-		    {get_tls_feature(St) ++ get_sasl2_feature(St), St};
-		{_, true, _, _} when Encrypted; AllowUnencryptedSasl2 ->
-		    St = prepare_password_fun_sasl2(State2),
-		    {get_sasl2_feature(St), St};
+		    case get_sasl2_feature(St) of
+			[] -> {get_tls_feature(St), disable_sasl2(St)};
+			F -> {get_tls_feature(St) ++ F, St}
+		    end;
 		{false, true, false, false} ->
 		    {[], disable_sasl2(State2)};
+		{_, true, _, _} when Encrypted; AllowUnencryptedSasl2 ->
+		    St = prepare_password_fun_sasl2(State2),
+		    case get_sasl2_feature(St) of
+			[] -> {[], disable_sasl2(St)};
+			F -> {F, St}
+		    end;
 		{false, _, _, true} ->
 		    {get_tls_feature(State2), State2};
 		_ ->
@@ -1421,7 +1444,9 @@ prepare_password_fun_sasl2(#{sasl2_stream_from := #jid{luser = User}} = State) -
 		  fun(_) -> Res end
 	  catch _:{?MODULE, undef} -> fun(_) -> {false, undefined} end
 	  end,
-    State#{sasl2_password_fun => Fun}.
+    State#{sasl2_password_fun => Fun};
+prepare_password_fun_sasl2(State) ->
+    State#{sasl2_password_fun => fun(_) -> {false, undefined} end}.
 
 -spec get_password_fun_sasl2(xmpp_sasl:mechanism(), state()) -> fun().
 get_password_fun_sasl2(_Mech, #{sasl2_password_fun := Fun}) ->
@@ -1478,6 +1503,8 @@ pass_to_mech(#scram{hash = sha512}, Acc) -> [<<"SCRAM-SHA-512">>, <<"SCRAM-SHA-5
 pass_to_mech(List, Acc) when is_list(List) ->
     lists:foldl(fun pass_to_mech/2, Acc, List).
 
+filter_sasl2_user_mechs(Mechs, PlusDisabled, #{sasl2_stream_from := undefined}) ->
+    {[M || M <- Mechs, lists:member(M, ?SASL2_NO_USER_MECHS)], PlusDisabled};
 filter_sasl2_user_mechs(Mechs, PlusDisabled, State) ->
     {Pass, _} = (get_password_fun_sasl2(<<>>, State))(<<>>),
     case pass_to_mech(Pass, []) of
@@ -1519,9 +1546,20 @@ get_sasl_feature(_) ->
     [].
 
 -spec get_sasl2_feature(state()) -> [sasl2_authenticaton() | sasl_channel_binding()].
+get_sasl2_feature(#{stream_authenticated := false,
+		    sasl2_stream_from := undefined} = State) ->
+    case get_sasl_mechanisms(State, sasl2) of
+	{[], _} -> [];
+	{Mechs, _} -> get_sasl2_feature(Mechs, State)
+    end;
 get_sasl2_feature(#{stream_authenticated := false} = State) ->
     {Mechs, _} = get_sasl_mechanisms(State, sasl2),
+    get_sasl2_feature(Mechs, State);
+get_sasl2_feature(_) ->
+    [].
 
+-spec get_sasl2_feature([xmpp_sasl:mechanism()], state()) -> [sasl2_authenticaton()].
+get_sasl2_feature(Mechs, State) ->
     {SASL2Features, Bind2Features, ExtraFeatures} =
     try callback(inline_stream_features, State)
     catch _:{?MODULE, undef} ->
@@ -1529,9 +1567,7 @@ get_sasl2_feature(#{stream_authenticated := false} = State) ->
     end,
 
     BindFeature = #bind2_bind{inline = Bind2Features},
-    [#sasl2_authenticaton{mechanisms = Mechs, inline = [BindFeature | SASL2Features], sub_els = ExtraFeatures}];
-get_sasl2_feature(_) ->
-    [].
+    [#sasl2_authenticaton{mechanisms = Mechs, inline = [BindFeature | SASL2Features], sub_els = ExtraFeatures}].
 
 -spec get_compress_feature(state()) -> [compression()].
 get_compress_feature(#{stream_compressed := false,
