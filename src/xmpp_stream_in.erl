@@ -45,10 +45,6 @@
 -endif.
 
 -include("xmpp.hrl").
-
-%% SASL2 mechanisms offered to a client stream that names no user
--define(SASL2_NO_USER_MECHS, [<<"ANONYMOUS">>]).
-
 -type state() :: #{owner := pid(),
 		   mod := module(),
 		   socket := xmpp_socket:socket(),
@@ -672,8 +668,8 @@ process_stream(#stream_start{to = #jid{server = Server, lserver = LServer},
 		     when NS == ?NS_CLIENT, LUser /= <<>> ->
 		     State1#{sasl2_stream_from => From};
 		 _ when NS == ?NS_CLIENT ->
-		     %% No user named: offer SASL2 with the mechanisms that
-		     %% need no stored credentials of a user (XEP-0388)
+		     %% No user named: offer SASL2 with the mechanisms of
+		     %% SASL, the user coming from the mechanism
 		     State1#{sasl2_stream_from => undefined};
 		 _ ->
 		     State1
@@ -1449,6 +1445,9 @@ prepare_password_fun_sasl2(State) ->
     State#{sasl2_password_fun => fun(_) -> {false, undefined} end}.
 
 -spec get_password_fun_sasl2(xmpp_sasl:mechanism(), state()) -> fun().
+get_password_fun_sasl2(Mech, #{sasl2_stream_from := undefined} = State) ->
+    %% No user named: look up the one the mechanism names, as SASL does
+    get_password_fun(Mech, State);
 get_password_fun_sasl2(_Mech, #{sasl2_password_fun := Fun}) ->
     Fun.
 
@@ -1471,6 +1470,10 @@ get_fast_tokens_fun(Mech, State) ->
     end.
 
 -spec get_sasl_mechanisms(state(), sasl | sasl2) -> {[xmpp_sasl:mechanism()], boolean()}.
+get_sasl_mechanisms(#{sasl2_stream_from := undefined} = State, sasl2) ->
+    %% No user named, whose stored credentials could pick the mechanisms:
+    %% offer those of SASL
+    get_sasl_mechanisms(State, sasl);
 get_sasl_mechanisms(#{stream_encrypted := Encrypted,
 		      xmlns := NS} = State, Type) ->
     Mechs = if NS == ?NS_CLIENT -> xmpp_sasl:listmech();
@@ -1503,8 +1506,6 @@ pass_to_mech(#scram{hash = sha512}, Acc) -> [<<"SCRAM-SHA-512">>, <<"SCRAM-SHA-5
 pass_to_mech(List, Acc) when is_list(List) ->
     lists:foldl(fun pass_to_mech/2, Acc, List).
 
-filter_sasl2_user_mechs(Mechs, PlusDisabled, #{sasl2_stream_from := undefined}) ->
-    {[M || M <- Mechs, lists:member(M, ?SASL2_NO_USER_MECHS)], PlusDisabled};
 filter_sasl2_user_mechs(Mechs, PlusDisabled, State) ->
     {Pass, _} = (get_password_fun_sasl2(<<>>, State))(<<>>),
     case pass_to_mech(Pass, []) of
